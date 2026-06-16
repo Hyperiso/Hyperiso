@@ -16,6 +16,7 @@
 #include "HyperisoMaster.h"
 #include "IParamSetter.h"
 #include "IWilsonParameters.h"
+#include "IMartyWilsonPathProxy.h"
 
 /**
  * @file WilsonManager.h
@@ -89,11 +90,12 @@ struct WilsonPortsConfig {
      */
     WilsonPortsConfig(std::shared_ptr<IBlockComposer> iblock_c, std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy, 
                     std::shared_ptr<ICoreAPI<bool>> use_marty, std::shared_ptr<ICoreAPI<bool>> has_wilson, std::shared_ptr<ICoreAPI<Model>> model_api, 
-                    std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api, std::shared_ptr<ICoreAPI<bool>> hard_coded_lo) :
+                    std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api, std::shared_ptr<ICoreAPI<bool>> hard_coded_lo,
+                    std::shared_ptr<IMartyWilsonPathProxy> marty_paths = nullptr) :
         iblock_c(iblock_c), wilson_proxy(wilson_proxy), 
         use_marty(use_marty), has_wilson(has_wilson),
         model_api(model_api), scale_setter_api(scale_setter_api),
-        hard_coded_lo(hard_coded_lo) {}
+        hard_coded_lo(hard_coded_lo), marty_paths(marty_paths) {}
 
     /// Dependency engine used to compose derived blocks/parameters.
     std::shared_ptr<IBlockComposer> iblock_c;
@@ -115,6 +117,10 @@ struct WilsonPortsConfig {
 
     // Choice of SM Marty mixed-order
     std::shared_ptr<ICoreAPI<bool>> hard_coded_lo;
+
+    /// Path provider for MARTY-generated Wilson CSV files.
+    std::shared_ptr<IMartyWilsonPathProxy> marty_paths;
+
     /**
      * @brief Optional group builder hook.
      *

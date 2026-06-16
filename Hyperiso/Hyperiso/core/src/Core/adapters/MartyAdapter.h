@@ -1,89 +1,44 @@
 #ifndef MARTYADAPTER_H
 #define MARTYADAPTER_H
 
+#include <optional>
+#include <string>
+
 #include "IMonitor.h"
 #include "IPathProvider.h"
+#include "IMartyPathAdapter.h"
 #include "MemoryManager.h"
-#include "DefaultPathsProvider.h"
 
 /**
  * @file MartyAdapter.h
- * @brief Adapter giving access to MARTY-related configuration and internal flags.
+ * @brief Core-side adapter giving MARTY access to configuration and managed paths.
  *
- * This header declares MartyAdapter, a small helper that:
- *  - monitors internal flags via IMonitor<InternalFlag>,
- *  - exposes MARTY-related filesystem paths via IPathProvider<MartyPath>,
- *  - provides access to the configured MARTY model name.
+ * MartyAdapter is allowed to depend on MemoryManager. MARTY-interface code should
+ * not depend on MemoryManager directly; it should use MartyPathProxy instead.
  */
-
- /**
- * @enum MartyPath
- * @brief Enumerates MARTY-related filesystem resources.
- *
- * - MODEL_FILE: path to the MARTY model header file (e.g. `<Model>.h`).
- * - TEMPLATE_DIR: path to a directory of MARTY templates.
- * - PARAM_MAPPING_DIR: path to parameter-mapping files used by MARTY.
- */
-enum class MartyPath {
-    MODEL_FILE,         ///< Path to the MARTY model header file.
-    TEMPLATE_DIR,       ///< Path to the directory containing MARTY templates.
-    PARAM_MAPPING_DIR,  ///< Path to the directory containing parameter mappings.
-};
-
-/**
- * @class MartyAdapter
- * @ingroup MonitoringSystemModule
- * @brief Adapter providing access to MARTY-specific configuration paths and flags.
- *
- * Responsibilities:
- *  - Provide filesystem paths to various MARTY resources using IPathProvider<MartyPath>.
- *  - Expose the state of internal flags via IMonitor<InternalFlag>.
- *  - Give access to the configured MARTY model name, if any.
- *
- * Typical use:
- * @code
- *   MartyAdapter m;
- *   auto model_path = m.get_path(MartyPath::MODEL_FILE);
- *   bool params_changed = m.check_flag(InternalFlag::PARAMS_CHANGED);
- *   std::string model_name = m.get_marty_model_name();
- * @endcode
- *
- * Internally, it uses MemoryManager::getMemoryCache() and the configured IPathsProvider.
- */
-class MartyAdapter : public IMonitor<InternalFlag>, IPathProvider<MartyPath> {
+class MartyAdapter : public IMonitor<InternalFlag>, public IPathProvider<MartyPath>, public IMartyPathAdapter {
 public:
-
     /**
-     * @brief Retrieves the path to a specific MARTY-related resource.
-     *
-     * The mapping between MartyPath and actual filesystem paths is typically
-     * provided by an implementation of IPathsProvider (e.g., DefaultPathsProvider),
-     * queried through MemoryManager.
-     *
-     * @param path_name The MARTY resource to retrieve.
-     * @return Filesystem path to the requested resource.
+     * @brief Retrieves a required MARTY-related path.
      */
     fs::path get_path(MartyPath path_name) override;
 
     /**
+     * @brief Retrieves an optional MARTY-related path.
+     *
+     * Currently used for the user-provided BSM mapping JSON.
+     */
+    std::optional<fs::path> get_optional_path(MartyPath path_name) override;
+
+    /**
      * @brief Checks the status of a specific internal flag.
-     *
-     * Delegates to MemoryManager::getMemoryCache().flags.
-     *
-     * @param flag The flag to check.
-     * @return True if active, false otherwise.
      */
     bool check_flag(InternalFlag flag) override;
 
     /**
-     * @brief Retrieves the name of the MARTY model currently configured.
-     *
-     * Typically comes from HyperisoConfig::mty_model_name stored in MemoryManager's cache.
-     *
-     * @return The name of the MARTY model, or an empty string if not set.
+     * @brief Retrieves the configured MARTY model name.
      */
     std::string get_marty_model_name() const;
 };
-
 
 #endif // MARTYADAPTER_H

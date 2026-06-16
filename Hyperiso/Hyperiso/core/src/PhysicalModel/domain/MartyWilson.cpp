@@ -9,7 +9,6 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
 
     std::string name = this->get_name();
 
-    std::string csv_relative_path = "/MartyTemp/" + this->get_model() + "_wilson.csv";
     std::string csv_path = config.csv_path;
     std::string marty_model = config.model_name;
     std::string marty_model_path = config.model_path;

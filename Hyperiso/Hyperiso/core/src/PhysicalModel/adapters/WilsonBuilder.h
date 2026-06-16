@@ -19,6 +19,7 @@
 #include "MartyWilsonProxy.h"
 #include "MartyModelNameAPI.h"
 #include "MartyModelPathAPI.h"
+#include "MartyWilsonPathProxy.h"
 #include "SMFromHypProxy.h"
 
 /**

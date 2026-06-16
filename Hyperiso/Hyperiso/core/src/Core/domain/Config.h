@@ -18,8 +18,8 @@ enum class ExternalFlag {
 };
 
 /**
- * @struct Config
- * @brief Configuration object controlling model and input flags.
+ * @struct HyperisoConfig
+ * @brief Configuration object controlling model, input flags and optional MARTY resources.
  */
 struct HyperisoConfig {
     /// External flags describing the nature of the inputs.
@@ -29,9 +29,22 @@ struct HyperisoConfig {
         {ExternalFlag::HAS_TH_OBSERVABLE_INPUT, false},
         {ExternalFlag::HYP_AS_SM_MARTY, true}
     };
-    Model model {Model::SM};                    ///< Model type (current model)
-    std::optional<std::string> mty_model_name;  ///< MARTY model name (name of the class in MARTY) if needed
-    std::optional<fs::path> mty_model_path;     ///< Path to the MARTY model file (mty_model_name.h) if needed
+
+    Model model {Model::SM};                    ///< Current model.
+    std::optional<std::string> mty_model_name;  ///< MARTY model class name, if needed.
+    std::optional<fs::path> mty_model_path;     ///< Path to the MARTY model file, if needed.
+
+    /**
+     * @brief Optional user-provided BSM mapping JSON.
+     *
+     * The read-only SM mapping is resolved through the path provider
+     * (MartyPath::SM_MAPPING_FILE). This optional path is only for the BSM
+     * mapping supplied by the user, e.g. a ZPrime mapping.
+     *
+     * The mapping values are intentionally strings, because identifiers may be
+     * composite values such as "1_2".
+     */
+    std::optional<fs::path> mty_bsm_mapping_path;
 };
 
 #endif // CONFIG_H

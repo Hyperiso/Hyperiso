@@ -127,6 +127,20 @@ public:
     void pre_init_set_paths(const std::map<APIPath, std::string>& pathOverrides);
 
     /**
+     * @brief Sets the writable MARTY generated-code/cache directory before init().
+     *
+     * The directory is created if it does not exist.
+     */
+    void pre_init_set_marty_cache_dir(const std::string& cacheDir);
+
+    /**
+     * @brief Sets the writable spectrum cache directory before init().
+     *
+     * The directory is created if it does not exist.
+     */
+    void pre_init_set_spectrum_cache_dir(const std::string& cacheDir);
+
+    /**
      * @brief Initializes Hyperiso with only the LHA file, using default config.
      *
      * Equivalent to calling:

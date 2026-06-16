@@ -8,6 +8,7 @@
 #include <stdexcept>
 
 #include "WilsonGroup.h"
+#include "IMartyWilsonPathProxy.h"
 
 /**
  * @file GroupDefinition.h
@@ -99,6 +100,9 @@ struct BuildContext {
 
     /// Optional name for diagnostics / display.
     std::string group_name = "";
+
+    /// Optional path provider used by MARTY-backed Wilson coefficients.
+    std::shared_ptr<IMartyWilsonPathProxy> marty_paths;
 };
 
 /**

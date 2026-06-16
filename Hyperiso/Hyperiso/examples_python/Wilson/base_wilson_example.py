@@ -87,6 +87,8 @@ if __name__ == "__main__":
     
     for coef in coefs_primes:
         req.coefficient = coef
+        req.order = QCDOrder.LO
+        print(req.coefficient, " : ", interface.get_M(req))
         print(req.coefficient, " : ", interface.get_FR(req)) #Get full running, with sum of all order up to the requested order.
 
     print("\n\n\n")

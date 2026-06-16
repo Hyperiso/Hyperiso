@@ -158,6 +158,7 @@ ObservableValue ObsManager::evaluate(BinnedObservableId id) {
             return result;
         }
     }
+    return results[0];
 }
 
 std::map<ObservableId, std::vector<ObservableValue>> ObsManager::evaluate_all() {

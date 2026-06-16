@@ -3,13 +3,18 @@
 from __future__ import annotations
 
 import os
+import tempfile
 from enum import Enum
+from importlib import resources
+from pathlib import Path
 from typing import Any, Mapping, Optional, Union
 
-from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.phyperiso.pyhyperiso.core import APIPath as _CppAPIPath
+from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoMaster as _CppHyperisoMaster
 from pyhyperiso.core.Common.GeneralEnum import Model
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
+
+PathLike = Union[str, os.PathLike[str]]
 
 
 class APIPath(Enum):
@@ -27,6 +32,7 @@ class APIPath(Enum):
     DEFAULT_OBS_VALUES = _CppAPIPath.DEFAULT_OBS_VALUES
     DEFAULT_PARAM_CORR = _CppAPIPath.DEFAULT_PARAM_CORR
     DEFAULT_OBS_CORR = _CppAPIPath.DEFAULT_OBS_CORR
+    DEFAULT_NUISANCES = _CppAPIPath.DEFAULT_NUISANCES
 
     USER_SM_PARAMS = _CppAPIPath.USER_SM_PARAMS
     USER_FLAVOR_PARAMS = _CppAPIPath.USER_FLAVOR_PARAMS
@@ -34,56 +40,88 @@ class APIPath(Enum):
     USER_OBS_VALUES = _CppAPIPath.USER_OBS_VALUES
     USER_PARAM_CORR = _CppAPIPath.USER_PARAM_CORR
     USER_OBS_CORR = _CppAPIPath.USER_OBS_CORR
+    USER_NUISANCES = _CppAPIPath.USER_NUISANCES
 
     PARAM_MAPPING_DIR = _CppAPIPath.PARAM_MAPPING_DIR
     TEMPLATE_DIR = _CppAPIPath.TEMPLATE_DIR
     SPECTRUM_DIR = _CppAPIPath.SPECTRUM_DIR
+    MARTY_TEMP_DIR = _CppAPIPath.MARTY_TEMP_DIR
 
 
 class HyperisoMaster:
     """High-level Python wrapper around the C++ ``HyperisoMaster``.
 
-    ``HyperisoMaster`` owns the initialization lifecycle of the global C++
-    runtime. It loads an LHA file, applies a :class:`HyperisoConfig`, and makes
-    the model/flags available to the rest of the Python wrappers.
-
-    Examples:
-        >>> hyp = HyperisoMaster()
-        >>> hyp.init("lha/si_input.flha", HyperisoConfig())
-        >>> hyp.model
-        <Model.SM: ...>
+    The wrapper configures package-friendly defaults before initialization:
+    read-only assets are looked up under ``pyhyperiso/assets`` when available,
+    and writable caches are placed under the user cache directory unless the
+    caller provides explicit directories.
     """
 
-    def __init__(self) -> None:
-        """Create an uninitialized Hyperiso controller."""
+    def __init__(
+        self,
+        *,
+        configure_default_paths: bool = True,
+        assets_root: Optional[PathLike] = None,
+        cache_root: Optional[PathLike] = None,
+    ) -> None:
+        """Create an uninitialized Hyperiso controller.
+
+        Args:
+            configure_default_paths: When ``True``, configure packaged assets
+                and cache directories before any call to ``init``.
+            assets_root: Optional replacement for the packaged read-only
+                assets directory.
+            cache_root: Optional root used to create ``MartyTemp`` and
+                ``Spectrum`` writable cache directories.
+        """
         self._cpp_obj = _CppHyperisoMaster()
         self.config: Optional[HyperisoConfig] = None
 
+        if configure_default_paths:
+            self.configure_default_paths(assets_root=assets_root, cache_root=cache_root)
+
     @staticmethod
-    def _resolve_lha_path(lha_file: str) -> str:
-        """Resolve project-relative LHA paths used by the historical wrapper.
+    def _packaged_assets_root() -> Optional[Path]:
+        """Return ``pyhyperiso/assets`` when it is available as a filesystem path."""
+        try:
+            assets = resources.files("pyhyperiso").joinpath("assets")
+        except Exception:
+            return None
 
-        Args:
-            lha_file: Absolute path or path relative to the project ``Assets``
-                directory.
+        if assets.is_dir():
+            return Path(str(assets)).resolve()
+        return None
 
-        Returns:
-            Absolute path passed to the C++ layer.
-        """
-        if os.path.isabs(lha_file):
-            return lha_file
-        return os.path.abspath(
-            os.path.join(
-                os.path.dirname(__file__),
-                "..",
-                "..",
-                "..",
-                "..",
-                "..",
-                "Assets",
-                lha_file,
-            )
-        )
+    @staticmethod
+    def _legacy_source_assets_root() -> Optional[Path]:
+        """Return the historical source-tree ``Assets`` directory when present."""
+        assets = (
+            Path(__file__).resolve().parent
+            / ".."
+            / ".."
+            / ".."
+            / ".."
+            / ".."
+            / "Assets"
+        ).resolve()
+        return assets if assets.is_dir() else None
+
+    @staticmethod
+    def _default_cache_root() -> Path:
+        """Return a writable cache root without adding a hard platformdirs dependency."""
+        env_root = os.environ.get("HYPERISO_CACHE_ROOT")
+        if env_root:
+            return Path(env_root).expanduser().resolve()
+
+        xdg_cache = os.environ.get("XDG_CACHE_HOME")
+        if xdg_cache:
+            return (Path(xdg_cache).expanduser() / "pyhyperiso").resolve()
+
+        home = os.environ.get("HOME")
+        if home:
+            return (Path(home).expanduser() / ".cache" / "pyhyperiso").resolve()
+
+        return (Path(tempfile.gettempdir()) / "pyhyperiso").resolve()
 
     @staticmethod
     def _to_cpp_api_path(path_key: Any) -> Any:
@@ -96,12 +134,57 @@ class HyperisoMaster:
                 raise ValueError(f"Unknown APIPath name: {cpp_value}") from exc
         return cpp_value
 
-    def init(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
+    def configure_default_paths(
+        self,
+        *,
+        assets_root: Optional[PathLike] = None,
+        cache_root: Optional[PathLike] = None,
+    ) -> None:
+        """Configure package assets and writable cache directories before init.
+
+        Args:
+            assets_root: Optional read-only assets directory. When omitted, the
+                wrapper first tries ``pyhyperiso/assets`` and then the historical
+                source-tree ``Assets`` directory.
+            cache_root: Optional writable root. ``MartyTemp`` and ``Spectrum``
+                are created below it. When omitted, a standard user cache root is
+                used.
+        """
+        resolved_assets = (
+            Path(os.fspath(assets_root)).expanduser().resolve()
+            if assets_root is not None
+            else self._packaged_assets_root() or self._legacy_source_assets_root()
+        )
+
+        if resolved_assets is not None:
+            self.pre_init_set_paths({APIPath.ASSETS_ROOT: resolved_assets})
+
+        resolved_cache_root = (
+            Path(os.fspath(cache_root)).expanduser().resolve()
+            if cache_root is not None
+            else self._default_cache_root()
+        )
+        self.pre_init_set_marty_cache_dir(resolved_cache_root / "MartyTemp")
+        self.pre_init_set_spectrum_cache_dir(resolved_cache_root / "Spectrum")
+
+    @staticmethod
+    def _resolve_lha_path(lha_file: PathLike) -> str:
+        """Prepare an LHA path for the C++ layer.
+
+        Absolute paths are forwarded as absolute paths. Relative paths are kept
+        relative so that the C++ ``MemoryManager`` resolves them under the active
+        ``ASSETS_ROOT``. This is important for wheels where ``Assets`` no longer
+        lives next to the source checkout.
+        """
+        path = os.fspath(lha_file)
+        return os.path.abspath(path) if os.path.isabs(path) else path
+
+    def init(self, lha_file: PathLike, config: Optional[HyperisoConfig] = None) -> None:
         """Initialize Hyperiso with an LHA file.
 
         Args:
-            lha_file: Absolute LHA path or project-relative path under
-                ``Assets``.
+            lha_file: Absolute LHA path, or path relative to the active
+                ``ASSETS_ROOT``.
             config: Optional initialization config. When omitted, the C++
                 default configuration is used and ``self.config`` is set to a
                 default :class:`HyperisoConfig` instance.
@@ -124,30 +207,7 @@ class HyperisoMaster:
         bin_idx: int = -1,
         global_scale: bool = False,
     ) -> None:
-        """Register an additional LHA block prototype before initialization.
-
-        This method must be called before :meth:`init` for the prototype to be
-        available during the first LHA parsing pass. The registered block is
-        routed to ``Parameters::BSM`` by default on the C++ side. To register
-        several custom blocks, call this method several times before ``init``.
-
-        Args:
-            block_name: Name of the LHA block to register.
-            item_count: Number of columns expected on each data line.
-            value_idx: Zero-based index of the central value column.
-            scale_idx: Zero-based index of the scale column, or ``-1`` when the
-                block has no per-entry scale column.
-            rg_idx: Zero-based index of the renormalization-scheme column, or
-                ``-1`` when the block has no such column.
-            bin_idx: Zero-based index of the bin lower-edge column, or ``-1``
-                when the block is not binned. When provided, the following
-                column is interpreted as the bin upper edge.
-            global_scale: Whether the block uses a global ``Q=`` scale in its
-                header.
-
-        Raises:
-            RuntimeError: If the underlying C++ layer rejects the prototype.
-        """
+        """Register an additional LHA block prototype before initialization."""
         self._cpp_obj.pre_init_add_block(
             block_name,
             item_count,
@@ -158,40 +218,11 @@ class HyperisoMaster:
             global_scale,
         )
 
-    def pre_init_set_marty_path(self, marty_path: Union[str, os.PathLike[str]]) -> None:
-        """Register an existing MARTY installation before initialization.
-
-        Use this when MARTY is already installed by the user and Hyperiso was
-        not built with the bundled ``-DBUILD_WITH_MARTY=ON`` installation. The
-        path is validated by the C++ layer and then reused by the generated
-        MARTY compilation commands.
-
-        The accepted path can be the MARTY install prefix itself, a parent
-        directory containing ``MARTY_INSTALL`` or ``install``, the ``include``
-        directory, the ``lib`` directory, the ``marty.h`` header, or a
-        ``libmarty`` library file. A valid installation must contain
-        ``include/marty.h`` and one of ``lib/libmarty.so``,
-        ``lib/libmarty.dylib``, or ``lib/libmarty.a``.
-
-        Args:
-            marty_path: Path to an existing MARTY installation or to one of its
-                recognizable subpaths/files.
-
-        Raises:
-            RuntimeError: If the underlying C++ layer rejects the MARTY
-                installation path.
-
-        Examples:
-            >>> hyp = HyperisoMaster()
-            >>> hyp.pre_init_set_marty_path("/opt/marty/MARTY_INSTALL")
-            >>> hyp.init("lha/si_input.flha", config)
-        """
+    def pre_init_set_marty_path(self, marty_path: PathLike) -> None:
+        """Register an existing MARTY installation before initialization."""
         self._cpp_obj.pre_init_set_marty_path(os.path.abspath(os.fspath(marty_path)))
 
-    def pre_init_set_paths(
-        self,
-        path_overrides: Mapping[Any, Union[str, os.PathLike[str]]],
-    ) -> None:
+    def pre_init_set_paths(self, path_overrides: Mapping[Any, PathLike]) -> None:
         """Override selected Hyperiso filesystem paths before initialization.
 
         Args:
@@ -200,20 +231,6 @@ class HyperisoMaster:
                 ``APIPath`` enum, another wrapper enum exposing a ``.value``
                 C++ enum, or a string matching an ``APIPath`` name. Values may
                 be strings or ``os.PathLike`` objects.
-
-        Validation is performed by the C++ layer: default input files must
-        exist and end in ``.json``, user input files must exist and end in
-        ``.yaml`` or ``.yml``, and directory entries must be existing
-        directories. ``LHA_PATH`` is intentionally rejected here; pass LHA files
-        to ``init(...)`` or ``switch_lha(...)`` instead.
-
-        Examples:
-            >>> from pathlib import Path
-            >>> hyp = HyperisoMaster()
-            >>> hyp.pre_init_set_paths({
-            ...     APIPath.USER_SM_PARAMS: Path("/tmp/custom_sm.yaml"),
-            ...     APIPath.SPECTRUM_DIR: "/tmp/hyperiso_spectra",
-            ... })
         """
         cpp_overrides = {
             self._to_cpp_api_path(path_key): os.path.abspath(os.fspath(path_value))
@@ -221,38 +238,29 @@ class HyperisoMaster:
         }
         self._cpp_obj.pre_init_set_paths(cpp_overrides)
 
-    def switch_lha(self, lha_file: str, config: Optional[HyperisoConfig] = None) -> None:
-        """Switch the active LHA input file.
+    def pre_init_set_marty_cache_dir(self, cache_dir: PathLike) -> None:
+        """Set the writable MARTY generated-code/cache directory before init."""
+        self._cpp_obj.pre_init_set_marty_cache_dir(os.path.abspath(os.fspath(cache_dir)))
 
-        Args:
-            lha_file: Path to the new LHA file. Unlike ``init()``, this method
-                forwards the path exactly as provided, matching the historical
-                C++ wrapper behavior.
-            config: Optional config to apply during the switch. If omitted, the
-                previously stored config is reused when available.
+    def pre_init_set_spectrum_cache_dir(self, cache_dir: PathLike) -> None:
+        """Set the writable spectrum cache directory before init."""
+        self._cpp_obj.pre_init_set_spectrum_cache_dir(os.path.abspath(os.fspath(cache_dir)))
 
-        Raises:
-            RuntimeError: If no config is available for a config-less switch.
-        """
+    def switch_lha(self, lha_file: PathLike, config: Optional[HyperisoConfig] = None) -> None:
+        """Switch the active LHA input file."""
+        resolved_lha = self._resolve_lha_path(lha_file)
         if config is not None:
-            self._cpp_obj.switch_lha(lha_file, config.to_cpp())
+            self._cpp_obj.switch_lha(resolved_lha, config.to_cpp())
             self.config = config
             return
 
         if self.config is None:
             raise RuntimeError("HyperisoMaster.switch_lha() requires a config before init() has been called.")
 
-        self._cpp_obj.init(lha_file, self.config.to_cpp())
+        self._cpp_obj.switch_lha(resolved_lha, self.config.to_cpp())
 
     def check_flag(self, flag: ExternalFlag) -> bool:
-        """Return whether an external flag is active.
-
-        Args:
-            flag: External flag to query.
-
-        Returns:
-            ``True`` when the flag is active in the current C++ runtime.
-        """
+        """Return whether an external flag is active."""
         return bool(self._cpp_obj.check_flag(flag.value))
 
     @property
@@ -289,7 +297,7 @@ if __name__ == "__main__":
     print(config)
 
     hyp = HyperisoMaster()
-    lha_file_path = "lha/camilia.flha"
+    lha_file_path = "lha/zprime_input.flha"
 
     print("\n🚀 Calling init with config...")
     hyp.init(lha_file=lha_file_path, config=config)

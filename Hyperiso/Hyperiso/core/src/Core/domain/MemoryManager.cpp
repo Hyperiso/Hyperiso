@@ -1,6 +1,8 @@
 #include "MemoryManager.h"
 #include "Parameters.h"
 
+#include <system_error>
+
 MemoryManager* MemoryManager::instance = nullptr;
 
 MemoryManager::MemoryManager() : memento(DBMemento()) {
@@ -132,8 +134,15 @@ fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const Hyperi
         return input_lha_path;
     }
 
-    fs::path spectrum_path = paths_provider->spectrum_dir()/input_lha_path.filename();
-    // SpectrumCalculator sc;
+    fs::path spectrum_dir = paths_provider->spectrum_dir();
+    std::error_code ec;
+    fs::create_directories(spectrum_dir, ec);
+    if (ec) {
+        LOG_ERROR("MemoryManager", "Cannot create spectrum cache directory:", spectrum_dir.string(), ec.message());
+        return input_lha_path;
+    }
+
+    fs::path spectrum_path = spectrum_dir / input_lha_path.filename();
     sc->calculate_spectrum(input_lha_path, spectrum_path, config.model);
     return spectrum_path;
 }
@@ -147,7 +156,7 @@ MemoryManager* MemoryManager::GetInstance() {
 
 MemoryManager::MemoryManager(std::shared_ptr<IDataLoader<BlockAccessor>> loader, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ParamId>>> param_corr, std::shared_ptr<IDataLoader<CorrelationMatrixPair<ExperimentObs>>> obs_corr, std::shared_ptr<ISpectrumCalculator> spectrum_c, std::shared_ptr<IPathsProvider> paths_provider_, std::shared_ptr<ILhaPrototypeRegistry> lha_prototype_registry_) : memento(DBMemento()) {
     this->sc = spectrum_c;
-    
+
     this->dl_ba = loader;
     this->dl_cmp_p = param_corr;
     this->dl_cmp_o = obs_corr;
@@ -214,6 +223,8 @@ fs::path MemoryManager::get_path(APIPath path_name) {
         return paths_provider->default_param_corr();
     case APIPath::DEFAULT_OBS_CORR:
         return paths_provider->default_obs_corr();
+    case APIPath::DEFAULT_NUISANCES:
+        return paths_provider->default_nuisances();
     case APIPath::USER_SM_PARAMS:
         return paths_provider->user_sm_params();
     case APIPath::USER_FLAVOR_PARAMS:
@@ -226,12 +237,16 @@ fs::path MemoryManager::get_path(APIPath path_name) {
         return paths_provider->user_param_corr();
     case APIPath::USER_OBS_CORR:
         return paths_provider->user_obs_corr();
+    case APIPath::USER_NUISANCES:
+        return paths_provider->user_nuisances();
     case APIPath::PARAM_MAPPING_DIR:
         return paths_provider->param_mapping_dir_path();
     case APIPath::TEMPLATE_DIR:
         return paths_provider->template_dir_path();
     case APIPath::SPECTRUM_DIR:
         return paths_provider->spectrum_dir();
+    case APIPath::MARTY_TEMP_DIR:
+        return paths_provider->marty_temp_dir();
     case APIPath::LHA_PATH:
         break;
     }
@@ -323,7 +338,7 @@ void MemoryManager::switch_lha(const std::string& lhaFile, HyperisoConfig config
     this->deduce_parameter_types(cache.config);
 
     ParametersFactory::clear();
-    
+
     this->cache.flags[InternalFlag::PARAMS_CHANGED] = true;
 }
 
@@ -336,7 +351,7 @@ void MemoryManager::reload_user_input(const std::string &lhaFile, HyperisoConfig
     memento.restore(2);
     this->read_user_input();
     this->read_lha_input(lhaFile, config);
-    
+
     cache.lha_path = lhaFile;
     cache.config   = std::move(config);
     this->deduce_parameter_types(cache.config);

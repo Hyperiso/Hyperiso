@@ -16,12 +16,13 @@ namespace fs = std::filesystem;
 enum class APIPath {
     LHA_PATH,                 ///< Path to the active LHA file.
 
-    ASSETS_ROOT,              ///< Root directory for HyperISO assets.
+    ASSETS_ROOT,              ///< Root directory for HyperISO read-only assets.
 
     DEFAULT_PARAM_VALUES,     ///< JSON file containing default parameter values.
     DEFAULT_OBS_VALUES,       ///< JSON file containing default observable values.
     DEFAULT_PARAM_CORR,       ///< JSON file containing default parameter correlations.
     DEFAULT_OBS_CORR,         ///< JSON file containing default observable correlations.
+    DEFAULT_NUISANCES,        ///< JSON file containing default nuisance definitions.
 
     USER_SM_PARAMS,           ///< YAML/YML file containing user SM parameter overrides.
     USER_FLAVOR_PARAMS,       ///< YAML/YML file containing user flavor parameter overrides.
@@ -29,40 +30,48 @@ enum class APIPath {
     USER_OBS_VALUES,          ///< YAML/YML file containing user observable overrides.
     USER_PARAM_CORR,          ///< YAML/YML file containing user parameter correlation overrides.
     USER_OBS_CORR,            ///< YAML/YML file containing user observable correlation overrides.
+    USER_NUISANCES,           ///< YAML/YML file containing user nuisance overrides.
 
-    PARAM_MAPPING_DIR,        ///< Directory containing parameter mapping resources.
-    TEMPLATE_DIR,             ///< Directory containing generated-code templates.
-    SPECTRUM_DIR              ///< Directory used for generated spectrum files.
+    PARAM_MAPPING_DIR,        ///< Read-only directory containing MARTY/Hyperiso parameter mappings.
+    TEMPLATE_DIR,             ///< Read-only directory containing generated-code templates.
+
+    SPECTRUM_DIR,             ///< Writable cache directory used for generated spectrum files.
+    MARTY_TEMP_DIR            ///< Writable cache directory used for generated MARTY files.
 };
 
 /**
  * @brief Interface providing all filesystem paths used by HyperISO.
  *
- * Implementations define where default/user inputs and outputs (spectrum, templates, mappings)
- * are located on disk.
+ * Implementations define where read-only package assets and writable runtime
+ * cache directories are located on disk.
  */
 struct IPathsProvider {
     virtual ~IPathsProvider() = default;
 
-    /// Root directory for all assets.
+    /// Root directory for all read-only assets.
     virtual fs::path assets_root() const = 0;
 
-    // defaults
+    // read-only defaults
     virtual fs::path default_param_values() const = 0;
     virtual fs::path default_obs_values()   const = 0;
     virtual fs::path default_param_corr()   const = 0;
     virtual fs::path default_obs_corr()     const = 0;
+    virtual fs::path default_nuisances()    const = 0;
 
-    // user inputs
+    // read-only packaged user-input templates/default overrides
     virtual fs::path user_sm_params()       const = 0;
     virtual fs::path user_flavor_params()   const = 0;
     virtual fs::path user_decay_params()    const = 0;
     virtual fs::path user_obs_values()      const = 0;
     virtual fs::path user_param_corr()      const = 0;
     virtual fs::path user_obs_corr()        const = 0;
+    virtual fs::path user_nuisances()       const = 0;
 
-    // spectrum output dir
+    // writable output/cache directories
     virtual fs::path spectrum_dir()         const = 0;
+    virtual fs::path marty_temp_dir()       const = 0;
+
+    // read-only MARTY resources
     virtual fs::path param_mapping_dir_path() const = 0;
     virtual fs::path template_dir_path() const = 0;
 };

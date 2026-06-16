@@ -257,15 +257,18 @@ void init_core(py::module &m) {
     .value("DEFAULT_OBS_VALUES", APIPath::DEFAULT_OBS_VALUES)
     .value("DEFAULT_PARAM_CORR", APIPath::DEFAULT_PARAM_CORR)
     .value("DEFAULT_OBS_CORR", APIPath::DEFAULT_OBS_CORR)
+    .value("DEFAULT_NUISANCES", APIPath::DEFAULT_NUISANCES)
     .value("USER_SM_PARAMS", APIPath::USER_SM_PARAMS)
     .value("USER_FLAVOR_PARAMS", APIPath::USER_FLAVOR_PARAMS)
     .value("USER_DECAY_PARAMS", APIPath::USER_DECAY_PARAMS)
     .value("USER_OBS_VALUES", APIPath::USER_OBS_VALUES)
     .value("USER_PARAM_CORR", APIPath::USER_PARAM_CORR)
     .value("USER_OBS_CORR", APIPath::USER_OBS_CORR)
+    .value("USER_NUISANCES", APIPath::USER_NUISANCES)
     .value("PARAM_MAPPING_DIR", APIPath::PARAM_MAPPING_DIR)
     .value("TEMPLATE_DIR", APIPath::TEMPLATE_DIR)
     .value("SPECTRUM_DIR", APIPath::SPECTRUM_DIR)
+    .value("MARTY_TEMP_DIR", APIPath::MARTY_TEMP_DIR)
     .export_values();
     
     py::enum_<ParameterMode>(m, "ParameterMode")
@@ -289,7 +292,8 @@ void init_core(py::module &m) {
     .def_readwrite("flags", &HyperisoConfig::flags)
     .def_readwrite("model", &HyperisoConfig::model)
     .def_readwrite("mty_model_name", &HyperisoConfig::mty_model_name)
-    .def_readwrite("mty_model_path", &HyperisoConfig::mty_model_path);
+    .def_readwrite("mty_model_path", &HyperisoConfig::mty_model_path)
+    .def_readwrite("mty_bsm_mapping_path", &HyperisoConfig::mty_bsm_mapping_path);
 
     // HyperisoMaster
     py::class_<HyperisoMaster, std::shared_ptr<HyperisoMaster>>(m, "HyperisoMaster")
@@ -353,6 +357,22 @@ void init_core(py::module &m) {
 
     LHA_PATH is intentionally not accepted here because the active LHA file is
     provided through init() or switch_lha().)doc"
+        )
+        .def(
+            "pre_init_set_marty_cache_dir",
+            &HyperisoMaster::pre_init_set_marty_cache_dir,
+            py::arg("cache_dir"),
+            R"doc(Set the writable MARTY generated-code/cache directory before initialization.
+
+    The directory is created by the C++ layer if it does not exist.)doc"
+        )
+        .def(
+            "pre_init_set_spectrum_cache_dir",
+            &HyperisoMaster::pre_init_set_spectrum_cache_dir,
+            py::arg("cache_dir"),
+            R"doc(Set the writable spectrum cache directory before initialization.
+
+    The directory is created by the C++ layer if it does not exist.)doc"
         )
         .def("check_flag", &HyperisoMaster::check_flag)
         .def("get_model", &HyperisoMaster::get_model)
@@ -629,6 +649,9 @@ Args:
         .value("MODEL_FILE", MartyPath::MODEL_FILE)
         .value("TEMPLATE_DIR", MartyPath::TEMPLATE_DIR)
         .value("PARAM_MAPPING_DIR", MartyPath::PARAM_MAPPING_DIR)
+        .value("SM_MAPPING_FILE", MartyPath::SM_MAPPING_FILE)
+        .value("BSM_MAPPING_FILE", MartyPath::BSM_MAPPING_FILE)
+        .value("MARTY_TEMP_DIR", MartyPath::MARTY_TEMP_DIR)
         .export_values();
     
 
@@ -637,6 +660,14 @@ Args:
 
         .def("get_path", [](MartyAdapter& self, MartyPath path) {
             return self.get_path(path).string();
+        }, py::arg("path"))
+
+        .def("get_optional_path", [](MartyAdapter& self, MartyPath path) -> py::object {
+            auto resolved = self.get_optional_path(path);
+            if (!resolved.has_value()) {
+                return py::none();
+            }
+            return py::str(resolved->string());
         }, py::arg("path"))
 
         .def("check_flag", &MartyAdapter::check_flag, py::arg("flag"))

@@ -5,90 +5,59 @@
 #include <set>
 #include <string>
 #include <iostream>
-#include <cmath>
+#include <vector>
+#include <optional>
 
 #include "config.hpp"
 #include "LhaID.h"
 #include "Interpreter.h"
 #include "IMartyParameterProxy.h"
-
-/**
- * @file SMParamSetter.h
- * @brief Declares a helper to map Hyperiso parameters into MARTY inputs.
- *
- * SMParamSetter translates internal Hyperiso parameters (blocks, LHA IDs,
- * special cases) into a flat map of name → value suitable for MARTY’s
- * generated code and CSV interfaces.
- */
+#include "CinematicExtractor.h"
 
 /**
  * @class SMParamSetter
- * @ingroup CodeGenerationModule
  * @brief Converts Hyperiso parameters into MARTY input parameters.
- *
- * SMParamSetter uses one or two ::IMartyParameterProxy instances to fetch
- * numerical values from SM and BSM parameter sets, applies special rules
- * for certain blocks (e.g. `KIN`, `WEIN`, `REGPROP`, `BETA`), and returns
- * a map of parameter names to numerical values ready for MARTY.
- *
- * Typical usage:
- *  - construct with a model name and set of special blocks,
- *  - repeatedly call ::setParam() for each interpreted parameter.
  */
 class SMParamSetter {
 public:
     /**
      * @brief Constructs a parameter setter for a given model.
      *
-     * @param model          Model name (e.g. `"SM"`, `"THDM"`, `"MSSM"`, `"NMSSM"`).
-     * @param special_blocks Set of block names treated with special formulas
-     *                       (e.g. `"KIN"`, `"WEIN"`, etc.).
-     * @param sm_proxy       Proxy used to access SM parameters.
-     * @param bsm_proxy      Optional proxy to access BSM parameters; only used
-     *                       if the deduced model type is not ::Model::SM.
+     * @param model                  Model name, e.g. "SM" or "ZPrime".
+     * @param special_blocks         Blocks treated with special formulas.
+     * @param sm_proxy               Proxy used to access SM parameters.
+     * @param bsm_proxy              Optional proxy used to access BSM parameters.
+     * @param cinematic_template     Optional generated/template C++ file containing
+     *                               computeWilsonCoefficients(...). When provided,
+     *                               KIN invariants are inferred from the process legs.
      */
-    SMParamSetter(const std::string& model, std::set<std::string> special_blocks, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy, std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr);
+    SMParamSetter(const std::string& model,
+                  std::set<std::string> special_blocks,
+                  std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy,
+                  std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy = nullptr,
+                  std::string cinematic_template = "");
 
-    /**
-     * @brief Produces MARTY input values for a given interpreted parameter.
-     *
-     * The returned map may contain:
-     *  - a single entry `name → value` for real parameters,
-     *  - two entries `name_rel` and `name_img` for complex parameters,
-     *  - special values for certain blocks (handled by ::calculateValue()).
-     *
-     * @param name             Logical MARTY parameter name.
-     * @param interpretedParam Interpreted parameter information (block, LHA ID,
-     *                         SM/BSM tag, complex/real).
-     * @return Map of generated parameter names to numerical values.
-     */
     std::unordered_map<std::string, double> setParam(const std::string& name, const InterpretedParam& interpretedParam);
 
 private:
-    /**
-     * @brief Computes special values for certain blocks and codes.
-     *
-     * Handles model-specific logic for blocks such as:
-     *  - `"KIN"`         : kinetic term-related quantities,
-     *  - `"WEIN"`        : Weinberg angle,
-     *  - `"REGPROP"`     : regularization parameters,
-     *  - `"BETA"`        : mixing angles in BSM models.
-     *
-     * @param interpretedParam Parameter meta-information.
-     * @return The computed scalar value.
-     */
     scalar_t calculateValue(const InterpretedParam& interpretedParam);
 
-    Model model_type;   ///< Deduced model type from the string passed to the ctor.
+    scalar_t calculateKinematicInvariant(const LhaID& code) const;
+    scalar_t calculateOneToThreeInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const;
+    scalar_t calculateOneToTwoInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const;
+    scalar_t legacyKinematicInvariant(const LhaID& code) const;
 
-    /// Blocks that should be handled by ::calculateValue() instead of direct lookup.
+    std::vector<scalar_t> extractMassesForCurrentProcess() const;
+    scalar_t massValueForParticle(const std::string& particle_name) const;
+
+    Model model_type;
     std::set<std::string> special_blocks;
 
-    /// Proxy to access SM parameters.
     std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> sm_proxy;
-
-    /// Proxy to access BSM parameters when needed.
     std::shared_ptr<IMartyParameterProxy<std::string, LhaID>> bsm_proxy;
+
+    std::string cinematic_template;
+    std::optional<CinematicProcess> cinematic_process;
 };
 
 #endif // SMPARAMSETTER_H

@@ -1,0 +1,7 @@
+{
+    "m_Hp": {"block": "MASS", "pdgCode": "37"},
+    "m_A0": {"block": "MASS", "pdgCode": "36"},
+    "m_H0": {"block": "MASS", "pdgCode": "35"},
+    "beta": {"block" : "BETA", "pdgCode": ""},
+    "alpha": {"block" : "ALPHA", "pdgCode": ""}
+}

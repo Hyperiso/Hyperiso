@@ -5,11 +5,13 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.core import ExternalFlag as _CppExternalFlag
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoConfig as _CppHyperisoConfig
 from pyhyperiso.core.Common.GeneralEnum import Model
+
+PathLike = Union[str, Path]
 
 
 class ExternalFlag(Enum):
@@ -41,6 +43,7 @@ class HyperisoConfig:
         model: Physics model selected for the session.
         mty_model_name: Optional MARTY model name used by the C++ backend.
         mty_model_path: Optional path to the MARTY model directory or file.
+        mty_bsm_mapping_path: Optional user-provided BSM MARTY/Hyperiso mapping JSON.
 
     Examples:
         >>> from pathlib import Path
@@ -48,6 +51,7 @@ class HyperisoConfig:
         ...     model=Model.SM,
         ...     mty_model_name="MSSM_UFO",
         ...     mty_model_path=Path("/path/to/marty/model"),
+        ...     mty_bsm_mapping_path=Path("/path/to/zprime_mapping.json"),
         ... )
         >>> cpp_cfg = cfg.to_cpp()
     """
@@ -60,7 +64,8 @@ class HyperisoConfig:
     })
     model: Model = Model.SM
     mty_model_name: Optional[str] = None
-    mty_model_path: Optional[Path] = None
+    mty_model_path: Optional[PathLike] = None
+    mty_bsm_mapping_path: Optional[PathLike] = None
 
     def to_cpp(self) -> _CppHyperisoConfig:
         """Convert this Python config into the bound C++ config.
@@ -78,11 +83,22 @@ class HyperisoConfig:
         if self.mty_model_path is not None:
             cpp.mty_model_path = str(self.mty_model_path)
 
+        if self.mty_bsm_mapping_path is not None:
+            cpp.mty_bsm_mapping_path = str(self.mty_bsm_mapping_path)
+
         return cpp
 
     def __repr__(self) -> str:
         """Return a compact representation suitable for logs."""
-        return f"HyperisoConfig(model={self.model}, flags={self.flags})"
+        return (
+            "HyperisoConfig("
+            f"model={self.model}, "
+            f"flags={self.flags}, "
+            f"mty_model_name={self.mty_model_name!r}, "
+            f"mty_model_path={self.mty_model_path!r}, "
+            f"mty_bsm_mapping_path={self.mty_bsm_mapping_path!r}"
+            ")"
+        )
 
 
 __all__ = ["ExternalFlag", "HyperisoConfig"]

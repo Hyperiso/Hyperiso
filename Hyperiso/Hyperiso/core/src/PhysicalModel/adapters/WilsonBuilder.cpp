@@ -67,6 +67,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+    std::shared_ptr<IMartyWilsonPathProxy> marty_paths = std::make_shared<MartyWilsonPathProxy>();
     std::shared_ptr<ICoreAPI<bool>> hard_coded_lo =
     std::make_shared<SMFromHypProxy>();
     if (use_marty->get()) {
@@ -75,14 +76,15 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
 
     auto reg_ptr = make_registry();
-    auto build_group_fn = [reg_ptr, adapters](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
+    auto build_group_fn = [reg_ptr, adapters, marty_paths](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
         BuildContext ctx{
             .adapters = adapters,
             .model    = mdl,
             .backend  = useMarty ? Backend::Marty : Backend::Builtin,
             .contrib  = ct,
             .group_id = gid,
-            .group_name = std::move(group_name)
+            .group_name = std::move(group_name),
+            .marty_paths = marty_paths
         };
         CoefficientGroupBuilder b{*reg_ptr};
         return b.build(ctx);
@@ -111,7 +113,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         config.order = QCDOrder::LO;
     }
 
-    WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo};
+    WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo, marty_paths};
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
@@ -140,6 +142,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
     std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
     std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
+    std::shared_ptr<IMartyWilsonPathProxy> marty_paths = std::make_shared<MartyWilsonPathProxy>();
 
     if (use_marty->get()) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
@@ -156,6 +159,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         if (use_marty->get()) ct = ContributionType::TOTAL;
         else ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
         BuildContext ctx{adapters, model, use_marty->get() ? Backend::Marty : Backend::Builtin, ct, g_id};
+        ctx.marty_paths = marty_paths;
         auto grp = b.build(ctx);
 
         std::string group_name = GroupMapper::str(g_id);

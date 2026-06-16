@@ -55,6 +55,7 @@ add_library(MartyInterfaceLib STATIC
     CompilerStrategy.cpp
     CinematicExtractor.cpp
     adapters/MartyParameterProxy.cpp
+    adapters/MartyPathProxy.cpp
     adapters/MappingDatabaseProxy.cpp
     adapters/ParamResolverProxy.cpp
     adapters/DefaultInterpreterPortsFactory.cpp

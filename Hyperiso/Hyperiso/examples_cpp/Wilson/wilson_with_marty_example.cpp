@@ -24,7 +24,7 @@ int main() {
 
     config_hyp.mty_model_name = "ZPrime"; //Use the name of the class you used in your model file (here Zprime.h) within MARTY.
     config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h"; //Path to the MARTY model file. If relative path is used, the path start from the Assets folder.
-    
+    config_hyp.mty_bsm_mapping_path = "/home/theo/hyperiso/Assets/input_files/marty_mapping/zprime.json";
     hyp.init("lha/zprime_input.flha", config_hyp);
 
     //The rest of the code is the same than the base_wilson_example.cpp example.
@@ -34,6 +34,10 @@ int main() {
 
     wi.build(config);
 
+    WilsonBuildConfig config2({WGroup::BPrime}, 81, 42, QCDOrder::NLO);
+
+    wi.addWilsonGroup(config2);
+    
     LOG_INFO("C7(mu_h) at LO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::LO, ContributionType::TOTAL));
     LOG_INFO("C9(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::TOTAL)); //getR -> get running coefficient (getM -> get matching coefficient)
 

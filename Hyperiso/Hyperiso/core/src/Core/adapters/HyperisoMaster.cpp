@@ -1,4 +1,5 @@
 #include "HyperisoMaster.h"
+#include "HyperisoBanner.h"
 
 #include <algorithm>
 #include <cctype>
@@ -17,15 +18,18 @@ std::string api_path_name(APIPath path_name)
     case APIPath::DEFAULT_OBS_VALUES:   return "DEFAULT_OBS_VALUES";
     case APIPath::DEFAULT_PARAM_CORR:   return "DEFAULT_PARAM_CORR";
     case APIPath::DEFAULT_OBS_CORR:     return "DEFAULT_OBS_CORR";
+    case APIPath::DEFAULT_NUISANCES:    return "DEFAULT_NUISANCES";
     case APIPath::USER_SM_PARAMS:       return "USER_SM_PARAMS";
     case APIPath::USER_FLAVOR_PARAMS:   return "USER_FLAVOR_PARAMS";
     case APIPath::USER_DECAY_PARAMS:    return "USER_DECAY_PARAMS";
     case APIPath::USER_OBS_VALUES:      return "USER_OBS_VALUES";
     case APIPath::USER_PARAM_CORR:      return "USER_PARAM_CORR";
     case APIPath::USER_OBS_CORR:        return "USER_OBS_CORR";
+    case APIPath::USER_NUISANCES:       return "USER_NUISANCES";
     case APIPath::PARAM_MAPPING_DIR:    return "PARAM_MAPPING_DIR";
     case APIPath::TEMPLATE_DIR:         return "TEMPLATE_DIR";
     case APIPath::SPECTRUM_DIR:         return "SPECTRUM_DIR";
+    case APIPath::MARTY_TEMP_DIR:       return "MARTY_TEMP_DIR";
     }
     return "UNKNOWN_API_PATH";
 }
@@ -37,6 +41,7 @@ bool is_default_input_path(APIPath path_name)
     case APIPath::DEFAULT_OBS_VALUES:
     case APIPath::DEFAULT_PARAM_CORR:
     case APIPath::DEFAULT_OBS_CORR:
+    case APIPath::DEFAULT_NUISANCES:
         return true;
     default:
         return false;
@@ -52,6 +57,7 @@ bool is_user_input_path(APIPath path_name)
     case APIPath::USER_OBS_VALUES:
     case APIPath::USER_PARAM_CORR:
     case APIPath::USER_OBS_CORR:
+    case APIPath::USER_NUISANCES:
         return true;
     default:
         return false;
@@ -65,6 +71,18 @@ bool is_directory_path(APIPath path_name)
     case APIPath::PARAM_MAPPING_DIR:
     case APIPath::TEMPLATE_DIR:
     case APIPath::SPECTRUM_DIR:
+    case APIPath::MARTY_TEMP_DIR:
+        return true;
+    default:
+        return false;
+    }
+}
+
+bool is_writable_cache_directory_path(APIPath path_name)
+{
+    switch (path_name) {
+    case APIPath::SPECTRUM_DIR:
+    case APIPath::MARTY_TEMP_DIR:
         return true;
     default:
         return false;
@@ -87,6 +105,14 @@ bool validate_pre_init_path_override(APIPath path_name, const fs::path& path)
     }
 
     std::error_code ec;
+    if (is_writable_cache_directory_path(path_name)) {
+        fs::create_directories(path, ec);
+        if (ec) {
+            LOG_ERROR("HyperisoMaster", "Cannot create cache directory for", api_path_name(path_name), ":", path.string(), ec.message());
+            return false;
+        }
+    }
+
     if (!fs::exists(path, ec) || ec) {
         LOG_ERROR("HyperisoMaster", "Path override for", api_path_name(path_name), "does not exist:", path.string());
         return false;
@@ -160,6 +186,7 @@ void HyperisoMaster::init(const std::string &lhaFile, HyperisoConfig config) {
     if (!validate_marty_runtime_if_needed(config, "HyperisoMaster::init")) {
         return;
     }
+    HyperisoBanner::print_startup(lhaFile, config);
     MemoryManager::GetInstance()->init(lhaFile, std::move(config));
 }
 
@@ -246,6 +273,17 @@ void HyperisoMaster::pre_init_set_paths(const std::map<APIPath, std::string>& pa
     LOG_INFO("Hyperiso path overrides registered:", path_overrides.size());
 }
 
+
+
+void HyperisoMaster::pre_init_set_marty_cache_dir(const std::string& cacheDir)
+{
+    pre_init_set_paths({{APIPath::MARTY_TEMP_DIR, cacheDir}});
+}
+
+void HyperisoMaster::pre_init_set_spectrum_cache_dir(const std::string& cacheDir)
+{
+    pre_init_set_paths({{APIPath::SPECTRUM_DIR, cacheDir}});
+}
 
 void HyperisoMaster::init(const std::string &lhaFile) {
     init(lhaFile, HyperisoConfig());

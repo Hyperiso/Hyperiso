@@ -49,15 +49,24 @@ void MartyInterface::generate_numlib(std::string wilson, std::string model) {
     }
 
     bool forceMode = false;
-    std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(model, specials_block, param_proxy_sm, param_proxy_bsm);
+    auto file_names = FileNameManager::getInstance(wilson, model);
+    const std::string cinematic_template = file_names->getGeneratedFileName();
+
+    std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(
+        model,
+        specials_block,
+        param_proxy_sm,
+        param_proxy_bsm,
+        cinematic_template
+    );
     std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, std::move(sm_p_setter), core_api, ports, forceMode);
     
-    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getLibDir());
+    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(file_names->getLibDir());
     templateManager->setModelAndWilson(model, wilson);
     templateManager->setNumModelModifier(std::move(ModelModifier));
     this->dependencies.emplace(wilson, templateManager->get_dependencies());
     CodeGenerator codeGenerator(std::move(templateManager));
-    std::string file_path = FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName();
+    std::string file_path = file_names->getNumGeneratedFileName();
     codeGenerator.generate(file_path, file_path);
 }
 

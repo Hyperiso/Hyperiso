@@ -11,6 +11,7 @@
 #include "CSVReader.h"
 #include "InterpretedParam.h" //Only for template argument !!
 #include "IMartyWilsonProxy.h"
+#include "IMartyWilsonPathProxy.h"
 #include "config.hpp"
 #include "Utils.h"
 
@@ -78,13 +79,33 @@ struct MartyWilsonConfig {
 
     /// Proxy used to run MARTY and retrieve dependencies/special blocks.
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy;
-    
 
+    /// Path provider used to resolve MARTY generated outputs.
+    std::shared_ptr<IMartyWilsonPathProxy> path_provider;
 
     /// Absolute path to the CSV output produced by MARTY for this model.
-    std::string csv_path{project_assets_root.data() + std::string() + +"/MartyTemp/SM_wilson.csv"};
+    std::string csv_path;
 
+    /**
+     * @brief Fallback path used only when legacy code constructs MartyWilsonConfig without a path provider.
+     *
+     * New code should pass @ref path_provider so the CSV path comes from
+     * MemoryManager/APIPath::MARTY_TEMP_DIR rather than project_assets_root.
+     */
+    static fs::path fallback_csv_path(const std::string& model_name) {
+        return fs::temp_directory_path() / "pyhyperiso" / "MartyTemp" / (model_name + "_wilson.csv");
+    }
 
+    /**
+     * @brief Resolves and stores the CSV path using the path provider when available.
+     */
+    void refresh_csv_path() {
+        if (path_provider) {
+            csv_path = path_provider->wilson_csv_path(model_name).string();
+        } else {
+            csv_path = fallback_csv_path(model_name).string();
+        }
+    }
 
     /**
      * @brief Constructs config for a coefficient with a provided model path and proxy.
@@ -93,25 +114,48 @@ struct MartyWilsonConfig {
      * @param storage_block_name Destination block name where the value is stored.
      * @param model_path         Path to the MARTY model header file.
      * @param proxy              Proxy to run MARTY and query dependencies.
+     * @param paths              Path provider resolving MARTY temp/CSV outputs.
      */
-    MartyWilsonConfig(const LhaID& id, const std::string& storage_block_name, fs::path model_path, std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy)
-        : coeff_id(id), storage_block(storage_block_name), model_path(model_path), marty_proxy(proxy) {}
+    MartyWilsonConfig(const LhaID& id,
+                      const std::string& storage_block_name,
+                      fs::path model_path,
+                      std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy,
+                      std::shared_ptr<IMartyWilsonPathProxy> paths = nullptr)
+        : coeff_id(id),
+          storage_block(storage_block_name),
+          model_path(model_path),
+          marty_proxy(proxy),
+          path_provider(paths) {
+        refresh_csv_path();
+    }
 
     /**
      * @brief Constructs config including an explicit model name.
      *
-     * Also updates @ref csv_path to point to "<assets>/MartyTemp/<model_name>_wilson.csv".
+     * The CSV path is resolved from @ref IMartyWilsonPathProxy, typically to
+     * `<cache>/MartyTemp/<model_name>_wilson.csv`.
      *
      * @param model_name         MARTY model class name.
      * @param id                 LHA identifier for the coefficient.
      * @param storage_block_name Destination block name where the value is stored.
      * @param model_path         Path to the MARTY model header file.
      * @param proxy              Proxy to run MARTY and query dependencies.
+     * @param paths              Path provider resolving MARTY temp/CSV outputs.
      */
-    MartyWilsonConfig(const std::string& model_name,const LhaID& id, const std::string& storage_block_name, fs::path model_path, std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy)
-        : model_name(model_name), coeff_id(id), storage_block(storage_block_name), model_path(model_path), marty_proxy(proxy) {
-            csv_path = project_assets_root.data() + std::string() +"/MartyTemp/" + model_name + "_wilson.csv";
-        }
+    MartyWilsonConfig(const std::string& model_name,
+                      const LhaID& id,
+                      const std::string& storage_block_name,
+                      fs::path model_path,
+                      std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy,
+                      std::shared_ptr<IMartyWilsonPathProxy> paths = nullptr)
+        : model_name(model_name),
+          coeff_id(id),
+          storage_block(storage_block_name),
+          model_path(model_path),
+          marty_proxy(proxy),
+          path_provider(paths) {
+        refresh_csv_path();
+    }
 };
 
 /**

@@ -9,11 +9,9 @@
  * @file DefaultInterpreterPortsFactory.h
  * @brief Declares the default factory for interpreter ports.
  *
- * This header defines ::DefaultInterpreterPortsFactory, which wires
- * together JSON loaders, mapping adapters and database proxies into
- * a concrete ::IParameterResolver used by ::Interpreter.
+ * This factory wires together JSON loaders, mapping adapters and database
+ * proxies into a concrete IParameterResolver used by Interpreter.
  */
-
 
 class IMappingAdapterFactory;
 class IParamMappingSource;
@@ -24,35 +22,25 @@ class IParamMappingSource;
  * @brief Default implementation of IInterpreterPortsFactory.
  *
  * This factory:
- *  - constructs a mapping adapter (using a provided or default factory),
- *  - loads parameter mapping information (e.g. from JSON files),
- *  - builds ::MappingDatabaseProxy objects for the model and the SM,
- *  - and returns a ::ParameterResolverProxy that uses these databases.
+ *  - constructs a mapping adapter using a provided or default factory,
+ *  - loads mapping information through the existing JSON loading pipeline,
+ *  - builds MappingDatabaseProxy objects for the model and the SM,
+ *  - validates that model/BSM mappings do not collide with SM mapping keys,
+ *  - returns a ParameterResolverProxy that uses these databases.
  */
 class DefaultInterpreterPortsFactory : public IInterpreterPortsFactory {
 public:
-    /**
-     * @brief Constructs a factory with optional dependencies.
-     *
-     * If @p adapterFactory or @p loader are null, default implementations
-     * will be created internally (e.g. ::DefaultMappingAdapterFactory and
-     * ::JsonParamMappingAdapter).
-     *
-     * @param adapterFactory Optional factory for mapping adapters.
-     * @param loader         Optional mapping source loader.
-     */
     explicit DefaultInterpreterPortsFactory(
         std::shared_ptr<IMappingAdapterFactory> adapterFactory = nullptr,
         std::shared_ptr<IParamMappingSource>    loader         = nullptr
     );
 
     /**
-     * @brief Creates a new ::IParameterResolver for the given model.
+     * @brief Creates a new IParameterResolver for the given model.
      *
-     * @param modelName     Model name (e.g. `"THDM"`, `"MSSM"`).
-     * @param modelJsonPath Path to the model’s mapping JSON file.
-     * @param smJsonPath    Path to the SM mapping JSON file.
-     * @return A unique pointer to a ::ParameterResolverProxy instance.
+     * @param modelName     Model name.
+     * @param modelJsonPath Path to the model or user BSM mapping JSON file.
+     * @param smJsonPath    Path to the read-only SM mapping JSON file.
      */
     std::unique_ptr<IParameterResolver>
     makeResolver(const std::string& modelName,
@@ -60,8 +48,8 @@ public:
                  const std::string& smJsonPath) const override;
 
 private:
-    std::shared_ptr<IMappingAdapterFactory> adapterFactory_;    ///< Factory used to build mapping adapters.
-    std::shared_ptr<IParamMappingSource>    loader_;            ///< Loader used to fetch mapping data.
+    std::shared_ptr<IMappingAdapterFactory> adapterFactory_;
+    std::shared_ptr<IParamMappingSource>    loader_;
 };
 
 #endif

@@ -1,31 +1,45 @@
-#ifndef __PATHS_H__
-#define __PATHS_H__
+#ifndef HYPERISO_PATHS_H
+#define HYPERISO_PATHS_H
 
 #include <filesystem>
-#include "config.hpp"
 
 namespace fs = std::filesystem;
 
-struct DirPaths {
-    static inline const fs::path default_dir_path           = project_assets_root.data() + std::string("default");
-    static inline const fs::path user_dir_path              = project_assets_root.data() + std::string("input_files");
-    static inline const fs::path savestate_dir_path         = project_assets_root.data() + std::string("savestate");
-    static inline const fs::path spectrum_dir_path          = project_assets_root.data() + std::string("spectrum");
-    static inline const fs::path template_dir_path          = project_assets_root.data() + std::string("template");
-    static inline const fs::path param_mapping_dir_path     = project_assets_root.data() + std::string("input_files/marty_mapping");
+/**
+ * @brief Relative asset paths only.
+ *
+ * Runtime roots must be provided by IPathsProvider. Do not place generated
+ * absolute roots here; they are not relocatable once packaged in a Python wheel.
+ */
+struct AssetRelativePaths {
+    static inline const fs::path default_dir       = "default";
+    static inline const fs::path user_dir          = "input_files";
+    static inline const fs::path template_dir      = "template";
+    static inline const fs::path marty_template_dir= fs::path("template") / "MARTY";
+    static inline const fs::path marty_mapping_dir = fs::path("input_files") / "marty_mapping";
 };
 
-struct FilePaths {
-    static inline const fs::path default_obs_values_path   = DirPaths::default_dir_path/"observables.json";  ///< Path to observable covariance file
-    static inline const fs::path default_obs_corr_path     = DirPaths::default_dir_path/"observables_corr.json";  ///< Path to observable covariance file
-    static inline const fs::path default_param_values_path = DirPaths::default_dir_path/"parameters.json";
-    static inline const fs::path default_param_corr_path   = DirPaths::default_dir_path/"parameters_corr.json";           ///< Path to parameter covariance file
-    static inline const fs::path user_obs_values_path      = DirPaths::user_dir_path/"observables/observables.yaml";
-    static inline const fs::path user_obs_corr_path        = DirPaths::user_dir_path/"observables/correlations.yaml";
-    static inline const fs::path user_sm_params_path       = DirPaths::user_dir_path/"parameters/sm.yaml";
-    static inline const fs::path user_flavor_params_path   = DirPaths::user_dir_path/"parameters/flavor.yaml";
-    static inline const fs::path user_decay_params_path    = DirPaths::user_dir_path/"parameters/decay.yaml";
-    static inline const fs::path user_param_corr_path      = DirPaths::user_dir_path/"parameters/correlations.yaml";
+struct DefaultInputRelativePaths {
+    static inline const fs::path obs_values   = fs::path("default") / "observables.json";
+    static inline const fs::path obs_corr     = fs::path("default") / "observables_corr.json";
+    static inline const fs::path param_values = fs::path("default") / "parameters.json";
+    static inline const fs::path param_corr   = fs::path("default") / "parameters_corr.json";
+    static inline const fs::path nuisances    = fs::path("default") / "nuisances.json";
 };
 
-#endif // __PATHS_H__
+struct UserInputRelativePaths {
+    static inline const fs::path obs_values    = fs::path("input_files") / "observables" / "observables.yaml";
+    static inline const fs::path obs_corr      = fs::path("input_files") / "observables" / "correlations.yaml";
+    static inline const fs::path sm_params     = fs::path("input_files") / "parameters" / "sm.yaml";
+    static inline const fs::path flavor_params = fs::path("input_files") / "parameters" / "flavor.yaml";
+    static inline const fs::path decay_params  = fs::path("input_files") / "parameters" / "decay.yaml";
+    static inline const fs::path param_corr    = fs::path("input_files") / "parameters" / "correlations.yaml";
+    static inline const fs::path nuisances     = fs::path("input_files") / "parameters" / "nuisances.yaml";
+};
+
+struct CacheRelativePaths {
+    static inline const fs::path spectrum_dir  = "Spectrum";
+    static inline const fs::path marty_temp_dir= "MartyTemp";
+};
+
+#endif // HYPERISO_PATHS_H

@@ -38,7 +38,7 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     fs::path path    = (ctx.contrib==ContributionType::SM) ? ctx.adapters.sm_path : ctx.adapters.marty_model_path->get();
     std::string block= GroupMapper::str(ctx.group_id, ScaleType::MATCHING);
     LhaID id        = flhaid(c, QCDOrder::LO, ctx.contrib);
-    MartyWilsonConfig cfg { name, id, block, path, ctx.adapters.marty_proxy };
+    MartyWilsonConfig cfg { name, id, block, path, ctx.adapters.marty_proxy, ctx.marty_paths };
     return std::make_shared<MartyWilson>(cfg);
 }
 

@@ -165,7 +165,7 @@ public:
      * @return Pointer to MemoryManager instance.
      */
     static MemoryManager* GetInstance();
-    
+
     /**
      * @brief Retrieves/creates the singleton instance of MemoryManager with injected dependencies.
      *
@@ -210,7 +210,7 @@ public:
      * @param config  Configuration settings to use.
      */
     void init(const std::string &lhaFile, HyperisoConfig config);
-    
+
     /**
      * @brief Registers an additional LHA block prototype before LHA parsing.
      *
@@ -274,7 +274,7 @@ public:
      * @return A const reference to the internal MemoryCache.
      */
     inline const MemoryCache& getMemoryCache() { check_if_ready(); return cache; }
-    
+
     /**
      * @brief Returns whether MemoryManager has already completed init().
      */
@@ -287,7 +287,7 @@ public:
      * @return Shared pointer to a new BlockAccessor containing the requested blocks.
      */
     std::shared_ptr<BlockAccessor> extract_blocks(std::unordered_set<BlockName> block_names);
-    
+
     /**
      * @brief Extracts all blocks from the cached input.
      *
@@ -300,7 +300,7 @@ public:
      * @return A const reference to the CorrelationRepository.
      */
     const CorrelationRepository& get_correlation_repository();
-    
+
     /**
      * @brief Computes all ultimate "source" parameters for a given set of parameter IDs.
      *
