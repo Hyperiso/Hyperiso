@@ -1,11 +1,33 @@
 #include "FileWriter.h"
 
+#include <unordered_set>
+
+namespace {
+const std::unordered_set<std::string>& wilsons_without_mudim() {
+    static const std::unordered_set<std::string> values = {
+        "C10"
+    };
+    return values;
+}
+}
+
 FileWriter::FileWriter(const std::string& wilson, const std::string& model) :
     wilson(wilson), model(model) {}
 
+bool FileWriter::should_set_mudim() const {
+    return wilsons_without_mudim().find(this->wilson) == wilsons_without_mudim().end();
+}
+
 void FileWriter::add_output_writer(std::ofstream& outputFile) {
     outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
-    outputFile << "\tsetMu(Q_match);\n";
+
+    if (should_set_mudim()) {
+        outputFile << "\tsetMu(Q_match);\n";
+    } else {
+        outputFile << "\t// setMu(Q_match) intentionally skipped for " << this->wilson
+                   << " because LoopTools mudim must stay at its default value.\n";
+    }
+
     outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
 
 }

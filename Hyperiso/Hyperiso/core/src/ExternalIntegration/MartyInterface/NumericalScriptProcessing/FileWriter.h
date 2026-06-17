@@ -3,6 +3,7 @@
 #define FILE_WRITER_H
 
 #include <fstream>
+#include <string>
 
 #include "FileNameManager.h"
 
@@ -73,6 +74,15 @@ public:
     void add_input_reader(std::ofstream& outputFile);
 
 private:
+    /**
+     * @brief Returns true when generated code should call setMu(Q_match).
+     *
+     * Some Wilson coefficients, starting with C10, must keep the LoopTools
+     * dimensional scale at its default value because the matching scale used by
+     * HyperIso/SuperIso is not the same object as LoopTools' mudim.
+     */
+    bool should_set_mudim() const;
+
     std::string wilson; ///< Wilson basis / identifier.
     std::string model;  ///< Model name associated with the generated code.
 };
