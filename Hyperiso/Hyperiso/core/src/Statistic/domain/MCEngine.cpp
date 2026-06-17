@@ -1,5 +1,92 @@
 #include "MCEngine.h"
 
+RealMatrix symmetrize_covariance_matrix2(RealMatrix cov) {
+    if (cov.rows() != cov.cols()) {
+        throw std::runtime_error("symmetrize_covariance_matrix: covariance must be square");
+    }
+
+    for (std::size_t i = 0; i < cov.rows(); ++i) {
+        for (std::size_t j = i + 1; j < cov.cols(); ++j) {
+            const double a = cov.at(i, j);
+            const double b = cov.at(j, i);
+
+            if (!std::isfinite(a) || !std::isfinite(b)) {
+                throw std::runtime_error("symmetrize_covariance_matrix: non-finite covariance entry");
+            }
+
+            const double v = 0.5 * (a + b);
+            cov.at(i, j) = v;
+            cov.at(j, i) = v;
+        }
+
+        if (!std::isfinite(cov.at(i, i))) {
+            throw std::runtime_error("symmetrize_covariance_matrix: non-finite covariance diagonal");
+        }
+    }
+
+    return cov;
+}
+
+
+RealMatrix inverse_covariance_with_ridge2(
+    RealMatrix cov,
+    double ridge_rel,
+    double ridge_abs
+) {
+    cov = symmetrize_covariance_matrix2(std::move(cov));
+
+    const std::size_t n = cov.rows();
+    if (n != cov.cols()) {
+        throw std::runtime_error("inverse_covariance_with_ridge: covariance must be square");
+    }
+
+    std::vector<double> sigma(n);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        const double vii = cov.at(i, i);
+
+        if (!std::isfinite(vii) || vii <= 0.0) {
+            std::ostringstream oss;
+            oss << "inverse_covariance_with_ridge: non-positive variance at i="
+                << i << ", variance=" << vii;
+            throw std::runtime_error(oss.str());
+        }
+
+        sigma[i] = std::sqrt(vii);
+    }
+
+    // Build dimensionless correlation matrix.
+    RealMatrix corr(n, n);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            corr.at(i, j) = cov.at(i, j) / (sigma[i] * sigma[j]);
+        }
+    }
+
+    corr = symmetrize_covariance_matrix2(std::move(corr));
+
+    // Ridge in correlation space, dimensionless.
+    const double ridge = std::max(ridge_rel, ridge_abs);
+
+    for (std::size_t i = 0; i < n; ++i) {
+        corr.at(i, i) += ridge;
+    }
+
+    corr = symmetrize_covariance_matrix2(std::move(corr));
+
+    RealMatrix corr_inv = corr.inv();
+
+    // Convert back: Cov^{-1} = D^{-1} Corr^{-1} D^{-1}
+    RealMatrix cov_inv(n, n);
+    for (std::size_t i = 0; i < n; ++i) {
+        for (std::size_t j = 0; j < n; ++j) {
+            cov_inv.at(i, j) = corr_inv.at(i, j) / (sigma[i] * sigma[j]);
+        }
+    }
+
+    return symmetrize_covariance_matrix2(std::move(cov_inv));
+}
+
 MCObservableCovariance covariance_from_obs_samples(
     const ObsSamples& S,
     const std::vector<BinnedObservableId>& ids,
@@ -50,22 +137,46 @@ MCObservableCovariance covariance_from_obs_samples(
     }
 
     double trace = 0.0;
-    for (std::size_t i = 0; i < D; ++i) {
-        trace += std::max(0.0, cov.at(i, i));
-    }
+    // for (std::size_t i = 0; i < D; ++i) {
+    //     trace += std::max(0.0, cov.at(i, i));
+    // }
 
-    const double scale = D > 0 ? trace / static_cast<double>(D) : 1.0;
-    const double ridge = std::max(ridge_abs, ridge_rel * std::max(scale, 1.0));
+    // const double scale = D > 0 ? trace / static_cast<double>(D) : 1.0;
+    // const double ridge = std::max(ridge_abs, ridge_rel * std::max(scale, 1.0));
 
+    // for (std::size_t i = 0; i < D; ++i) {
+    //     cov.at(i, i) += ridge;
+    // }
+
+    // MCObservableCovariance out;
+    // out.ids = ids;
+    // out.mean = mean;
+    // out.covariance = cov;
+    // out.covariance_inv = cov.inv();
+    // return out;
     for (std::size_t i = 0; i < D; ++i) {
-        cov.at(i, i) += ridge;
+        for (std::size_t j = i + 1; j < D; ++j) {
+            const double v = 0.5 * (cov.at(i, j) + cov.at(j, i));
+            cov.at(i, j) = v;
+            cov.at(j, i) = v;
+        }
     }
 
     MCObservableCovariance out;
     out.ids = ids;
     out.mean = mean;
+
+    // Important: covariance brute, sans ridge physique.
     out.covariance = cov;
-    out.covariance_inv = cov.inv();
+
+    // Option 1 : si covariance_inv n'est pas utilisée dans le fit MLE,
+    // tu peux soit ne pas l'utiliser, soit la régulariser séparément.
+    out.covariance_inv = inverse_covariance_with_ridge2(
+        cov,
+        ridge_rel,
+        ridge_abs
+    );
+
     return out;
 }
 

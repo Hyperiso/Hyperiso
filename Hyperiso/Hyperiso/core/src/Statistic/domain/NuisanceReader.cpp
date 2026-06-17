@@ -177,12 +177,12 @@ void NuisanceReader::merge_node_into_registry(const DBNode& root,
     const auto nuisances_value = root.get("nuisances");
     const auto entries = extract_nuisance_entries(nuisances_value);
 
-    if (entries.empty()) {
-        std::ostringstream oss;
-        oss << "NuisanceReader: 'nuisances' found but no entries could be extracted "
-            << "(stored as " << value_kind(nuisances_value) << ")";
-        throw std::runtime_error(oss.str());
-    }
+    // if (entries.empty()) {
+    //     std::ostringstream oss;
+    //     oss << "NuisanceReader: 'nuisances' found but no entries could be extracted "
+    //         << "(stored as " << value_kind(nuisances_value) << ")";
+    //     throw std::runtime_error(oss.str());
+    // }
 
     for (const auto& entry_ptr : entries) {
         if (!entry_ptr) {
