@@ -30,15 +30,28 @@ ObsManager::ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_de
 
 ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
     LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
-    // LOG_INFO(DecayMapper::get_decay_id(id).value().str()); //TODO : error with get_decay_id
-    auto dec = decays.at(DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())));
-    dec->set_order(order);
-    auto obs_ptr = std::make_shared<Observable>(id, dec, obs_port_conf.iobspp_sm);
+
+    // Dynamic routing: do not convert ObservableId back to the legacy Observables enum.
+    // Builtin observables are resolved by the static cache in DecayMapper::get_decay_id(),
+    // while custom observables are resolved by the runtime DecayGraph.
+    DecayId dec_id = DecayMapper::get_decay_id_or_throw(id);
+
+    auto dec_it = decays.find(dec_id);
+    if (dec_it == decays.end()) {
+        LOG_ERROR("KeyError", "Observable", ObservableMapper::str(id),
+                  "is attached to decay", dec_id.str(),
+                  "but this decay is not registered in ObsManager.");
+    }
+
+    dec_it->second->set_order(order);
+
+    auto obs_ptr = std::make_shared<Observable>(id, dec_it->second, obs_port_conf.iobspp_sm);
     obss.emplace(id, obs_ptr);
-    // me.add_observable(obs_ptr);
+
     if (add_deps) {
         add_all_obs_deps(id);
     }
+
     return *this;
 }
 
@@ -65,36 +78,20 @@ ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_d
         "]"
     );
 
-    auto maybe_obs_enum = ObservableMapper::enum_of(id.s);
-    if (!maybe_obs_enum.has_value()) {
-        LOG_WARN("Cannot recover enum for observable", obs_name);
-        return *this;
-    }
-
-    Decays decay_enum;
-    try {
-        decay_enum = DecayMapper::get_decay(maybe_obs_enum.value());
-    } catch (const std::exception& e) {
-        LOG_WARN(
-            "Cannot find decay for binned observable",
-            obs_name,
-            ":",
-            e.what()
-        );
-        return *this;
-    }
-
-    DecayId dec_id = DecayMapper::to_id(decay_enum);
+    // Dynamic routing: binned observables are attached through their underlying ObservableId.
+    // This supports builtin ids and custom ids as long as the custom observable was linked to
+    // a DecayId and the corresponding DecayParent was registered in the manager.
+    DecayId dec_id = DecayMapper::get_decay_id_or_throw(id.s);
 
     auto dec_it = this->decays.find(dec_id);
     if (dec_it == this->decays.end()) {
-        LOG_WARN(
+        LOG_ERROR(
+            "KeyError",
             "Decay",
             dec_id.str(),
             "not present in ObsManager for observable",
             obs_name
         );
-        return *this;
     }
 
     dec_it->second->set_order(order);
@@ -173,7 +170,7 @@ std::map<ObservableId, std::vector<ObservableValue>> ObsManager::evaluate_all() 
 void ObsManager::add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr) {
     ptr->bind_wilson_builder(this->obs_port_conf.iobswb);
     // ptr->load_params();
-    this->decays.emplace(id, ptr);
+    this->decays[id] = std::move(ptr);
 }
 
 void ObsManager::add_obs_dep(Observables id, ParamId param) {
@@ -183,12 +180,15 @@ void ObsManager::add_obs_dep(Observables id, ParamId param) {
 }
 
 void ObsManager::add_obs_dep(ObservableId id, ParamId param) {
-    if (DependenciesHelper::is_param_allowed(id, param)) {
-        obss.at(ensure_present(id))->add_dependence(param);
-    }
-    else {
+    // Builtin observables still use the generated DependenciesHelper allow-list.
+    // Runtime/custom observables do not appear in that generated table, so their
+    // dependencies are accepted as user-declared metadata.
+    if (ObservableMapper::enum_of(id).has_value() && !DependenciesHelper::is_param_allowed(id, param)) {
         LOG_WARN("Observable", ObservableMapper::str(id), "doesn't depend on parameter (", param.block, ",", param.code, "). Ignoring.");
+        return;
     }
+
+    obss.at(ensure_present(id))->add_dependence(param);
 }
 
 void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params) {
@@ -198,12 +198,18 @@ void ObsManager::add_obs_deps(Observables id, std::unordered_set<ParamId> params
 }
 
 void ObsManager::add_obs_deps(ObservableId id, std::unordered_set<ParamId> params) {
+    std::unordered_set<ParamId> accepted;
+    const bool is_builtin = ObservableMapper::enum_of(id).has_value();
+
     for (auto &p : params) {
-        if (ObservableMapper::enum_of(id).has_value() && !DependenciesHelper::is_param_allowed(id, p)) {
+        if (is_builtin && !DependenciesHelper::is_param_allowed(id, p)) {
             LOG_WARN("Observable", ObservableMapper::str(id), "doesn't depend on parameter (", p.block, ",", p.code, "). Ignoring.");
+            continue;
         }
+        accepted.insert(p);
     }
-    obss.at(ensure_present(id))->add_dependences(params);
+
+    obss.at(ensure_present(id))->add_dependences(std::move(accepted));
 }
 
 void ObsManager::add_all_obs_deps(Observables id) {
@@ -219,12 +225,26 @@ void ObsManager::add_all_obs_deps(ObservableId id) {
         obss.at(ensure_present(id))->add_dependences(allowed);
     } catch (const std::out_of_range&) {
         LOG_WARN("No dependency map for observable", ObservableMapper::str(id),
-                 "- adding it without automatic dependencies.");
+                 "- adding it without automatic dependencies. Use add_obs_deps(...) "
+                 "or LambdaObservableConfig::dependencies for runtime observables.");
     }
 }
 
 std::unordered_set<ParamId> ObsManager::get_all_ops_deps(ObservableId id) {
-    return DependenciesHelper::get_allowed_parameters(id);
+    if (obss.contains(id)) {
+        const auto& attached = obss.at(id)->get_dependences();
+        if (!attached.empty()) {
+            return attached;
+        }
+    }
+
+    try {
+        return DependenciesHelper::get_allowed_parameters(id);
+    } catch (const std::out_of_range&) {
+        LOG_WARN("No dependency map for observable", ObservableMapper::str(id),
+                 "- returning an empty dependency set.");
+        return {};
+    }
 }
 
 std::vector<BinnedObservableId> ObsManager::get_current_obss() {
@@ -253,11 +273,14 @@ std::shared_ptr<Observable> ObsManager::get_obs(ObservableId id){
 
 //TODO : better than this
 void ObsManager::select_decay(ObservableId id) {
+    // Dynamic routing: use DecayMapper::get_decay_id_or_throw(id), which first checks
+    // runtime links for custom observables and then falls back to builtin mappings.
+    DecayId target = DecayMapper::get_decay_id_or_throw(id);
+
     for (auto& [dec_id, decay] : this->decays) {
-        dec_id == DecayMapper::to_id(DecayMapper::get_decay(ObservableMapper::enum_of(id).value())) ? decay->enable() : decay->disable();
+        dec_id == target ? decay->enable() : decay->disable();
     }
 }
-
 
 void ObsManager::set_decay_config(Decays dec, std::any config) {
     this->decays.at(DecayMapper::to_id(dec))->set_config(config);
@@ -280,7 +303,9 @@ ObservableId ObsManager::ensure_present(ObservableId id, bool critical) {
 
 void ObsManager::reload_params() {
     for (auto& elem: this->decays) {
-        elem.second->load_params();
+        if (elem.second && elem.second->is_enabled()) {
+            elem.second->load_params();
+        }
     }
 }
 

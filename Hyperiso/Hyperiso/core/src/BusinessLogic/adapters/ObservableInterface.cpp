@@ -25,6 +25,52 @@ void ObservableInterface::add_custom_decay(DecayId id, std::shared_ptr<DecayPare
     manager->add_custom_decay(id, ptr);
 }
 
+ObservableInterface& ObservableInterface::add_lambda_decay(LambdaDecayConfig config, bool add_observables) {
+    if (config.observables.empty()) {
+        LOG_ERROR("ValueError", "Cannot register lambda decay", config.canonical, "without observables.");
+    }
+
+    std::vector<CustomObservableSpec> specs;
+    specs.reserve(config.observables.size());
+    for (const auto& obs : config.observables) {
+        specs.push_back(CustomObservableSpec{obs.canonical, obs.aliases, obs.flha});
+    }
+
+    const bool registered = DecayMapper::register_custom_with_observables(
+        config.canonical,
+        config.aliases,
+        std::move(specs)
+    );
+
+    if (!registered) {
+        LOG_WARN(
+            "Lambda decay",
+            config.canonical,
+            "was not newly registered. Reusing an existing mapper entry if it exists."
+        );
+    }
+
+    for (const auto& custom_group : config.custom_wilson_groups) {
+        this->ports->iobswb->add_custom_group(custom_group);
+    }
+
+    DecayId decay_id = DecayMapper::id_of(config.canonical);
+    auto decay = std::make_shared<LambdaDecay>(decay_id, config, *this->ports);
+    this->manager->add_custom_decay(decay_id, decay);
+
+    if (add_observables) {
+        for (const auto& obs : config.observables) {
+            ObservableId obs_id = ObservableMapper::id_of(obs.canonical);
+            this->manager->add_obs(obs_id, config.order, false);
+            if (!obs.dependencies.empty()) {
+                this->manager->add_obs_deps(obs_id, obs.dependencies);
+            }
+        }
+    }
+
+    return *this;
+}
+
 ObservableInterface& ObservableInterface::add_observable(Observables obs, QCDOrder order, bool add_dependencies) {
     manager->add_obs(obs, order, add_dependencies);
     return *this;

@@ -11,6 +11,11 @@ void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<IObsWilson
     wil_builder->build(std::make_shared<WilsonBuildConfig>(config));
 }
 
+
+void ObsWilsonHelper::mark_built(WGroupId group, bool frozen) {
+    state[group] = frozen;
+}
+
 std::unordered_set<WGroupId> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroupId> &needed) {
     std::unordered_set<WGroupId> all_groups = get_keys(state);
     std::set_union(

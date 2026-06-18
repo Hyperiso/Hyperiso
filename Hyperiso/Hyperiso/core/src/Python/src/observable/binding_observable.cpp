@@ -1,6 +1,7 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 
 #include <map>
 #include <memory>
@@ -33,6 +34,123 @@
 namespace py = pybind11;
 
 namespace {
+
+double double_from_python(py::handle obj) {
+    if (py::hasattr(obj, "_cpp_obj")) {
+        py::object inner = py::getattr(obj, "_cpp_obj");
+        try {
+            return inner.cast<double>();
+        } catch (const py::cast_error&) {
+            // Continue with complex-like values.
+        }
+        try {
+            return inner.cast<std::complex<double>>().real();
+        } catch (const py::cast_error&) {
+            // Continue with the public object itself.
+        }
+    }
+
+    try {
+        return obj.cast<double>();
+    } catch (const py::cast_error&) {
+        // Continue with Python complex.
+    }
+
+    return obj.cast<std::complex<double>>().real();
+}
+
+std::function<double(LambdaDecay&, ObservableId)> wrap_lambda_scalar(py::function fn) {
+    return [fn = std::move(fn)](LambdaDecay& ctx, ObservableId id) -> double {
+        py::gil_scoped_acquire gil;
+        py::object out = fn(py::cast(&ctx, py::return_value_policy::reference), id);
+        return double_from_python(out);
+    };
+}
+
+std::function<double(LambdaDecay&, std::pair<double,double>, ObservableId)> wrap_lambda_binned_scalar(py::function fn) {
+    return [fn = std::move(fn)](LambdaDecay& ctx, std::pair<double,double> bin, ObservableId id) -> double {
+        py::gil_scoped_acquire gil;
+        py::object out = fn(py::cast(&ctx, py::return_value_policy::reference), bin, id);
+        return double_from_python(out);
+    };
+}
+
+void bind_lambda_decay_types(py::module& m) {
+    py::class_<LambdaDecay>(m, "LambdaDecay", R"pbdoc(
+Execution context passed to Python lambda observables.
+
+The context exposes the same services that a compiled ``DecayParent`` uses:
+Wilson coefficients, SM/FLAVOR parameters, QCD helpers and the current bin list.
+The object is owned by the C++ observable manager; keep it only during the
+callback call.
+)pbdoc")
+        .def("get_M", [](LambdaDecay& ctx, WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+            return ctx.W().getM(group, coeff, order, contribution);
+        }, py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"))
+        .def("get_FM", [](LambdaDecay& ctx, WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+            return ctx.W().getFM(group, coeff, order, contribution);
+        }, py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"))
+        .def("get_R", [](LambdaDecay& ctx, WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+            return ctx.W().getR(group, coeff, order, contribution);
+        }, py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"))
+        .def("get_FR", [](LambdaDecay& ctx, WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+            return ctx.W().getFR(group, coeff, order, contribution);
+        }, py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"))
+        .def("get_sm_param", [](LambdaDecay& ctx, const ParamId& pid, DataType type) {
+            return ctx.SM()(pid, type);
+        }, py::arg("pid"), py::arg("type") = DataType::VALUE)
+        .def("get_flavor_param", [](LambdaDecay& ctx, const ParamId& pid, DataType type) {
+            return ctx.FLAVOR()(pid, type);
+        }, py::arg("pid"), py::arg("type") = DataType::VALUE)
+        .def("current_bins", [](LambdaDecay& ctx) {
+            auto bins = ctx.current_bins();
+            if (!bins.has_value()) {
+                return std::vector<std::pair<double,double>>{};
+            }
+            return *bins;
+        }, R"pbdoc(Return currently requested bins, or an empty list for unbinned calls.)pbdoc");
+
+    py::class_<LambdaObservableConfig>(m, "LambdaObservableConfig", R"pbdoc(
+Runtime observable definition for ``LambdaDecayConfig``.
+
+Use ``scalar`` for unbinned observables and ``binned_scalar`` for observables
+that should be evaluated once per currently selected bin. Dependencies declared
+on this object are visible to ``ObservableInterface`` and ``StatisticInterface``.
+)pbdoc")
+        .def(py::init<>())
+        .def_readwrite("canonical", &LambdaObservableConfig::canonical)
+        .def_readwrite("aliases", &LambdaObservableConfig::aliases)
+        .def_readwrite("flha", &LambdaObservableConfig::flha)
+        .def_readwrite("dependencies", &LambdaObservableConfig::dependencies)
+        .def_static("scalar", [](std::string canonical, py::function compute) {
+            return LambdaObservableConfig::scalar(std::move(canonical), wrap_lambda_scalar(std::move(compute)));
+        }, py::arg("canonical"), py::arg("compute"),
+           R"pbdoc(Create an unbinned scalar observable from a Python callback.)pbdoc")
+        .def_static("binned_scalar", [](std::string canonical, py::function compute) {
+            return LambdaObservableConfig::binned_scalar(std::move(canonical), wrap_lambda_binned_scalar(std::move(compute)));
+        }, py::arg("canonical"), py::arg("compute"),
+           R"pbdoc(Create a binned scalar observable from a Python callback.)pbdoc");
+
+    py::class_<LambdaDecayConfig>(m, "LambdaDecayConfig", R"pbdoc(
+Runtime decay definition backed by Python lambdas.
+
+The config registers a new dynamic decay, optional custom Wilson groups and one
+or more lambda observables. When ``propagate_custom_wilson_dependencies`` is
+true, ParamId sources declared on custom Wilson matching lambdas are attached to
+the observables so the statistic layer can discover them.
+)pbdoc")
+        .def(py::init<>())
+        .def_readwrite("canonical", &LambdaDecayConfig::canonical)
+        .def_readwrite("aliases", &LambdaDecayConfig::aliases)
+        .def_readwrite("matching_scale", &LambdaDecayConfig::matching_scale)
+        .def_readwrite("hadronic_scale", &LambdaDecayConfig::hadronic_scale)
+        .def_readwrite("order", &LambdaDecayConfig::order)
+        .def_readwrite("max_order", &LambdaDecayConfig::max_order)
+        .def_readwrite("wilson_groups", &LambdaDecayConfig::wilson_groups)
+        .def_readwrite("custom_wilson_groups", &LambdaDecayConfig::custom_wilson_groups)
+        .def_readwrite("observables", &LambdaDecayConfig::observables)
+        .def_readwrite("propagate_custom_wilson_dependencies", &LambdaDecayConfig::propagate_custom_wilson_dependencies);
+}
 
 void bind_decay_config_types(py::module& m) {
     py::class_<DecayConfig>(m, "DecayConfig", R"pbdoc(
@@ -251,8 +369,8 @@ ObservableInterface& set_decay_config_typed(ObservableInterface& self, Decays de
 void init_observable(py::module &m) {
 
     bind_decay_config_types(m);
+    bind_lambda_decay_types(m);
 
-    
     py::class_<ObservableValue>(m, "ObservableValue")
         .def(py::init<ObservableId, double>(),
              py::arg("id"), py::arg("value"))
@@ -285,6 +403,10 @@ void init_observable(py::module &m) {
 
     py::class_<ObservableInterface, std::shared_ptr<ObservableInterface>>(m, "ObservableInterface")
      .def(py::init<>())
+     .def("add_lambda_decay", &ObservableInterface::add_lambda_decay,
+          py::arg("config"), py::arg("add_observables") = true,
+          py::return_value_policy::reference_internal,
+          R"pbdoc(Register a lambda-backed custom decay and optionally add its observables.)pbdoc")
 
      // add_observable( … )
      .def("add_observable",

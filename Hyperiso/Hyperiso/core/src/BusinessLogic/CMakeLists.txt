@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(BusinessLogic)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
@@ -107,6 +111,7 @@ target_include_directories(BusinessLogicLib
 
 target_link_libraries(BusinessLogicLib PUBLIC PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 
+if (BUILD_WITH_APP)
 add_executable(TEST app/main.cpp)
 target_link_libraries(TEST BusinessLogicLib)
 
@@ -121,6 +126,7 @@ target_link_libraries(TEST_CUSTOM_OBS BusinessLogicLib)
 
 add_executable(SPEED app/speeeed.cpp)
 target_link_libraries(SPEED BusinessLogicLib)
+endif()
 
 include(GNUInstallDirs)
 

@@ -28,6 +28,7 @@ public:
         else         history_groups.push_back({});
     }
 
+    void add_custom_group(const CustomWilsonGroupConfig&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return nullptr; }
 };
 

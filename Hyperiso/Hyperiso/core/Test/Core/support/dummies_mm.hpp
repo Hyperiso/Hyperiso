@@ -25,6 +25,7 @@ struct TestPathsProvider : public IPathsProvider {
     fs::path default_obs_values()   const override { return root/"default"/"observables.json"; }
     fs::path default_param_corr()   const override { return root/"default"/"parameters_corr.json"; }
     fs::path default_obs_corr()     const override { return root/"default"/"observables_corr.json"; }
+    fs::path default_nuisances()    const override { return root/"default"/"nuisances.json"; }
 
     fs::path user_sm_params()       const override { return root/"input_files"/"parameters"/"sm.yaml"; }
     fs::path user_flavor_params()   const override { return root/"input_files"/"parameters"/"flavor.yaml"; }
@@ -32,10 +33,12 @@ struct TestPathsProvider : public IPathsProvider {
     fs::path user_obs_values()      const override { return root/"input_files"/"observables"/"observables.yaml"; }
     fs::path user_param_corr()      const override { return root/"input_files"/"parameters"/"correlations.yaml"; }
     fs::path user_obs_corr()        const override { return root/"input_files"/"observables"/"correlations.yaml"; }
+    fs::path user_nuisances()       const override { return root/"input_files"/"parameters"/"nuisances.yaml"; }
 
     fs::path spectrum_dir()         const override { return root/"spectrum"; }
-    fs::path template_dir_path()         const override { return root/"spectrum"; }
-    fs::path param_mapping_dir_path()         const override { return root/"spectrum"; }
+    fs::path marty_temp_dir()       const override { return root/"marty_temp"; }
+    fs::path template_dir_path()    const override { return root/"template"/"MARTY"; }
+    fs::path param_mapping_dir_path() const override { return root/"input_files"/"marty_mapping"; }
 };
 
 inline fs::path& sandbox_root_singleton() {
@@ -61,18 +64,25 @@ inline fs::path prepare_assets_for_mm(const fs::path& lha_rel) {
         fs::create_directories(root/"default");
         fs::create_directories(root/"input_files"/"parameters");
         fs::create_directories(root/"input_files"/"observables");
+        fs::create_directories(root/"input_files"/"marty_mapping");
+        fs::create_directories(root/"template"/"MARTY");
         fs::create_directories(root/"spectrum");
+        fs::create_directories(root/"marty_temp");
 
         touch_file(root/"default"/"parameters.json",      R"({ "MASS": {}, "GAUGE": {} })");
         touch_file(root/"default"/"observables.json",     R"({ "FOBS": {} })");
         touch_file(root/"default"/"parameters_corr.json", R"({})");
         touch_file(root/"default"/"observables_corr.json",R"({})");
+        touch_file(root/"default"/"nuisances.json",       R"({})");
 
         touch_file(root/"input_files"/"parameters"/"sm.yaml",        "sm: {}\n");
         touch_file(root/"input_files"/"parameters"/"flavor.yaml",    "flavor: {}\n");
         touch_file(root/"input_files"/"parameters"/"decay.yaml",     "decay: {}\n");
         touch_file(root/"input_files"/"observables"/"observables.yaml","observables: {}\n");
         touch_file(root/"input_files"/"parameters"/"correlations.yaml","{}\n");
+        touch_file(root/"input_files"/"observables"/"correlations.yaml","{}\n");
+        touch_file(root/"input_files"/"parameters"/"nuisances.yaml","{}\n");
+        touch_file(root/"input_files"/"marty_mapping"/"sm.json", "{}\n");
     }
 
     const fs::path lha_abs = (root / lha_rel).lexically_normal();

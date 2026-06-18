@@ -1,4 +1,5 @@
 #include "ObsWilsonBuilder.h"
+#include "ObsWilsonHelper.h"
 
 void ObsWilsonBuilder::build(std::shared_ptr<AbstractConfig> config) {
     auto wil_config = *std::dynamic_pointer_cast<WilsonBuildConfig>(config);
@@ -8,6 +9,20 @@ void ObsWilsonBuilder::build(std::shared_ptr<AbstractConfig> config) {
     } else {
         wil_builder->build(wil_config);
     }
+}
+
+
+void ObsWilsonBuilder::add_custom_group(const CustomWilsonGroupConfig& config) {
+    if (!wil_builder->get_coefficient_manager()) {
+        WilsonBuildConfig base;
+        base.matching_scale = config.matching_scale;
+        base.hadronic_scale = config.hadronic_scale;
+        base.order = config.order;
+        wil_builder->build(base);
+    }
+
+    wil_builder->add_custom_group(config);
+    ObsWilsonHelper::mark_built(config.group);
 }
 
 std::shared_ptr<IObsWilsonProxy> ObsWilsonBuilder::get_proxy() {

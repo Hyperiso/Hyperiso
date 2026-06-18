@@ -71,6 +71,33 @@ public:
     }
 
     /**
+     * @brief Constructs a custom coefficient from a dynamic Wilson coefficient id.
+     *
+     * This overload is the preferred entry point for runtime/user-defined Wilson
+     * coefficients. The coefficient name is set to @ref WCoefMapper::str(id), so
+     * it can be queried later through @ref WCoefId without requiring a legacy
+     * @ref WCoef enum value. Per-order LHA ids are initialized with
+     * @ref WCoefMapper::flha_full(WCoefId,QCDOrder,ContributionType).
+     *
+     * @param id            Dynamic coefficient id. It must have an FLHA base key
+     *                      registered in @ref WCoefMapper.
+     * @param storage_block Block where matching values will be composed.
+     * @param type          Contribution slot computed by this coefficient.
+     */
+    CustomWilson(WCoefId id,
+                 const std::string& storage_block,
+                 ContributionType type = ContributionType::SM)
+    : WilsonCoefficient(WCoefMapper::flha_full(id, QCDOrder::LO, type), storage_block, type)
+    {
+        this->coeffName = WCoefMapper::str(id);
+        this->type = type;
+
+        matching_info[QCDOrder::LO]   = MatchingInfo(WCoefMapper::flha_full(id, QCDOrder::LO, type));
+        matching_info[QCDOrder::NLO]  = MatchingInfo(WCoefMapper::flha_full(id, QCDOrder::NLO, type));
+        matching_info[QCDOrder::NNLO] = MatchingInfo(WCoefMapper::flha_full(id, QCDOrder::NNLO, type));
+    }
+
+    /**
      * @brief Defines sources and compute functor for a specific QCD order.
      *
      * @param order    Order to configure (LO/NLO/NNLO).

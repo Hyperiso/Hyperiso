@@ -125,6 +125,7 @@ add_subdirectory(src/Core CoreLib)
 add_subdirectory(src/ExternalIntegration/MartyInterface MartyInterfaceLib)
 add_subdirectory(src/PhysicalModel PhysicalModelLib)
 add_subdirectory(src/BusinessLogic BusinessLogicLib)
+add_subdirectory(src/Statistic StatisticLib)
 add_subdirectory(src/UserInterface UserInterfaceLib)
 
 if (ENABLE_TESTS)
@@ -162,6 +163,7 @@ target_link_libraries(Hyperiso INTERFACE
     MartyInterfaceLib
     PhysicalModelLib
     BusinessLogicLib
+    StatisticLib
     UserInterfaceLib
 )
 
@@ -186,7 +188,8 @@ set(HYPERISO_MODULES
     Core
     ExternalIntegration/MartyInterface
     PhysicalModel
-    BusinessLogic
+    BusinessLogic,
+    Statistic
     UserInterface
 )
 

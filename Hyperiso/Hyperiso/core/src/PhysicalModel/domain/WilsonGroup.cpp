@@ -1,5 +1,7 @@
 #include "WilsonGroup.h"
 
+#include <algorithm>
+
 void CoefficientGroup::claim_coefficients() {
     for (auto& [_, coeff]: *this) {
         coeff->set_owned(true);
@@ -21,6 +23,7 @@ CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
     wilson_type = other.wilson_type;
     current_order = other.current_order;
     id = other.id;
+    member_ids = other.member_ids;
     block_name = GroupMapper::str(this->id, ScaleType::MATCHING);
 }
 
@@ -53,6 +56,12 @@ void CoefficientGroup::init(QCDOrder max_order) {
 
 void CoefficientGroup::set_matching_storage_block(std::string name) {
     block_name = name;
+}
+
+void CoefficientGroup::add_member_id(WCoefId id) {
+    if (std::find(member_ids.begin(), member_ids.end(), id) == member_ids.end()) {
+        member_ids.emplace_back(std::move(id));
+    }
 }
 complex_t CoefficientGroup::get_matching_coefficient(std::string coeff, std::string order, ContributionType cont_type) const {
     auto it = this->find(coeff);

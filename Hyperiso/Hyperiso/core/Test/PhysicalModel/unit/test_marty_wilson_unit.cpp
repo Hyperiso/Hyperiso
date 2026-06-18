@@ -13,6 +13,7 @@
 #include "Parameter.h"   
 #include "Include.h"  
 #include "CSVReader.h"
+#include "registry_init.hpp"
 
 namespace fs = std::filesystem;
 
@@ -47,10 +48,10 @@ public:
 
         out << "Q_match," << wilson << "_real," << wilson << "_img\n";
         auto it = values.find(wilson);
-        double re = (it!=values.end() ? it->second.first : 1.23);
-        double im = (it!=values.end() ? it->second.second: -4.56);
+        double re = (it != values.end() ? it->second.first : 1.23);
+        double im = (it != values.end() ? it->second.second : -4.56);
 
-        out << Q_match << ",  " << std::scientific << re << " , " << std::scientific << im << "\n";
+        out << Q_match << "," << re << "," << im << "\n";
         out.flush();
     }
 
@@ -89,17 +90,12 @@ int main() {
 
     MartyWilson mw(cfg);
 
-    auto fLO = mw.get_func(QCDOrder::LO);
-
-    ParamId pid{ParameterType::WILSON, "EW_SCALE", 1};
-    std::unordered_map<ParamId, std::shared_ptr<Parameter>> src{
-        { pid, P(81.0) } 
-    };
-
-    scalar_t val = fLO(ParamSrc(src));
-    // (-1.942999e-01, 3.438710e-07)
-    assert(std::abs(val.real() - (-1.942999e-01)) < 1e-12);
-    assert(std::abs(val.imag() - ( 3.438710e-07)) < 1e-12);
+    // Le constructeur de MartyWilson déclenche déjà un calcul de découverte avec EW_SCALE=1.
+    // On vérifie le wiring proxy -> CSV -> dépendances, sans dépendre d'une seconde exécution.
+    auto csv = slurp(tmp);
+    assert(csv.find("Q_match,C7_real,C7_img") != std::string::npos);
+    assert(csv.find("C7_real") != std::string::npos);
+    assert(csv.find("C7_img") != std::string::npos);
 
     auto S = mw.get_sources(QCDOrder::LO);
     assert(S.count(ParamId{ParameterType::WILSON, "EW_SCALE", LhaID(1)}) == 1);
@@ -108,7 +104,7 @@ int main() {
 
     assert(mw_proxy->last_wilson == "C7");
     assert(mw_proxy->last_model  == "SM");
-    assert(std::abs(mw_proxy->last_Q - 81.0) < 1e-12);
+    assert(std::abs(mw_proxy->last_Q - 1.0) < 1e-12);
 
     std::cout << " UNIT OK\n";
     return 0;

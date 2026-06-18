@@ -1,38 +1,71 @@
-#include "Logger.h"
 #include <iostream>
-#include <cassert>
-#include "ObservableInterface.h"
+
 #include "HyperisoMaster.h"
-#include "config.hpp"
+#include "Include.h"
+#include "Logger.h"
+#include "ObservableInterface.h"
+#include "BKsllDecay.h"
+#include "BVFFCalculator.h"
 
 int main() {
     Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
-    HyperisoMaster hyp; // Create the interface for hyperiso (reading/writing in the lha and all the options we want to use)
-    HyperisoConfig config; // Config struct where we can put all the options we want for Hyperiso (general options)
-    config.model = Model::SM; // The model we want to use, SM by default. If not THDM or SUSY, MARTY is needed.
-    hyp.init("lha/si_input.flha", config); // Initialize program manager with LHA file and the config. Search in the Assets directory if relative path.
-    LOG_INFO("HyperisoMaster initialized");
 
-    QCDOrder order = QCDOrder::NNLO;
+    HyperisoConfig config;
+    config.model = Model::SM;
 
-    ObservableInterface oi; // Initialize interface for observables calculation.
+    HyperisoMaster hyp;
+    hyp.init("lha/si_input.flha", config);
 
-    oi.add_observable(Observables::BR_B__KSTAR_GAMMA, order); //An observable can be added with its name and the order at which the calculation will be performed.
-    oi.add_observable(BinnedObservableId(Observables::F_L_B0__KSTAR0_MU_MU, {1.1,6.}), order);//If the observable is binned, one can use the BinnedObservable class to precise the bin to be used for the calculation its also possible to use initializer list for simplicity.
-    oi.add_observables(Decays::B__l_l, order); //If one want to calculate all observable of a certain decay, its possible to specify the decay using the add_observables API.
+    // Creation of the Observable interface. This interface needs to be created after the HyperisoMaster.
+    // It will register all observables needed for the calculation.
+    ObservableInterface interface;
 
-    //compute_observable return a vector of ObservableValue. An ObservableValue is composed of the id of the observable, the calculated value and the bin.
-    LOG_INFO("F_L(B0 > K0* mu mu) (q²=[1, 6] GeV²) =", oi.compute_observable(Observables::F_L_B0__KSTAR0_MU_MU)[0].value);
+    // For some decays, you can fine-tune the config if you want to use a specific set of form factors or change calculation parameters.
+    // For heavy calculations (e.g. Kstarll) with integration, you can use kstar_conf.n_threads to run on multiple threads.
+    // This is also available within the interface with interface.set_bkstarll_threads(nb_of_threads), same for bkll and bsphi.
+    BKstarllConfig kstar_conf;
 
-    //One can use the get_current_observables API to get all observables available in the ObservableInterface.
-    for (auto obs : oi.get_current_observables()) {
-        LOG_INFO(obs);
+    // Use add_observable to add a new observable, with its order in QCD for the calculation.
+    interface.add_observable(Observables::BR_B_XS_GAMMA, QCDOrder::NNLO);
+
+    // With bin, use the BinnedObservableId class to add the bin. You can add multiple bins, which will be treated as different observables.
+    interface.add_observable(BinnedObservableId(Observables::F_L_B0__KSTAR0_MU_MU, {1.1, 6.0}), QCDOrder::NNLO);
+
+    // If you want to add all the observables of a decay, use the add_observables(Decays, QCDOrder) API.
+    interface.add_observables(Decays::B__l_l, QCDOrder::NNLO);
+
+    // Compute the observable. The API returns a vector of ObservableValue, because an observable can have several bins.
+    for (const auto& value : interface.compute_observable(Observables::F_L_B0__KSTAR0_MU_MU)) {
+        std::cout << value.id.str() << " = " << value.value;
+        if (value.bin.has_value()) {
+            std::cout << " in [" << value.bin->first << ", " << value.bin->second << "]";
+        }
+        std::cout << "\n";
     }
 
-    //One can also get the experimental value and uncertainty of an observable (experimental values which are used in the Statistic part).
-    LOG_INFO("Experimental value and uncertainty : of BR(B > K* gamma) =", oi.get_exp_value(Observables::BR_B__KSTAR_GAMMA), "+/-", oi.get_exp_uncertainty(Observables::BR_B__KSTAR_GAMMA, UncertaintyType::STAT));
-    
-    //If the value of an observable is present in multiple experiment (e.g CMS or LHCB) one can use the following API (using the struct ExperimentObs which contain a BinnedObservableId and the name of the experiment):
-    LOG_INFO("Experimental value and uncertainty : of BR(B > K* gamma) =", oi.get_exp_value({"LHCB2025c2",{Observables::F_L_B0__KSTAR0_MU_MU, {1.1, 6.}}}), "+/-", oi.get_exp_uncertainty({"LHCB2025c2", {Observables::F_L_B0__KSTAR0_MU_MU, {1.1, 6.}}}, UncertaintyType::STAT));
+    // This allows to change the form factor choice of a particular decay.
+    kstar_conf.ff_src = BV_FF_Src::GRvDV;
+
+    // Set the new config inside the interface.
+    interface.set_decay_config(Decays::B__Kstar_l_l, kstar_conf);
+
+    std::cout << "\nAfter changing B->K* form-factor source:\n";
+    for (const auto& value : interface.compute_observable(Observables::F_L_B0__KSTAR0_MU_MU)) {
+        std::cout << value.id.str() << " = " << value.value << "\n";
+    }
+
+    for (const auto& value : interface.compute_observable(Observables::BR_BS_MUMU)) {
+        std::cout << value.id.str() << " = " << value.value << "\n";
+    }
+
+    // This API allows to calculate all observables present in the interface.
+    std::cout << "\nAll registered observables:\n";
+    for (const auto& [obs, values] : interface.compute_all()) {
+        std::cout << obs.str() << "\n";
+        for (const auto& value : values) {
+            std::cout << "  " << value.value << "\n";
+        }
+    }
+
     return 0;
 }

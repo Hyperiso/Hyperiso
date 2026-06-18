@@ -21,6 +21,7 @@
 #include "MartyModelPathAPI.h"
 #include "MartyWilsonPathProxy.h"
 #include "SMFromHypProxy.h"
+#include "CustomWilsonLambda.h"
 
 /**
  * @brief High-level factory assembling a complete Wilson computation pipeline.
@@ -101,6 +102,19 @@ public:
     void add(WilsonBuildConfig config) override;
 
     /**
+     * @brief Register and initialize a user-defined Wilson group built from lambdas.
+     *
+     * The config provides dynamic ids, matching lambdas for coefficients and optional
+     * running lambdas for the group. The builder turns it into a
+     * @ref CustomCoefficientGroup, registers it in the existing
+     * @ref CoefficientManager, then initializes matching and hadronic blocks at the
+     * scales/order stored in the config.
+     *
+     * @param config Runtime/custom Wilson group configuration.
+     */
+    void add_custom_group(const CustomWilsonGroupConfig& config);
+
+    /**
      * @brief Returns a provider facade around this builder.
      *
      * The provider offers runtime coefficient access using a request/config object.
@@ -123,6 +137,14 @@ private:
 
     /// Active coefficient manager (owns groups and composed blocks).
     std::shared_ptr<CoefficientManager> cm;
+
+    /**
+     * @brief Last adapter bundle used to build coefficient groups.
+     *
+     * It is cached so runtime custom groups can be assembled with the same proxies,
+     * composer and MARTY hooks as builtin groups.
+     */
+    std::shared_ptr<WilsonGroupAdapterConfig> current_group_adapters;
 };
 
 #endif // IWILSONBUILDER_H

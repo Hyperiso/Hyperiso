@@ -25,6 +25,30 @@ complex_t ObsWilsonProxy::getFR(WGroup group, WCoef coeff, QCDOrder order, Contr
     return this->wil_p->get(std::make_shared<WilsonRequest>(request));
 }
 
+complex_t ObsWilsonProxy::getM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+    WilsonRequest request{group, coeff, order, contribution, ScaleType::MATCHING, false};
+    request.basis = this->basis;
+    return this->wil_p->get(std::make_shared<WilsonRequest>(request));
+}
+
+complex_t ObsWilsonProxy::getFM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+    WilsonRequest request{group, coeff, order, contribution, ScaleType::MATCHING, true};
+    request.basis = this->basis;
+    return this->wil_p->get(std::make_shared<WilsonRequest>(request));
+}
+
+complex_t ObsWilsonProxy::getR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution) {
+    WilsonRequest request{group, coeff, order, contribution, ScaleType::HADRONIC, false};
+    request.basis = this->basis;
+    return this->wil_p->get(std::make_shared<WilsonRequest>(request));
+}
+
+complex_t ObsWilsonProxy::getFR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution){
+    WilsonRequest request{group, coeff, order, contribution, ScaleType::HADRONIC, true};
+    request.basis = this->basis;
+    return this->wil_p->get(std::make_shared<WilsonRequest>(request));
+}
+
 std::map<QCDOrder, complex_t> ObsWilsonProxy::getSM(WGroup group, WCoef coeff, ContributionType contribution) {
     return {
         {QCDOrder::LO, getM(group, coeff, QCDOrder::LO, contribution)},
@@ -34,6 +58,22 @@ std::map<QCDOrder, complex_t> ObsWilsonProxy::getSM(WGroup group, WCoef coeff, C
 }
 
 std::map<QCDOrder, complex_t> ObsWilsonProxy::getSR(WGroup group, WCoef coeff, ContributionType contribution) {
+    return {
+        {QCDOrder::LO, getR(group, coeff, QCDOrder::LO, contribution)},
+        {QCDOrder::NLO, getR(group, coeff, QCDOrder::NLO, contribution)},
+        {QCDOrder::NNLO, getR(group, coeff, QCDOrder::NNLO, contribution)}
+    };
+}
+
+std::map<QCDOrder, complex_t> ObsWilsonProxy::getSM(WGroupId group, WCoefId coeff, ContributionType contribution) {
+    return {
+        {QCDOrder::LO, getM(group, coeff, QCDOrder::LO, contribution)},
+        {QCDOrder::NLO, getM(group, coeff, QCDOrder::NLO, contribution)},
+        {QCDOrder::NNLO, getM(group, coeff, QCDOrder::NNLO, contribution)}
+    };
+}
+
+std::map<QCDOrder, complex_t> ObsWilsonProxy::getSR(WGroupId group, WCoefId coeff, ContributionType contribution) {
     return {
         {QCDOrder::LO, getR(group, coeff, QCDOrder::LO, contribution)},
         {QCDOrder::NLO, getR(group, coeff, QCDOrder::NLO, contribution)},

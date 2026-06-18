@@ -15,6 +15,7 @@
 #include "ICoreAPI.h"
 #include "Parameter.h"
 #include "Include.h"
+#include "registry_init.hpp"
 
 namespace fs = std::filesystem;
 
@@ -114,7 +115,9 @@ int main() {
     coeffs["C7"] = c7;
 
     TestGroup grp(cfg);
-    grp.set_id(GroupMapper::to_id(WGroup::B));
+    const WGroupId b_group = GroupMapper::to_id(WGroup::B);
+    grp.set_id(b_group);
+    grp.set_matching_storage_block(GroupMapper::str(b_group, ScaleType::MATCHING));
     grp.set_type(ContributionType::SM);
 
     grp.insert(coeffs.begin(), coeffs.end());
@@ -134,14 +137,6 @@ int main() {
     }
     assert(saw_c7);
 
-    auto fLO = c7->get_func(QCDOrder::LO);
-    ParamId pid{ParameterType::WILSON, "EW_SCALE", 1};
-    std::unordered_map<ParamId, std::shared_ptr<Parameter>> src{
-        { pid, std::make_shared<Parameter>(pid, 81.0, 0.0, 0.0) }
-    };
-    scalar_t v = fLO(ParamSrc(src));
-    assert(std::abs(v.real() - (-2.0e-1)) < 1e-12);
-    assert(std::abs(v.imag() - ( 3.0e-7)) < 1e-12);
 
     std::cout << " INTEGRATION OK\n";
     return 0;

@@ -65,6 +65,25 @@ public:
     complex_t getR (WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
     complex_t getFR(WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
 
+
+    static WGroup enum_group_or_default(WGroupId gid) {
+        auto g = GroupMapper::enum_of(gid);
+        return g.value_or(WGroup::B);
+    }
+
+    static WCoef enum_coef_or_default(WCoefId cid) {
+        auto c = WCoefMapper::enum_of(cid);
+        return c.value_or(WCoef::C1);
+    }
+
+    complex_t getM (WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getM (enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getFM(WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getFM(enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getR (WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getR (enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getFR(WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getFR(enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+
+    std::map<QCDOrder, complex_t> getSM(WGroupId g, WCoefId c, ContributionType t) override { return getSM(enum_group_or_default(g), enum_coef_or_default(c), t); }
+    std::map<QCDOrder, complex_t> getSR(WGroupId g, WCoefId c, ContributionType t) override { return getSR(enum_group_or_default(g), enum_coef_or_default(c), t); }
+
     std::map<QCDOrder, complex_t> getSM(WGroup, WCoef, ContributionType) override { return {}; }
     std::map<QCDOrder, complex_t> getSR(WGroup, WCoef, ContributionType) override { return {}; }
     std::map<WCoef, complex_t> getAM (WGroup, QCDOrder, ContributionType) override { return {}; }
@@ -81,6 +100,7 @@ class DummyObsWilsonBuilder : public IObsWilsonBuilder {
 public:
     std::shared_ptr<DummyObsWilsonProxy> proxy = std::make_shared<DummyObsWilsonProxy>();
     void build(std::shared_ptr<AbstractConfig>) override {}
+    void add_custom_group(const CustomWilsonGroupConfig&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return proxy; }
 };
 
@@ -202,6 +222,39 @@ int main() {
         mgr.add_custom_decay(did, custom);
 
         assert(custom->is_bound_to(wb));
+    }
+
+
+    {
+        // Runtime/custom observables are not present in the generated
+        // DependenciesHelper table. Their dependencies must therefore be the
+        // ones explicitly attached to the Observable instance.
+        CustomObservableSpec spec;
+        spec.canonical = "UNIT_DYNAMIC_OBS";
+        spec.aliases = {"unit-dynamic-obs"};
+        spec.ext = LhaID(910001, 1);
+
+        const bool registered = DecayMapper::register_custom_with_observables(
+            "UNIT_DYNAMIC_DECAY",
+            {"unit-dynamic-decay"},
+            {spec}
+        );
+        (void)registered;
+
+        DecayId dynamic_decay = DecayMapper::id_of("unit-dynamic-decay");
+        ObservableId dynamic_obs = ObservableMapper::id_of("unit-dynamic-obs");
+
+        mgr.add_custom_decay(dynamic_decay, std::make_shared<SimpleDecay>(dynamic_decay, ports));
+        mgr.add_obs(dynamic_obs, QCDOrder::LO, /*add_deps*/false);
+
+        ParamId direct_dep(ParameterType::SM, "SMINPUTS", LhaID(6));
+        ParamId flavor_dep(ParameterType::FLAVOR, "FCONST", LhaID(531, 1));
+        mgr.add_obs_deps(dynamic_obs, {direct_dep, flavor_dep});
+
+        auto deps = mgr.get_all_ops_deps(dynamic_obs);
+        assert(deps.count(direct_dep) == 1);
+        assert(deps.count(flavor_dep) == 1);
+        assert(deps.size() == 2);
     }
 
     std::cout << "UNIT OK\n";

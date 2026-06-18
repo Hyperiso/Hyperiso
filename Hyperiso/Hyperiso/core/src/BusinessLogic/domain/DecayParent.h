@@ -268,6 +268,16 @@ public:
      * @brief Return the decay identifier.
      */
     DecayId get_id() { return id; };
+
+    /**
+     * @brief Return whether the decay has already been enabled.
+     *
+     * A decay is considered enabled after @ref enable has built/acquired its
+     * Wilson proxy and loaded its parameters at least once. This is useful for
+     * manager-level refresh operations: disabled decays may not have a valid
+     * Wilson proxy yet and must not be asked to reload their parameters.
+     */
+    bool is_enabled() const { return enabled; }
 };
 
 /**

@@ -279,6 +279,11 @@ public:
 
     /**
      * @brief Prepares a likelihood object for manual scans without running a full MLE.
+     *
+     * The current central values of the fit parameters and nuisance parameters
+     * are stored as the default scan reference point. A later call to
+     * compute_MLE(...) or set_manual_scan_point(...) overrides this reference.
+     *
      * @param p_specs Ordered list of fit parameters to expose in the scan.
      */
     void prepare_likelihood_for_scan(const std::vector<ParamId>& p_specs);

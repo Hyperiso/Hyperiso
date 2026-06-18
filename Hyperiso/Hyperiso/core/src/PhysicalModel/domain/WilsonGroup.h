@@ -262,7 +262,31 @@ public:
     std::function<std::unordered_map<WCoefId, scalar_t>(const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&, const BlockSrc&)> get_func(QCDOrder ord, WilsonBasis id) {return this->sources[id][ord].func;}
 
     /// Returns the group identifier.
-    WGroupId get_group_id() {return id;}
+    WGroupId get_group_id() const {return id;}
+
+    /**
+     * @brief Returns the dynamic ids of coefficients owned by this group.
+     *
+     * Builtin groups are populated by @ref CoefficientGroupBuilder from their
+     * static @ref WCoef members. Custom/lambda groups populate this list directly
+     * with @ref WCoefId values, so downstream manager code can compose SM/BSM/TOTAL
+     * triplets and hadronic blocks without converting through the legacy enum.
+     */
+    const std::vector<WCoefId>& get_member_ids() const { return member_ids; }
+
+    /**
+     * @brief Replace the dynamic coefficient membership list.
+     *
+     * Use this when constructing a group from configuration or from a runtime
+     * lambda definition. The order is preserved and reused when composing final
+     * matching/running blocks.
+     */
+    void set_member_ids(std::vector<WCoefId> ids) { member_ids = std::move(ids); }
+
+    /**
+     * @brief Add one dynamic coefficient id to the membership list if absent.
+     */
+    void add_member_id(WCoefId id);
 
     /// Sets the group identifier (caller must ensure consistency with block naming).
     void set_group_id(WGroupId gid) { id = gid; }
@@ -311,6 +335,14 @@ protected:
 
     /// Block name for matching-scale storage.
     std::string block_name;
+
+    /**
+     * @brief Dynamic coefficient ids belonging to this group.
+     *
+     * This mirrors the historical static group membership while also supporting
+     * user-defined coefficients that only exist as @ref WCoefId values.
+     */
+    std::vector<WCoefId> member_ids;
 
     /**
      * @brief Running-block source specification, keyed by (basis -> order).

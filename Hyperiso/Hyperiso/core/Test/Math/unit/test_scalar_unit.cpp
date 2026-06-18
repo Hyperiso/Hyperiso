@@ -115,8 +115,9 @@ int main() {
         assert(capprox(z, scalar_t(2.0 * 0.0 - (-2.0)*1.0, 2.0*1.0 + (-2.0)*0.0))); // (2,-2) * i = (2i -2i^2)?? (x+iy)*i = -y + ix -> (2,-2)*i = 2 + 2i
         assert(capprox(z, scalar_t(2.0, 2.0)));
 
+        complex_t before_div = as_c(z);
         z /= std::complex<double>(1.0, -1.0);
-        complex_t ref = as_c(z) / complex_t(1.0, -1.0);
+        complex_t ref = before_div / complex_t(1.0, -1.0);
         assert(dapprox(as_c(z).real(), ref.real()) && dapprox(as_c(z).imag(), ref.imag()));
     }
 

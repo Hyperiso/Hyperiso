@@ -4,6 +4,10 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Statistic)
+
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
 add_compile_options(-O1)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
@@ -145,6 +149,7 @@ target_include_directories(StatisticLib
 
 target_link_libraries(StatisticLib PUBLIC BusinessLogicLib PhysicalModelLib CoreLib CommonLib ConfiguredModule MathLib)
 
+if (BUILD_WITH_APP)
 add_executable(RNG_TEST app/main_rng.cpp)
 target_link_libraries(RNG_TEST StatisticLib)
 
@@ -205,6 +210,7 @@ target_link_libraries(NICELIKELIHOOD StatisticLib)
 
 add_executable(OBS_TEST app/main_test_obs.cpp)
 target_link_libraries(OBS_TEST StatisticLib)
+endif()
 
 include(GNUInstallDirs)
 

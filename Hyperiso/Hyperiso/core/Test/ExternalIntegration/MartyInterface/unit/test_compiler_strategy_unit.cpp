@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <fstream>
 #include <chrono>
+#include <stdexcept>
 
 #include "CompilerStrategy.h"
 #include "MakeCompilerStrategy.h"
@@ -36,7 +37,14 @@ int main() {
     fs::path ko = tmp / "ko.sh";
     write_file(ko, "#!/bin/sh\nexit 2\n");
     make_executable(ko);
-    assert(executeCommand(ko.string()) == false);
+
+    bool threw_on_failure = false;
+    try {
+        (void)executeCommand(ko.string());
+    } catch (const std::runtime_error&) {
+        threw_on_failure = true;
+    }
+    assert(threw_on_failure);
 
     MakeCompilerStrategy strat("SM", "none");
 

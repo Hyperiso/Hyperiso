@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <utility>
 
 #include "WilsonGroup.h"
 
@@ -75,6 +76,25 @@ public:
      */
     CustomCoefficientGroup& add_coefficient(const std::shared_ptr<WilsonCoefficient>& coef) {
         this->insert({coef->get_name(), coef});
+        this->add_member_id(WCoefMapper::id_of(coef->get_base_name()));
+        return *this;
+    }
+
+    /**
+     * @brief Adds a coefficient with an explicit dynamic id.
+     *
+     * Use this overload for runtime/custom coefficients where the string stored in
+     * the coefficient object may not be convertible to a legacy enum. The explicit
+     * @ref WCoefId is recorded as group membership and is later used by
+     * @ref CoefficientManager to compose triplets and hadronic blocks.
+     *
+     * @param id Dynamic coefficient id.
+     * @param coef Coefficient implementation.
+     * @return Reference to *this.
+     */
+    CustomCoefficientGroup& add_coefficient(WCoefId id, const std::shared_ptr<WilsonCoefficient>& coef) {
+        this->insert({WCoefMapper::str(id), coef});
+        this->add_member_id(std::move(id));
         return *this;
     }
 

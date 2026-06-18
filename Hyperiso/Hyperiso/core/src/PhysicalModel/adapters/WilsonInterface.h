@@ -113,6 +113,32 @@ public:
      */
     void addWilsonGroup(WilsonBuildConfig config);
 
+
+    /**
+     * @brief Register and initialize a runtime Wilson group described by lambdas.
+     *
+     * @details
+     * This is the high-level entry point for user-defined Wilson coefficients.
+     * The caller registers/resolves dynamic ids with @ref GroupMapper and
+     * @ref WCoefMapper, fills a @ref CustomWilsonGroupConfig with matching
+     * lambdas (and optional running lambdas), then passes it here.
+     *
+     * If the interface has not been built yet, an empty Wilson pipeline is
+     * initialized first using the scales and order stored in @p config.
+     *
+     * @param config Runtime/custom Wilson group configuration.
+     * @return Reference to `*this` for chaining.
+     *
+     * @see CustomWilsonGroupConfig
+     * @see CustomWilsonCoefficientConfig
+     */
+    WilsonInterface& addCustomWilsonGroup(const CustomWilsonGroupConfig& config);
+
+    /**
+     * @brief Snake-case alias for @ref addCustomWilsonGroup.
+     */
+    WilsonInterface& add_custom_group(const CustomWilsonGroupConfig& config);
+
     /**
      * @brief Sets the matching scale (mu_W) in the global parameter system.
      *
@@ -131,24 +157,44 @@ public:
 
     /**
      * @name Matching-scale single coefficient accessors
+     *
+     * The WGroup/WCoef overloads are kept for compatibility. The WGroupId/WCoefId
+     * overloads are the preferred dynamic API for runtime/config-driven code.
      * @{
      */
 
-    /// Returns the matching-scale coefficient at the requested QCD order (no QCD-order summation).
+    /**
+     * @brief Returns the matching-scale coefficient at the requested QCD order.
+     *
+     * Dynamic-id overload. This avoids converting through the legacy static enum and
+     * allows callers to resolve names with GroupMapper::id_of() and WCoefMapper::id_of().
+     */
+    scalar_t getMatchingCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type);
+
+    /// Backward-compatible enum overload for builtin groups and coefficients.
     scalar_t getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-    /// Alias for @ref getMatchingCoefficient.
+    /// Alias for @ref getMatchingCoefficient(WGroupId,WCoefId,QCDOrder,ContributionType).
+    scalar_t getM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type);
+
+    /// Backward-compatible enum alias.
     scalar_t getM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
     /**
      * @brief Returns the matching coefficient with perturbative summation up to `order`.
      *
-     * The summation convention is implemented in the manager:
+     * Dynamic-id overload. The summation convention is implemented in the manager:
      *  C_full = Sum_{n=LO..order} C^{(n)} * (alpha_s(mu_W)/(4*pi))^(n-1).
      */
+    scalar_t getFullMatchingCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type);
+
+    /// Backward-compatible enum overload for builtin groups and coefficients.
     scalar_t getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
-    /// Alias for @ref getFullMatchingCoefficient.
+    /// Alias for @ref getFullMatchingCoefficient(WGroupId,WCoefId,QCDOrder,ContributionType).
+    scalar_t getFM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type);
+
+    /// Backward-compatible enum alias.
     scalar_t getFM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type);
 
     /** @} */
@@ -159,26 +205,36 @@ public:
      */
 
     /**
-     * @brief Returns the hadronic (“run”) coefficient at the requested order (no QCD-order summation).
+     * @brief Returns the hadronic/run coefficient at the requested order.
      *
-     * @param basis Operator basis used for hadronic coefficients (defaults to B_STANDARD).
+     * Dynamic-id overload. @p basis selects the hadronic Wilson basis.
      */
+    scalar_t getRunCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum overload for builtin groups and coefficients.
     scalar_t getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    /// Alias for @ref getRunCoefficient.
+    /// Alias for @ref getRunCoefficient(WGroupId,WCoefId,QCDOrder,ContributionType,WilsonBasis).
+    scalar_t getR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum alias.
     scalar_t getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
     /**
-     * @brief Returns the hadronic (“run”) coefficient with perturbative summation up to `order`.
+     * @brief Returns the full hadronic/run coefficient summed up to `order`.
      *
-     * The summation convention is implemented in the manager:
+     * Dynamic-id overload. The summation convention is implemented in the manager:
      *  C_full = Sum_{n=LO..order} C^{(n)} * (alpha_s(mu_b)/(4*pi))^(n-1).
-     *
-     * @param basis Operator basis used for hadronic coefficients (defaults to B_STANDARD).
      */
+    scalar_t getFullRunCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum overload for builtin groups and coefficients.
     scalar_t getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    /// Alias for @ref getFullRunCoefficient.
+    /// Alias for @ref getFullRunCoefficient(WGroupId,WCoefId,QCDOrder,ContributionType,WilsonBasis).
+    scalar_t getFR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum alias.
     scalar_t getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
     /** @} */
@@ -189,23 +245,31 @@ public:
      */
 
     /**
-     * @brief Returns a map {LO,NLO,NNLO} -> matching coefficient (no summation) for a fixed coefficient.
-     *
-     * Note: If MARTY is enabled, higher orders may effectively behave like LO depending on backend policy.
+     * @brief Returns a map {LO,NLO,NNLO} -> matching coefficient for a dynamic coefficient.
      */
+    std::map<QCDOrder, scalar_t> getSepOrderMatchingCoefficient(WGroupId group, WCoefId coeff, ContributionType cont_type);
+
+    /// Backward-compatible enum overload.
     std::map<QCDOrder, scalar_t> getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type);
 
-    /// Alias for @ref getSepOrderMatchingCoefficient.
+    /// Alias for @ref getSepOrderMatchingCoefficient(WGroupId,WCoefId,ContributionType).
+    std::map<QCDOrder, scalar_t> getSM(WGroupId group, WCoefId coeff, ContributionType cont_type);
+
+    /// Backward-compatible enum alias.
     std::map<QCDOrder, scalar_t> getSM(WGroup group, WCoef coeff, ContributionType cont_type);
 
     /**
-     * @brief Returns a map {LO,NLO,NNLO} -> hadronic coefficient (no summation) for a fixed coefficient.
-     *
-     * @param basis Operator basis used for hadronic coefficients.
+     * @brief Returns a map {LO,NLO,NNLO} -> hadronic coefficient for a dynamic coefficient.
      */
+    std::map<QCDOrder, scalar_t> getSepOrderRunCoefficient(WGroupId group, WCoefId coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum overload.
     std::map<QCDOrder, scalar_t> getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
-    /// Alias for @ref getSepOrderRunCoefficient.
+    /// Alias for @ref getSepOrderRunCoefficient(WGroupId,WCoefId,ContributionType,WilsonBasis).
+    std::map<QCDOrder, scalar_t> getSR(WGroupId group, WCoefId coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
+
+    /// Backward-compatible enum alias.
     std::map<QCDOrder, scalar_t> getSR(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis=WilsonBasis::B_STANDARD);
 
     /** @} */

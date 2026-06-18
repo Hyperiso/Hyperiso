@@ -105,6 +105,30 @@ public:
     complex_t getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) override;
 
     /**
+     * @brief Get a matching-scale coefficient using dynamic Wilson ids.
+     *
+     * This overload supports coefficients/groups registered at runtime through
+     * the mapper layer and optional lambda-based custom group configs.
+     */
+    complex_t getM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) override;
+
+    /**
+     * @brief Get a full matching-scale coefficient using dynamic Wilson ids.
+     */
+    complex_t getFM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) override;
+
+    /**
+     * @brief Get a hadronic-scale coefficient using dynamic Wilson ids.
+     */
+    complex_t getR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) override;
+
+    /**
+     * @brief Get a full hadronic-scale coefficient using dynamic Wilson ids.
+     */
+    complex_t getFR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) override;
+
+
+    /**
      * @brief Return matching-scale coefficients for LO/NLO/NNLO separately.
      *
      * Convenience helper returning a map:
@@ -133,6 +157,17 @@ public:
      * @return Map keyed by QCD order.
      */
     std::map<QCDOrder, complex_t> getSR(WGroup group, WCoef coeff, ContributionType contribution=ContributionType::TOTAL);
+
+    /**
+     * @brief Return matching-scale coefficients for LO/NLO/NNLO using dynamic ids.
+     */
+    std::map<QCDOrder, complex_t> getSM(WGroupId group, WCoefId coeff, ContributionType contribution=ContributionType::TOTAL) override;
+
+    /**
+     * @brief Return hadronic coefficients for LO/NLO/NNLO using dynamic ids.
+     */
+    std::map<QCDOrder, complex_t> getSR(WGroupId group, WCoefId coeff, ContributionType contribution=ContributionType::TOTAL) override;
+
 
     /**
      * @brief Return all matching-scale coefficients of a group at a given order.

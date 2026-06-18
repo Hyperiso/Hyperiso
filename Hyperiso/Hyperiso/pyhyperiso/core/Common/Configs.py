@@ -1,210 +1,154 @@
 from dataclasses import dataclass, field
-from typing import Set
+from typing import Iterable, Set, Union
+
 from pyhyperiso.phyperiso.pyhyperiso.common import (
     WilsonBuildConfig as _CppWilsonBuildConfig,
     WilsonRequest as _CppWilsonRequest,
     AlphasConfig as _CppAlphasConfig,
     MassConfig as _CppMassConfig,
 )
-from pyhyperiso.core.Common.Mapper import GroupMapper
+from pyhyperiso.core.Common.Mapper import GroupMapper, WCoefMapper
+from pyhyperiso.core.Common.SymbolId import WGroupId, WCoefId
 from pyhyperiso.core.Common.GeneralEnum import (
-    QCDOrder, WGroup, WCoeff, ContributionType, ScaleType, MassType, WilsonBasis
+    QCDOrder,
+    WGroup,
+    WCoeff,
+    ContributionType,
+    ScaleType,
+    MassType,
+    WilsonBasis,
 )
+
+WilsonGroupLike = Union[WGroup, WGroupId, str]
+WilsonCoefLike = Union[WCoeff, WCoefId, str]
+
+
+def _cpp_group_id(group: WilsonGroupLike):
+    """Convert a group enum/string/id to the bound C++ ``WGroupId``."""
+    if isinstance(group, WGroupId):
+        return group._to_cpp()
+    return GroupMapper.id_of(group)._to_cpp()
+
+
+def _cpp_coef_id(coef: WilsonCoefLike):
+    """Convert a coefficient enum/string/id to the bound C++ ``WCoefId``."""
+    if isinstance(coef, WCoefId):
+        return coef._to_cpp()
+    return WCoefMapper.id_of(coef)._to_cpp()
 
 
 @dataclass
 class WilsonBuildConfig:
-    """Configuration for building (computing) sets of Wilson coefficients.
+    """Configuration for building Wilson coefficient groups.
 
-    This is a Python wrapper around the C++ ``WilsonBuildConfig`` struct. It
-    specifies:
-      - which Wilson operator groups must be included,
-      - the matching scale (UV -> EFT matching) in GeV,
-      - the hadronic (low-energy) evaluation scale in GeV,
-      - the perturbative QCD order (LO, NLO, ...).
+    The C++ layer stores groups as dynamic ``WGroupId`` values. Python accepts
+    legacy :class:`WGroup` enums, strings/aliases, or :class:`WGroupId` objects.
 
-    In C++, the group set is stored as a set of ``WGroupId``. In Python, this
-    wrapper exposes a set of ``WGroup`` enums and maps them to identifiers using
-    ``GroupMapper``.
-
-    Attributes:
-        groups (Set[WGroup]): Set of Wilson operator groups to include.
-        matching_scale (float): Matching scale in GeV (high scale where matching
-            is performed).
-        hadronic_scale (float): Hadronic (low-energy) scale in GeV where Wilson
-            coefficients are evaluated in the EFT.
-        order (QCDOrder): Perturbative QCD order used for matching/running.
-
-    Notes:
-        - The C++ default constructor leaves scales uninitialized; this Python
-          wrapper defaults them to ``0.0``.
-        - ``to_cpp()`` currently prints debug information (``print(cpp)`` etc.).
-          If this is not desired in production, consider removing those prints.
+    Args:
+        groups: Wilson groups to build. Examples: ``WGroup.B``,
+            ``"BCoefficients"`` or ``GroupMapper.id_of("DEV_GROUP")``.
+        matching_scale: Matching scale in GeV.
+        hadronic_scale: Hadronic/running scale in GeV.
+        order: Maximum QCD order requested for matching/running.
     """
-    groups: Set[WGroup] = field(default_factory=set)
-    matching_scale: float = 0.0
-    hadronic_scale: float = 0.0
+
+    groups: Set[WilsonGroupLike] = field(default_factory=set)
+    matching_scale: float = 81.0
+    hadronic_scale: float = 4.8
     order: QCDOrder = QCDOrder.LO
 
     def to_cpp(self) -> _CppWilsonBuildConfig:
-        """Convert this Python config to the bound C++ config object.
-
-        Returns:
-            _CppWilsonBuildConfig: A native/bound C++ ``WilsonBuildConfig`` with
-            mapped group identifiers and numeric enum values.
-        """
+        """Convert this Python config to the bound C++ config object."""
         cpp = _CppWilsonBuildConfig()
-        cpp.groups = {GroupMapper().id_of(g) for g in self.groups}
-        cpp.matching_scale = self.matching_scale
-        cpp.hadronic_scale = self.hadronic_scale
+        cpp.groups = {_cpp_group_id(g) for g in self.groups}
+        cpp.matching_scale = float(self.matching_scale)
+        cpp.hadronic_scale = float(self.hadronic_scale)
         cpp.order = self.order.value
-        print(cpp)
-        print("cpp.order ", cpp.order)
-        print("cpp.groups ", cpp.groups)
         return cpp
 
 
 @dataclass
 class WilsonRequest:
-    """Request for a specific Wilson coefficient.
+    """Request for one Wilson coefficient.
 
-    This is a Python wrapper around the C++ ``WilsonRequest`` struct. It models
-    a single query for one Wilson coefficient:
-      - which operator group (e.g. b->s sector),
-      - which coefficient within that group,
-      - the perturbative QCD order,
-      - the contribution type (TOTAL, SM, BSM, ...),
-      - the scale type at which to evaluate it (matching vs hadronic),
-      - whether to sum over QCD orders,
-      - and an optional Wilson basis.
-
-    Attributes:
-        group (WGroup): Operator group for the requested coefficient.
-        coefficient (WCoeff): Specific coefficient within the group.
-        order (QCDOrder): Perturbative QCD order for the request.
-        contribution (ContributionType): Contribution to extract (TOTAL/SM/BSM...).
-        scale_type (ScaleType): Scale choice (e.g. HADRONIC vs MATCHING).
-        wilson_basis (WilsonBasis): Basis in which the coefficient is expressed.
-        sum_qcd_orders (bool): If ``True``, contributions from multiple QCD orders
-            are summed (implementation-dependent). If ``False``, only ``order`` is used.
-
-    Notes:
-        - In the C++ struct, the basis is an ``std::optional<WilsonBasis>``.
-          Your Python wrapper stores ``wilson_basis`` but **does not currently
-          forward it** to the C++ object in ``to_cpp()`` (the C++ constructor you
-          call does not include a basis argument). If the C++ side supports basis
-          elsewhere, you may want to extend the binding/constructor accordingly.
-        - ``to_matching_args()`` and ``to_running_args()`` return dictionaries
-          for internal plumbing. Pay attention that ``to_running_args()`` currently
-          sets ``"basis"`` to ``self.scale_type.value`` (likely a bug/typo if the
-          intent was to pass ``wilson_basis``).
+    ``group`` and ``coefficient`` accept both legacy enums and dynamic ids. This
+    means the same wrapper can query builtin Wilson coefficients and custom
+    lambda-backed coefficients.
     """
-    group: WGroup
-    coefficient: WCoeff
+
+    group: WilsonGroupLike
+    coefficient: WilsonCoefLike
     order: QCDOrder = QCDOrder.LO
     contribution: ContributionType = ContributionType.TOTAL
     scale_type: ScaleType = ScaleType.HADRONIC
-    wilson_basis : WilsonBasis = WilsonBasis.STANDARD
+    wilson_basis: WilsonBasis = WilsonBasis.STANDARD
     sum_qcd_orders: bool = False
 
     def to_cpp(self) -> _CppWilsonRequest:
-        """Convert this Python request to the bound C++ request object.
-
-        Returns:
-            _CppWilsonRequest: A native/bound C++ ``WilsonRequest`` created from
-            the enum numeric values.
-
-        Notes:
-            The returned C++ object is constructed without an explicit Wilson
-            basis (see class Notes).
-        """
-        cpp = _CppWilsonRequest(self.group.value, self.coefficient.value,
-                                self.order.value, self.contribution.value,
-                                self.scale_type.value, self.sum_qcd_orders)
-
-        return cpp
+        """Convert this request to the bound C++ ``WilsonRequest``."""
+        return _CppWilsonRequest(
+            _cpp_group_id(self.group),
+            _cpp_coef_id(self.coefficient),
+            self.order.value,
+            self.contribution.value,
+            self.scale_type.value,
+            bool(self.sum_qcd_orders),
+        )
 
     def to_matching_args(self):
-        """Build a dict of arguments commonly used for matching computations.
-
-        Returns:
-            Dict[str, Any]: Dictionary with keys ``group``, ``coeff``, ``order``,
-            and ``cont_type`` containing numeric enum values.
-        """
+        """Return keyword arguments suitable for matching-scale getters."""
         return {
-            "group": self.group.value,
-            "coeff": self.coefficient.value,
-            "order": self.order.value,
-            "cont_type": self.contribution.value
+            "group": self.group,
+            "coeff": self.coefficient,
+            "order": self.order,
+            "cont_type": self.contribution,
         }
 
     def to_running_args(self):
-        """Build a dict of arguments commonly used for running computations.
-
-        Returns:
-            Dict[str, Any]: Dictionary with keys ``group``, ``coeff``, ``order``,
-            ``cont_type``, and ``basis`` (see Notes about the current value of
-            ``basis`` in this wrapper).
-        """
+        """Return keyword arguments suitable for running-scale getters."""
         return {
-            "group": self.group.value,
-            "coeff": self.coefficient.value,
-            "order": self.order.value,
-            "cont_type": self.contribution.value,
-            "basis": self.scale_type.value
+            "group": self.group,
+            "coeff": self.coefficient,
+            "order": self.order,
+            "cont_type": self.contribution,
+            "basis": self.wilson_basis,
         }
+
 
 @dataclass
 class AlphasConfig:
-    """Configuration for evaluating the strong coupling constant α_s.
+    """Configuration for evaluating the strong coupling constant ``alpha_s``."""
 
-    This is a Python wrapper around the C++ ``AlphasConfig`` struct. It specifies:
-      - the renormalization scale (in GeV) at which α_s is evaluated,
-      - the mass schemes used for the bottom and top quarks.
-
-    Attributes:
-        scale (float): Renormalization scale (GeV) for α_s evaluation.
-        m_b_type (MassType): Mass scheme for the bottom quark (e.g. POLE, MSBAR).
-        m_t_type (MassType): Mass scheme for the top quark (e.g. POLE, MSBAR).
-    """
     scale: float
     m_b_type: MassType = field(default=MassType.POLE)
     m_t_type: MassType = field(default=MassType.POLE)
 
     def to_cpp(self) -> _CppAlphasConfig:
-        """Convert this Python config to the bound C++ config object.
-
-        Returns:
-            _CppAlphasConfig: A native/bound C++ ``AlphasConfig`` created from
-            scalar values and numeric enum values.
-        """
+        """Convert this Python config to the bound C++ config object."""
         return _CppAlphasConfig(self.scale, self.m_b_type.value, self.m_t_type.value)
 
 
 @dataclass
 class MassConfig(AlphasConfig):
-    """Configuration for computing a particle mass at a given scale.
+    """Configuration for computing a particle mass at a given scale."""
 
-    This is a Python wrapper around the C++ ``MassConfig`` struct. It extends
-    :class:`AlphasConfig` by adding the PDG identifier of the particle whose mass
-    is requested.
-
-    Attributes:
-        pdg_id (int): PDG identifier of the particle (e.g. 5 for b-quark, 6 for t-quark).
-        scale (float): Renormalization scale in GeV at which the mass is evaluated.
-        m_b_type (MassType): Bottom-quark mass scheme used internally (passed through).
-        m_t_type (MassType): Top-quark mass scheme used internally (passed through).
-    """
     pdg_id: int = field(default=6)
 
     def to_cpp(self) -> _CppMassConfig:
-        """Convert this Python config to the bound C++ config object.
-
-        Returns:
-            _CppMassConfig: A native/bound C++ ``MassConfig`` created from the PDG id,
-            scale, and numeric enum values.
-        """
+        """Convert this Python config to the bound C++ config object."""
         return _CppMassConfig(self.pdg_id, self.scale, self.m_b_type.value, self.m_t_type.value)
+
+
+__all__ = [
+    "WilsonBuildConfig",
+    "WilsonRequest",
+    "AlphasConfig",
+    "MassConfig",
+    "WilsonGroupLike",
+    "WilsonCoefLike",
+    "_cpp_group_id",
+    "_cpp_coef_id",
+]
     
     
 if __name__ == "__main__":

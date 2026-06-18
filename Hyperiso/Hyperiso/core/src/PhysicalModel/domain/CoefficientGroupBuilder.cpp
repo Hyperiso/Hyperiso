@@ -35,10 +35,16 @@ std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildCont
         grp->add_sources(basis, m);
     }
 
+    std::vector<WCoefId> member_ids;
+    member_ids.reserve(def.members.size());
+
     for (auto c : def.members) {
         auto coef = reg_.create(ctx, c);
         grp->insert({ WCoefMapper::str(c), std::move(coef) });
+        member_ids.emplace_back(WCoefMapper::to_id(c));
     }
+
+    grp->set_member_ids(std::move(member_ids));
     
     if (auto it = def.setup.find(ctx.model); it != def.setup.end()) {
         for (auto& hook : it->second) hook(ctx, *grp);

@@ -53,6 +53,27 @@ public:
      */
     virtual complex_t                       getFR   (WGroup group, WCoef coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) = 0;
 
+
+    /**
+     * @brief Matching-scale coefficient at a given order (dynamic id API).
+     */
+    virtual complex_t                       getM    (WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) = 0;
+
+    /**
+     * @brief Matching-scale coefficient summed up to the given order (dynamic id API).
+     */
+    virtual complex_t                       getFM   (WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) = 0;
+
+    /**
+     * @brief Hadronic-scale coefficient at a given order (dynamic id API).
+     */
+    virtual complex_t                       getR    (WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) = 0;
+
+    /**
+     * @brief Hadronic-scale coefficient summed up to the given order (dynamic id API).
+     */
+    virtual complex_t                       getFR   (WGroupId group, WCoefId coeff, QCDOrder order, ContributionType contribution=ContributionType::TOTAL) = 0;
+
     ///@}
 
     /// @name Convenience helpers (maps)
@@ -67,6 +88,16 @@ public:
      * @brief Hadronic coefficients for LO/NLO/NNLO returned as a map keyed by QCD order.
      */
     virtual std::map<QCDOrder, complex_t>   getSR   (WGroup group, WCoef coeff, ContributionType contribution=ContributionType::TOTAL)                 = 0;
+
+    /**
+     * @brief Matching coefficients for LO/NLO/NNLO returned as a map keyed by QCD order (dynamic id API).
+     */
+    virtual std::map<QCDOrder, complex_t>   getSM   (WGroupId group, WCoefId coeff, ContributionType contribution=ContributionType::TOTAL)                 = 0;
+
+    /**
+     * @brief Hadronic coefficients for LO/NLO/NNLO returned as a map keyed by QCD order (dynamic id API).
+     */
+    virtual std::map<QCDOrder, complex_t>   getSR   (WGroupId group, WCoefId coeff, ContributionType contribution=ContributionType::TOTAL)                 = 0;
 
     /**
      * @brief All matching coefficients for a given group and order, keyed by coefficient enum.

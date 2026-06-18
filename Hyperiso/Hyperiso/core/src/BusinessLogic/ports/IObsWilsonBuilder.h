@@ -4,6 +4,7 @@
 #include <memory>
 
 #include "AbstractConfig.h"
+#include "CustomWilsonLambda.h"
 
 class IObsWilsonProxy;
 
@@ -30,6 +31,18 @@ public:
      * @param config Configuration object (typically a @ref WilsonBuildConfig).
      */
     virtual void build(std::shared_ptr<AbstractConfig>) = 0;
+
+    /**
+     * @brief Register a user-defined Wilson group described by lambdas.
+     *
+     * Observable-side custom decays can call this to install Wilson
+     * coefficients that are not part of the static @ref WGroup/@ref WCoef
+     * enums. Implementations should preserve the already-built Wilson manager
+     * and append the custom group.
+     *
+     * @param config Runtime/custom Wilson group configuration.
+     */
+    virtual void add_custom_group(const CustomWilsonGroupConfig& config) = 0;
 
     /**
      * @brief Return a proxy used by observables to access Wilson coefficients.

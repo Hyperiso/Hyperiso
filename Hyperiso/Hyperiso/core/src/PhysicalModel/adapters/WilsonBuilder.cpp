@@ -74,6 +74,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
+    this->current_group_adapters = std::make_shared<WilsonGroupAdapterConfig>(adapters);
 
     auto reg_ptr = make_registry();
     auto build_group_fn = [reg_ptr, adapters, marty_paths](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
@@ -149,6 +150,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
     }
 
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
+    this->current_group_adapters = std::make_shared<WilsonGroupAdapterConfig>(adapters);
 
     auto reg_ptr = make_registry();
     CoefficientGroupBuilder b{*reg_ptr};
@@ -171,6 +173,29 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
         LOG_INFO("done");
     }
+}
+
+void WilsonBuilder::add_custom_group(const CustomWilsonGroupConfig& config) {
+    if (!this->cm) {
+        LOG_ERROR("LogicError", "Cannot add a custom Wilson group before WilsonBuilder has been built.");
+    }
+
+    if (!this->current_group_adapters) {
+        LOG_ERROR("LogicError", "WilsonBuilder has no cached group adapters for custom Wilson group registration.");
+    }
+
+    if (config.coefficients.empty()) {
+        LOG_ERROR("ValueError", "Cannot add custom Wilson group", GroupMapper::str(config.group), "without coefficients.");
+    }
+
+    auto group = make_custom_wilson_group(config, *this->current_group_adapters);
+    const std::string group_name = GroupMapper::str(config.group);
+
+    this->cm->set_matching_scale(config.matching_scale);
+    this->cm->set_hadronic_scale(config.hadronic_scale);
+    this->cm->registerCoefficientGroup(group_name, std::move(group));
+    this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
+    this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
 }
 
 std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {

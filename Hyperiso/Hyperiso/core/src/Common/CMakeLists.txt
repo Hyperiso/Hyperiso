@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Common)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 add_library(CommonLib STATIC 
     Logger.cpp
     General.cpp

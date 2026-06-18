@@ -83,6 +83,17 @@ public:
     std::map<BinnedObservableId, GaussianSummary> compute_uncertainties();
 
     /**
+     * @brief Returns the nuisance/input parameters currently seen by the statistical manager.
+     *
+     * This is mostly useful for dev/debug workflows. It runs the same observable
+     * dependency path as the cache builder: IModel::get_obs_deps(), leaf-source
+     * expansion through the source proxy, and the manager's sensitivity filtering.
+     * Runtime/lambda observables are therefore included as long as their
+     * dependencies were declared on the ObservableInterface side.
+     */
+    std::map<ParamId, double> get_active_observable_dependencies();
+
+    /**
      * @brief Runs uncertainty propagation and returns both samples and summaries.
      *
      * @return Monte Carlo realization, Gaussian summaries and covariance data.
@@ -130,6 +141,11 @@ public:
 
     /**
      * @brief Builds and stores the likelihood objects required for scan calls.
+     *
+     * The current central values are also stored as the default scan center,
+     * so lightweight scans can run without computing a full MLE first.
+     * Calling compute_MLE(...) or set_manual_scan_point(...) later replaces
+     * that reference point.
      *
      * @param p_specs Fit parameters defining the scan parameter space.
      */

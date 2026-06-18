@@ -60,6 +60,18 @@ public:
     void build(std::shared_ptr<AbstractConfig> config) override;
 
     /**
+     * @brief Append a runtime/custom Wilson group to the underlying core builder.
+     *
+     * If the core builder has not created a coefficient manager yet, an empty
+     * Wilson pipeline is first built using the scales/order from @p config.
+     * This makes the method safe to call before any builtin Wilson group has
+     * been requested by a decay.
+     *
+     * @param config Runtime/custom Wilson group configuration.
+     */
+    void add_custom_group(const CustomWilsonGroupConfig& config) override;
+
+    /**
      * @brief Create and return a proxy object used by observables to query Wilson coefficients.
      *
      * The returned proxy is an @ref ObsWilsonProxy that wraps the core @ref WilsonProvider

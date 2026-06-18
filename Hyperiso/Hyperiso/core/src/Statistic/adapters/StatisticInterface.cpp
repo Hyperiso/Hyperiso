@@ -44,6 +44,10 @@ std::map<BinnedObservableId, GaussianSummary> StatisticInterface::compute_uncert
     return manager->compute_uncertainties();
 }
 
+std::map<ParamId, double> StatisticInterface::get_active_observable_dependencies() {
+    return manager->get_all_obss_deps();
+}
+
 MCResult StatisticInterface::compute_uncertainties_and_sampling() {
     return manager->compute_uncertainties_and_sampling();
 }

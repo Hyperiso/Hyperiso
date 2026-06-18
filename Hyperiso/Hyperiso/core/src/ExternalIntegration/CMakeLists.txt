@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(ExternalIntegration)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 endif()

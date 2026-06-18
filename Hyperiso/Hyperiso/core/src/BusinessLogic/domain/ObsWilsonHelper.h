@@ -123,6 +123,18 @@ public:
     static void build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
 
     /**
+     * @brief Mark a Wilson group as already available in the observable-side cache.
+     *
+     * Runtime custom Wilson groups are installed through @ref IObsWilsonBuilder::add_custom_group
+     * instead of the usual static group builder. Once installed, this method lets
+     * the helper know that the group should not be rebuilt via @ref build().
+     *
+     * @param group Dynamic Wilson group id.
+     * @param frozen Whether the group should initially be considered frozen.
+     */
+    static void mark_built(WGroupId group, bool frozen=false);
+
+    /**
      * @brief Constructor optionally resetting the internal Wilson group state.
      *
      * @param reset If true, clears the internal group state.

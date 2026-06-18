@@ -3,6 +3,8 @@
 
 #include "Include.h"
 
+#include <utility>
+
 /**
  * @file Configs.h
  * @brief Configuration structures used to control Wilson coefficient computations,
@@ -102,71 +104,95 @@ struct WilsonBuildConfig : public AbstractConfig {
 
 /**
  * @struct WilsonRequest
- * @brief Configuration for requesting a specific Wilson coefficient.
+ * @brief Dynamic configuration for requesting a specific Wilson coefficient.
  *
- * This structure describes a single query for a Wilson coefficient, including:
- *   - the operator group and specific coefficient,
- *   - the perturbative order,
- *   - the type of contribution to extract,
- *   - the relevant scale type (matching / hadronic),
- *   - whether to sum over different QCD orders,
- *   - and an optional Wilson basis in which the coefficient is expressed.
+ * Wilson requests are stored with the dynamic identifier layer:
+ *   - @ref WGroupId for the Wilson group,
+ *   - @ref WCoefId for the Wilson coefficient.
+ *
+ * This keeps the provider compatible with both:
+ *   - builtin enum calls, through the compatibility constructor taking
+ *     @ref WGroup and @ref WCoef,
+ *   - runtime/config/CLI-driven calls, through the constructor taking
+ *     @ref WGroupId and @ref WCoefId.
+ *
+ * The manager underneath already consumes string names, so using ids here avoids
+ * converting through the static enum when the caller has a dynamic symbol.
  */
 struct WilsonRequest : public AbstractConfig {
     /**
-     * @brief Wilson operator group associated with the request.
+     * @brief Wilson operator group identifier associated with the request.
+     *
+     * For builtin groups, this is usually obtained with GroupMapper::to_id(WGroup::B).
+     * For dynamic/config-driven code, prefer GroupMapper::id_of("B") or any registered alias.
      */
-    WGroup group;
+    WGroupId group;
 
     /**
-     * @brief Specific Wilson coefficient within the group to be requested.
+     * @brief Wilson coefficient identifier associated with the request.
+     *
+     * For builtin coefficients, this is usually obtained with WCoefMapper::to_id(WCoef::C7).
+     * For dynamic/config-driven code, prefer WCoefMapper::id_of("C7") or any registered alias.
      */
-    WCoef coefficient;
+    WCoefId coefficient;
 
     /**
      * @brief Perturbative QCD order at which the coefficient is evaluated.
-     *        Defaults to leading order (QCDOrder::LO).
      */
     QCDOrder order {QCDOrder::LO};
 
     /**
-     * @brief Type of contribution requested (e.g. TOTAL, SM, BSM).
-     *        Defaults to ContributionType::TOTAL.
+     * @brief Type of contribution requested, e.g. SM, BSM or TOTAL.
      */
     ContributionType contribution {ContributionType::TOTAL};
 
     /**
-     * @brief Type of scale at which the Wilson coefficient is evaluated
-     *        (e.g. matching scale or hadronic scale).
-     *        Defaults to ScaleType::HADRONIC.
+     * @brief Scale at which the Wilson coefficient is evaluated.
      */
     ScaleType scale_type {ScaleType::HADRONIC};
 
     /**
-     * @brief If true, contributions from different QCD orders are summed.
-     *        If false, only the specified order is considered.
+     * @brief If true, contributions from different QCD orders are summed up to @ref order.
      */
     bool sum_qcd_orders {false};
 
     /**
-     * @brief Optional Wilson basis in which the coefficient is expressed.
-     *
-     * Can be traditionnal or standard basis (for b->s transition)
+     * @brief Optional Wilson basis used for hadronic-scale coefficients.
      */
     std::optional<WilsonBasis> basis;
 
     /**
-     * @brief Constructs a WilsonRequest with explicit configuration.
+     * @brief Constructs a WilsonRequest from dynamic identifiers.
      *
-     * @param group              Wilson operator group.
-     * @param coefficient        Wilson coefficient within the group.
-     * @param order              Perturbative QCD order.
-     * @param contribution       Type of contribution to request.
-     * @param scale_type         Type of scale (hadronic / matching / other).
-     * @param sum_qcd_orders     Whether to sum over QCD orders.
+     * Use this overload for runtime/config driven code where the group and coefficient
+     * have already been resolved by the mapper layer.
+     *
+     * @param group Wilson group id.
+     * @param coefficient Wilson coefficient id.
+     * @param order Perturbative QCD order.
+     * @param contribution Contribution type to request.
+     * @param scale_type Matching or hadronic scale.
+     * @param sum_qcd_orders Whether to sum QCD orders up to @p order.
      */
-    WilsonRequest(WGroup group, WCoef coefficient, QCDOrder order, ContributionType contribution, ScaleType scale_type, bool sum_qcd_orders) :
-        group(group), coefficient(coefficient), order(order), contribution(contribution), scale_type(scale_type), sum_qcd_orders(sum_qcd_orders) {}
+    WilsonRequest(WGroupId group, WCoefId coefficient, QCDOrder order,
+                  ContributionType contribution, ScaleType scale_type, bool sum_qcd_orders) :
+        group(std::move(group)), coefficient(std::move(coefficient)), order(order),
+        contribution(contribution), scale_type(scale_type), sum_qcd_orders(sum_qcd_orders) {}
+
+    /**
+     * @brief Backward-compatible constructor from builtin enums.
+     *
+     * This preserves existing calls such as:
+     * @code
+     * WilsonRequest{WGroup::B, WCoef::C7, QCDOrder::NLO,
+     *                ContributionType::TOTAL, ScaleType::HADRONIC, true};
+     * @endcode
+     * while storing the request internally as dynamic ids.
+     */
+    WilsonRequest(WGroup group, WCoef coefficient, QCDOrder order,
+                  ContributionType contribution, ScaleType scale_type, bool sum_qcd_orders) :
+        WilsonRequest(GroupMapper::to_id(group), WCoefMapper::to_id(coefficient),
+                      order, contribution, scale_type, sum_qcd_orders) {}
 };
 
 /**

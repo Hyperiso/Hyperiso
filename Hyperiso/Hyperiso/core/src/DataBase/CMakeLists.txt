@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(DataBase)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -57,6 +61,7 @@ target_link_libraries(DataBaseLib PUBLIC PandasLib CommonLib)
 # add_executable(TEST_DB app/main_db.cpp)
 # target_link_libraries(TEST_DB DataBaseLib)
 
+if (BUILD_WITH_APP)
 add_executable(db_test app/main_db.cpp)
 
 target_link_libraries(db_test DataBaseLib)
@@ -64,6 +69,7 @@ target_link_libraries(db_test DataBaseLib)
 add_executable(TEST_PARSER app/main_parser.cpp)
 
 target_link_libraries(TEST_PARSER DataBaseLib)
+endif()
 
 include(GNUInstallDirs)
 

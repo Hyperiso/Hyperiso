@@ -108,6 +108,25 @@ public:
         return it->second;
     }
 
+
+    static WGroup enum_group_or_default(WGroupId gid) {
+        auto g = GroupMapper::enum_of(gid);
+        return g.value_or(WGroup::B);
+    }
+
+    static WCoef enum_coef_or_default(WCoefId cid) {
+        auto c = WCoefMapper::enum_of(cid);
+        return c.value_or(WCoef::C1);
+    }
+
+    complex_t getM (WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getM (enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getFM(WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getFM(enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getR (WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getR (enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+    complex_t getFR(WGroupId g, WCoefId c, QCDOrder o, ContributionType t) override { return getFR(enum_group_or_default(g), enum_coef_or_default(c), o, t); }
+
+    std::map<QCDOrder, complex_t> getSM(WGroupId g, WCoefId c, ContributionType t) override { return getSM(enum_group_or_default(g), enum_coef_or_default(c), t); }
+    std::map<QCDOrder, complex_t> getSR(WGroupId g, WCoefId c, ContributionType t) override { return getSR(enum_group_or_default(g), enum_coef_or_default(c), t); }
+
     std::map<QCDOrder, complex_t> getSM(WGroup, WCoef, ContributionType) override { return {}; }
     std::map<QCDOrder, complex_t> getSR(WGroup, WCoef, ContributionType) override { return {}; }
     std::map<WCoef, complex_t> getAM (WGroup, QCDOrder, ContributionType) override { return {}; }
@@ -127,6 +146,7 @@ public:
     std::shared_ptr<SpyObsWilsonProxy> proxy = std::make_shared<SpyObsWilsonProxy>();
 
     void build(std::shared_ptr<AbstractConfig>) override { build_calls++; }
+    void add_custom_group(const CustomWilsonGroupConfig&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return proxy; }
 };
 

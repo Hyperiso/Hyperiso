@@ -76,6 +76,14 @@ class LhaID:
         else:
             self._cpp_obj = common.LhaID(*args)
 
+    def to_cpp(self):
+        """Return the underlying bound C++ object.
+
+        Returns:
+            common.LhaID: The wrapped pybind11 C++ instance.
+        """
+        return self._cpp_obj
+    
     def to_string(self):
         """Return the canonical underscore-joined string representation.
 

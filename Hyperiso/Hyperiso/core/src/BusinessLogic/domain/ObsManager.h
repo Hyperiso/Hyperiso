@@ -3,6 +3,7 @@
 
 #include <memory>
 #include <map>
+#include <unordered_set>
 
 #include "ParamID.h"
 #include "Observable.h"
@@ -27,7 +28,9 @@
  *  - register custom decays.
  *
  * ## Design notes
- * - Each observable is backed by a decay (see @ref DecayMapper::get_decay).
+ * - Each observable is backed by a decay. Dynamic @ref ObservableId values are
+ *   routed through @ref DecayMapper::get_decay_id, so builtin observables and
+ *   custom observable ids registered in the mapper layer follow the same path.
  * - When evaluating a specific observable, ObsManager **selects** the associated decay:
  *   it enables the needed one and disables the others (see @ref select_decay).
  * - Decays lazily build Wilson groups when enabled (through @ref DecayParent::enable),
@@ -109,10 +112,16 @@ public:
      *
      * Steps:
      *  1. Logs the addition.
-     *  2. Finds the decay corresponding to this observable (via @ref DecayMapper).
-     *  3. Sets the decay QCD order (via @ref DecayParent::set_order).
-     *  4. Creates and stores an @ref Observable bound to that decay.
-     *  5. Optionally attaches dependencies.
+     *  2. Resolves the parent decay directly from @p id with @ref DecayMapper::get_decay_id.
+     *  3. Finds the registered @ref DecayParent instance by @ref DecayId.
+     *  4. Sets the decay QCD order (via @ref DecayParent::set_order).
+     *  5. Creates and stores an @ref Observable bound to that decay.
+     *  6. Optionally attaches dependencies.
+     *
+     * This overload does not require @p id to be convertible back to the static
+     * @ref Observables enum. It therefore supports runtime/custom observables as long
+     * as the mapper layer knows their parent decay and that decay has been registered
+     * in the manager.
      *
      * @param id Observable internal id.
      * @param order Requested QCD order for the underlying decay. May be downgraded by the decay.
@@ -122,10 +131,12 @@ public:
     ObsManager add_obs(ObservableId id, QCDOrder order, bool add_deps=false);
 
     /**
-     * @brief Add a binned observable (internal ObservableId) to the manager, or adds a bin to an already existing observable.
+     * @brief Add a binned observable to the manager, or add a bin to an existing observable.
      *
+     * The parent decay is resolved from @c id.s through @ref DecayMapper::get_decay_id,
+     * which keeps the binned path compatible with dynamic/custom observable ids.
      *
-     * @param id Observable internal id.
+     * @param id Observable internal id with bin information.
      * @param order Requested QCD order for the underlying decay. May be downgraded by the decay.
      * @param add_deps If true, attaches all allowed parameter dependencies to the observable.
      * @return A copy of the manager (builder-like chaining). Note: this returns by value.
@@ -201,8 +212,9 @@ public:
     /**
      * @brief Add a single dependency (parameter) to an observable (public enum).
      *
-     * The parameter is only added if allowed for this observable as defined by
-     * @ref DependenciesHelper::is_param_allowed. Otherwise a warning is logged.
+     * Builtin observables are validated against @ref DependenciesHelper. Runtime
+     * observables do not live in that generated table, so their dependencies are
+     * accepted as user-declared metadata.
      *
      * @param id Observable public enum.
      * @param param Parameter identifier to add.
@@ -212,8 +224,8 @@ public:
     /**
      * @brief Add a set of dependencies (parameters) to an observable (public enum).
      *
-     * Each parameter is validated against the allowed dependency set, warnings are
-     * emitted for ignored parameters.
+     * Builtin observables are validated against the generated allowed dependency
+     * set. Runtime observables accept the provided set directly.
      *
      * @param id Observable public enum.
      * @param params Set of parameters to add.
@@ -223,8 +235,9 @@ public:
     /**
      * @brief Add a single dependency (parameter) to an observable (ObservableId).
      *
-     * The parameter is only added if allowed for this observable as defined by
-     * @ref DependenciesHelper::is_param_allowed. Otherwise a warning is logged.
+     * Builtin observables are validated against @ref DependenciesHelper. Runtime
+     * observables accept this dependency directly because the generated helper
+     * cannot know plugin/lambda observables in advance.
      *
      * @param id Observable internal id.
      * @param param Parameter identifier to add.
@@ -234,8 +247,8 @@ public:
     /**
      * @brief Add a set of dependencies (parameters) to an observable (ObservableId).
      *
-     * Each parameter is validated against the allowed dependency set, warnings are
-     * emitted for ignored parameters.
+     * Builtin observables are validated against the allowed dependency set.
+     * Runtime observables accept the provided set directly.
      *
      * @param id Observable internal id.
      * @param params Set of parameters to add.
@@ -245,8 +258,10 @@ public:
     /**
      * @brief Get the full allowed dependency set for a given observable.
      *
-     * This returns the allowed list (business logic), not necessarily the currently
-     * attached list inside the manager's observable instance.
+     * This first returns the dependency set attached to the observable instance.
+     * If none is attached, it falls back to the generated DependenciesHelper map
+     * for builtin observables. Runtime observables without declared dependencies
+     * therefore safely return an empty set instead of throwing.
      *
      * @param id Observable internal id.
      * @return Set of allowed dependencies.
@@ -304,6 +319,9 @@ public:
      *
      * This is used by @ref evaluate to avoid keeping multiple decays enabled at once
      * (which can matter if decays build Wilson groups lazily and cache parameters).
+     *
+     * The decay is selected through @ref DecayMapper::get_decay_id rather than through
+     * a static enum conversion, so this also works for registered custom observables.
      *
      * @param id Observable internal id used to determine the corresponding decay.
      */

@@ -22,6 +22,30 @@ void WilsonInterface::addWilsonGroup(WilsonBuildConfig config) {
     this->builder->add(config);
 }
 
+
+WilsonInterface& WilsonInterface::addCustomWilsonGroup(const CustomWilsonGroupConfig& config) {
+    if (!built) {
+        WilsonBuildConfig base;
+        base.matching_scale = config.matching_scale;
+        base.hadronic_scale = config.hadronic_scale;
+        base.order = config.order;
+        build(base);
+    }
+
+    if (!this->builder) {
+        LOG_ERROR("LogicError", "WilsonInterface has no builder available for custom Wilson group registration.");
+    }
+
+    this->builder->add_custom_group(config);
+    this->provider = this->builder->get_wilson_provider();
+    built = true;
+    return *this;
+}
+
+WilsonInterface& WilsonInterface::add_custom_group(const CustomWilsonGroupConfig& config) {
+    return addCustomWilsonGroup(config);
+}
+
 void WilsonInterface::set_matching_scale(double mu_W) {
     ScaleSetter(ScaleType::MATCHING).set(mu_W);
 }
@@ -30,7 +54,7 @@ void WilsonInterface::set_hadronic_scale(double mu_h) {
     ScaleSetter(ScaleType::HADRONIC).set(mu_h);
 }
 
-scalar_t WilsonInterface::getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+scalar_t WilsonInterface::getMatchingCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type) {
     if (!built) {
         LOG_ERROR("LogicError", "Interface has not been built");
     }
@@ -44,13 +68,21 @@ scalar_t WilsonInterface::getMatchingCoefficient(WGroup group, WCoef coeff, QCDO
         false // sum_qcd_orders
     };
     return this->provider->get(std::make_shared<WilsonRequest>(request));
+}
+
+scalar_t WilsonInterface::getMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+    return getMatchingCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), order, cont_type);
+}
+
+scalar_t WilsonInterface::getM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type) {
+    return getMatchingCoefficient(group, coeff, order, cont_type);
 }
 
 scalar_t WilsonInterface::getM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
     return getMatchingCoefficient(group, coeff, order, cont_type);
 }
 
-scalar_t WilsonInterface::getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+scalar_t WilsonInterface::getFullMatchingCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type) {
     if (!built) {
         LOG_ERROR("LogicError", "Interface has not been built");
     }
@@ -66,11 +98,19 @@ scalar_t WilsonInterface::getFullMatchingCoefficient(WGroup group, WCoef coeff, 
     return this->provider->get(std::make_shared<WilsonRequest>(request));
 }
 
+scalar_t WilsonInterface::getFullMatchingCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
+    return getFullMatchingCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), order, cont_type);
+}
+
+scalar_t WilsonInterface::getFM(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type) {
+    return getFullMatchingCoefficient(group, coeff, order, cont_type);
+}
+
 scalar_t WilsonInterface::getFM(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type) {
     return getFullMatchingCoefficient(group, coeff, order, cont_type);
 }
 
-scalar_t WilsonInterface::getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+scalar_t WilsonInterface::getRunCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
     if (!built) {
         LOG_ERROR("LogicError", "Interface has not been built");
     }
@@ -87,11 +127,19 @@ scalar_t WilsonInterface::getRunCoefficient(WGroup group, WCoef coeff, QCDOrder 
     return this->provider->get(std::make_shared<WilsonRequest>(request));
 }
 
+scalar_t WilsonInterface::getRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+    return getRunCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), order, cont_type, basis);
+}
+
+scalar_t WilsonInterface::getR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+    return getRunCoefficient(group, coeff, order, cont_type, basis);
+}
+
 scalar_t WilsonInterface::getR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
     return getRunCoefficient(group, coeff, order, cont_type, basis);
 }
 
-scalar_t WilsonInterface::getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+scalar_t WilsonInterface::getFullRunCoefficient(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
     if (!built) {
         LOG_ERROR("LogicError", "Interface has not been built");
     }
@@ -108,11 +156,19 @@ scalar_t WilsonInterface::getFullRunCoefficient(WGroup group, WCoef coeff, QCDOr
     return this->provider->get(std::make_shared<WilsonRequest>(request));
 }
 
+scalar_t WilsonInterface::getFullRunCoefficient(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+    return getFullRunCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), order, cont_type, basis);
+}
+
+scalar_t WilsonInterface::getFR(WGroupId group, WCoefId coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
+    return getFullRunCoefficient(group, coeff, order, cont_type, basis);
+}
+
 scalar_t WilsonInterface::getFR(WGroup group, WCoef coeff, QCDOrder order, ContributionType cont_type, WilsonBasis basis) {
     return getFullRunCoefficient(group, coeff, order, cont_type, basis);
 }
 
-std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
+std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderMatchingCoefficient(WGroupId group, WCoefId coeff, ContributionType cont_type) {
     std::map<QCDOrder, scalar_t> C {{
         {QCDOrder::LO, getMatchingCoefficient(group, coeff, QCDOrder::LO, cont_type)},
         {QCDOrder::NLO, getMatchingCoefficient(group, coeff, QCDOrder::NLO, cont_type)},
@@ -121,17 +177,33 @@ std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderMatchingCoefficient(WGr
     return C;
 }
 
+std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderMatchingCoefficient(WGroup group, WCoef coeff, ContributionType cont_type) {
+    return getSepOrderMatchingCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), cont_type);
+}
+
+std::map<QCDOrder, scalar_t> WilsonInterface::getSM(WGroupId group, WCoefId coeff, ContributionType cont_type) {
+    return getSepOrderMatchingCoefficient(group, coeff, cont_type);
+}
+
 std::map<QCDOrder, scalar_t> WilsonInterface::getSM(WGroup group, WCoef coeff, ContributionType cont_type) {
     return getSepOrderMatchingCoefficient(group, coeff, cont_type);
 }
 
-std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis) {
+std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderRunCoefficient(WGroupId group, WCoefId coeff, ContributionType cont_type, WilsonBasis basis) {
     std::map<QCDOrder, scalar_t> C {{
         {QCDOrder::LO, getRunCoefficient(group, coeff, QCDOrder::LO, cont_type, basis)},
         {QCDOrder::NLO, getRunCoefficient(group, coeff, QCDOrder::NLO, cont_type, basis)},
         {QCDOrder::NNLO, getRunCoefficient(group, coeff, QCDOrder::NNLO, cont_type, basis)}
     }};
     return C;
+}
+
+std::map<QCDOrder, scalar_t> WilsonInterface::getSepOrderRunCoefficient(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis) {
+    return getSepOrderRunCoefficient(GroupMapper::to_id(group), WCoefMapper::to_id(coeff), cont_type, basis);
+}
+
+std::map<QCDOrder, scalar_t> WilsonInterface::getSR(WGroupId group, WCoefId coeff, ContributionType cont_type, WilsonBasis basis) {
+    return getSepOrderRunCoefficient(group, coeff, cont_type, basis);
 }
 
 std::map<QCDOrder, scalar_t> WilsonInterface::getSR(WGroup group, WCoef coeff, ContributionType cont_type, WilsonBasis basis) {

@@ -1,139 +1,218 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
+
+#include <utility>
 
 #include "WilsonManager.h"
 #include "MartyWilson.h"
 #include "WilsonInterface.h"
+#include "CustomWilsonLambda.h"
+#include "SourcesView.h"
 #include "BWilsonSUSY.h"
 #include "BWilsonTHDM.h"
+
 namespace py = pybind11;
 
-// Initialisation des groupes de coefficients
-void init_coefficient_groups(py::module &m) {
-    // py::class_<CoefficientGroup, std::shared_ptr<CoefficientGroup>>(m, "CoefficientGroup")
-    //     .def("get_matching", &CoefficientGroup::getMatching)
-    //     .def("get_run", &CoefficientGroup::getRun)
-    //     .def("set_q_match", &CoefficientGroup::set_Q_match)
-    //     .def("set_q_run", &CoefficientGroup::set_Q_run);
+namespace {
 
-    // py::class_<BCoefficientGroup, CoefficientGroup, std::shared_ptr<BCoefficientGroup>>(m, "BCoefficientGroup")
-    //     .def(py::init<>());
+scalar_t scalar_from_python(py::handle obj) {
+    if (py::hasattr(obj, "_cpp_obj")) {
+        return py::getattr(obj, "_cpp_obj").cast<scalar_t>();
+    }
 
-    // // py::class_<BCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BCoefficientGroupMarty>>(m, "BCoefficientGroupMarty")
-    // //     .def(py::init<>());
+    // Most wrapper-level callbacks return either Scalar, complex or float.
+    // pybind11 has no py::complex handle type, so we use ordered casts instead
+    // of py::isinstance<...>().
+    try {
+        return obj.cast<scalar_t>();
+    } catch (const py::cast_error&) {
+        // Continue with common Python numeric cases.
+    }
 
-    // py::class_<BPrimeCoefficientGroup, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup>>(m, "BPrimeCoefficientGroup")
-    //     .def(py::init<>());
+    try {
+        return scalar_t(obj.cast<std::complex<double>>());
+    } catch (const py::cast_error&) {
+        // Continue with real scalars.
+    }
 
-    // // py::class_<BPrimeCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroupMarty>>(m, "BPrimeCoefficientGroupMarty")
-    // //     .def(py::init<>());
-
-    // py::class_<BScalarCoefficientGroup, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup>>(m, "BScalarCoefficientGroup")
-    //     .def(py::init<>());
-
-    // // py::class_<BScalarCoefficientGroupMarty, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroupMarty>>(m, "BScalarCoefficientGroupMarty")
-    // //     .def(py::init<>());
-
-    // py::class_<BCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BCoefficientGroup_susy>>(m, "BCoefficientGroup_susy")
-    //     .def(py::init<>());
-
-    // py::class_<BCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BCoefficientGroup_THDM>>(m, "BCoefficientGroup_THDM")
-    //     .def(py::init<>());
-
-    // py::class_<BPrimeCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup_susy>>(m, "BPrimeCoefficientGroup_susy")
-    //     .def(py::init<>());
-
-    // py::class_<BPrimeCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BPrimeCoefficientGroup_THDM>>(m, "BPrimeCoefficientGroup_THDM")
-    //     .def(py::init<>());
-
-    // py::class_<BScalarCoefficientGroup_susy, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup_susy>>(m, "BScalarCoefficientGroup_susy")
-    //     .def(py::init<>());
-
-    // py::class_<BScalarCoefficientGroup_THDM, CoefficientGroup, std::shared_ptr<BScalarCoefficientGroup_THDM>>(m, "BScalarCoefficientGroup_THDM")
-    //     .def(py::init<>());
+    return scalar_t(obj.cast<double>());
 }
 
-// Initialisation des coefficients Wilson
-void init_wilson_coefficient(py::module &m) {
-    // py::class_<WilsonCoefficient, std::shared_ptr<WilsonCoefficient>>(m, "WilsonCoefficient")
-    //     .def("get_coefficient_matching_value", &WilsonCoefficient::get_CoefficientMatchingValue)
-    //     .def("get_coefficient_run_value", &WilsonCoefficient::get_CoefficientRunValue)
-    //     .def("set_coefficient_matching_value", &WilsonCoefficient::set_WilsonCoeffMatching)
-    //     .def("set_coefficient_run_value", &WilsonCoefficient::set_WilsonCoeffRun)
-    //     .def("get_q_match", &WilsonCoefficient::get_Q_match)
-    //     .def("get_q", &WilsonCoefficient::get_Q);
+std::function<scalar_t(const ParamSrc&)> wrap_matching_callable(py::function fn) {
+    return [fn = std::move(fn)](const ParamSrc& src) -> scalar_t {
+        py::gil_scoped_acquire gil;
+        py::object out = fn(py::cast(src, py::return_value_policy::reference));
+        return scalar_from_python(out);
+    };
 }
 
-// Initialisation du gestionnaire de coefficients
-void init_coefficient_manager(py::module &m) {
-    // py::enum_<Model>(m, "Model")
-    // .value("SM", Model::SM)
-    // .value("THDM", Model::THDM)
-    // .value("SUSY", Model::THDM)
-    // .value("CUSTOM", Model::THDM)
-    // .export_values();
-
-    // py::class_<CoefficientManager, std::shared_ptr<CoefficientManager>>(m, "CoefficientManager")
-    //     .def_static("get_instance", []() {
-    //         return CoefficientManager::GetInstance();
-    //     }, py::return_value_policy::reference)
-
-    //     .def_static("initialize", &CoefficientManager::initialize, py::arg("lhaFile"), py::arg_v("model",Model::SM),
-    //         py::arg_v("use_marty",false),
-    //         py::arg_v("is_spectrum", false),
-    //         py::arg_v("has_wilsons", false),
-    //         py::arg_v("has_obs", false),
-    //         "Initialise MemoryManager avec un fichier LHA et un modèle.")
-    //     .def("register_coefficient_group", &CoefficientManager::registerCoefficientGroup)
-    //     .def("get_state", &CoefficientManager::get_state)
-    //     .def("get_alpha_s", &CoefficientManager::getAlphaS)
-    //     .def("set_q_match", &CoefficientManager::set_matching_scale)
-    //     .def("set_params", &CoefficientManager::setParams)
-    //     .def("get_params", &CoefficientManager::get_params)
-    //     .def("set_group_scale", &CoefficientManager::set_hadronic_scale)
-    //     .def("set_matching_coefficient", &CoefficientManager::init_group)
-    //     .def("set_run_coefficient", &CoefficientManager::setRunCoefficient)
-    //     .def("get_matching_coefficient", &CoefficientManager::getMatchingCoefficient)
-    //     .def("get_run_coefficient", &CoefficientManager::getRunCoefficient)
-    //     .def("get_coefficient_group", &CoefficientManager::getCoefficientGroup, py::return_value_policy::reference)
-    //     .def("get_full_matching_coefficient", &CoefficientManager::getFullMatchingCoefficient)
-    //     .def("get_full_run_coefficient", &CoefficientManager::getFullRunCoefficient)
-    //     .def("update", &CoefficientManager::update);
+std::function<std::unordered_map<WCoefId, scalar_t>(
+    const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>&,
+    const BlockSrc&
+)> wrap_running_callable(py::function fn) {
+    return [fn = std::move(fn)](
+        const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& matching,
+        const BlockSrc& src
+    ) -> std::unordered_map<WCoefId, scalar_t> {
+        py::gil_scoped_acquire gil;
+        py::object out = fn(matching, py::cast(src, py::return_value_policy::reference));
+        std::unordered_map<WCoefId, scalar_t> converted;
+        py::dict d = out.cast<py::dict>();
+        for (auto item : d) {
+            converted.emplace(item.first.cast<WCoefId>(), scalar_from_python(item.second));
+        }
+        return converted;
+    };
 }
 
-// Initialisation des paramètres Wilson
-void init_wilson_parameters(py::module &m) {
-    // py::class_<Wilson_parameters, std::shared_ptr<Wilson_parameters>>(m, "WilsonParameters")
-    //     .def_static("get_instance", &Wilson_parameters::GetInstance, py::return_value_policy::reference)
-    //     .def("set_mu", &Wilson_parameters::SetMu)
-    //     .def("set_mu_w", &Wilson_parameters::SetMuW)
-    //     .def("set_gen", &Wilson_parameters::set_gen);
+} // namespace
+
+// Initialisation des groupes de coefficients.
+// Kept as a submodule hook for backward compatibility with the old Python layout.
+void init_coefficient_groups(py::module &m) {}
+
+// Initialisation des coefficients Wilson.
+void init_wilson_coefficient(py::module &m) {}
+
+// Initialisation du manager Wilson.
+void init_coefficient_manager(py::module &m) {}
+
+// Initialisation des paramètres Wilson.
+void init_wilson_parameters(py::module &m) {}
+
+void init_custom_wilson_lambda(py::module &m) {
+    py::class_<CustomWilsonCoefficientConfig>(m, "CustomWilsonCoefficientConfig", R"pbdoc(
+Runtime definition of a custom Wilson coefficient.
+
+A coefficient config binds a dynamic ``WCoefId`` to one or more matching lambdas.
+Each matching lambda declares the ``ParamId`` sources it needs, which makes the
+coefficient usable by dependency-aware observable and statistic workflows.
+
+The Python callback receives a ``ParamSrc`` view and must return a scalar value
+(``float``/``complex`` depending on the scalar type used by Hyperiso).
+)pbdoc")
+        .def(py::init<>())
+        .def(py::init<WCoefId>(), py::arg("id"))
+        .def_readwrite("id", &CustomWilsonCoefficientConfig::id)
+        .def("set_matching",
+            [](CustomWilsonCoefficientConfig& self,
+               QCDOrder order,
+               std::unordered_set<ParamId> sources,
+               py::function compute,
+               ContributionType contribution) -> CustomWilsonCoefficientConfig& {
+                return self.set_matching(
+                    order,
+                    std::move(sources),
+                    wrap_matching_callable(std::move(compute)),
+                    contribution
+                );
+            },
+            py::arg("order"),
+            py::arg("sources"),
+            py::arg("compute"),
+            py::arg("contribution") = ContributionType::SM,
+            py::return_value_policy::reference_internal,
+            R"pbdoc(Register a matching lambda for one QCD order.)pbdoc");
+
+    py::class_<CustomWilsonGroupConfig>(m, "CustomWilsonGroupConfig", R"pbdoc(
+Runtime definition of a Wilson group backed by user lambdas.
+
+The group owns dynamic coefficients, matching/running scales and optional
+running lambdas. If no running lambda is supplied, the C++ layer can install an
+identity running in ``B_STANDARD`` so custom coefficients remain queryable at the
+hadronic scale.
+)pbdoc")
+        .def(py::init<>())
+        .def(py::init<WGroupId>(), py::arg("group"))
+        .def_readwrite("group", &CustomWilsonGroupConfig::group)
+        .def_readwrite("display_name", &CustomWilsonGroupConfig::display_name)
+        .def_readwrite("matching_scale", &CustomWilsonGroupConfig::matching_scale)
+        .def_readwrite("hadronic_scale", &CustomWilsonGroupConfig::hadronic_scale)
+        .def_readwrite("order", &CustomWilsonGroupConfig::order)
+        .def_readwrite("contribution", &CustomWilsonGroupConfig::contribution)
+        .def_readwrite("coefficients", &CustomWilsonGroupConfig::coefficients)
+        .def_readwrite("install_identity_running_if_empty", &CustomWilsonGroupConfig::install_identity_running_if_empty)
+        .def("add_coefficient",
+            [](CustomWilsonGroupConfig& self, CustomWilsonCoefficientConfig coef) -> CustomWilsonGroupConfig& {
+                return self.add_coefficient(std::move(coef));
+            },
+            py::arg("coefficient"),
+            py::return_value_policy::reference_internal,
+            R"pbdoc(Append a coefficient config to this group.)pbdoc")
+        .def("set_running",
+            [](CustomWilsonGroupConfig& self,
+               WilsonBasis basis,
+               QCDOrder order,
+               std::unordered_map<ParameterType, std::vector<std::string>> sources,
+               py::function compute) -> CustomWilsonGroupConfig& {
+                return self.set_running(
+                    basis,
+                    order,
+                    std::move(sources),
+                    wrap_running_callable(std::move(compute))
+                );
+            },
+            py::arg("basis"),
+            py::arg("order"),
+            py::arg("sources"),
+            py::arg("compute"),
+            py::return_value_policy::reference_internal,
+            R"pbdoc(Register a running lambda for one basis and QCD order.)pbdoc");
 }
 
 void init_wilson_interface(py::module &m) {
-
+    init_custom_wilson_lambda(m);
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<>())
         .def("build", &WilsonInterface::build, py::arg("wilson_config"))
         .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("config"))
-        // .def("set_params", &WilsonInterface::setParams)
-        // .def("init_group_matching", &WilsonInterface::init_group_matching, py::arg("group_name"), py::arg("order"))
-        // .def("init_group_hadronic", &WilsonInterface::init_group_hadronic, py::arg("group_name"), py::arg("order"))
+        .def("add_custom_group", &WilsonInterface::add_custom_group,
+             py::arg("config"), py::return_value_policy::reference_internal,
+             R"pbdoc(Add a lambda-backed custom Wilson group.)pbdoc")
+        .def("addCustomWilsonGroup", &WilsonInterface::addCustomWilsonGroup,
+             py::arg("config"), py::return_value_policy::reference_internal,
+             R"pbdoc(CamelCase alias for add_custom_group.)pbdoc")
         .def("set_matching_scale", &WilsonInterface::set_matching_scale, py::arg("mu_W"))
         .def("set_hadronic_scale", &WilsonInterface::set_hadronic_scale, py::arg("mu_h"))
-        // .def("switch_basis", &WilsonInterface::switchbasis, py::arg("group_name"))
-        .def("get_matching_coefficient", &WilsonInterface::getMatchingCoefficient)
-        .def("get_M", &WilsonInterface::getM)
-        .def("get_full_matching_coefficient", &WilsonInterface::getFullMatchingCoefficient)
-        .def("get_FM", &WilsonInterface::getFM)
-        .def("get_run_coefficient", &WilsonInterface::getRunCoefficient)
-        .def("get_R", &WilsonInterface::getR)
-        .def("get_full_run_coefficient", &WilsonInterface::getFullRunCoefficient)
-        .def("get_FR", &WilsonInterface::getFR)
-        .def("get_sep_order_matching_coefficient", &WilsonInterface::getSepOrderMatchingCoefficient)
-        .def("get_sep_order_run_coefficient", &WilsonInterface::getSepOrderRunCoefficient)
+        .def("get_matching_coefficient", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType>(&WilsonInterface::getMatchingCoefficient))
+        .def("get_matching_coefficient", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType>(&WilsonInterface::getMatchingCoefficient))
+        .def("get_M", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType>(&WilsonInterface::getM))
+        .def("get_M", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType>(&WilsonInterface::getM))
+        .def("get_full_matching_coefficient", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType>(&WilsonInterface::getFullMatchingCoefficient))
+        .def("get_full_matching_coefficient", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType>(&WilsonInterface::getFullMatchingCoefficient))
+        .def("get_FM", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType>(&WilsonInterface::getFM))
+        .def("get_FM", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType>(&WilsonInterface::getFM))
+        .def("get_run_coefficient", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_run_coefficient", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_R", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getR),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_R", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getR),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_full_run_coefficient", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getFullRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_full_run_coefficient", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getFullRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_FR", py::overload_cast<WGroup, WCoef, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getFR),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_FR", py::overload_cast<WGroupId, WCoefId, QCDOrder, ContributionType, WilsonBasis>(&WilsonInterface::getFR),
+             py::arg("group"), py::arg("coeff"), py::arg("order"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_sep_order_matching_coefficient", py::overload_cast<WGroup, WCoef, ContributionType>(&WilsonInterface::getSepOrderMatchingCoefficient))
+        .def("get_sep_order_matching_coefficient", py::overload_cast<WGroupId, WCoefId, ContributionType>(&WilsonInterface::getSepOrderMatchingCoefficient))
+        .def("get_sep_order_run_coefficient", py::overload_cast<WGroup, WCoef, ContributionType, WilsonBasis>(&WilsonInterface::getSepOrderRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_sep_order_run_coefficient", py::overload_cast<WGroupId, WCoefId, ContributionType, WilsonBasis>(&WilsonInterface::getSepOrderRunCoefficient),
+             py::arg("group"), py::arg("coeff"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_SM", py::overload_cast<WGroup, WCoef, ContributionType>(&WilsonInterface::getSM))
+        .def("get_SM", py::overload_cast<WGroupId, WCoefId, ContributionType>(&WilsonInterface::getSM))
+        .def("get_SR", py::overload_cast<WGroup, WCoef, ContributionType, WilsonBasis>(&WilsonInterface::getSR),
+             py::arg("group"), py::arg("coeff"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def("get_SR", py::overload_cast<WGroupId, WCoefId, ContributionType, WilsonBasis>(&WilsonInterface::getSR),
+             py::arg("group"), py::arg("coeff"), py::arg("contribution"), py::arg("basis") = WilsonBasis::B_STANDARD)
         .def("get_all_matching_coefficient", &WilsonInterface::getAllMatchingCoefficients)
         .def("get_all_run_coefficient", &WilsonInterface::getAllRunCoefficients)
         .def("get_all_full_matching_coefficient", &WilsonInterface::getAllFullMatchingCoefficients)

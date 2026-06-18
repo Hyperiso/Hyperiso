@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 #include <pybind11/operators.h>
 #include <pybind11/complex.h>
+#include <pybind11/functional.h>
 #include "GeneralEnum.h"
 #include "EnumMapper.h"
 #include "Map.h"
@@ -10,6 +11,7 @@
 #include "observable_ids.hpp"
 #include "decay_ids.hpp"
 #include "BinnedObservableId.h"
+#include "SourcesView.h"
 #include <optional>
 #include <stdexcept>
 
@@ -834,6 +836,11 @@ void init_common(py::module &m) {
 
     bind_symbol_id<ObservableId>(m, "_CppObservableId");
     bind_symbol_id<DecayId>(m, "_CppDecayId");
+    bind_symbol_id<WGroupId>(m, "_CppWGroupId");
+    bind_symbol_id<WCoefId>(m, "_CppWCoefId");
+    // Backward-compatible aliases for users who imported the raw C++ ids.
+    m.attr("WGroupId") = m.attr("_CppWGroupId");
+    m.attr("WCoefId") = m.attr("_CppWCoefId");
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
         // Legacy builtin enum API.
         .def_static("str",
@@ -993,12 +1000,6 @@ void init_common(py::module &m) {
     //     .def_static("get_str", &GroupMapper::get_str)
     //     .def_static("get_enum", &GroupMapper::get_enum);
 
-    py::class_<WGroupId>(m, "WGroupId")
-        .def(py::init<>())
-        // pour que str(id) marche en Python
-        .def("__str__", &WGroupId::str)
-        .def("str", &WGroupId::str);
-
     py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
         // str(enum) et str(enum, scale, basis)
         .def_static("str", py::overload_cast<WGroup>(&GroupMapper::str), py::arg("group"))
@@ -1013,7 +1014,20 @@ void init_common(py::module &m) {
         .def_static("to_id",        &GroupMapper::to_id,        py::arg("name"))
         // (optionnel) runtime id API
         .def_static("id_of",     &GroupMapper::id_of,     py::arg("name"))
-        .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"));
+        .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"))
+        .def_static("str_id", py::overload_cast<const WGroupId&, ScaleType, WilsonBasis>(&GroupMapper::str),
+                    py::arg("id"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def_static("register_custom",
+            [](const std::string& canonical, const std::vector<std::string>& aliases, py::object ext) {
+                std::optional<std::string> opt_ext = std::nullopt;
+                if (!ext.is_none()) {
+                    opt_ext = ext.cast<std::string>();
+                }
+                return GroupMapper::register_custom(canonical, aliases, opt_ext);
+            },
+            py::arg("canonical"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("external") = py::none());
 
 
     // py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
@@ -1227,6 +1241,40 @@ void init_common(py::module &m) {
         return std::hash<ParamId>{}(pid);
     });
 
+    py::class_<ParamSrc>(m, "ParamSrc", R"pbdoc(
+Read-only view passed to Python custom-Wilson matching callbacks.
+
+A ``ParamSrc`` is created by the C++ dependency engine from the ``ParamId``
+sources declared on a custom Wilson coefficient. It is intentionally non-owning
+and should only be used during the callback call.
+)pbdoc")
+        .def("has", &ParamSrc::has, py::arg("pid"),
+             R"pbdoc(Return whether the requested parameter is available.)pbdoc")
+        .def("get_val", py::overload_cast<const ParamId&>(&ParamSrc::get_val, py::const_), py::arg("pid"),
+             R"pbdoc(Return a parameter value by full ``ParamId``.)pbdoc")
+        .def("get_val", py::overload_cast<ParameterType, std::string_view, int>(&ParamSrc::get_val, py::const_),
+             py::arg("type"), py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a typed parameter value by block and integer code.)pbdoc")
+        .def("size", [](const ParamSrc& src) { return src.raw().size(); },
+             R"pbdoc(Number of parameters in this callback view.)pbdoc");
+
+    py::class_<BlockSrc>(m, "BlockSrc", R"pbdoc(
+Read-only view passed to Python custom-Wilson running callbacks.
+
+A ``BlockSrc`` exposes dependent and input blocks needed by a running lambda.
+The object is non-owning and should only be used during the callback call.
+)pbdoc")
+        .def("has_block", &BlockSrc::has_block, py::arg("block"),
+             R"pbdoc(Return whether a source block is present.)pbdoc")
+        .def("get_val", py::overload_cast<std::string_view, int>(&BlockSrc::get_val, py::const_),
+             py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a block value by integer code.)pbdoc")
+        .def("get_val", py::overload_cast<std::string_view, const LhaID&>(&BlockSrc::get_val, py::const_),
+             py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a block value by full ``LhaID``.)pbdoc")
+        .def("size", [](const BlockSrc& src) { return src.raw().size(); },
+             R"pbdoc(Number of source blocks in this callback view.)pbdoc");
+
     // py::class_<DependenciesHelper, std::shared_ptr<DependenciesHelper>>(m, "DependenciesHelper")
     //     .def_static("get_allowed_parameters", &DependenciesHelper::get_allowed_parameters, py::arg("obs"))
     //     .def_static("is_param_allowed", &DependenciesHelper::is_param_allowed, py::arg("obs"), py::arg("param"));
@@ -1271,7 +1319,12 @@ void init_common(py::module &m) {
         .def_readwrite("order", &WilsonBuildConfig::order);
     
     py::class_<WilsonRequest>(m, "WilsonRequest")
-        .def(py::init<WGroup, WCoef, QCDOrder, ContributionType, ScaleType, bool>())
+        .def(py::init<WGroup, WCoef, QCDOrder, ContributionType, ScaleType, bool>(),
+             py::arg("group"), py::arg("coefficient"), py::arg("order"),
+             py::arg("contribution"), py::arg("scale_type"), py::arg("sum_qcd_orders"))
+        .def(py::init<WGroupId, WCoefId, QCDOrder, ContributionType, ScaleType, bool>(),
+             py::arg("group"), py::arg("coefficient"), py::arg("order"),
+             py::arg("contribution"), py::arg("scale_type"), py::arg("sum_qcd_orders"))
         .def_readwrite("group", &WilsonRequest::group)
         .def_readwrite("coefficient", &WilsonRequest::coefficient)
         .def_readwrite("order", &WilsonRequest::order)

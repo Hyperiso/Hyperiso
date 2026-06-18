@@ -46,18 +46,15 @@ static bool hard_coded_lo_enabled(const WilsonPortsConfig& pc) {
 
 static void compose_sm_only_triplet_for_order(
     const std::string& groupName,
+    const std::vector<WCoefId>& members,
     QCDOrder order,
     WilsonPortsConfig& ports_config
 ) {
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
 
-    auto maybe_g = GroupMapper::enum_of(gid);
-    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
-    const auto members = WCoefMapper::get_group(*maybe_g);
-
-    for (auto wcoef_enum : members) {
-        auto base = WCoefMapper::flha_base(wcoef_enum);
+    for (const auto& wcoef_id : members) {
+        auto base = WCoefMapper::flha_base(wcoef_id);
 
         LhaID id_sm (base.first, base.second, qcd_index(order), 0);
         LhaID id_bsm(base.first, base.second, qcd_index(order), 1);
@@ -108,15 +105,13 @@ void CoefficientManager::ensure_final_triplet_defaults_zero(
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
 
-    auto maybe_g = GroupMapper::enum_of(gid);
-    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
-    const auto members = WCoefMapper::get_group(*maybe_g);
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
     auto wp = ports_config.wilson_proxy;
 
     for (auto o : orders_up_to(max_order)) {
-        for (auto wcoef_enum : members) {
-            auto base = WCoefMapper::flha_base(wcoef_enum);
+        for (const auto& wcoef_id : members) {
+            auto base = WCoefMapper::flha_base(wcoef_id);
 
             LhaID id_sm (base.first, base.second, qcd_index(o), 0);
             LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
@@ -251,14 +246,13 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
 
     sm_group_ptr->init(sm_max_order);
 
-    auto maybe_g = GroupMapper::enum_of(gid);
-    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
     for (auto o : ALL_ORDERS) {
         if (qcd_index(o) > qcd_index(sm_max_order)) continue;
 
-        for (auto wcoef_enum : WCoefMapper::get_group(*maybe_g)) {
-            auto base = WCoefMapper::flha_base(wcoef_enum);
+        for (const auto& wcoef_id : members) {
+            auto base = WCoefMapper::flha_base(wcoef_id);
 
             LhaID id_sm(base.first, base.second, qcd_index(o), 0);
 
@@ -332,15 +326,13 @@ void CoefficientManager::compose_from_fwcoef(
 
     auto wp = ports_config.wilson_proxy;
 
-    auto maybe_g = GroupMapper::enum_of(gid);
-    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
-    const auto members = WCoefMapper::get_group(*maybe_g);
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
     for (auto o : ALL_ORDERS) {
         if (qcd_index(o) > qcd_index(max_order)) continue;
 
-        for (auto wcoef_enum : members) {
-            auto base = WCoefMapper::flha_base(wcoef_enum);
+        for (const auto& wcoef_id : members) {
+            auto base = WCoefMapper::flha_base(wcoef_id);
 
             LhaID id_sm (base.first, base.second, qcd_index(o), 0);
             LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
@@ -442,8 +434,10 @@ void CoefficientManager::compose_missing_from_calculation(
     const std::string final_block = WilsonBlockNames::matching(gid);
     const bool marty_backend = ports_config.use_marty->get();
 
-    for (auto wcoef_enum : WCoefMapper::get_group(GroupMapper::enum_of(gid).value())) {//TODO
-        auto base = WCoefMapper::flha_base(wcoef_enum);
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
+
+    for (const auto& wcoef_id : members) {
+        auto base = WCoefMapper::flha_base(wcoef_id);
 
         LhaID id_sm (base.first, base.second, qcd_index(order), 0);
         LhaID id_bsm(base.first, base.second, qcd_index(order), 1);
@@ -522,13 +516,11 @@ void CoefficientManager::ensure_sm_model_triplet_in_matching(
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
 
-    auto maybe_g = GroupMapper::enum_of(gid);
-    if (!maybe_g) LOG_ERROR("LogicError", "Bad group id for " + groupName);
-    const auto members = WCoefMapper::get_group(*maybe_g);
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
     for (auto o : orders_up_to(max_order)) {
-        for (auto wcoef_enum : members) {
-            auto base = WCoefMapper::flha_base(wcoef_enum);
+        for (const auto& wcoef_id : members) {
+            auto base = WCoefMapper::flha_base(wcoef_id);
 
             LhaID id_sm (base.first, base.second, qcd_index(o), 0);
             LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
@@ -643,7 +635,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                     for (auto o : ALL_ORDERS) {
                         if (o == QCDOrder::LO) continue;
                         if (qcd_index(o) > qcd_index(requested)) continue;
-                        compose_sm_only_triplet_for_order(groupName, o, ports_config);
+                        compose_sm_only_triplet_for_order(groupName, this->coefficientGroups.at(groupName)->get_member_ids(), o, ports_config);
                     }
                 } else {
                     for (auto o : ALL_ORDERS) {
@@ -744,16 +736,17 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
     };
 
     const std::string matching_block_name = this->coefficientGroups[groupName]->get_matching_storage_block();
+    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
     const std::string final_block_name = hadronic_final_block_name(groupName, basis);
     const std::string sm_run_block_name = hadronic_sm_intermediate_block_name(groupName, basis);
     const std::string bsm_run_block_name = hadronic_bsm_intermediate_block_name(groupName, basis);
 
     auto make_partial_running_func =
-        [matching_block_name, ord, funcs]
+        [matching_block_name, ord, funcs, members]
         (ContributionType kept_contrib, const std::string& target_block_name) {
 
-        return [matching_block_name, ord, funcs, kept_contrib, target_block_name]
+        return [matching_block_name, ord, funcs, kept_contrib, target_block_name, members]
                (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
             auto raw = src.raw();
             auto it = raw.find(matching_block_name);
@@ -764,13 +757,26 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
             const auto& matching_coeff = it->second->getItems();
 
             std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>> matching_one;
+
+            // Defensive defaulting: built-in running functions often use .at(order).at(coef).
+            // Missing BSM coefficients, missing higher orders, or custom sparse groups should
+            // therefore be represented explicitly by zero instead of leaving the key absent.
+            for (auto qcd_order : ALL_ORDERS) {
+                if (qcd_index(qcd_order) > qcd_index(ord)) {
+                    continue;
+                }
+                for (const auto& wcoef_id : members) {
+                    matching_one[qcd_order][wcoef_id] = 0.0;
+                }
+            }
+
             for (const auto& [lha_id, param] : matching_coeff) {
                 auto dec = lha_wilson_deserialize(lha_id);
                 const WCoefId& wcoef = dec.first;
                 const QCDOrder& qcd_order = dec.second.first;
                 const ContributionType& contrib = dec.second.second;
 
-                if (contrib != kept_contrib || !param) {
+                if (qcd_index(qcd_order) > qcd_index(ord) || contrib != kept_contrib || !param) {
                     continue;
                 }
 
@@ -820,8 +826,9 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
         { ParameterType::WILSON, { sm_run_block_name, bsm_run_block_name } }
     };
 
+
     auto combine_func =
-        [groupName, basis, ord, final_block_name, sm_run_block_name, bsm_run_block_name]
+        [groupName, basis, ord, final_block_name, sm_run_block_name, bsm_run_block_name, members]
         (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
             auto raw = src.raw();
 
@@ -838,20 +845,13 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
             const auto& sm_items  = it_sm->second->getItems();
             const auto& bsm_items = it_bsm->second->getItems();
 
-            auto maybe_g = GroupMapper::enum_of(GroupMapper::enum_elt(groupName));
-            if (!maybe_g) {
-                LOG_ERROR("LogicError", "Bad group id for " + groupName);
-            }
-
-            const auto members = WCoefMapper::get_group(*maybe_g);
-
             for (auto qcd_order : ALL_ORDERS) {
                 if (qcd_index(qcd_order) > qcd_index(ord)) {
                     continue;
                 }
 
-                for (auto wcoef_enum : members) {
-                    auto base = WCoefMapper::flha_base(wcoef_enum);
+                for (const auto& wcoef_id : members) {
+                    auto base = WCoefMapper::flha_base(wcoef_id);
 
                     const LhaID id_sm (base.first, base.second, qcd_index(qcd_order), 0);
                     const LhaID id_bsm(base.first, base.second, qcd_index(qcd_order), 1);

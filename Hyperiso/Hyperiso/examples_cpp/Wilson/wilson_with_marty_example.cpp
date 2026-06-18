@@ -1,49 +1,71 @@
 #include <iostream>
+#include <vector>
+#include <unordered_set>
 
-#include "MemoryManager.h"
-#include "Parameters.h"
+#include "HyperisoMaster.h"
+#include "Include.h"
+#include "Logger.h"
 #include "WilsonInterface.h"
-#include "BlockProxy.h"
 
 int main() {
-    auto hyp = HyperisoMaster();
+    Logger::getInstance()->setLevel(Logger::LogLevel::INFO);
 
-    HyperisoConfig config_hyp; 
+    // See base_core_example.cpp for informations about these classes.
+    HyperisoConfig config_hyp;
+    config_hyp.flags[ExternalFlag::IS_LHA_SPECTRUM] = false;
+    config_hyp.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
+    config_hyp.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT] = false;
+    config_hyp.flags[ExternalFlag::HYP_AS_SM_MARTY] = true;
 
-    config_hyp.model = Model::MARTY; // We specify here that we want to use MARTY to calculate the wilson coefficients
-    //Be sure to have MARTY installed, if you installed it within Hyperiso, then you don't have anything to do
-    //If you have MARTY on your machine please use the following line:
+    // We specify here that we want to use MARTY to calculate the Wilson coefficients.
+    config_hyp.model = Model::MARTY;
+    config_hyp.mty_model_name = "SM";
+    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/sm.h";
+
+    HyperisoMaster hyp;
+
+    // Be sure to have MARTY installed. If you installed it within Hyperiso, you don't have anything to do.
+    // If you have MARTY on your machine please use the following line:
     // hyp.pre_init_set_marty_path("/path/to/marty");
 
-    //If you have in your LHA new blocks which are not in the flha convention, please add this line :
+    // If you have in your LHA new blocks which are not in the FLHA convention, please add this line:
     // hyp.pre_init_add_block("NAME_OF_THE_BLOCK");
-    //By default block are id + value. if you have another type of block (with 2 or more id) please use the options of the pre_init_add_block API.
+    // By default blocks are id + value. If you have another type of block, use the options of pre_init_add_block.
 
-    config_hyp.flags[ExternalFlag::HYP_AS_SM_MARTY] = true; //If true, then Hyperiso will use the hardcoded version of wilson coefficients for their SM part. MARTY will only be used for the BSM part.
-    //This is helpful to get more precision, with the SM part up to NNLO within Hyperiso.
-
-    config_hyp.mty_model_name = "ZPrime"; //Use the name of the class you used in your model file (here Zprime.h) within MARTY.
-    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h"; //Path to the MARTY model file. If relative path is used, the path start from the Assets folder.
-    config_hyp.mty_bsm_mapping_path = "/home/theo/hyperiso/Assets/input_files/marty_mapping/zprime.json";
     hyp.init("lha/zprime_input.flha", config_hyp);
 
-    //The rest of the code is the same than the base_wilson_example.cpp example.
-    auto wi = WilsonInterface();
+    // The rest of the code is the same than the base_wilson_example.cpp example.
+    WilsonBuildConfig config(std::unordered_set<WGroup>{WGroup::B}, 81.0, 2.0, QCDOrder::LO);
 
-    WilsonBuildConfig config({WGroup::B}, 81, 42, QCDOrder::NLO);
+    WilsonInterface interface;
+    interface.build(config);
 
-    wi.build(config);
+    WilsonBuildConfig config_prime(std::unordered_set<WGroup>{WGroup::BPrime}, 81.0, 2.0, QCDOrder::LO);
+    interface.addWilsonGroup(config_prime);
 
-    WilsonBuildConfig config2({WGroup::BPrime}, 81, 42, QCDOrder::NLO);
+    const std::vector<WCoef> coefs = {
+        WCoef::C1, WCoef::C2, WCoef::C3, WCoef::C4, WCoef::C5,
+        WCoef::C6, WCoef::C7, WCoef::C8, WCoef::C9, WCoef::C10
+    };
 
-    wi.addWilsonGroup(config2);
-    
-    LOG_INFO("C7(mu_h) at LO =", wi.getM(WGroup::B, WCoef::C7, QCDOrder::LO, ContributionType::TOTAL));
-    LOG_INFO("C9(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::LO, ContributionType::TOTAL)); //getR -> get running coefficient (getM -> get matching coefficient)
+    const std::vector<WCoef> coefs_primes = {
+        WCoef::CP1, WCoef::CP2, WCoef::CP3, WCoef::CP4, WCoef::CP5, WCoef::CP6,
+        WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2
+    };
 
-    LOG_INFO("C9(mu_h) at NLO =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::NLO, ContributionType::TOTAL));
-    LOG_INFO("C9(mu_h) at NNLO =", wi.getR(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::TOTAL));
-    
-    LOG_INFO("C9(mu_h) full =", wi.getFR(WGroup::B, WCoef::C9, QCDOrder::NNLO, ContributionType::TOTAL));
+    std::cout << "\nSeparated matching orders for B group:\n";
+    for (auto coef : coefs) {
+        std::cout << WCoefMapper::str(coef) << "\n";
+        for (const auto& [order, value] : interface.getSM(WGroup::B, coef, ContributionType::TOTAL)) {
+            std::cout << "  " << OrderMapper::str(order) << " = " << value << "\n";
+        }
+    }
+
+    std::cout << "\nFull running coefficients for BPrime group:\n";
+    for (auto coef : coefs_primes) {
+        std::cout << WCoefMapper::str(coef) << " = "
+                  << interface.getFR(WGroup::BPrime, coef, QCDOrder::LO, ContributionType::TOTAL) << "\n";
+    }
+
     return 0;
 }

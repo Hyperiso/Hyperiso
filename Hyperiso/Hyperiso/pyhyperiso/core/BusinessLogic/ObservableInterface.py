@@ -29,6 +29,7 @@ from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.SymbolId import ObservableId
 from pyhyperiso.core.BusinessLogic.DecayConfig import DecayConfig
+from pyhyperiso.core.BusinessLogic.LambdaDecay import LambdaDecayConfig
 
 def _require(value, typ, name: str):
     if not isinstance(value, typ):
@@ -112,6 +113,23 @@ class ObservableInterface:
     def __init__(self) -> None:
         """Create a new observable interface backed by a fresh C++ manager."""
         self._cpp_obj = _CppObservableInterface()
+
+    def add_lambda_decay(self, config: LambdaDecayConfig, add_observables: bool = True) -> "ObservableInterface":
+        """Register a lambda-backed custom decay and its observables.
+
+        Args:
+            config: Runtime decay configuration containing custom observables and
+                optionally custom Wilson groups.
+            add_observables: If ``True``, select every observable declared in
+                ``config`` immediately.
+
+        Returns:
+            ``self`` for fluent chaining.
+        """
+        if isinstance(config, LambdaDecayConfig):
+            config = config.to_cpp()
+        self._cpp_obj.add_lambda_decay(config, bool(add_observables))
+        return self
 
     @classmethod
     def from_cpp(cls, cpp_obj) -> "ObservableInterface":

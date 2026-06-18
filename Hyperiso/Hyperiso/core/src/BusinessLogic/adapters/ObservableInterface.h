@@ -14,6 +14,7 @@
 #include "ObsManager.h"
 #include "ObsUseMarty.h"
 #include "WilsonFreezer.h"
+#include "LambdaDecay.h"
 
 /**
  * @file ObservableInterface.h
@@ -116,6 +117,30 @@ public:
      * @see ObsManager::add_custom_decay
      */
     void add_custom_decay(DecayId id, std::shared_ptr<DecayParent> ptr);
+
+    /**
+     * @brief Register a complete custom decay backed by user lambdas.
+     *
+     * @details
+     * This method is the high-level dynamic extension point for observables:
+     *  - registers the custom DecayId and all custom ObservableId values,
+     *  - installs any lambda-based custom Wilson groups declared in the config,
+     *  - creates a @ref LambdaDecay and adds it to the manager,
+     *  - optionally selects all observables immediately.
+     *
+     * The observable lambdas can then use @ref LambdaDecay::W(),
+     * @ref LambdaDecay::SM(), @ref LambdaDecay::FLAVOR() and
+     * @ref LambdaDecay::QCD() to access the same services as a compiled decay.
+     *
+     * @param config Runtime/custom decay configuration.
+     * @param add_observables If true, all observables declared in @p config are
+     *                        added to the manager immediately.
+     * @return Reference to `*this` for chaining.
+     *
+     * @see LambdaDecayConfig
+     * @see LambdaObservableConfig
+     */
+    ObservableInterface& add_lambda_decay(LambdaDecayConfig config, bool add_observables=true);
 
     /**
      * @brief Add an observable to the manager (enum API).

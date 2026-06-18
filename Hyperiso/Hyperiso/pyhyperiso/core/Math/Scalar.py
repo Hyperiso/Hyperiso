@@ -37,26 +37,41 @@ class Scalar:
     def real(self) -> float:
         """Returns the real part.
 
+        ``Scalar.from_cpp`` can receive either a bound ``scalar_t`` object or a
+        native Python ``complex`` depending on the pybind overload that produced
+        the value.  The C++ object exposes ``real()`` as a method, while Python
+        complex exposes ``real`` as a float attribute; both forms are supported.
+
         Returns:
             float: Real component.
         """
-        return self._cpp_obj.real()
+        real_attr = getattr(self._cpp_obj, "real")
+        return float(real_attr() if callable(real_attr) else real_attr)
 
     def imag(self) -> float:
         """Returns the imaginary part.
 
+        Supports both bound ``scalar_t.imag()`` and Python ``complex.imag``.
+
         Returns:
             float: Imaginary component.
         """
-        return self._cpp_obj.imag()
+        imag_attr = getattr(self._cpp_obj, "imag")
+        return float(imag_attr() if callable(imag_attr) else imag_attr)
 
     def to_double(self) -> float:
-        """Casts to float (real part only, warns if imaginary part exists).
+        """Casts to float using the real part.
+
+        Bound ``scalar_t`` still uses its native ``to_double()`` implementation.
+        Native Python numbers/complex values use ``real()``.
 
         Returns:
             float: Real part.
         """
-        return self._cpp_obj.to_double()
+        to_double = getattr(self._cpp_obj, "to_double", None)
+        if callable(to_double):
+            return float(to_double())
+        return self.real()
 
     def __float__(self) -> float:
         """Casts to float, calling to_double.

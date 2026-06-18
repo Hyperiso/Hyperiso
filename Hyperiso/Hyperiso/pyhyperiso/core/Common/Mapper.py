@@ -38,9 +38,9 @@ from pyhyperiso.core.Common.GeneralEnum import (
 )
 from pyhyperiso.core.Common.LhaID import LhaID
 try:
-    from pyhyperiso.core.Common.SymbolId import ObservableId, DecayId, _unwrap_optional
+    from pyhyperiso.core.Common.SymbolId import ObservableId, DecayId, WGroupId, WCoefId, _unwrap_optional
 except ImportError:
-    from pyhyperiso.core.Common.SymbolId import ObservableId, _unwrap_optional
+    from pyhyperiso.core.Common.SymbolId import ObservableId, WGroupId, WCoefId, _unwrap_optional
 
     class DecayId:
         """Python fallback wrapper around the bound C++ ``DecayId`` type.
@@ -98,6 +98,16 @@ def _wrap_observable_id(cpp_id) -> ObservableId:
 def _wrap_decay_id(cpp_id) -> DecayId:
     """Wrap a bound C++ ``DecayId`` as a Python ``DecayId``."""
     return DecayId(str(cpp_id))
+
+
+def _wrap_wgroup_id(cpp_id) -> WGroupId:
+    """Wrap a bound C++ ``WGroupId`` as a Python ``WGroupId``."""
+    return WGroupId(str(cpp_id))
+
+
+def _wrap_wcoef_id(cpp_id) -> WCoefId:
+    """Wrap a bound C++ ``WCoefId`` as a Python ``WCoefId``."""
+    return WCoefId(str(cpp_id))
 
 
 def _unwrap_optional_or_none(cpp_optional, label: str):
@@ -377,18 +387,62 @@ class ScaleTypeMapper:
 
 
 class GroupMapper:
-    """Mapper for Wilson-coefficient groups."""
+    """Mapper for Wilson-coefficient groups.
+
+    The wrapper accepts both legacy :class:`WGroup` enums and runtime strings.
+    String lookups return :class:`WGroupId`, which is the preferred API for
+    custom groups and config/CLI driven workflows.
+    """
 
     def __init__(self):
         pass
 
-    def str(self, group_id: WGroup):
-        """Return the canonical string for a Wilson group."""
-        return _CppGroupMapper.str(group_id.value)
+    @staticmethod
+    def str(group) -> str:
+        """Return the canonical string for a Wilson group enum or dynamic id."""
+        if isinstance(group, WGroup):
+            return _CppGroupMapper.str(group.value)
+        if isinstance(group, WGroupId):
+            return _CppGroupMapper.canonical(group._to_cpp())
+        raise TypeError("str() expects WGroup or WGroupId")
 
-    def id_of(self, group_id: WGroup):
-        """Return the C++ id associated with a Wilson group."""
-        return _CppGroupMapper.id_of(self.str(group_id))
+    @staticmethod
+    def id_of(group) -> WGroupId:
+        """Resolve a group enum/name/alias to a dynamic :class:`WGroupId`."""
+        if isinstance(group, WGroupId):
+            return group
+        if isinstance(group, WGroup):
+            return _wrap_wgroup_id(_CppGroupMapper.to_id(group.value))
+        return _wrap_wgroup_id(_CppGroupMapper.id_of(str(group)))
+
+    @staticmethod
+    def to_id(group: WGroup) -> WGroupId:
+        """Convert a builtin Wilson-group enum to :class:`WGroupId`."""
+        return _wrap_wgroup_id(_CppGroupMapper.to_id(group.value))
+
+    @staticmethod
+    def canonical(group_id: WGroupId) -> str:
+        """Return the canonical name of a dynamic Wilson group id."""
+        return _CppGroupMapper.canonical(group_id._to_cpp())
+
+    @staticmethod
+    def block_name(group, scale: ScaleType, basis: WilsonBasis = WilsonBasis.STANDARD) -> str:
+        """Return the scale/basis block name used by Wilson parameter blocks."""
+        if isinstance(group, WGroup):
+            return _CppGroupMapper.str(group.value, scale.value, basis.value)
+        group_id = GroupMapper.id_of(group)
+        return _CppGroupMapper.str_id(group_id._to_cpp(), scale.value, basis.value)
+
+    @staticmethod
+    def register_custom(canonical: str, aliases=None, external: Optional[str] = None) -> bool:
+        """Register a custom Wilson group in the dynamic mapper.
+
+        Args:
+            canonical: Canonical group name.
+            aliases: Optional aliases accepted by :meth:`id_of`.
+            external: Optional external key used by C++ mapper extensions.
+        """
+        return _CppGroupMapper.register_custom(canonical, list(aliases or []), external)
 
     def get_str(self):
         """Return the C++ mapper's primary string table."""
@@ -399,23 +453,66 @@ class GroupMapper:
         return _CppGroupMapper.get_str_all()
 
     def get_enum(self):
-        """Return enum values known to the C++ mapper."""
-        return [x for x in _CppGroupMapper.get_enum()]
+        """Return builtin enum values known to the C++ mapper."""
+        return [WGroup(x) for x in _CppGroupMapper.get_enum()]
 
 
 class WCoefMapper:
-    """Mapper for Wilson-coefficient identifiers."""
+    """Mapper for Wilson-coefficient identifiers.
+
+    Runtime lookups return :class:`WCoefId`, so custom coefficients do not need
+    a corresponding static :class:`WCoeff` enum value.
+    """
 
     def __init__(self):
         pass
 
-    def str(self, obs_id: WCoeff):
+    @staticmethod
+    def str(coef) -> str:
         """Return the canonical string for a Wilson coefficient."""
-        return _CppWCoefMapper.str(obs_id.value)
+        if isinstance(coef, WCoeff):
+            return _CppWCoefMapper.str(coef.value)
+        if isinstance(coef, WCoefId):
+            return _CppWCoefMapper.canonical(coef._to_cpp())
+        raise TypeError("str() expects WCoeff or WCoefId")
 
-    def id_of(self, obs_id: WCoeff):
-        """Return the C++ id associated with a Wilson coefficient."""
-        return _CppWCoefMapper.id_of(self.str(obs_id))
+    @staticmethod
+    def id_of(coef) -> WCoefId:
+        """Resolve a coefficient enum/name/alias to :class:`WCoefId`."""
+        if isinstance(coef, WCoefId):
+            return coef
+        if isinstance(coef, WCoeff):
+            return _wrap_wcoef_id(_CppWCoefMapper.to_id(coef.value))
+        return _wrap_wcoef_id(_CppWCoefMapper.id_of(str(coef)))
+
+    @staticmethod
+    def to_id(coef: WCoeff) -> WCoefId:
+        """Convert a builtin coefficient enum to :class:`WCoefId`."""
+        return _wrap_wcoef_id(_CppWCoefMapper.to_id(coef.value))
+
+    @staticmethod
+    def canonical(coef_id: WCoefId) -> str:
+        """Return the canonical name of a dynamic coefficient id."""
+        return _CppWCoefMapper.canonical(coef_id._to_cpp())
+
+    @staticmethod
+    def register_custom(canonical: str, aliases=None, flha=(0, 0)) -> bool:
+        """Register a custom Wilson coefficient.
+
+        Args:
+            canonical: Canonical coefficient name.
+            aliases: Optional aliases accepted by :meth:`id_of`.
+            flha: External FLHA pair used by Wilson input/output conventions.
+        """
+        return _CppWCoefMapper.register_custom(canonical, list(aliases or []), tuple(flha))
+
+    @staticmethod
+    def flha_base(coef) -> tuple[int, int]:
+        """Return the external FLHA base pair for a coefficient enum or id."""
+        if isinstance(coef, WCoeff):
+            return tuple(_CppWCoefMapper.flha_base(coef.value))
+        coef_id = WCoefMapper.id_of(coef)
+        return tuple(_CppWCoefMapper.flha_base(coef_id._to_cpp()))
 
     def get_str(self):
         """Return the C++ mapper's primary string table."""
@@ -426,8 +523,8 @@ class WCoefMapper:
         return _CppWCoefMapper.get_str_all()
 
     def get_enum(self):
-        """Return enum values known to the C++ mapper."""
-        return [x for x in _CppWCoefMapper.get_enum()]
+        """Return builtin enum values known to the C++ mapper."""
+        return [WCoeff(x) for x in _CppWCoefMapper.get_enum()]
 
 
 class ObservableMapper:
@@ -697,6 +794,8 @@ __all__ = [
     "ScaleTypeMapper",
     "GroupMapper",
     "WCoefMapper",
+    "WGroupId",
+    "WCoefId",
     "ObservableMapper",
     "DecayMapper",
     "CustomObservableSpec",

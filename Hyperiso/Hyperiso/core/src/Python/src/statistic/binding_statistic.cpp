@@ -684,6 +684,8 @@ void init_statistic_interface(py::module_& m) {
         .def("update_cache", &StatisticInterface::update_cache,
              py::arg("p_specs") = std::vector<ParamId>{})
         .def("get_all_obss_deps", &StatisticInterface::get_all_obss_deps)
+        .def("get_active_observable_dependencies", &StatisticInterface::get_active_observable_dependencies,
+             R"pbdoc(Return the parameter dependencies currently visible to the Statistic manager.)pbdoc")
         .def("get_p_specs", &StatisticInterface::get_p_specs,
              py::arg("p_specs"))
         .def("get_all_correlations", &StatisticInterface::get_all_correlations)

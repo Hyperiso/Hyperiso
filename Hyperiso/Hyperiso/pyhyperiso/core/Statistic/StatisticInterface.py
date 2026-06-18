@@ -633,6 +633,15 @@ class StatisticInterface:
         """Return all selected observable dependencies after nuisance pruning."""
         return _param_float_map_from_cpp(self._cpp.get_all_obss_deps())
 
+    def get_active_observable_dependencies(self) -> Dict[ParamId, float]:
+        """Return dependencies currently visible to the Statistic manager.
+
+        This method is useful for runtime/lambda observables: it verifies that
+        dependencies declared on ``LambdaObservableConfig`` and propagated from
+        custom Wilson lambdas reached the statistic layer.
+        """
+        return _param_float_map_from_cpp(self._cpp.get_active_observable_dependencies())
+
     def get_p_specs(self, p_specs: Optional[Sequence[ParamId]] = None) -> Dict[ParamId, float]:
         """Return central values for selected fit parameters.
 

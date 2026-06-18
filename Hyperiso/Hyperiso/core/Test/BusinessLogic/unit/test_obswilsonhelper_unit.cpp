@@ -29,6 +29,7 @@ public:
         if (wil_cfg) last_groups = wil_cfg->groups;
     }
 
+    void add_custom_group(const CustomWilsonGroupConfig&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return nullptr; }
 };
 

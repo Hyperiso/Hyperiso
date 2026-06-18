@@ -7,6 +7,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Core)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 endif()
@@ -113,6 +117,7 @@ if (${ENABLE_WARNINGS})
                         ${ENABLE_WARNINGS_AS_ERRORS})
 endif()
 
+if (BUILD_WITH_APP)
 add_executable(TEST_CORE app/main_core.cpp)
 target_link_libraries(TEST_CORE CoreLib)
 
@@ -142,6 +147,7 @@ target_link_libraries(MORE_SPEED CoreLib)
 
 add_executable(DETACH app/main_detach.cpp)
 target_link_libraries(DETACH CoreLib)
+endif()
 
 include(GNUInstallDirs)
 

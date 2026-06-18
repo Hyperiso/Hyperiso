@@ -1534,14 +1534,21 @@ LikelihoodScanGrid StatisticManager::scan_likelihood_around_current_point(
     if (has_manual_scan_point_) {
         p_ref = last_scan_p_;
         eta_ref = last_scan_eta_;
-    } else {
-        if (last_fit_raw_.p_hat.empty() || last_fit_raw_.eta_hat.empty()) {
-            throw std::runtime_error(
-                "No reference point available. Use compute_MLE(...) or set_manual_scan_point(...)."
-            );
-        }
+    } else if (!last_fit_raw_.p_hat.empty() && !last_fit_raw_.eta_hat.empty()) {
         p_ref = last_fit_raw_.p_hat;
         eta_ref = last_fit_raw_.eta_hat;
+    } else if (!last_scan_p_.empty() && last_scan_eta_.size() == last_nuisance_ids_.size()) {
+        // prepare_likelihood_for_scan(...) stores the current central values in
+        // last_scan_p_/last_scan_eta_.  This lets lightweight scan examples run
+        // without first performing a full MLE. A later compute_MLE(...) or
+        // set_manual_scan_point(...) still overrides this default reference point.
+        p_ref = last_scan_p_;
+        eta_ref = last_scan_eta_;
+    } else {
+        throw std::runtime_error(
+            "No reference point available. Use compute_MLE(...), "
+            "set_manual_scan_point(...), or prepare_likelihood_for_scan(...)."
+        );
     }
 
     if (ix >= p_ref.size() || iy >= p_ref.size()) {
