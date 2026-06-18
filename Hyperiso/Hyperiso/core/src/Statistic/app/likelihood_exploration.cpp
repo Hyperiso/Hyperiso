@@ -71,8 +71,8 @@ int main() {
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     StatisticConfig config;
-    config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.2;
+    config.advanced.MLE_max_iter = 120000;
+    config.advanced.MLE_tol = 0.2;
 
     std::shared_ptr<INuisancePathsProvider> npp =
         std::make_shared<DefaultNuisancePathsProvider>();

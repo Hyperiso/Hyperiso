@@ -1,42 +1,54 @@
 #include <iostream>
 #include <string>
+
+#include "Logger.h"
 #include "WilsonHandler.h"
 #include "ObservableHandler.h"
 #include "StatisticHandler.h"
 
+namespace {
+
 void print_usage() {
-    std::cout << "Usage: ./main <command> [options]\n"
-              << "\nCommands:\n"
-              << "  wilson      : Manage Wilson coefficients\n"
-              << "  observable      : Manage Observables calculations\n"
-              << "  statistic      : Manage Uncertainties calculation and fitting.\n"
-              << "  other_cmd   : Other commands for the program.\n"
-              << "\nUse './main <command> --help' for more information on a specific command.\n";
+    std::cout
+        << "Hyperiso terminal interface\n\n"
+        << "Usage:\n"
+        << "  hyperiso-ui <module> <command> [options]\n\n"
+        << "Modules:\n"
+        << "  wilson      Builtin Wilson-coefficient summaries\n"
+        << "  observable  Builtin observable summaries\n"
+        << "  statistic   Statistic/dependency/uncertainty summaries\n\n"
+        << "Common options:\n"
+        << "  --model SM|THDM|MSSM|MARTY     Model, default SM\n"
+        << "  --lha <path>                    LHA/FLHA input, default lha/si_input.flha\n"
+        << "  --order LO|NLO|NNLO             QCD order, default NNLO\n"
+        << "  --help                          Show help\n\n"
+        << "Examples:\n"
+        << "  hyperiso-ui wilson summary --groups BCoefficients --coeffs C7,C9,C10\n"
+        << "  hyperiso-ui observable summary --observables BR_Bs__mu_mu,BR_B__Xs_gamma\n"
+        << "  hyperiso-ui statistic summary --observables BR_Bs__mu_mu --draws 200 --progress\n";
 }
 
+} // namespace
+
 int main(int argc, char* argv[]) {
+    Logger::getInstance()->setEnabled(true);
 
-    Logger* logger = Logger::getInstance();
-    logger->setEnabled(true);
-
-    if (argc < 2) {
+    if (argc < 2 || std::string(argv[1]) == "--help" || std::string(argv[1]) == "help") {
         print_usage();
-        return 1;
+        return argc < 2 ? 1 : 0;
     }
 
-    std::string command = argv[1];
+    const std::string module = argv[1];
+    try {
+        if (module == "wilson") return handleWilsonOptions(argc - 1, argv + 1);
+        if (module == "observable") return handleObservableOptions(argc - 1, argv + 1);
+        if (module == "statistic") return handleStatisticOptions(argc - 1, argv + 1);
 
-    if (command == "wilson") {
-        return handleWilsonOptions(argc - 1, argv + 1);
-    } else if (command == "observable"){
-        return handleObservableOptions(argc - 1, argv +1);
-    } else if (command == "statistic"){
-        return handleStatisticOptions(argc - 1, argv +1);
-    } else {
-        std::cerr << "Unknown command: " << command << std::endl;
+        std::cerr << "Unknown module: " << module << "\n\n";
         print_usage();
         return 1;
+    } catch (const std::exception& e) {
+        std::cerr << "ERROR: " << e.what() << "\n";
+        return 1;
     }
-
-    return 0;
 }

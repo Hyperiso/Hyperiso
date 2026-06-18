@@ -762,8 +762,8 @@ int main(int argc, char** argv) {
 
     StatisticConfig config;
     config.MC_draws = 100;
-    config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.2;
+    config.advanced.MLE_max_iter = 120000;
+    config.advanced.MLE_tol = 0.2;
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}}
@@ -812,7 +812,7 @@ int main(int argc, char** argv) {
     };
 
     auto start_m = std::chrono::steady_clock::now();
-    MinuitMLEstimatorLocal est(*backend, std::move(built.ctx), model_fn, config.MLE_max_iter, config.MLE_tol, 2);
+    MinuitMLEstimatorLocal est(*backend, std::move(built.ctx), model_fn, config.advanced.MLE_max_iter, config.advanced.MLE_tol, 2);
     JointFitOutput fit_out = est.fit_joint_with_minuit(built.p_ids, built.eta_ids, built.p0);
     auto stop_m = std::chrono::steady_clock::now();
 

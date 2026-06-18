@@ -1,7 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
 
+project(UserInterface LANGUAGES CXX)
+
 set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
@@ -15,32 +17,19 @@ endif()
 if (NOT DEFINED BUILD_WITH_MINUIT2)
     option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
 endif()
-
-project(UserInterface)
-add_library(UserInterfaceLib WilsonHandler.cpp ArgsParser.cpp ObservableHandler.cpp StatisticHandler.cpp YamlInputReader.cpp UserParameterProxy.cpp CsvWriter.cpp JsonWriter.cpp ScanRunner.cpp WilsonExtractor.cpp ObservableExtractor.cpp)
-
-# set_target_properties(UserInterfaceLib PROPERTIES PUBLIC_HEADER "ObservableHandler.h;ArgsParser.h;WilsonHandler.h;HyperisoInterface.h")
-
-# target_include_directories(UserInterfaceLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
-
-target_include_directories(UserInterfaceLib
-  PUBLIC
-    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface>
-)
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build Hyperiso command-line applications" OFF)
+endif()
 
 if (NOT TARGET StatisticLib)
     add_subdirectory(../Statistic StatisticLib)
 endif()
-
 if (NOT TARGET BusinessLogicLib)
     add_subdirectory(../BusinessLogic BusinessLogicLib)
 endif()
-
 if (NOT TARGET PhysicalModelLib)
     add_subdirectory(../PhysicalModel PhysicalModelLib)
 endif()
-
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -54,14 +43,48 @@ if (NOT TARGET CoreLib)
     add_subdirectory(../Core CoreLib)
 endif()
 
-target_link_libraries(UserInterfaceLib PUBLIC StatisticLib BusinessLogicLib PhysicalModelLib CommonLib ConfiguredModule MathLib CoreLib)
+add_library(UserInterfaceLib STATIC
+    CliUtils.cpp
+    WilsonHandler.cpp
+    ObservableHandler.cpp
+    StatisticHandler.cpp
+    ArgsParser.cpp
+    YamlInputReader.cpp
+    UserParameterProxy.cpp
+    CsvWriter.cpp
+    JsonWriter.cpp
+    ScanRunner.cpp
+    WilsonExtractor.cpp
+    ObservableExtractor.cpp
+)
 
-if(${ENABLE_CLANG_TIDY})
+set_target_properties(UserInterfaceLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
+target_include_directories(UserInterfaceLib
+  PUBLIC
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface>
+)
+
+target_link_libraries(UserInterfaceLib
+  PUBLIC
+    StatisticLib
+    BusinessLogicLib
+    PhysicalModelLib
+    CoreLib
+    CommonLib
+    ConfiguredModule
+    MathLib
+)
+
+if(DEFINED ENABLE_CLANG_TIDY AND ENABLE_CLANG_TIDY)
     add_clang_tidy_to_target(UserInterfaceLib)
 endif()
 
-add_executable(main_user main.cpp)
-target_link_libraries(main_user UserInterfaceLib)
+if(BUILD_WITH_APP)
+    add_executable(hyperiso-ui main.cpp)
+    target_link_libraries(hyperiso-ui PRIVATE UserInterfaceLib)
+endif()
 
 include(GNUInstallDirs)
 
@@ -72,6 +95,12 @@ install(TARGETS UserInterfaceLib
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
+if(BUILD_WITH_APP)
+    install(TARGETS hyperiso-ui
+      RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    )
+endif()
+
 install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/UserInterface
   FILES_MATCHING
@@ -79,9 +108,3 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "*.cpp" EXCLUDE
     PATTERN "CMakeFiles" EXCLUDE
 )
-
-add_executable(main_user_int main.cpp)
-target_link_libraries(main_user_int UserInterfaceLib)
-
-add_executable(test_output test_output.cpp)
-target_link_libraries(test_output UserInterfaceLib)

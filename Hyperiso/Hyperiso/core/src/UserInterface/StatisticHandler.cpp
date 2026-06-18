@@ -1,215 +1,107 @@
-#include "WilsonHandler.h"
+#include "StatisticHandler.h"
+
 #include <iostream>
-#include <string>
-#include <complex>
 #include <map>
 #include <memory>
 #include <vector>
-#include "ArgsParser.h"
+
+#include "CliUtils.h"
+#include "ObservableInterface.h"
 #include "StatisticInterface.h"
-#include "YamlInputReader.h"
+#include "mapper_hub.hpp"
+
+namespace {
 
 void print_statistic_usage() {
-    std::cout << "Usage: ./main statistic [options]\n"
-              << "\nOptions:\n"
-              << "  --model/-m <model_name>               : Specify the model (SM, THDM, MSSM, ...)\n"
-              << "  --wilson/-w <coefficient_name>        : Specify the Wilson coefficient (e.g., C1, C2, ..., CQ1)\n"
-              << "  --group/-g <group_name>               : Specify the group if multiple coefficients are provided (e.g., BCoefficientGroup)\n"
-              << "  --Q_match/-q <value>                  : Set Q_match scale\n"
-              << "  --Q/-Q <value>                        : Set Q scale\n"
-              << "  --n_flavor/-f <value> (optional)      : Set the number of flavors (optional)\n"
-              << "  --Marty/-M <true|false>               : Use Marty groups (default: false)\n"
-              << "  --input_file/-if <slha_name>               : input file for parameters spectrum\n"
-              << "  --order/-o <LO|NLO|NNLO>              : Specify the calculation order (default: LO)\n"
-              << "  --help/-h                             : Display this help message\n";
+    std::cout
+        << "Usage:\n"
+        << "  hyperiso-ui statistic summary [options]\n\n"
+        << "Options:\n"
+        << "  --observables <csv>     Observable names, default BR_Bs__mu_mu,BR_B__Xs_gamma\n"
+        << "  --draws <n>             MC draws for uncertainty mode, default 200\n"
+        << "  --uncertainties         Also compute MC uncertainty summaries\n"
+        << "  --chi2                  Use CHI2_MC_COVARIANCE advanced likelihood mode\n"
+        << "  --progress              Show MC progress bar when MC is run\n"
+        << "  --order <order>         LO, NLO or NNLO, default NNLO\n"
+        << "  --model <model>         SM, THDM, MSSM or MARTY, default SM\n"
+        << "  --lha <path>            Input LHA/FLHA file\n";
 }
 
-//TODO : refactor
-int handleStatisticOptions(int argc, char* argv[]) {
-    try {
-        ArgParser parser;
-
-        // parser.addArgument(ArgumentBuilder()
-        //                        .setLongName("observables")
-        //                        .setShortName("os")
-        //                        .setHelpText("Comma-separated list of observable names")
-        //                        .setType(ArgType::STRING)
-        //                        .setAllowsMultiple(true)
-        //                        .build());
-
-        parser.addArgument(ArgumentBuilder()
-                            .setLongName("input_file")
-                            .setShortName("if")
-                            .setHelpText("Input file path")
-                            .setType(ArgType::STRING)
-                            .setDefaultValue("Test/InputFiles/testinput_thdm.lha")
-                            .setRequired(false)
-                            .build());
-
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("model")
-                    .setShortName("m")
-                    .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("SM")
-                    .build()
-            );
-
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("martypath")
-                    .setShortName("M")
-                    .setHelpText("Marty Model path")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("None")
-                    .build()
-            );
-
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("model")
-                    .setShortName("m")
-                    .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("SM")
-                    .build()
-            );
-
-        parser.addArgument(
-                ArgumentBuilder()
-                    .setLongName("model")
-                    .setShortName("m")
-                    .setHelpText("Specify the model (SM, THDM, MSSM, ...)")
-                    .setType(ArgType::STRING)
-                    .setRequired(false)
-                    .setDefaultValue("SM")
-                    .build()
-            );
-
-        parser.addArgument(ArgumentBuilder()
-                            .setLongName("help")
-                            .setShortName("h")
-                            .setHelpText("Show usage information")
-                            .setType(ArgType::STRING)
-                            .setRequired(false)
-                            .build());
-
-        parser.parse(argc, argv);
-
-        // Vérifier la sous-commande
-        const auto pos = parser.getPositionalValues();
-        const std::string cmd = pos.empty() ? "" : pos[0];
-
-        // Gestion help simple
-        // (Avec ton parser actuel, il faut passer une valeur: --help true)
-        bool wantHelp = false;
-        try {
-            wantHelp = (parser.getValue("help") == "true" || parser.getValue("help") == "1");
-        } catch (...) {
-            // ignore si absent
-        }
-
-        if (wantHelp) {
-            print_statistic_usage();
-            if (!cmd.empty()) {
-                std::cerr << "\nUnknown subcommand: " << cmd << "\n";
-                return 1;
+void print_predictions(const std::map<ObservableId, std::vector<ObservableValue>>& predictions) {
+    for (const auto& [obs, values] : predictions) {
+        std::cout << "\n" << ObservableMapper::str(obs) << "\n";
+        for (const auto& value : values) {
+            std::cout << "  prediction=" << value.value;
+            if (value.bin.has_value()) {
+                std::cout << " in [" << value.bin->first << ", " << value.bin->second << "]";
             }
-            return 0;
-        }
-
-        // ---- Ici tu mettras le fonctionnement réel plus tard ----
-        // Pour l'instant, on montre juste ce qui a été parsé.
-
-        std::cout << "[statistic] parsed options:\n";
-
-        try { std::cout << "  model         = " << parser.getValue("model") << "\n"; } catch (...) {}
-        try {
-            auto ws = parser.getValues("wilson");
-            std::cout << "  statistic        = ";
-            for (size_t i = 0; i < ws.size(); ++i) std::cout << ws[i] << (i + 1 < ws.size() ? ", " : "");
             std::cout << "\n";
-        } catch (...) {}
-
-        try { std::cout << "  statistic         = " << parser.getValue("statistic") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  group         = " << parser.getValue("group") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  Q_match       = " << parser.getValue("Q_match") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  Q             = " << parser.getValue("Q") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  martypath     = " << parser.getValue("martypath") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  input_file    = " << parser.getValue("input_file") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  order         = " << parser.getValue("order") << "\n"; } catch (...) {std::cout << std::endl;}
-        try { std::cout << "  write_to_flha = " << parser.getValue("write_to_flha") << "\n"; } catch (...) {std::cout << std::endl;}
-
-
-        HyperisoMaster hyp = HyperisoMaster();
-
-        HyperisoConfig config;
-
-        if (parser.getValue("martypath") == "None") {
-            std::cout << parser.getValue("model") << std::endl;
-            if (parser.getValue("model") == "SM") {
-                config.model = Model::SM;
-            } else if (parser.getValue("model") == "THDM") {
-                config.model = Model::THDM;
-            } else if (parser.getValue("model") == "MSSM") {
-                config.model = Model::SUSY;
-            } else if (parser.getValue("model") == "NMSSM") {
-                config.model = Model::SUSY;
-            } else {
-                std::cout << "error" << std::endl;
-            }
-        } else { 
-            config.model = Model::MARTY;
         }
-        std::string lha_path = parser.getValue("input_file");
-        
-        hyp.init(lha_path, config);
-        
-        StatisticConfig stat_conf;
+    }
+}
 
-        // StatisticInterface si {stat_conf};
+} // namespace
 
+int handleStatisticOptions(int argc, char* argv[]) {
+    CliOptions opts = CliOptions::parse(argc, argv, 1);
+    const std::string command = opts.positionals.empty() ? "summary" : opts.positionals[0];
 
-        try {
-            std::string filename = (argc > 1) ? argv[1] : "input.yml";
-
-            YamlInputReader reader(filename);
-
-            auto inputs = reader.get_input_params();
-            auto scans  = reader.get_scan_params();
-
-            std::cout << "=== p_specs ===\n";
-            for (const auto& p : inputs) {
-                std::cout << "block=" << p.block_name
-                        << " code=" << p.pdg_code.to_string()
-                        << "\n";
-            }
-
-            std::cout << "\n=== scan_params ===\n";
-            for (const auto& s : scans) {
-                std::cout << "block=" << s.block_name
-                        << " code=" << s.pdg_code.to_string()
-                        << " min=" << s.min_val
-                        << " max=" << s.max_val
-                        << " step=" << s.step_val
-                        << "\n";
-            }
-
-            return 0;
-        } catch (const std::exception& e) {
-            std::cerr << "ERROR: " << e.what() << "\n";
-            return 1;
-        }
-
-        return 0;
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << "\n\n";
+    if (opts.flag("help", false) || command == "help") {
         print_statistic_usage();
-        return 1;
+        return 0;
+    }
+    if (command != "summary") {
+        throw std::invalid_argument("Unknown statistic command: " + command);
+    }
+
+    auto hyp = init_hyperiso_from_cli(opts);
+    init_all_builtins();
+
+    const QCDOrder order = parse_qcd_order(opts.get("order", "NNLO"));
+    const auto obs_names = opts.list("observables", {"BR_Bs__mu_mu", "BR_B__Xs_gamma"});
+
+    auto oi = std::make_shared<ObservableInterface>();
+    for (const auto& name : obs_names) {
+        oi->add_observable(ObservableMapper::id_of(name), order, true);
+    }
+    oi->enable_obs();
+
+    StatisticConfig cfg;
+    cfg.MC_draws = static_cast<std::size_t>(opts.get_int("draws", 200));
+    cfg.print_mc_progress = opts.flag("progress", false);
+    cfg.print_fit_summary = opts.flag("verbose", false);
+    cfg.print_scan_summary = opts.flag("verbose", false);
+    cfg.advanced.likelihood_mode = opts.flag("chi2", false)
+        ? StatisticLikelihoodMode::CHI2_MC_COVARIANCE
+        : StatisticLikelihoodMode::PROFILED_NUISANCE;
+
+    StatisticInterface stat(cfg, oi);
+
+    print_section("Statistic summary");
+    std::cout << "observables=" << obs_names.size()
+              << ", draws=" << cfg.MC_draws
+              << ", mode=" << (opts.flag("chi2", false) ? "CHI2_MC_COVARIANCE" : "PROFILED_NUISANCE")
+              << "\n";
+
+    print_section("Predictions");
+    print_predictions(oi->compute_all());
+
+    print_section("Active observable dependencies");
+    const auto deps = stat.get_active_observable_dependencies();
+    if (deps.empty()) {
+        std::cout << "  <none>\n";
+    } else {
+        for (const auto& [pid, value] : deps) {
+            std::cout << "  " << pid << " = " << value << "\n";
+        }
+    }
+
+    if (opts.flag("uncertainties", false)) {
+        print_section("MC uncertainty summaries");
+        const auto summaries = stat.compute_uncertainties();
+        for (const auto& [obs, summary] : summaries) {
+            std::cout << "  " << obs.str() << " -> " << summary << "\n";
+        }
     }
 
     return 0;
