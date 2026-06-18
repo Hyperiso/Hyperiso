@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <random>
+#include <string>
 
 #include "INuisanceSampler.h"
 #include "ports/IModel.h"
@@ -45,6 +46,21 @@ struct MCConfig {
 
     /** Maximum number of rejected model evaluations before aborting. */
     std::size_t max_prediction_failures = 20000;
+
+    /** Print a progress line with measured draw rate and ETA. */
+    bool print_progress = false;
+
+    /** Number of first accepted draws used before the first stable ETA estimate. */
+    std::size_t progress_probe_draws = 5;
+
+    /** Accepted-draw stride between progress updates. */
+    std::size_t progress_update_every = 1;
+
+    /** Whether accepted observable samples should be written to CSV. */
+    bool write_samples_csv = false;
+
+    /** Output path used when @ref write_samples_csv is true. */
+    std::string samples_csv_path = "obs_samples.csv";
 };
 
 /**

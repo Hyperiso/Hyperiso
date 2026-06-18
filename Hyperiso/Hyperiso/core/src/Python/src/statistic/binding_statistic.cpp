@@ -584,38 +584,64 @@ void init_statistic_data_structures(py::module_& m) {
         .def_readwrite("summary", &MCResult::summary)
         .def_readwrite("covariance", &MCResult::covariance);
 
-    py::class_<StatisticConfig>(m, "StatisticConfig")
+    py::class_<AdvancedStatisticConfig>(m, "AdvancedStatisticConfig", R"pbdoc(
+Advanced statistical configuration.
+
+This object groups fit, nuisance-pruning, covariance and likelihood-backend
+options that are useful for expert workflows but too specialized for the basic
+``StatisticConfig`` surface.
+)pbdoc")
         .def(py::init<>())
-        .def_readwrite("override_nuisance_marginals", &StatisticConfig::override_nuisance_marginals)
-        .def_readwrite("override_exp_data_marginals", &StatisticConfig::override_exp_data_marginals)
-        .def_readwrite("nuisance_copula_type", &StatisticConfig::nuisance_copula_type)
-        .def_readwrite("exp_data_copula_type", &StatisticConfig::exp_data_copula_type)
+        .def_readwrite("override_nuisance_marginals", &AdvancedStatisticConfig::override_nuisance_marginals)
+        .def_readwrite("override_exp_data_marginals", &AdvancedStatisticConfig::override_exp_data_marginals)
+        .def_readwrite("nuisance_copula_type", &AdvancedStatisticConfig::nuisance_copula_type)
+        .def_readwrite("exp_data_copula_type", &AdvancedStatisticConfig::exp_data_copula_type)
+        .def_readwrite("MLE_max_iter", &AdvancedStatisticConfig::MLE_max_iter)
+        .def_readwrite("MLE_tol", &AdvancedStatisticConfig::MLE_tol)
+        .def_readwrite("MLE_strategy", &AdvancedStatisticConfig::MLE_strategy)
+        .def_readwrite("MLE_run_hesse", &AdvancedStatisticConfig::MLE_run_hesse)
+        .def_readwrite("MLE_request_minos", &AdvancedStatisticConfig::MLE_request_minos)
+        .def_readwrite("MLE_verbose", &AdvancedStatisticConfig::MLE_verbose)
+        .def_readwrite("nuisance_relevance_cutoff", &AdvancedStatisticConfig::nuisance_relevance_cutoff)
+        .def_readwrite("nuisance_sensitivity_pruning", &AdvancedStatisticConfig::nuisance_sensitivity_pruning)
+        .def_readwrite("nuisance_sensitivity_probe_sigmas", &AdvancedStatisticConfig::nuisance_sensitivity_probe_sigmas)
+        .def_readwrite("nuisance_sensitivity_rel_cutoff", &AdvancedStatisticConfig::nuisance_sensitivity_rel_cutoff)
+        .def_readwrite("nuisance_sensitivity_abs_cutoff", &AdvancedStatisticConfig::nuisance_sensitivity_abs_cutoff)
+        .def_readwrite("nuisance_sensitivity_scale_floor", &AdvancedStatisticConfig::nuisance_sensitivity_scale_floor)
+        .def_readwrite("MLE_trace_first_evals", &AdvancedStatisticConfig::MLE_trace_first_evals)
+        .def_readwrite("MLE_trace_max_evals", &AdvancedStatisticConfig::MLE_trace_max_evals)
+        .def_readwrite("MLE_allow_profile_hessian_fallback", &AdvancedStatisticConfig::MLE_allow_profile_hessian_fallback)
+        .def_readwrite("MLE_profile_hessian_step_scale", &AdvancedStatisticConfig::MLE_profile_hessian_step_scale)
+        .def_readwrite("MLE_profile_hessian_eig_floor_rel", &AdvancedStatisticConfig::MLE_profile_hessian_eig_floor_rel)
+        .def_readwrite("likelihood_mode", &AdvancedStatisticConfig::likelihood_mode)
+        .def_readwrite("chi2_covariance_ridge_rel", &AdvancedStatisticConfig::chi2_covariance_ridge_rel)
+        .def_readwrite("chi2_covariance_ridge_abs", &AdvancedStatisticConfig::chi2_covariance_ridge_abs)
+        .def_readwrite("nuisance_sensitivity_contexts", &AdvancedStatisticConfig::nuisance_sensitivity_contexts)
+        .def_readwrite("nuisance_sensitivity_context_sigma", &AdvancedStatisticConfig::nuisance_sensitivity_context_sigma)
+        .def_readwrite("nuisance_sensitivity_seed", &AdvancedStatisticConfig::nuisance_sensitivity_seed)
+        .def_readwrite("nuisance_sensitivity_keep_on_failure", &AdvancedStatisticConfig::nuisance_sensitivity_keep_on_failure);
+
+    py::class_<StatisticConfig>(m, "StatisticConfig", R"pbdoc(
+Basic statistical configuration.
+
+Keep common runtime controls here: MC draw count, skew threshold, print toggles
+and output options.  Expert knobs live under ``advanced``.
+)pbdoc")
+        .def(py::init<>())
         .def_readwrite("MC_draws", &StatisticConfig::MC_draws)
         .def_readwrite("skew_abs_threshold", &StatisticConfig::skew_abs_threshold)
-        .def_readwrite("MLE_max_iter", &StatisticConfig::MLE_max_iter)
-        .def_readwrite("MLE_tol", &StatisticConfig::MLE_tol)
-        .def_readwrite("MLE_strategy", &StatisticConfig::MLE_strategy)
-        .def_readwrite("MLE_run_hesse", &StatisticConfig::MLE_run_hesse)
-        .def_readwrite("MLE_request_minos", &StatisticConfig::MLE_request_minos)
-        .def_readwrite("MLE_verbose", &StatisticConfig::MLE_verbose)
-        .def_readwrite("nuisance_relevance_cutoff", &StatisticConfig::nuisance_relevance_cutoff)
-        .def_readwrite("nuisance_sensitivity_pruning", &StatisticConfig::nuisance_sensitivity_pruning)
-        .def_readwrite("nuisance_sensitivity_probe_sigmas", &StatisticConfig::nuisance_sensitivity_probe_sigmas)
-        .def_readwrite("nuisance_sensitivity_rel_cutoff", &StatisticConfig::nuisance_sensitivity_rel_cutoff)
-        .def_readwrite("nuisance_sensitivity_abs_cutoff", &StatisticConfig::nuisance_sensitivity_abs_cutoff)
-        .def_readwrite("nuisance_sensitivity_scale_floor", &StatisticConfig::nuisance_sensitivity_scale_floor)
-        .def_readwrite("MLE_trace_first_evals", &StatisticConfig::MLE_trace_first_evals)
-        .def_readwrite("MLE_trace_max_evals", &StatisticConfig::MLE_trace_max_evals)
-        .def_readwrite("MLE_allow_profile_hessian_fallback", &StatisticConfig::MLE_allow_profile_hessian_fallback)
-        .def_readwrite("MLE_profile_hessian_step_scale", &StatisticConfig::MLE_profile_hessian_step_scale)
-        .def_readwrite("MLE_profile_hessian_eig_floor_rel", &StatisticConfig::MLE_profile_hessian_eig_floor_rel)
-        .def_readwrite("likelihood_mode", &StatisticConfig::likelihood_mode)
-        .def_readwrite("chi2_covariance_ridge_rel", &StatisticConfig::chi2_covariance_ridge_rel)
-        .def_readwrite("chi2_covariance_ridge_abs", &StatisticConfig::chi2_covariance_ridge_abs)
-        .def_readwrite("nuisance_sensitivity_contexts", &StatisticConfig::nuisance_sensitivity_contexts)
-        .def_readwrite("nuisance_sensitivity_context_sigma", &StatisticConfig::nuisance_sensitivity_context_sigma)
-        .def_readwrite("nuisance_sensitivity_seed", &StatisticConfig::nuisance_sensitivity_seed)
-        .def_readwrite("nuisance_sensitivity_keep_on_failure", &StatisticConfig::nuisance_sensitivity_keep_on_failure);
+        .def_readwrite("print_mc_progress", &StatisticConfig::print_mc_progress)
+        .def_readwrite("print_mc_config", &StatisticConfig::print_mc_config)
+        .def_readwrite("print_fit_summary", &StatisticConfig::print_fit_summary)
+        .def_readwrite("print_scan_summary", &StatisticConfig::print_scan_summary)
+        .def_readwrite("print_cache_summary", &StatisticConfig::print_cache_summary)
+        .def_readwrite("print_debug", &StatisticConfig::print_debug)
+        .def_readwrite("write_mc_samples_csv", &StatisticConfig::write_mc_samples_csv)
+        .def_readwrite("mc_samples_csv_path", &StatisticConfig::mc_samples_csv_path)
+        .def_readwrite("mc_progress_probe_draws", &StatisticConfig::mc_progress_probe_draws)
+        .def_readwrite("mc_progress_update_every", &StatisticConfig::mc_progress_update_every)
+        .def_readwrite("advanced", &StatisticConfig::advanced);
+
 
     py::class_<FitResultWithMaps>(m, "FitResultWithMaps")
         .def(py::init<>())

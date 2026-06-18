@@ -1,4 +1,7 @@
 #include "MCEngine.h"
+#include "StatisticProgress.h"
+
+#include <fstream>
 
 RealMatrix symmetrize_covariance_matrix2(RealMatrix cov) {
     if (cov.rows() != cov.cols()) {
@@ -205,6 +208,12 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
     std::size_t accepted = 0;
     std::size_t failures = 0;
     std::size_t attempts = 0;
+    StatisticProgressReporter progress(
+        cfg_.print_progress,
+        cfg_.draws,
+        cfg_.progress_probe_draws,
+        cfg_.progress_update_every
+    );
 
     while (accepted < cfg_.draws) {
         ++attempts;
@@ -212,8 +221,6 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
         std::map<ParamId, double> s = sampler_.sample();
 
         try {
-            LOG_INFO("Sample", accepted + 1, "of", cfg_.draws);
-
             auto res = model_->predict_optimized(p, s);
             auto unzipped_res = flatten(res);
             std::map<BinnedObservableId, double> value =
@@ -234,6 +241,7 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
             out.emplace_back(std::move(value));
             accepted_samples.emplace_back(std::move(s));
             ++accepted;
+            progress.accepted(accepted);
 
         } catch (const std::exception& e) {
             ++failures;
@@ -276,6 +284,8 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
         }
     }
 
+    progress.finish(accepted, attempts, failures);
+
     if (failures > 0) {
         LOG_WARN(
             "MC sampling finished with",
@@ -292,17 +302,19 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
 MCResult MonteCarloEngine::summarize(const std::map<ParamId, double>& p) const {
     auto smpl = sample_predictions(p);
 
-    std::ofstream fs;
-    fs.open("obs_samples.csv");
+    if (cfg_.write_samples_csv && !smpl.sampled_obss.empty()) {
+        std::ofstream fs;
+        fs.open(cfg_.samples_csv_path);
 
-    for (auto &&[oid, v] : smpl.sampled_obss[0])
-        fs << oid.str() << ',';
-    fs << '\n';
-
-    for (auto &&ovec : smpl.sampled_obss) {
-        for (auto &&[oid, v] : ovec)
-            fs << v << ',';
+        for (auto &&[oid, v] : smpl.sampled_obss[0])
+            fs << oid.str() << ',';
         fs << '\n';
+
+        for (auto &&ovec : smpl.sampled_obss) {
+            for (auto &&[oid, v] : ovec)
+                fs << v << ',';
+            fs << '\n';
+        }
     }
 
     auto summary = gaussian_fit(smpl.sampled_obss, cfg_.skew_abs_threshold);

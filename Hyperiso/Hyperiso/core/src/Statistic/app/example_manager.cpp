@@ -121,10 +121,10 @@ int main() {
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
 
     StatisticConfig config;
-    config.likelihood_mode =  StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
+    config.advanced.likelihood_mode =  StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
     config.MC_draws = 100;
-    config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.2;
+    config.advanced.MLE_max_iter = 120000;
+    config.advanced.MLE_tol = 0.2;
 
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},

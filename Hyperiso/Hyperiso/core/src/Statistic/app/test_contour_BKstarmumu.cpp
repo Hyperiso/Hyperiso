@@ -668,11 +668,11 @@
     
 
 //     StatisticConfig config;
-//     config.MLE_max_iter = 120000;
-//     config.MLE_tol = 0.05;
-//     config.MLE_trace_first_evals  = true;
-//     config.MLE_trace_max_evals  = 20;
-//     config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
+//     config.advanced.MLE_max_iter = 120000;
+//     config.advanced.MLE_tol = 0.05;
+//     config.advanced.MLE_trace_first_evals  = true;
+//     config.advanced.MLE_trace_max_evals  = 20;
+//     config.advanced.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
 //     config.MC_draws = 1000;
 //     const std::string had_bsm_block =
 //         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
@@ -1227,15 +1227,15 @@ int main() {
     // exit(0);
 
     StatisticConfig config;
-    config.chi2_covariance_ridge_rel = 1e-8;
-    config.chi2_covariance_ridge_abs = 0.0;
-    config.MLE_max_iter = 120000;
-    config.MLE_tol = 0.01;
-    config.MLE_trace_first_evals  = true;
-    config.MLE_trace_max_evals  = 20;
-    config.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
+    config.advanced.chi2_covariance_ridge_rel = 1e-8;
+    config.advanced.chi2_covariance_ridge_abs = 0.0;
+    config.advanced.MLE_max_iter = 120000;
+    config.advanced.MLE_tol = 0.01;
+    config.advanced.MLE_trace_first_evals  = true;
+    config.advanced.MLE_trace_max_evals  = 20;
+    config.advanced.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
     config.MC_draws = 500;
-    config.nuisance_sensitivity_contexts = -1;
+    config.advanced.nuisance_sensitivity_contexts = -1;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
         + "__BSM_INTERMEDIATE";

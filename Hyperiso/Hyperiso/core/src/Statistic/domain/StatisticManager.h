@@ -64,45 +64,67 @@ enum class StatisticLikelihoodMode {
  * nuisance and experimental distributions, HESSE is enabled for the MLE, and local
  * sensitivity pruning is enabled to reduce the nuisance set before expensive fits.
  */
-struct StatisticConfig {
-    std::map<ParamId, MarginalType> override_nuisance_marginals {};   ///< Per-parameter overrides for nuisance marginal laws.
-    std::map<ExperimentObs, MarginalType> override_exp_data_marginals {}; ///< Per-observable overrides for experimental-data marginals.
-    CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;           ///< Copula used to correlate nuisance parameters.
-    CopulaType exp_data_copula_type = CopulaType::GAUSSIAN;           ///< Copula used to correlate experimental observables.
-    std::size_t MC_draws = 100;                                       ///< Number of accepted MC draws used for uncertainty propagation.
-    double skew_abs_threshold = 0.2;                                  ///< Absolute skewness threshold below which a summary is treated as symmetric.
+struct AdvancedStatisticConfig {
+    std::map<ParamId, MarginalType> override_nuisance_marginals {};      ///< Per-parameter overrides for nuisance marginal laws.
+    std::map<ExperimentObs, MarginalType> override_exp_data_marginals {};///< Per-observable overrides for experimental-data marginals.
+    CopulaType nuisance_copula_type = CopulaType::GAUSSIAN;              ///< Copula used to correlate nuisance parameters.
+    CopulaType exp_data_copula_type = CopulaType::GAUSSIAN;              ///< Copula used to correlate experimental observables.
 
-    std::size_t MLE_max_iter = 500;                                   ///< Maximum number of minimizer function calls/iterations.
-    double MLE_tol = 1e-8;                                            ///< Minimizer tolerance passed to the backend.
-    unsigned MLE_strategy = 2;                                        ///< Backend minimization strategy; zero means backend default where supported.
-    bool MLE_run_hesse = true;                                        ///< Whether to request HESSE/covariance estimation after the fit.
-    bool MLE_request_minos = false;                                   ///< Whether to request MINOS errors when supported by the backend build.
-    bool MLE_verbose = false;                                         ///< Enables verbose output from the fit backend.
+    std::size_t MLE_max_iter = 500;                                      ///< Maximum number of minimizer function calls/iterations.
+    double MLE_tol = 1e-8;                                               ///< Minimizer tolerance passed to the backend.
+    unsigned MLE_strategy = 2;                                           ///< Backend minimization strategy; zero means backend default where supported.
+    bool MLE_run_hesse = true;                                           ///< Whether to request HESSE/covariance estimation after the fit.
+    bool MLE_request_minos = false;                                      ///< Whether to request MINOS errors when supported by the backend build.
+    bool MLE_verbose = false;                                            ///< Enables verbose output from the fit backend.
 
-    double nuisance_relevance_cutoff = 1e-8;                          ///< Relative-uncertainty cutoff for the first nuisance preselection pass.
+    double nuisance_relevance_cutoff = 1e-8;                             ///< Relative-uncertainty cutoff for the first nuisance preselection pass.
+    bool nuisance_sensitivity_pruning = true;                            ///< Enables local model-sensitivity pruning of nuisance candidates.
+    double nuisance_sensitivity_probe_sigmas = 1.0;                      ///< Size of the +/- finite-difference probe in units of nuisance sigma.
+    double nuisance_sensitivity_rel_cutoff = 1e-6;                       ///< Relative observable shift required to keep a nuisance.
+    double nuisance_sensitivity_abs_cutoff = 1e-12;                      ///< Absolute observable shift required to keep a nuisance.
+    double nuisance_sensitivity_scale_floor = 1e-3;                      ///< Lower scale used when normalizing relative observable shifts.
+    int nuisance_sensitivity_contexts = 2;                               ///< Number of contexts tested by sensitivity pruning; negative disables the check.
+    double nuisance_sensitivity_context_sigma = 0.35;                    ///< Randomized-context spread in nuisance sigma units.
+    unsigned nuisance_sensitivity_seed = 12345;                          ///< RNG seed used to build sensitivity-pruning contexts.
+    bool nuisance_sensitivity_keep_on_failure = true;                    ///< Keeps a nuisance if its sensitivity probe fails.
 
-    bool nuisance_sensitivity_pruning = true;                         ///< Enables local model-sensitivity pruning of nuisance candidates.
-    double nuisance_sensitivity_probe_sigmas = 1.0;                   ///< Size of the +/- finite-difference probe in units of nuisance sigma.
-    double nuisance_sensitivity_rel_cutoff = 1e-6;                    ///< Relative observable shift required to keep a nuisance.
-    double nuisance_sensitivity_abs_cutoff = 1e-12;                   ///< Absolute observable shift required to keep a nuisance.
-    double nuisance_sensitivity_scale_floor = 1e-3;                   ///< Lower scale used when normalizing relative observable shifts.
-
-    bool MLE_trace_first_evals = false;                               ///< Enables debug tracing of the first likelihood evaluations.
-    std::size_t MLE_trace_max_evals = 25;                             ///< Maximum number of likelihood evaluations printed when tracing is enabled.
-
-    bool MLE_allow_profile_hessian_fallback = true;                   ///< Allows numerical profile-Hessian covariance fallback if backend covariance fails.
-    double MLE_profile_hessian_step_scale = 1.0;                      ///< Step scaling used by the numerical profile-Hessian fallback.
-    double MLE_profile_hessian_eig_floor_rel = 1e-8;                  ///< Relative eigenvalue floor used to regularize the fallback Hessian.
+    bool MLE_trace_first_evals = false;                                  ///< Enables debug tracing of the first likelihood evaluations.
+    std::size_t MLE_trace_max_evals = 25;                                ///< Maximum number of likelihood evaluations printed when tracing is enabled.
+    bool MLE_allow_profile_hessian_fallback = true;                      ///< Allows numerical profile-Hessian covariance fallback if backend covariance fails.
+    double MLE_profile_hessian_step_scale = 1.0;                         ///< Step scaling used by the numerical profile-Hessian fallback.
+    double MLE_profile_hessian_eig_floor_rel = 1e-8;                     ///< Relative eigenvalue floor used to regularize the fallback Hessian.
 
     StatisticLikelihoodMode likelihood_mode = StatisticLikelihoodMode::PROFILED_NUISANCE; ///< Likelihood mode used by compute_MLE().
+    double chi2_covariance_ridge_rel = 1e-8;                             ///< Relative diagonal ridge used before inverting chi-square covariance matrices.
+    double chi2_covariance_ridge_abs = 1e-12;                            ///< Absolute diagonal ridge used before inverting chi-square covariance matrices.
+};
 
-    double chi2_covariance_ridge_rel = 1e-8;                          ///< Relative diagonal ridge used before inverting chi-square covariance matrices.
-    double chi2_covariance_ridge_abs = 1e-12;                         ///< Absolute diagonal ridge used before inverting chi-square covariance matrices.
+/**
+ * @struct StatisticConfig
+ * @brief Basic runtime configuration for statistical propagation.
+ *
+ * Keep this structure small and user-facing: it contains the knobs that are
+ * commonly changed in scripts and examples.  Advanced fit/pruning/covariance
+ * controls live in @ref AdvancedStatisticConfig and are grouped under
+ * @ref advanced to avoid an overloaded top-level config object.
+ */
+struct StatisticConfig {
+    std::size_t MC_draws = 100;                 ///< Number of accepted MC draws used for uncertainty propagation.
+    double skew_abs_threshold = 0.2;            ///< Absolute skewness threshold below which a summary is treated as symmetric.
 
-    int nuisance_sensitivity_contexts = 2;                            ///< Number of contexts tested by sensitivity pruning; negative disables the check.
-    double nuisance_sensitivity_context_sigma = 0.35;                 ///< Randomized-context spread in nuisance sigma units.
-    unsigned nuisance_sensitivity_seed = 12345;                       ///< RNG seed used to build sensitivity-pruning contexts.
-    bool nuisance_sensitivity_keep_on_failure = true;                 ///< Keeps a nuisance if its sensitivity probe fails.
+    bool print_mc_progress = true;             ///< Print MC progress with ETA based on measured draw time.
+    bool print_mc_config = false;               ///< Print selected marginal/covariance debug configuration.
+    bool print_fit_summary = false;             ///< Print high-level fit backend summaries.
+    bool print_scan_summary = false;            ///< Print likelihood-scan summaries.
+    bool print_cache_summary = false;           ///< Print internal cache diagnostics.
+    bool print_debug = false;                   ///< Master debug flag for low-level diagnostic output.
+
+    bool write_mc_samples_csv = false;          ///< Write accepted MC observable samples to CSV.
+    std::string mc_samples_csv_path = "obs_samples.csv"; ///< Output CSV path used when @ref write_mc_samples_csv is true.
+    std::size_t mc_progress_probe_draws = 5;    ///< Number of first accepted draws used to stabilize the first ETA.
+    std::size_t mc_progress_update_every = 1;   ///< Accepted-draw stride between progress updates.
+
+    AdvancedStatisticConfig advanced {};        ///< Advanced fit/pruning/covariance configuration.
 };
 
 /**

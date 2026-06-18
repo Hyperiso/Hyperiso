@@ -99,8 +99,8 @@ int main() {
 
     StatisticConfig config;
     config.MC_draws = 1000;
-    config.nuisance_relevance_cutoff = 1e-10;
-    config.override_nuisance_marginals = {
+    config.advanced.nuisance_relevance_cutoff = 1e-10;
+    config.advanced.override_nuisance_marginals = {
         {ParamId{ParameterType::WILSON, "EW_SCALE", 1}, MarginalType::FLAT},
         {ParamId{ParameterType::WILSON, "B_SCALE", 1}, MarginalType::FLAT},
     };

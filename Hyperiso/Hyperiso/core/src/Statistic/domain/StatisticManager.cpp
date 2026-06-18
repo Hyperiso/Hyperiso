@@ -1,5 +1,6 @@
 
 #include "StatisticManager.h"
+#include "StatisticCachePrinter.h"
 
 std::string param_name(const ParamId& pid) {
     std::ostringstream oss;
@@ -344,21 +345,39 @@ RealMatrix inverse_covariance_with_ridge(
 
 MLFitOptions make_mlfit_options_from_config(const StatisticConfig& config) {
     MLFitOptions fitopt;
-    fitopt.run_hesse = config.MLE_run_hesse;
-    fitopt.request_minos = config.MLE_request_minos;
-    fitopt.verbose = config.MLE_verbose;
-    fitopt.strategy = config.MLE_strategy;
-    fitopt.max_fcn = static_cast<unsigned>(config.MLE_max_iter);
-    fitopt.tolerance = config.MLE_tol;
+    fitopt.run_hesse = config.advanced.MLE_run_hesse;
+    fitopt.request_minos = config.advanced.MLE_request_minos;
+    fitopt.verbose = config.advanced.MLE_verbose;
+    fitopt.strategy = config.advanced.MLE_strategy;
+    fitopt.max_fcn = static_cast<unsigned>(config.advanced.MLE_max_iter);
+    fitopt.tolerance = config.advanced.MLE_tol;
 
-    fitopt.allow_profile_hessian_fallback = config.MLE_allow_profile_hessian_fallback;
-    fitopt.profile_hessian_step_scale = config.MLE_profile_hessian_step_scale;
-    fitopt.profile_hessian_eig_floor_rel = config.MLE_profile_hessian_eig_floor_rel;
+    fitopt.allow_profile_hessian_fallback = config.advanced.MLE_allow_profile_hessian_fallback;
+    fitopt.profile_hessian_step_scale = config.advanced.MLE_profile_hessian_step_scale;
+    fitopt.profile_hessian_eig_floor_rel = config.advanced.MLE_profile_hessian_eig_floor_rel;
 
-    fitopt.trace_first_evals = config.MLE_trace_first_evals;
-    fitopt.trace_max_evals = config.MLE_trace_max_evals;
+    fitopt.trace_first_evals = config.advanced.MLE_trace_first_evals;
+    fitopt.trace_max_evals = config.advanced.MLE_trace_max_evals;
 
     return fitopt;
+}
+
+MCConfig make_mc_config_from_config(const StatisticConfig& config, bool for_chi2_covariance = false) {
+    MCConfig cfg;
+    cfg.draws = config.MC_draws;
+    cfg.skew_abs_threshold = config.skew_abs_threshold;
+    cfg.covariance_ridge_rel = for_chi2_covariance
+        ? config.advanced.chi2_covariance_ridge_rel
+        : cfg.covariance_ridge_rel;
+    cfg.covariance_ridge_abs = for_chi2_covariance
+        ? config.advanced.chi2_covariance_ridge_abs
+        : cfg.covariance_ridge_abs;
+    cfg.print_progress = config.print_mc_progress;
+    cfg.progress_probe_draws = config.mc_progress_probe_draws;
+    cfg.progress_update_every = config.mc_progress_update_every;
+    cfg.write_samples_csv = config.write_mc_samples_csv;
+    cfg.samples_csv_path = config.mc_samples_csv_path;
+    return cfg;
 }
 
 
@@ -404,10 +423,11 @@ std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuis
         std::ostringstream oss;
         oss << pid;
         const std::string name = oss.str();
-        if (name.find("B_Ks:18_3_") != std::string::npos ||
-            name.find("B_Ks:18_6_") != std::string::npos ||
-            name.find("B_Ks:18_1_") != std::string::npos ||
-            name.find("B_Ks:18_4_") != std::string::npos) {
+        if ((config.print_mc_config || config.print_debug) &&
+            (name.find("B_Ks:18_3_") != std::string::npos ||
+             name.find("B_Ks:18_6_") != std::string::npos ||
+             name.find("B_Ks:18_1_") != std::string::npos ||
+             name.find("B_Ks:18_4_") != std::string::npos)) {
 
             std::visit([&](const auto& c) {
                 using T = std::decay_t<decltype(c)>;
@@ -431,7 +451,8 @@ std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuis
             }, cfg);
         }
 
-        if (name == "B_SCALE:1" || name == "EW_SCALE:1") {
+        if ((config.print_mc_config || config.print_debug) &&
+            (name == "B_SCALE:1" || name == "EW_SCALE:1")) {
             BlockProxy().log_block(ParameterType::WILSON, "B_SCALE");
             std::visit([&](const auto& c) {
                 using T = std::decay_t<decltype(c)>;
@@ -464,15 +485,15 @@ std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution
     unsigned int seed = 123456u;
 
     std::unique_ptr<ICopula> copula;
-    if (config.nuisance_copula_type == CopulaType::GAUSSIAN) {
+    if (config.advanced.nuisance_copula_type == CopulaType::GAUSSIAN) {
         GaussianCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
-        copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
-    } else if (config.nuisance_copula_type == CopulaType::STUDENT_T) {
+        copula = CopulaFactory::create(config.advanced.nuisance_copula_type, copula_cfg, seed);
+    } else if (config.advanced.nuisance_copula_type == CopulaType::STUDENT_T) {
         StudentTCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaEta).vals);
         copula_cfg.nu = cache.eta_specs_real.size();
-        copula = CopulaFactory::create(config.nuisance_copula_type, copula_cfg, seed);
+        copula = CopulaFactory::create(config.advanced.nuisance_copula_type, copula_cfg, seed);
     }
 
     return std::make_unique<JointDistribution>(
@@ -489,7 +510,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
         exp_data_marginals.emplace(oid, MarginalType::GAUSSIAN);
     }
 
-    for (auto& [oid, mt] : config.override_exp_data_marginals) {
+    for (auto& [oid, mt] : config.advanced.override_exp_data_marginals) {
         if (!exp_data_marginals.contains(oid)) {
             LOG_WARN("Observable", ObservableMapper::str(oid.obs.s), "is not a taken into account in this fit.");
             continue;
@@ -508,15 +529,15 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     }
 
     std::unique_ptr<ICopula> copula;
-    if (config.exp_data_copula_type == CopulaType::GAUSSIAN) {
+    if (config.advanced.exp_data_copula_type == CopulaType::GAUSSIAN) {
         GaussianCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
-        copula = CopulaFactory::create(config.exp_data_copula_type, copula_cfg, seed);
-    } else if (config.exp_data_copula_type == CopulaType::STUDENT_T) {
+        copula = CopulaFactory::create(config.advanced.exp_data_copula_type, copula_cfg, seed);
+    } else if (config.advanced.exp_data_copula_type == CopulaType::STUDENT_T) {
         StudentTCopulaConfig copula_cfg;
         copula_cfg.R = RealMatrix(unzip(cache.SigmaObs).vals);
         copula_cfg.nu = obs_int->n_observables() - 1;
-        copula = CopulaFactory::create(config.exp_data_copula_type, copula_cfg, seed);
+        copula = CopulaFactory::create(config.advanced.exp_data_copula_type, copula_cfg, seed);
     }
 
     return std::make_unique<JointDistribution>(std::move(marginals), std::move(copula));
@@ -525,18 +546,20 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
 std::map<BinnedObservableId, GaussianSummary> StatisticManager::compute_uncertainties() {
     auto sums = this->compute_uncertainties_and_sampling();
 
-    for (auto elem : this->merged_nuisance_specs_) {
-        std::cout << elem.first << std::endl;
-        std::cout << elem.second << std::endl;
-        std::cout << "-------------------" << std::endl;
+    if (config.print_mc_config || config.print_debug) {
+        for (auto elem : this->merged_nuisance_specs_) {
+            std::cout << elem.first << std::endl;
+            std::cout << elem.second << std::endl;
+            std::cout << "-------------------" << std::endl;
+        }
     }
-    std::ofstream fs;
-    fs.open("samples.csv");        
 
     std::map<BinnedObservableId, GaussianSummary> out;
     for (const auto& gs : sums.summary) {
         out[gs.id] = gs;
-        std::cout << gs << std::endl;
+        if (config.print_mc_config || config.print_debug) {
+            std::cout << gs << std::endl;
+        }
     }
     return out;
 }
@@ -546,7 +569,7 @@ MCResult StatisticManager::compute_uncertainties_and_sampling() {
     auto rvg = build_nuisance_distribution();
     std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
     RvgNuisanceSampler sampler(nuisance_ids, std::move(rvg));
-    MonteCarloEngine mc(this->obs_int, sampler, {this->config.MC_draws, this->config.skew_abs_threshold});
+    MonteCarloEngine mc(this->obs_int, sampler, make_mc_config_from_config(this->config));
 
     auto sums = mc.summarize(this->cache.p_specs);
 
@@ -566,11 +589,11 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     auto unzipped_nuisances  = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
 
-    {auto eta_ids = unzip(cache.eta_specs_real).ids;
-    RealMatrix Reta(unzip(cache.SigmaEta).vals);
-    dump_matrix_sanity(Reta, eta_ids, "SigmaEta");
-
-}
+    if (config.print_fit_summary || config.print_debug) {
+        auto eta_ids_dbg = unzip(cache.eta_specs_real).ids;
+        RealMatrix Reta(unzip(cache.SigmaEta).vals);
+        dump_matrix_sanity(Reta, eta_ids_dbg, "SigmaEta");
+    }
 
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
     const std::vector<double> p0 = unzipped_fit_params.vals;
@@ -583,8 +606,10 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
     const std::vector<double> exp_obs_vals = unzipped_exp_obs.vals;
 
-    if (config.likelihood_mode == StatisticLikelihoodMode::CHI2_MC_COVARIANCE) {
-        std::cout << "[FIT] Using CHI2_MC_COVARIANCE likelihood backend.\n";
+    if (config.advanced.likelihood_mode == StatisticLikelihoodMode::CHI2_MC_COVARIANCE) {
+        if (config.print_fit_summary || config.print_debug) {
+            std::cout << "[FIT] Using CHI2_MC_COVARIANCE likelihood backend.\n";
+        }
 
         auto rvg = build_nuisance_distribution();
         std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
@@ -593,12 +618,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         MonteCarloEngine mc(
             this->obs_int,
             sampler,
-            {
-                this->config.MC_draws,
-                this->config.skew_abs_threshold,
-                this->config.chi2_covariance_ridge_rel,
-                this->config.chi2_covariance_ridge_abs
-            }
+            make_mc_config_from_config(this->config, true)
         );
 
         MCRealization mc_real = mc.sample_predictions(this->cache.p_specs);
@@ -608,8 +628,8 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         MCObservableCovariance cov = covariance_from_obs_samples(
             mc_real.sampled_obss,
             cov_ids,
-            this->config.chi2_covariance_ridge_rel,
-            this->config.chi2_covariance_ridge_abs
+            this->config.advanced.chi2_covariance_ridge_rel,
+            this->config.advanced.chi2_covariance_ridge_abs
         );
 
         std::map<ExperimentObs, double> exp_obs_sigmas;
@@ -644,11 +664,13 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
         RealMatrix covariance_total_inv = inverse_covariance_with_ridge(
             covariance_total,
-            this->config.chi2_covariance_ridge_rel,
-            this->config.chi2_covariance_ridge_abs
+            this->config.advanced.chi2_covariance_ridge_rel,
+            this->config.advanced.chi2_covariance_ridge_abs
         );
 
-        std::cout << "[FIT] CHI2 covariance backend uses covariance_total = covariance_MC + covariance_exp.\n";
+        if (config.print_fit_summary || config.print_debug) {
+            std::cout << "[FIT] CHI2 covariance backend uses covariance_total = covariance_MC + covariance_exp.\n";
+        }
 
         auto ctx = std::make_shared<LikelihoodContext>();
         ctx->exp_obs_values = exp_obs_vals;
@@ -785,19 +807,19 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
 
     MLFitOptions fitopt;
-    fitopt.run_hesse = config.MLE_run_hesse;
-    fitopt.request_minos = config.MLE_request_minos;
-    fitopt.verbose = config.MLE_verbose;
-    fitopt.strategy = config.MLE_strategy;
-    fitopt.max_fcn = static_cast<unsigned>(config.MLE_max_iter);
-    fitopt.tolerance = config.MLE_tol;
+    fitopt.run_hesse = config.advanced.MLE_run_hesse;
+    fitopt.request_minos = config.advanced.MLE_request_minos;
+    fitopt.verbose = config.advanced.MLE_verbose;
+    fitopt.strategy = config.advanced.MLE_strategy;
+    fitopt.max_fcn = static_cast<unsigned>(config.advanced.MLE_max_iter);
+    fitopt.tolerance = config.advanced.MLE_tol;
 
-    fitopt.allow_profile_hessian_fallback = config.MLE_allow_profile_hessian_fallback;
-    fitopt.profile_hessian_step_scale = config.MLE_profile_hessian_step_scale;
-    fitopt.profile_hessian_eig_floor_rel = config.MLE_profile_hessian_eig_floor_rel;
+    fitopt.allow_profile_hessian_fallback = config.advanced.MLE_allow_profile_hessian_fallback;
+    fitopt.profile_hessian_step_scale = config.advanced.MLE_profile_hessian_step_scale;
+    fitopt.profile_hessian_eig_floor_rel = config.advanced.MLE_profile_hessian_eig_floor_rel;
 
-    fitopt.trace_first_evals = config.MLE_trace_first_evals;
-    fitopt.trace_max_evals = config.MLE_trace_max_evals;
+    fitopt.trace_first_evals = config.advanced.MLE_trace_first_evals;
+    fitopt.trace_max_evals = config.advanced.MLE_trace_max_evals;
 
     last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn, fitopt);
     last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
@@ -850,40 +872,11 @@ Contour StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, s
 
 void StatisticManager::print_cache()
 {
-    for (auto elem : cache.eta_specs_real) {
-        std::cout << " eta_specs_real : " << elem.first << " = " << elem.second;
-    }
-    std::cout << std::endl;
-
-    for (auto elem : cache.SigmaEta) {
-        for (auto elem2 : elem.second) {
-            std::cout << " SigmaEta : " << elem.first << " | " << elem2.first << " = " << elem2.second;
-        }
-        std::cout << std::endl;
+    if (!(config.print_cache_summary || config.print_debug)) {
+        return;
     }
 
-    for (auto elem : cache.exp_obs) {
-        std::cout << " exp_obs : " << elem.first.str() << " = " << elem.second;
-    }
-    std::cout << std::endl;
-
-    for (auto elem : cache.SigmaObs) {
-        for (auto elem2 : elem.second) {
-            std::cout << " SigmaObs : " << elem.first.str() << " | " << elem2.first.str() << " = " << elem2.second;
-        }
-        std::cout << std::endl;
-    }
-
-    for (auto elem : cache.p_specs) {
-        std::cout << " p_specs : " << elem.first << " = " << elem.second;
-    }
-    std::cout << std::endl;
-
-    std::cout << "eta size : " << this->cache.eta_specs_real.size() << std::endl;
-    std::cout << "etasigma size : " << this->cache.eta_specs_real.size() << " | " << this->cache.SigmaEta.begin()->second.size() << std::endl;
-    std::cout << "p_specs size : " << this->cache.p_specs.size() << std::endl;
-    std::cout << "exp_obs : " << this->cache.exp_obs.size() << std::endl;
-    std::cout << "SigmaObs size : " << this->cache.SigmaObs.size() << " | " << this->cache.SigmaObs.begin()->second.size() << std::endl;
+    StatisticCachePrinter::print(cache, std::cout);
 }
 
 void StatisticManager::update_cache(const std::vector<ParamId>& p_specs) {
@@ -1023,8 +1016,8 @@ MarginalType StatisticManager::resolve_nuisance_marginal_type(const ParamId& pid
         mt = spec->marginal;
     }
 
-    if (config.override_nuisance_marginals.contains(pid)) {
-        mt = config.override_nuisance_marginals.at(pid);
+    if (config.advanced.override_nuisance_marginals.contains(pid)) {
+        mt = config.advanced.override_nuisance_marginals.at(pid);
     }
 
     return mt;
@@ -1144,13 +1137,13 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 
     for (const auto& [pid, d] : delta_rel) {
         const double rel_to_max = std::isfinite(d) ? (d / delta_rel_max) : 1.0;
-        if (rel_to_max > config.nuisance_relevance_cutoff || !std::isfinite(d)) {
+        if (rel_to_max > config.advanced.nuisance_relevance_cutoff || !std::isfinite(d)) {
             eta_specs_real_leaf[pid] = pspp->get_param(pid)->get_val();
         }
     }
 
-    if (config.nuisance_sensitivity_pruning &&
-        config.nuisance_sensitivity_contexts >= 0 &&
+    if (config.advanced.nuisance_sensitivity_pruning &&
+        config.advanced.nuisance_sensitivity_contexts >= 0 &&
         !eta_specs_real_leaf.empty() &&
         !cache.p_specs.empty())
     {
@@ -1193,18 +1186,21 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         const auto contexts = make_sensitivity_contexts(
             eta_specs_real_leaf,
             pspp,
-            config.nuisance_sensitivity_contexts,
-            config.nuisance_sensitivity_context_sigma,
-            config.nuisance_sensitivity_seed
+            config.advanced.nuisance_sensitivity_contexts,
+            config.advanced.nuisance_sensitivity_context_sigma,
+            config.advanced.nuisance_sensitivity_seed
         );
 
         std::map<ParamId, double> screened_eta_specs;
+        const bool sensitivity_verbose = config.print_fit_summary || config.print_debug;
 
-        std::cout << "[FIT] Model-sensitivity pruning on "
-                << eta_specs_real_leaf.size()
-                << " nuisance candidates using "
-                << contexts.size()
-                << " contexts" << std::endl;
+        if (sensitivity_verbose) {
+            std::cout << "[FIT] Model-sensitivity pruning on "
+                    << eta_specs_real_leaf.size()
+                    << " nuisance candidates using "
+                    << contexts.size()
+                    << " contexts" << std::endl;
+        }
 
         for (const auto& [pid, nominal] : eta_specs_real_leaf) {
             const double sigma =
@@ -1212,20 +1208,24 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 
             if (!std::isfinite(sigma) || fpeq(sigma, 0.0)) {
                 screened_eta_specs[pid] = nominal;
-                std::cout << "[FIT] sensitivity " << pid
-                        << " : sigma not finite or zero -> keep" << std::endl;
+                if (sensitivity_verbose) {
+                    std::cout << "[FIT] sensitivity " << pid
+                            << " : sigma not finite or zero -> keep" << std::endl;
+                }
                 continue;
             }
 
             const fit_app::ParameterDefinition def =
                 make_nuisance_parameter_definition(pid, nominal, sigma);
 
-            const double step = config.nuisance_sensitivity_probe_sigmas * sigma;
+            const double step = config.advanced.nuisance_sensitivity_probe_sigmas * sigma;
 
             if (!std::isfinite(step) || fpeq(step, 0.0)) {
                 screened_eta_specs[pid] = nominal;
-                std::cout << "[FIT] sensitivity " << pid
-                        << " : probe step not finite or zero -> keep" << std::endl;
+                if (sensitivity_verbose) {
+                    std::cout << "[FIT] sensitivity " << pid
+                            << " : probe step not finite or zero -> keep" << std::endl;
+                }
                 continue;
             }
 
@@ -1288,7 +1288,7 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
                         const double scale = std::max({
                             std::abs(baseline_pred[i]),
                             std::abs(exp_obs_vals[i]),
-                            config.nuisance_sensitivity_scale_floor
+                            config.advanced.nuisance_sensitivity_scale_floor
                         });
 
                         max_abs_shift = std::max(max_abs_shift, one_sigma_shift);
@@ -1305,43 +1305,51 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
                 } catch (const std::exception& e) {
                     evaluation_failed = true;
 
-                    std::cout << "[FIT] sensitivity " << pid
-                            << " : context " << c
-                            << " failed with exception: "
-                            << e.what() << std::endl;
+                    if (sensitivity_verbose) {
+                        std::cout << "[FIT] sensitivity " << pid
+                                << " : context " << c
+                                << " failed with exception: "
+                                << e.what() << std::endl;
+                    }
 
                     break;
                 } catch (...) {
                     evaluation_failed = true;
 
-                    std::cout << "[FIT] sensitivity " << pid
-                            << " : context " << c
-                            << " failed with unknown exception"
-                            << std::endl;
+                    if (sensitivity_verbose) {
+                        std::cout << "[FIT] sensitivity " << pid
+                                << " : context " << c
+                                << " failed with unknown exception"
+                                << std::endl;
+                    }
 
                     break;
                 }
             }
 
-            if (evaluation_failed && config.nuisance_sensitivity_keep_on_failure) {
+            if (evaluation_failed && config.advanced.nuisance_sensitivity_keep_on_failure) {
                 screened_eta_specs[pid] = nominal;
 
-                std::cout << "[FIT] sensitivity " << pid
-                        << " : evaluation failed -> keep" << std::endl;
+                if (sensitivity_verbose) {
+                    std::cout << "[FIT] sensitivity " << pid
+                            << " : evaluation failed -> keep" << std::endl;
+                }
 
                 continue;
             }
 
             const bool keep =
-                (best_abs_shift >= config.nuisance_sensitivity_abs_cutoff) ||
-                (best_rel_shift >= config.nuisance_sensitivity_rel_cutoff);
+                (best_abs_shift >= config.advanced.nuisance_sensitivity_abs_cutoff) ||
+                (best_rel_shift >= config.advanced.nuisance_sensitivity_rel_cutoff);
 
-            std::cout << "[FIT] sensitivity " << pid
-                    << " : max_abs_shift=" << best_abs_shift
-                    << ", max_rel_shift=" << best_rel_shift
-                    << ", best_context=" << best_context
-                    << " -> " << (keep ? "keep" : "drop")
-                    << std::endl;
+            if (sensitivity_verbose) {
+                std::cout << "[FIT] sensitivity " << pid
+                        << " : max_abs_shift=" << best_abs_shift
+                        << ", max_rel_shift=" << best_rel_shift
+                        << ", best_context=" << best_context
+                        << " -> " << (keep ? "keep" : "drop")
+                        << std::endl;
+            }
 
             if (keep) {
                 screened_eta_specs[pid] = nominal;
@@ -1351,9 +1359,11 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         eta_specs_real_leaf = std::move(screened_eta_specs);
     }
 
-    LOG_INFO("Significant nuisances");
-    for (const auto& [pid, val] : eta_specs_real_leaf) {
-        LOG_INFO(pid, val);
+    if (config.print_fit_summary || config.print_debug) {
+        LOG_INFO("Significant nuisances");
+        for (const auto& [pid, val] : eta_specs_real_leaf) {
+            LOG_INFO(pid, val);
+        }
     }
 
     return eta_specs_real_leaf;
@@ -1466,9 +1476,11 @@ void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p
     last_scan_eta_ = eta0;
     has_manual_scan_point_ = false;
 
-    std::cout << "[SCAN] Likelihood prepared without MLE.\n";
-    std::cout << "[SCAN] n_fit_params = " << p_ids.size()
-              << ", n_nuisances = " << eta_ids.size() << "\n";
+    if (config.print_scan_summary || config.print_debug) {
+        std::cout << "[SCAN] Likelihood prepared without MLE.\n";
+        std::cout << "[SCAN] n_fit_params = " << p_ids.size()
+                  << ", n_nuisances = " << eta_ids.size() << "\n";
+    }
 }
 
 void StatisticManager::set_manual_scan_point(const std::map<ParamId, double>& p_hat,
@@ -1498,7 +1510,9 @@ void StatisticManager::set_manual_scan_point(const std::map<ParamId, double>& p_
     }
 
     has_manual_scan_point_ = true;
-    std::cout << "[SCAN] Manual scan point loaded.\n";
+    if (config.print_scan_summary || config.print_debug) {
+        std::cout << "[SCAN] Manual scan point loaded.\n";
+    }
 }
 
 LikelihoodScanGrid StatisticManager::scan_likelihood_around_current_point(
@@ -1602,11 +1616,13 @@ LikelihoodScanGrid StatisticManager::scan_likelihood_around_current_point(
         pt.delta_nll = pt.nll - nll_min;
     }
 
-    std::cout << "[SCAN] Built likelihood scan around current point\n";
-    std::cout << "[SCAN] center x = " << out.x_center << "\n";
-    std::cout << "[SCAN] center y = " << out.y_center << "\n";
-    std::cout << "[SCAN] nll at reference point = " << nll0 << "\n";
-    std::cout << "[SCAN] min nll on grid        = " << nll_min << "\n";
+    if (config.print_scan_summary || config.print_debug) {
+        std::cout << "[SCAN] Built likelihood scan around current point\n";
+        std::cout << "[SCAN] center x = " << out.x_center << "\n";
+        std::cout << "[SCAN] center y = " << out.y_center << "\n";
+        std::cout << "[SCAN] nll at reference point = " << nll0 << "\n";
+        std::cout << "[SCAN] min nll on grid        = " << nll_min << "\n";
+    }
 
     return out;
 }

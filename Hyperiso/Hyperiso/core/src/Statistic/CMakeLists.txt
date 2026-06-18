@@ -100,6 +100,8 @@ add_library(StatisticLib STATIC
     domain/CovarianceTransformer.cpp
     domain/Marginal/MarginalConfigFactory.cpp
     domain/MCEngine.cpp
+    domain/StatisticProgress.cpp
+    domain/StatisticCachePrinter.cpp
     domain/RvgNuisanceSampler.cpp
     domain/StatisticManager.cpp
     domain/Marginal/MarginalFactory.cpp
