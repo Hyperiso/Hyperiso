@@ -1234,7 +1234,7 @@ int main() {
     config.advanced.MLE_trace_first_evals  = true;
     config.advanced.MLE_trace_max_evals  = 20;
     config.advanced.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 500;
+    config.MC_draws = 100;
     config.advanced.nuisance_sensitivity_contexts = -1;
     const std::string had_bsm_block =
         GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_STANDARD)
@@ -1247,10 +1247,10 @@ int main() {
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
     };
 
     // std::vector<ParamId> p_specs = {

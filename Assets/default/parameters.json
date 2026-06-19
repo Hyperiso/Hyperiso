@@ -1001,47 +1001,47 @@
       "stat_error": 2.2,
       "syst_error": 0
     },
-    "20_1": {
+    "20_0": {
       "central_value": 0.72,
       "stat_error": 0.47,
       "syst_error": 0
     },
-    "20_2": {
+    "20_1": {
       "central_value": 0.76,
       "stat_error": 0.56,
       "syst_error": 0
     },
-    "20_3": {
+    "20_2": {
       "central_value": 1.11,
       "stat_error": 0.92,
       "syst_error": 0
     },
-    "21_1_1": {
+    "21_1_0": {
       "central_value": 0.1,
       "stat_error": 0.01,
       "syst_error": 0
     },
-    "21_1_2": {
+    "21_1_1": {
       "central_value": 0.09,
       "stat_error": 0.01,
       "syst_error": 0
     },
-    "21_1_3": {
+    "21_1_2": {
       "central_value": 0.06,
       "stat_error": 0.07,
       "syst_error": 0
     },
-    "21_2_1": {
+    "21_2_0": {
       "central_value": 1.13,
       "stat_error": 0.01,
       "syst_error": 0
     },
-    "21_2_2": {
+    "21_2_1": {
       "central_value": 1.12,
       "stat_error": 0.01,
       "syst_error": 0
     },
-    "21_2_3": {
+    "21_2_2": {
       "central_value": 1.05,
       "stat_error": 0.05,
       "syst_error": 0
@@ -2287,14 +2287,14 @@
   },
   "EW_SCALE": {
     "1": {
-      "central_value": 81,
+      "central_value": 80.3692,
       "stat_error": 0,
       "syst_error": 0
     }
   },
   "B_SCALE": {
     "1": {
-      "central_value": 4.7,
+      "central_value": 4.78750,
       "stat_error": 0,
       "syst_error": 0
     }
@@ -2400,23 +2400,23 @@
       "syst_error": 0
     },
     "313_1": {
-      "central_value": 0.22,
-      "stat_error": 0.005,
+      "central_value": 0.204,
+      "stat_error": 0.007,
       "syst_error": 0
     },
     "313_2": {
-      "central_value": 0.185,
-      "stat_error": 0.009,
+      "central_value": 0.159,
+      "stat_error": 0.006,
       "syst_error": 0
     },
     "323_1": {
-      "central_value": 0.22,
-      "stat_error": 0.005,
+      "central_value": 0.204,
+      "stat_error": 0.007,
       "syst_error": 0
     },
     "323_2": {
-      "central_value": 0.185,
-      "stat_error": 0.009,
+      "central_value": 0.159,
+      "stat_error": 0.006,
       "syst_error": 0
     },
     "333_1": {
