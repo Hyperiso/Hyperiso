@@ -60,7 +60,6 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
     auto src = np->provide_db_as_node();
     
     if (block_in_blocks) {
-        std::cout << src_file.string() << std::endl;
         for (auto &bk : src->get_keys()) {
             auto exp = src->getGroup({bk});
             for (auto &group_pair : exp) {

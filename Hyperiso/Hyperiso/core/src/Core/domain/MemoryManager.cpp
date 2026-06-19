@@ -66,18 +66,18 @@ void MemoryManager::read_default_input() {
     dl_ba->load(obs_blocks, paths_provider->default_obs_values(), true); 
     input_cache = input_cache >> obs_blocks;
     save_input_cache();
-    LOG_DEBUG("Default cache stored");
+    LOG_VERBOSE("Default cache stored");
 
     auto default_param_corr = std::make_shared<CorrelationMatrixPair<ParamId>>();
     dl_cmp_p->load(default_param_corr, paths_provider->default_param_corr().string());
-    LOG_DEBUG("Default param correlations loaded");
+    LOG_VERBOSE("Default param correlations loaded");
     auto default_obs_corr = std::make_shared<CorrelationMatrixPair<ExperimentObs>>();
     dl_cmp_o->load(default_obs_corr, paths_provider->default_obs_corr().string());
-    LOG_DEBUG("Default observable correlations loaded");
+    LOG_VERBOSE("Default observable correlations loaded");
     correlation_repository.set_correlation_matrix(default_param_corr);
     correlation_repository.set_correlation_matrix(default_obs_corr);
 
-    LOG_INFO("Default files loaded");
+    LOG_VERBOSE("Default files loaded");
 }
 
 void MemoryManager::read_user_input() {
@@ -105,7 +105,7 @@ void MemoryManager::read_user_input() {
     correlation_repository.merge_correlation_matrix(user_param_corr);
     correlation_repository.merge_correlation_matrix(user_obs_corr);
 
-    LOG_INFO("User input files loaded");
+    LOG_VERBOSE("User input files loaded");
 }
 
 void MemoryManager::read_lha_input(const std::string& lhaFile, const HyperisoConfig& config) {
@@ -117,7 +117,7 @@ void MemoryManager::read_lha_input(const std::string& lhaFile, const HyperisoCon
     input_cache = lha_ba >> input_cache;
     save_input_cache();
 
-    LOG_INFO("LHA file loaded");
+    LOG_VERBOSE("LHA file loaded");
 }
 
 fs::path MemoryManager::calculate_spectrum(fs::path input_lha_path, const HyperisoConfig &config) {

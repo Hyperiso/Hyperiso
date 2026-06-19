@@ -887,9 +887,6 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
         };
 
     ports_config.iblock_c->compose_block(final_block_name, combine_src, combine_func);
-
-    std::cout << "[HADSPLIT] " << final_block_name
-              << " <- (" << sm_run_block_name << ") + (" << bsm_run_block_name << ")\n";
 }
 
 // void CoefficientManager::init_group_hadronic(const std::string& groupName, const std::string& order, WilsonBasis basis) {
@@ -1088,7 +1085,6 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::s
     //TODO : add version where helper is not containing the right things
 
     if (groups.empty()) {
-        LOG_WARN("(CoefficientManager) No coefficient groups provided.");
         return std::make_shared<CoefficientManager>(portconfig);
     }
 

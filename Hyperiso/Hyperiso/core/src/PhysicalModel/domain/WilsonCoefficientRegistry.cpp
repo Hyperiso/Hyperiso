@@ -107,7 +107,6 @@ void register_B(CoefficientRegistry& reg) {
     REG(WCoef::C10, SM,   Marty, make_marty(ctx, WCoef::C10));
     
 
-    // TODO Marty custom, THDM, SUSY
 }
 
 void register_BPrime(CoefficientRegistry& reg) {
@@ -177,7 +176,7 @@ void register_BScalar(CoefficientRegistry& reg) {
     REG(WCoef::CQ1, SM, Marty, make_marty(ctx, WCoef::CQ1));
     REG(WCoef::CQ2, SM, Marty, make_marty(ctx, WCoef::CQ2));
 
-    //TODO : marty other cases
+    
 }
 
 void register_CC_bc(CoefficientRegistry& reg) {
@@ -204,7 +203,7 @@ void register_CC_bc(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_bc, WCoef::C_V2_bc, WCoef::C_S1_bc, WCoef::C_S2_bc, WCoef::C_T_bc})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 void register_CC_bu(CoefficientRegistry& reg) {
@@ -231,7 +230,7 @@ void register_CC_bu(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_bu, WCoef::C_V2_bu, WCoef::C_S1_bu, WCoef::C_S2_bu, WCoef::C_T_bu})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 void register_CC_cs(CoefficientRegistry& reg) {
@@ -258,7 +257,7 @@ void register_CC_cs(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_cs, WCoef::C_V2_cs, WCoef::C_S1_cs, WCoef::C_S2_cs, WCoef::C_T_cs})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 void register_CC_cd(CoefficientRegistry& reg) {
@@ -285,7 +284,7 @@ void register_CC_cd(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_cd, WCoef::C_V2_cd, WCoef::C_S1_cd, WCoef::C_S2_cd, WCoef::C_T_cd})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 void register_CC_su(CoefficientRegistry& reg) {
@@ -312,7 +311,7 @@ void register_CC_su(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_su, WCoef::C_V2_su, WCoef::C_S1_su, WCoef::C_S2_su, WCoef::C_T_su})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 void register_CC_du(CoefficientRegistry& reg) {
@@ -339,7 +338,7 @@ void register_CC_du(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::C_V1_du, WCoef::C_V2_du, WCoef::C_S1_du, WCoef::C_S2_du, WCoef::C_T_du})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }
 
 
@@ -380,6 +379,10 @@ void register_MesonMixing(CoefficientRegistry& reg) {
     REG(WCoef::CT_CU_3,  SM, Builtin, std::make_shared<C_mix_cu_3_tilde>());
     REG(WCoef::C_CU_4,  SM, Builtin, std::make_shared<C_mix_cu_4>());
     REG(WCoef::C_CU_5, SM, Builtin, std::make_shared<C_mix_cu_5>());
+
+    for (WCoef c : WCoefMapper::get_group(WGroup::MESON_MIXING)) {
+        REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
+    }
 }
 
 void register_K(CoefficientRegistry& reg) {
@@ -398,5 +401,5 @@ void register_K(CoefficientRegistry& reg) {
     for (WCoef c : {WCoef::CK9, WCoef::CK10, WCoef::CKQ1, WCoef::CKQ2, WCoef::CPK9, WCoef::CPK10, WCoef::CPKQ1, WCoef::CPKQ2, WCoef::CK_L})
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
-        //TODO : marty other cases
+        
 }

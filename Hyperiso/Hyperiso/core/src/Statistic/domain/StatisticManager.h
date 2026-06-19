@@ -373,6 +373,28 @@ public:
     std::set<std::string> selected_experiments() const;
 
     /**
+     * @brief Restricts subsequent statistics to an explicit list of experimental measurements.
+     *
+     * This is stricter than @ref select_experiments(): the experiment-name filter keeps every
+     * measurement from the selected experiments whose theory observable has been registered,
+     * whereas this method keeps only the exact (experiment, observable/bin) entries listed here.
+     * It is useful to reproduce SuperIso `myobs.in` / arXiv ancillary observable lists exactly.
+     */
+    void select_experiment_observables(const std::set<ExperimentObs>& observables);
+
+    /** @brief Vector overload for @ref select_experiment_observables. */
+    void select_experiment_observables(const std::vector<ExperimentObs>& observables);
+
+    /** @brief Clears the explicit experimental-observable selection. */
+    void select_experiment_observables_all();
+
+    /** @return True if an explicit experimental-observable selection is active. */
+    bool has_experiment_observable_selection() const noexcept;
+
+    /** @return Active explicit experimental-observable selection, or an empty set when inactive. */
+    std::set<ExperimentObs> selected_experiment_observables() const;
+
+    /**
      * @brief Selects all nuisance dependencies relevant to the current observable set.
      * @return Map of selected nuisance identifiers to central values.
      */
@@ -440,6 +462,9 @@ private:
     MarginalConfig make_nuisance_marginal_config(const ParamId& pid,
                                                  MarginalType mt) const;
 
+    /** @brief Combined experiment-name and explicit-observable filter. */
+    bool accepts_experiment_observable(const ExperimentObs& exp_obs) const;
+
     std::shared_ptr<IModel> obs_int;                       ///< Model interface used for observable predictions.
     std::shared_ptr<IStatCorrelationProxy> pscp;           ///< Proxy providing correlation information.
     std::shared_ptr<IStatParameterProxy> pspp;             ///< Proxy providing parameter values and uncertainties.
@@ -473,6 +498,7 @@ private:
     std::vector<std::pair<ParameterType, std::string>> last_detached_fit_blocks_; ///< Fit blocks detached during cache update.
 
     std::optional<std::set<std::string>> selected_experiments_; ///< Active experiment selection, if any.
+    std::optional<std::set<ExperimentObs>> selected_experiment_observables_; ///< Active exact experimental-observable selection, if any.
 };
 
 #endif

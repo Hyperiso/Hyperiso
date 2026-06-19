@@ -582,9 +582,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     if (cache.p_specs.empty()) {
         throw std::invalid_argument("compute_MLE called with an empty fit parameter list.");
     }
-    for (auto elem : cache.exp_obs) {
-        LOG_INFO("EXPERIMENT OBS : ", elem.first, elem.second);
-    }
+
     auto unzipped_fit_params = unzip(cache.p_specs);
     auto unzipped_nuisances  = unzip(cache.eta_specs_real);
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
@@ -636,8 +634,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         for (const auto& model_obs_id : this->obs_int->get_obs_ids()) {
             auto exp_params = pspp->get_obs_param(model_obs_id);
             for (const auto& [exp_obs, param] : exp_params) {
-                if (selected_experiments_.has_value()
-                    && !selected_experiments_->contains(exp_obs.experiment)) {
+                if (!accepts_experiment_observable(exp_obs)) {
                     continue;
                 }
                 exp_obs_sigmas[exp_obs] =
@@ -653,6 +650,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
         RealMatrix covariance_total =
             symmetrize_covariance_matrix(cov.covariance + covariance_exp);
+
+        // RealMatrix covariance_total =
+        //     symmetrize_covariance_matrix(covariance_exp);
 
         //     for (std::size_t i = 0; i < covariance_total.rows(); ++i) {
         //         for (std::size_t j = 0; j < covariance_total.cols(); ++j) {
@@ -754,29 +754,12 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     ctx->exp_obs_dist = build_exp_data_distribution();
     ctx->exp_obs_values = exp_obs_vals;
 
-    // ctx->fp_defs.reserve(p_ids.size());
-    // for (std::size_t i = 0; i < p_ids.size(); ++i) {
-    //     double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
-    //     ctx->fp_defs.emplace_back(make_param_def(p_ids[i], p0[i], sigma));
-    // }
-
-    // ctx->nuis_defs.reserve(eta_ids.size());
-    // for (std::size_t i = 0; i < eta_ids.size(); ++i) {
-    //     double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
-    //     ctx->nuis_defs.emplace_back(make_param_def(eta_ids[i], eta0[i], sigma));
-    // }
-
     ctx->fp_defs.reserve(p_ids.size());
     for (std::size_t i = 0; i < p_ids.size(); ++i) {
         double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
         ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
     }
 
-    // ctx->nuis_defs.reserve(eta_ids.size());
-    // for (std::size_t i = 0; i < eta_ids.size(); ++i) {
-    //     double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
-    //     ctx->nuis_defs.emplace_back(make_nuisance_param_def(eta_ids[i], eta0[i], sigma));
-    // }
     ctx->nuis_defs.reserve(eta_ids.size());
     for (std::size_t i = 0; i < eta_ids.size(); ++i) {
         double sigma = std::abs(pspp->get_param(eta_ids[i])->get_combined_std().real());
@@ -796,12 +779,6 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
         return ordered_prediction_vector(obs_ids, pred_map);
     };
-
-    // last_ctx_ = ctx;
-    // last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
-    // last_fitter_ = std::make_shared<MLFitter>(ctx, model_fn);
-
-    // last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
 
     last_ctx_ = ctx;
     last_like_ = std::make_shared<BaseLikelihood>(model_fn, ctx, p_ids.size());
@@ -882,10 +859,15 @@ void StatisticManager::print_cache()
 void StatisticManager::update_cache(const std::vector<ParamId>& p_specs) {
     if (selected_experiments_.has_value()) {
         for (const auto& elem : *selected_experiments_) {
-            LOG_INFO("USING SELECTED EXPERIMENT: ", elem);
+            LOG_VERBOSE("USING SELECTED EXPERIMENT: ", elem);
         }
     } else {
-        LOG_INFO("USING ALL EXPERIMENTS");
+        LOG_VERBOSE("USING ALL EXPERIMENTS");
+    }
+
+    if (selected_experiment_observables_.has_value()) {
+        LOG_VERBOSE("USING EXPLICIT EXPERIMENT-OBSERVABLE SELECTION: ",
+                    selected_experiment_observables_->size(), " entries");
     }
 
     for (const auto& [tp, block] : last_detached_fit_blocks_) {
@@ -1132,7 +1114,6 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 
     for (const auto& [pid, d] : delta_rel) {
         const double rel_to_max = std::isfinite(d) ? (d / delta_rel_max) : 1.0;
-        LOG_INFO("Compared to max relative uncertainty", pid, rel_to_max);
     }
 
     for (const auto& [pid, d] : delta_rel) {
@@ -1398,8 +1379,7 @@ std::map<ExperimentObs, double> StatisticManager::get_obs_exp() {
         auto exp_params = pspp->get_obs_param(obsId);
 
         for (const auto& [exp_obs, param] : exp_params) {
-            if (selected_experiments_.has_value()
-                && !selected_experiments_->contains(exp_obs.experiment)) {
+            if (!accepts_experiment_observable(exp_obs)) {
                 continue;
             }
 
@@ -1684,4 +1664,53 @@ std::set<std::string> StatisticManager::selected_experiments() const {
     }
 
     return *selected_experiments_;
+}
+
+bool StatisticManager::accepts_experiment_observable(const ExperimentObs& exp_obs) const {
+    if (selected_experiments_.has_value()
+        && !selected_experiments_->contains(exp_obs.experiment)) {
+        return false;
+    }
+
+    if (selected_experiment_observables_.has_value()
+        && !selected_experiment_observables_->contains(exp_obs)) {
+        return false;
+    }
+
+    return true;
+}
+
+void StatisticManager::select_experiment_observables(const std::vector<ExperimentObs>& observables) {
+    select_experiment_observables(std::set<ExperimentObs>(
+        observables.begin(),
+        observables.end()
+    ));
+}
+
+void StatisticManager::select_experiment_observables(const std::set<ExperimentObs>& observables) {
+    if (observables.empty()) {
+        throw std::invalid_argument(
+            "StatisticManager::select_experiment_observables: empty observable set."
+        );
+    }
+
+    selected_experiment_observables_ = observables;
+    invalidate_fit_state();
+}
+
+void StatisticManager::select_experiment_observables_all() {
+    selected_experiment_observables_.reset();
+    invalidate_fit_state();
+}
+
+bool StatisticManager::has_experiment_observable_selection() const noexcept {
+    return selected_experiment_observables_.has_value();
+}
+
+std::set<ExperimentObs> StatisticManager::selected_experiment_observables() const {
+    if (!selected_experiment_observables_) {
+        return {};
+    }
+
+    return *selected_experiment_observables_;
 }

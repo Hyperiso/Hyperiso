@@ -231,7 +231,7 @@ public:
      *
      * This corresponds to where matching-scale coefficients are stored.
      */
-    std::string get_matching_storage_block() const { return block_name; } //TODO to change
+    std::string get_matching_storage_block() const { return block_name; }
 
     /// Sets the matching storage block name (used by claim_coefficients()).
     void set_matching_storage_block(std::string);

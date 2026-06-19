@@ -21,7 +21,7 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_CC_su(*reg);
     register_CC_du(*reg);
     register_K(*reg);
-    register_MesonMixing(*reg); //TODO
+    register_MesonMixing(*reg);
     return reg;
 }
 
@@ -165,13 +165,13 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         auto grp = b.build(ctx);
 
         std::string group_name = GroupMapper::str(g_id);
-        LOG_INFO("Initializing group", group_name);
+        LOG_VERBOSE("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, std::move(grp));
-        LOG_INFO("Initializing group at matching scale", group_name);
+        LOG_VERBOSE("Initializing group at matching scale", group_name);
         this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
-        LOG_INFO("Initializing group at hardronic scale", group_name);
+        LOG_VERBOSE("Initializing group at hardronic scale", group_name);
         this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
-        LOG_INFO("done");
+        LOG_VERBOSE("Initialization done");
     }
 }
 

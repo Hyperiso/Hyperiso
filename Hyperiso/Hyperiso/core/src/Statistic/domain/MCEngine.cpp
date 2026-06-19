@@ -174,12 +174,12 @@ MCObservableCovariance covariance_from_obs_samples(
 
     // Option 1 : si covariance_inv n'est pas utilisée dans le fit MLE,
     // tu peux soit ne pas l'utiliser, soit la régulariser séparément.
-    out.covariance_inv = inverse_covariance_with_ridge2(
-        cov,
-        ridge_rel,
-        ridge_abs
-    );
-
+    // out.covariance_inv = inverse_covariance_with_ridge2(
+    //     cov,
+    //     ridge_rel,
+    //     ridge_abs
+    // );
+    out.covariance_inv = RealMatrix(D, D);
     return out;
 }
 

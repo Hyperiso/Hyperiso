@@ -29,7 +29,7 @@ ObsManager::ObsManager(ObservablePortsConfig obs_port_conf, bool init_default_de
 }
 
 ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
-    LOG_INFO("Adding observable", ObservableMapper::str(id), "to manager");
+    LOG_VERBOSE("Adding observable", ObservableMapper::str(id), "to manager");
 
     // Dynamic routing: do not convert ObservableId back to the legacy Observables enum.
     // Builtin observables are resolved by the static cache in DecayMapper::get_decay_id(),
@@ -68,7 +68,7 @@ ObsManager ObsManager::remove_obs(Observables id) {
 ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_deps) {
     const std::string obs_name = ObservableMapper::str(id.s);
 
-    LOG_INFO(
+    LOG_VERBOSE(
         "Adding binned observable",
         obs_name,
         "with bin [",
@@ -112,7 +112,7 @@ ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_d
 
     dec_it->second->add_bin(id.p);
 
-    LOG_INFO(
+    LOG_VERBOSE(
         "Successfully added bin [",
         id.p.first,
         ",",

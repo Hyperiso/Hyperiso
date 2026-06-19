@@ -7,7 +7,7 @@ WilsonProvider::WilsonProvider(std::shared_ptr<WilsonBuilder> builder) : builder
     }
     
     if (cm->getGroups().empty()) {
-        LOG_WARN("(WilsonProvider) CoefficientManager does not contain any coefficient groups. Pretty sus.");
+        LOG_DEBUG("(WilsonProvider) CoefficientManager does not contain any coefficient groups. Pretty sus.");
     }
 }
 
