@@ -6,7 +6,7 @@ std::unordered_map<WCoefId, scalar_t> KCoefficientGroup::base_1_LO_calculation (
 )
 {
 
-    auto ids = WCoefMapper::get_group(WGroup::B);
+    auto ids = WCoefMapper::get_group(WGroup::K);
 
     std::array<complex_t, 10> Ci_run {};
     
