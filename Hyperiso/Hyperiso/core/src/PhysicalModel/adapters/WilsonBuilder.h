@@ -145,6 +145,9 @@ private:
      * composer and MARTY hooks as builtin groups.
      */
     std::shared_ptr<WilsonGroupAdapterConfig> current_group_adapters;
+
+    /// Cached MARTY path proxy matching current_group_adapters; reused by add().
+    std::shared_ptr<IMartyWilsonPathProxy> current_marty_paths;
 };
 
 #endif // IWILSONBUILDER_H

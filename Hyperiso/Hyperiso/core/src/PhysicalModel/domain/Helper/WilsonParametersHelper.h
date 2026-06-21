@@ -3,6 +3,7 @@
 
 #include <array>
 #include <memory>
+#include <unordered_set>
 
 #include "IBlockComposer.h"
 #include "Include.h"
@@ -56,9 +57,18 @@ public:
     /**
      * @brief Resets the helper internal state.
      *
-     * Current implementation only resets the initialization flag.
+     * Resets the core/running initialization guards.
      */
     void cleanup() override;
+
+    /**
+     * @brief Composes the meson-mixing evolution matrices.
+     *
+     * Kept here so the physics formulae stay in one place, but called from the
+     * MesonMixing group-definition setup hook rather than implicitly from every
+     * WilsonParameterHelper::init() call.
+     */
+    static void compose_meson_mixing_running_blocks(const std::shared_ptr<IBlockComposer>& iblock_c);
     
 private:
     /// Builds generation-dependent, scale-independent helper block ("WPARAM_SI_SM").
@@ -75,6 +85,10 @@ private:
 
     /// Builds meson-mixing running matrices ("ETA_POWS_MIXING", "UM_MATRIX_5", "UM_MATRIX_4").
     void init_running_parameter_blocks_MM();
+
+    bool running_block_initialized{false};
+    bool b_running_matrices_initialized{false};
+    std::unordered_set<WGroupId> initialized_running_groups;
 
 };
 

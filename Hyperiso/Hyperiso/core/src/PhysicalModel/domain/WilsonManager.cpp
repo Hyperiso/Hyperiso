@@ -1076,13 +1076,10 @@ void CoefficientManager::update(double mu_W, double mu_h) {
 std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
     
     for (auto& helper : wilson_param_helpers) {
-        if (!helper.second->is_init()) {
-            for (const auto& elem : groups) {
-                helper.second->init(2, GroupMapper::enum_elt(elem.first));
-            }
+        for (const auto& elem : groups) {
+            helper.second->init(2, GroupMapper::enum_elt(elem.first));
         }
     }
-    //TODO : add version where helper is not containing the right things
 
     if (groups.empty()) {
         return std::make_shared<CoefficientManager>(portconfig);
@@ -1100,7 +1097,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::s
     for (auto& group: groups) {
         LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
+        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
         manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_DEBUG("(CoefficientManager) Manager successfully initialized");

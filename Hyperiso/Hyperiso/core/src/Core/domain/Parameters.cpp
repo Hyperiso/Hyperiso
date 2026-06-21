@@ -457,9 +457,33 @@ std::unordered_set<BlockName> WilsonInputStrategy::initializeParameters(Paramete
 }
 
 void WilsonInputStrategy::postInitialization(Parameters& params) {
-    if (MemoryManager::GetInstance()->getMemoryCache().config.flags.at(ExternalFlag::HAS_WILSON_INPUT)) {
-        params.setBlockValue("EW_SCALE", 1, params.get_block_scale("FWCOEF"));
+    const auto& cfg = MemoryManager::GetInstance()->getMemoryCache().config;
+
+    if (!cfg.flags.at(ExternalFlag::HAS_WILSON_INPUT)) {
+        return;
     }
+
+    const double muW = params.get_block_scale("FWCOEF");
+
+    if (params.exist("EW_SCALE", 1)) {
+        params.setBlockValue("EW_SCALE", 1, muW);
+        return;
+    }
+
+    DependentBlockManager::addDependentBlock(
+        "EW_SCALE",
+        {},
+        ParameterType::WILSON,
+        [muW](const BlockSrc&, std::shared_ptr<DependentBlock> dep_block) {
+            dep_block->store_or_assign(
+                1,
+                std::make_shared<Parameter>(
+                    ParamId{ParameterType::WILSON, "EW_SCALE", 1},
+                    muW, 0.0, 0.0
+                )
+            );
+        }
+    );
 }
 
 std::unordered_set<BlockName> DecayStrategy::initializeParameters(Parameters &params) {
@@ -477,9 +501,9 @@ std::unordered_set<BlockName> PassthroughStrategy::initializeParameters(Paramete
     return absent_blocks;
 }
 
-void Parameters::changeParameterMode(const ParamId &, ParameterMode) {
+void Parameters::changeParameterMode(const ParamId &param_id, ParameterMode new_mode) {
     // blockAccessor->setMode(param_id.block, param_id.code, new_mode);
-    // TODO ?
+    //not use
 }
 
 void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {

@@ -3,7 +3,6 @@
 #include "GroupDefinition.h"
 #include "WilsonCoefficientRegistry.h"
 #include "CoefficientGroupBuilder.h"
-// #include "Wilson_parameters.h"
 
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);
@@ -21,15 +20,13 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_CC_su(*reg);
     register_CC_du(*reg);
     register_K(*reg);
-    register_MesonMixing(*reg);
+    register_MesonMixing(*reg); //TODO
     return reg;
 }
 
 WilsonBuilder::WilsonBuilder(std::shared_ptr<CoefficientManager> manager) : cm(manager) {}
 
 void WilsonBuilder::build(WilsonBuildConfig config) {
-    // WilsonParameterHelper().init(2);
-    // std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers {};
 
     std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
     
@@ -75,6 +72,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     }
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
     this->current_group_adapters = std::make_shared<WilsonGroupAdapterConfig>(adapters);
+    this->current_marty_paths = marty_paths;
 
     auto reg_ptr = make_registry();
     auto build_group_fn = [reg_ptr, adapters, marty_paths](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
@@ -110,7 +108,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         && config.order > QCDOrder::LO
         && !(hard_coded_lo && hard_coded_lo->get()))
     {
-        // Marty pur => LO-only global (comportement historique)
+        // Marty pur => LO-only global
         config.order = QCDOrder::LO;
     }
 
@@ -120,48 +118,75 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
 }
 
-//TODO : deal with new wilson_parameters
 void WilsonBuilder::add(WilsonBuildConfig config) {
+
+    if (!this->cm) {
+        LOG_ERROR("LogicError", "Cannot add Wilson groups before WilsonBuilder has been built.");
+    }
+
+    if (!this->current_group_adapters) {
+        LOG_ERROR("LogicError", "WilsonBuilder has no cached group adapters for Wilson group registration.");
+    }
+
+    auto iblock_c = this->current_group_adapters->iblock_c;
+
+    if (!wilson_param_helpers[Model::SM]) {
+        wilson_param_helpers[Model::SM] = std::make_shared<WilsonParameterHelper>(iblock_c);
+    }
 
     for (const auto& elem : config.groups) {
         wilson_param_helpers[Model::SM]->init(2, elem);
-
     }
 
     Model model = ModelAPI().get();
 
-    this->cm->set_matching_scale(config.matching_scale);
-
-    this->cm->set_hadronic_scale(config.hadronic_scale);
-
-    std::shared_ptr<IBlockComposer> iblock_c = std::make_shared<WilsonParamComposer>();
-    std::shared_ptr<IParameterProxy<std::string, LhaID>> wilson_proxy = std::make_shared<ParameterProxy>(ParameterType::WILSON);
-    std::shared_ptr<IParameterProxy<std::string, LhaID>> sm_proxy = std::make_shared<ParameterProxy>(ParameterType::SM);
-    std::shared_ptr<ICoreAPI<bool>> use_marty = std::make_shared<UseMarty>();
-    std::shared_ptr<ICoreAPI<Model>> model_api = std::make_shared<ModelAPI>();
-    std::shared_ptr<IParamSetter<ScaleType>> scale_setter_api = std::make_shared<ScaleSetter>(ScaleType::MATCHING);
-    std::shared_ptr<ICoreAPI<std::string>> marty_model_name = std::make_shared<MartyModelNameAPI>();
-    std::shared_ptr<ICoreAPI<fs::path>> marty_model_path = std::make_shared<MartyModelPathAPI>();
-    std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = nullptr;
-    std::shared_ptr<IMartyWilsonPathProxy> marty_paths = std::make_shared<MartyWilsonPathProxy>();
-
-    if (use_marty->get()) {
-        marty_proxy = std::make_shared<MartyWilsonProxy>(); 
+    if (model == Model::THDM) {
+        if (!wilson_param_helpers[model]) {
+            wilson_param_helpers[model] = std::make_shared<THDMParameterHelper>(iblock_c);
+        }
+        for (const auto& elem : config.groups) {
+            wilson_param_helpers[model]->init(2, elem);
+        }
+    } else if (model == Model::SUSY) {
+        if (!wilson_param_helpers[model]) {
+            wilson_param_helpers[model] = std::make_shared<SUSYParameterHelper>(iblock_c);
+        }
+        for (const auto& elem : config.groups) {
+            wilson_param_helpers[model]->init(2, elem);
+        }
     }
 
-    WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
-    this->current_group_adapters = std::make_shared<WilsonGroupAdapterConfig>(adapters);
+    this->cm->set_matching_scale(config.matching_scale);
+    this->cm->set_hadronic_scale(config.hadronic_scale);
+
+    const bool marty = this->current_group_adapters->use_marty->get();
+    auto hard_coded_lo = std::make_shared<SMFromHypProxy>();
+    if (marty
+        && config.order > QCDOrder::LO
+        && !(hard_coded_lo && hard_coded_lo->get()))
+    {
+        config.order = QCDOrder::LO;
+    }
 
     auto reg_ptr = make_registry();
     CoefficientGroupBuilder b{*reg_ptr};
-
+    auto marty_paths = this->current_marty_paths
+        ? this->current_marty_paths
+        : std::make_shared<MartyWilsonPathProxy>();
 
     for (auto& g_id : config.groups) {
-        ContributionType ct;
-        if (use_marty->get()) ct = ContributionType::TOTAL;
-        else ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
-        BuildContext ctx{adapters, model, use_marty->get() ? Backend::Marty : Backend::Builtin, ct, g_id};
-        ctx.marty_paths = marty_paths;
+        ContributionType ct = marty ? ContributionType::TOTAL
+                                    : ((model == Model::SM) ? ContributionType::SM : ContributionType::BSM);
+
+        BuildContext ctx{
+            .adapters = *this->current_group_adapters,
+            .model = model,
+            .backend = marty ? Backend::Marty : Backend::Builtin,
+            .contrib = ct,
+            .group_id = g_id,
+            .marty_paths = marty_paths
+        };
+
         auto grp = b.build(ctx);
 
         std::string group_name = GroupMapper::str(g_id);

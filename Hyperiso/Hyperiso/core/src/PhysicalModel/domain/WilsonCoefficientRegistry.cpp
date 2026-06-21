@@ -158,7 +158,6 @@ void register_BPrime(CoefficientRegistry& reg) {
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
     }
 
-    //TODO Marty other cases
 }
 
 void register_BScalar(CoefficientRegistry& reg) {

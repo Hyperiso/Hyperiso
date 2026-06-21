@@ -51,7 +51,7 @@ public:
     /**
      * @brief Cleans up internal state and/or unregisters blocks if applicable.
      */
-    void cleanup() override {} //TODO
+    void cleanup() override {}
 protected:
     /**
      * @brief Builds THDM scale-independent helper blocks.

@@ -1,15 +1,20 @@
 #include "WilsonParametersHelper.h"
 
 void WilsonParameterHelper::init(int gen, WGroupId grp) {
-	if (initialized) {
-		LOG_TRACE("WilsonParameterHelper already initialized ");
+	if (!initialized) {
+		LOG_DEBUG("Initializing WilsonParameterHelper core blocks");
+		init_scale_independent_block(gen);
+		init_matching_block();
+		initialized = true;
+	}
+
+	if (initialized_running_groups.find(grp) != initialized_running_groups.end()) {
+		LOG_TRACE("WilsonParameterHelper already initialized for requested group");
 		return;
 	}
-	LOG_DEBUG("Initializing WilsonParameterHelper");
-	init_scale_independent_block(gen);
-	init_matching_block();
+
 	init_running_block(grp);
-	initialized = true;
+	initialized_running_groups.emplace(grp);
 }
 
 void WilsonParameterHelper::init_scale_independent_block(int gen) {
@@ -146,8 +151,19 @@ void WilsonParameterHelper::init_running_parameter_blocks_B() {
 }
 
 void WilsonParameterHelper::init_running_parameter_blocks_MM() {
+	compose_meson_mixing_running_blocks(iblock_c);
+}
+
+void WilsonParameterHelper::compose_meson_mixing_running_blocks(const std::shared_ptr<IBlockComposer>& iblock_c) {
 
     LOG_DEBUG("Init running matrices blocks of Meson Mixing Coefficient group");
+	if (iblock_c->has_composed_block("ETA_POWS_MIXING")
+		&& iblock_c->has_composed_block("UM_MATRIX_5")
+		&& iblock_c->has_composed_block("UM_MATRIX_4")) {
+		LOG_TRACE("Meson-mixing running matrices already composed");
+		return;
+	}
+
 	std::unordered_map<ParameterType, std::vector<std::string>> eta_powers_src = {{ParameterType::WILSON, {"WPARAM_RUN_SM"}}};
 
     auto eta_powers_func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
@@ -290,40 +306,50 @@ void WilsonParameterHelper::init_running_parameter_blocks_MM() {
 }
 
 void WilsonParameterHelper::init_running_block(WGroupId grp) {
-	LOG_DEBUG("Init running scale dependent wparam block");
-	std::unordered_map<ParameterType, std::vector<std::string>> src = {
-		{ParameterType::WILSON, {"EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE"}},
-		{ParameterType::SM, {"QCD", "MASS"}}
-	};
+	if (!running_block_initialized) {
+		LOG_DEBUG("Init running scale dependent wparam block");
+		std::unordered_map<ParameterType, std::vector<std::string>> src = {
+			{ParameterType::WILSON, {"EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE"}},
+			{ParameterType::SM, {"QCD", "MASS"}}
+		};
 
-    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
-        double alphas_mu_W = QCDHelper::alpha_s(src.get_val("EW_SCALE", 1));
-        double alphas_mu_b = QCDHelper::alpha_s(src.get_val("B_SCALE", 1));
-        double alphas_mu_c = QCDHelper::alpha_s(src.get_val("D_SCALE", 1));
-        double alphas_mu_s = QCDHelper::alpha_s(src.get_val("K_SCALE", 1));
+		auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+			double alphas_mu_W = QCDHelper::alpha_s(src.get_val("EW_SCALE", 1));
+			double alphas_mu_b = QCDHelper::alpha_s(src.get_val("B_SCALE", 1));
+			double alphas_mu_c = QCDHelper::alpha_s(src.get_val("D_SCALE", 1));
+			double alphas_mu_s = QCDHelper::alpha_s(src.get_val("K_SCALE", 1));
 
-        double eta_5 = alphas_mu_W / alphas_mu_b;
-        double eta_4 = alphas_mu_b / alphas_mu_c;
-        double eta_3 = alphas_mu_c / alphas_mu_s;
+			double eta_5 = alphas_mu_W / alphas_mu_b;
+			double eta_4 = alphas_mu_b / alphas_mu_c;
+			double eta_3 = alphas_mu_c / alphas_mu_s;
 
-		dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_b, 0., 0.));
-		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
-		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));
-		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));
-    };
+			dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 1}, alphas_mu_b, 0., 0.));
+			dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
+			dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));
+			dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));
+		};
 
-    iblock_c->compose_block("WPARAM_RUN_SM", src, func);
+		iblock_c->compose_block("WPARAM_RUN_SM", src, func);
+		running_block_initialized = true;
+	}
 
-	if (grp == GroupMapper::to_id(WGroup::B) || grp == GroupMapper::to_id(WGroup::BPrime) || grp == GroupMapper::to_id(WGroup::BScalar)) {
-		init_running_parameter_blocks_B();
-
+	if (grp == GroupMapper::to_id(WGroup::B)
+		|| grp == GroupMapper::to_id(WGroup::BPrime)
+		|| grp == GroupMapper::to_id(WGroup::BScalar)) {
+		if (!b_running_matrices_initialized) {
+			init_running_parameter_blocks_B();
+			b_running_matrices_initialized = true;
+		}
 	} else if (grp == GroupMapper::to_id(WGroup::MESON_MIXING)) {
-		init_running_parameter_blocks_MM();
+		// Meson-mixing matrices are composed by GroupDef_MesonMixing::Setup_Mixing_RunningMatrices.
 	} else {
-		init_running_parameter_blocks_B(); //TODO : better ?
+		LOG_TRACE("No additional Wilson running-matrix blocks needed for requested group");
 	}
 }
 
 void WilsonParameterHelper::cleanup() {
 	initialized = false;
+	running_block_initialized = false;
+	b_running_matrices_initialized = false;
+	initialized_running_groups.clear();
 }

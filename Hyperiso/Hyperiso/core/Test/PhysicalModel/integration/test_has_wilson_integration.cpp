@@ -38,6 +38,7 @@ int main() {
     cfg.flags[ExternalFlag::HAS_WILSON_INPUT] = true;
 
     fs::path flha = write_temp_fwcoef_tot_only();
+
     hyp.init(flha.string(), cfg);
 
     WilsonInterface wi;

@@ -86,6 +86,16 @@ public:
      */
     virtual void remove_all_composed_blocks() = 0;
 
+    /**
+     * @brief Returns whether a block has already been composed by any composer instance.
+     *
+     * This is intentionally lightweight and is used by setup hooks to stay idempotent
+     * when a group is built more than once, e.g. active group + SM intermediate group.
+     */
+    bool has_composed_block(const std::string& block_name) const {
+        return composed_blocks.find(block_name) != composed_blocks.end();
+    }
+
 protected:
     /**
      * @brief Registry of blocks composed through implementations of IBlockComposer.

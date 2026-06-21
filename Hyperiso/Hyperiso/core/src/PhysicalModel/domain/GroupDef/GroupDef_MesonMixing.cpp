@@ -1,10 +1,11 @@
 #include "GroupDefinition.h"
 #include "MesonMixingWilsonGroup.h"
+#include "WilsonParametersHelper.h"
 
 using CGS = CoefficientGroupSources;
 
-static void Setup_Mixing_RunningMatrices([[maybe_unused]] const BuildContext& ctx, [[maybe_unused]] CoefficientGroup& grp) {
-    // TODO : compose ETA_POWS_MIXING, UM_MATRIX_5, UM_MATRIX_4 avec ctx.adapters.iblock_c->compose_block(...)
+static void Setup_Mixing_RunningMatrices(const BuildContext& ctx, [[maybe_unused]] CoefficientGroup& grp) {
+    WilsonParameterHelper::compose_meson_mixing_running_blocks(ctx.adapters.iblock_c);
 }
 
 namespace GroupDefinitions {
@@ -28,6 +29,7 @@ namespace GroupDefinitions {
             d.setup[Model::SM].push_back(&Setup_Mixing_RunningMatrices);
             d.setup[Model::SUSY].push_back(&Setup_Mixing_RunningMatrices);
             d.setup[Model::THDM].push_back(&Setup_Mixing_RunningMatrices);
+            d.setup[Model::MARTY].push_back(&Setup_Mixing_RunningMatrices);
             return d;
         }();
         return def;
