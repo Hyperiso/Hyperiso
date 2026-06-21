@@ -224,7 +224,11 @@ class StatisticConfig:
             summaries.
         print_mc_progress: Print a compact progress bar with live ETA during MC
             sampling.
-        print_mc_config: Print marginal/covariance debug information.
+        print_chi2_pipeline_progress: In chi-square MC-covariance mode, print
+            the post-MC workflow stages so the MC ETA is not mistaken for the
+            full runtime.
+        print_mc_config: Print nuisance candidates and retained MC marginal
+            configuration.
         print_fit_summary: Print high-level fit diagnostics.
         print_scan_summary: Print likelihood-scan diagnostics.
         print_cache_summary: Enable ``StatisticManager::print_cache`` output.
@@ -238,6 +242,7 @@ class StatisticConfig:
     skew_abs_threshold: float = 0.2
 
     print_mc_progress: bool = False
+    print_chi2_pipeline_progress: bool = False
     print_mc_config: bool = False
     print_fit_summary: bool = False
     print_scan_summary: bool = False
@@ -257,6 +262,7 @@ class StatisticConfig:
         cpp.MC_draws = int(self.MC_draws)
         cpp.skew_abs_threshold = float(self.skew_abs_threshold)
         cpp.print_mc_progress = bool(self.print_mc_progress)
+        cpp.print_chi2_pipeline_progress = bool(self.print_chi2_pipeline_progress)
         cpp.print_mc_config = bool(self.print_mc_config)
         cpp.print_fit_summary = bool(self.print_fit_summary)
         cpp.print_scan_summary = bool(self.print_scan_summary)

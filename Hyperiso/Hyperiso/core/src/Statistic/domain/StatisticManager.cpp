@@ -1,6 +1,10 @@
 
 #include "StatisticManager.h"
 #include "StatisticCachePrinter.h"
+#include "StatisticProgress.h"
+
+#include <algorithm>
+#include <type_traits>
 
 std::string param_name(const ParamId& pid) {
     std::ostringstream oss;
@@ -78,6 +82,116 @@ static void dump_matrix_sanity(const RealMatrix& M,
 }
 
 namespace {
+
+std::string marginal_type_name(MarginalType mt) {
+    switch (mt) {
+        case MarginalType::GAUSSIAN:      return "Gaussian";
+        case MarginalType::HALF_GAUSSIAN: return "Split Gaussian";
+        case MarginalType::FLAT:          return "Flat";
+        case MarginalType::LIKELIHOOD:    return "Likelihood";
+    }
+    return "Unknown";
+}
+
+std::string copula_type_name(CopulaType ct) {
+    switch (ct) {
+        case CopulaType::GAUSSIAN:  return "Gaussian";
+        case CopulaType::STUDENT_T: return "Student-t";
+    }
+    return "Unknown";
+}
+
+std::string likelihood_mode_name(StatisticLikelihoodMode mode) {
+    switch (mode) {
+        case StatisticLikelihoodMode::PROFILED_NUISANCE:   return "profiled nuisance";
+        case StatisticLikelihoodMode::CHI2_MC_COVARIANCE:  return "chi-square with MC covariance";
+    }
+    return "unknown";
+}
+
+std::string compact_double(double x) {
+    std::ostringstream oss;
+    oss << std::setprecision(8) << x;
+    return oss.str();
+}
+
+std::string marginal_config_summary(const MarginalConfig& cfg) {
+    return std::visit([](const auto& c) -> std::string {
+        using T = std::decay_t<decltype(c)>;
+        std::ostringstream oss;
+        oss << std::setprecision(8);
+
+        if constexpr (std::is_same_v<T, FlatMarginalCfg>) {
+            oss << "a=" << c.a << ", b=" << c.b;
+        } else if constexpr (std::is_same_v<T, GaussianMarginalCfg>) {
+            oss << "mu=" << c.mu << ", sigma=" << c.sigma;
+        } else if constexpr (std::is_same_v<T, SplitGaussianMarginalCfg>) {
+            oss << "mu=" << c.mu << ", sigma_p=" << c.sigma_p
+                << ", sigma_m=" << c.sigma_m;
+        } else if constexpr (std::is_same_v<T, LikelihoodMarginalCfg>) {
+            oss << "values=" << c.values.size()
+                << ", weights=" << c.weights.size();
+        } else {
+            oss << "custom config";
+        }
+        return oss.str();
+    }, cfg);
+}
+
+double safe_param_value(const std::shared_ptr<IStatParameterProxy>& pspp, const ParamId& pid) {
+    try {
+        return pspp->get_param(pid)->get_val().real();
+    } catch (...) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+}
+
+double safe_param_sigma(const std::shared_ptr<IStatParameterProxy>& pspp, const ParamId& pid) {
+    try {
+        return std::abs(pspp->get_param(pid)->get_combined_std().real());
+    } catch (...) {
+        return std::numeric_limits<double>::quiet_NaN();
+    }
+}
+
+void print_nuisance_candidate_table(const std::string& title,
+                                    const std::vector<ParamId>& ids,
+                                    const std::shared_ptr<IStatParameterProxy>& pspp)
+{
+    std::cout << "[MC CONFIG] " << title << ": " << ids.size() << "\n";
+    for (const auto& pid : ids) {
+        std::cout << "[MC CONFIG]   candidate " << pid
+                  << " | value=" << compact_double(safe_param_value(pspp, pid))
+                  << " | sigma=" << compact_double(safe_param_sigma(pspp, pid))
+                  << "\n";
+    }
+}
+
+void print_nuisance_value_table(const std::string& title,
+                                const std::map<ParamId, double>& values,
+                                const std::shared_ptr<IStatParameterProxy>& pspp)
+{
+    std::cout << "[MC CONFIG] " << title << ": " << values.size() << "\n";
+    for (const auto& [pid, value] : values) {
+        std::cout << "[MC CONFIG]   retained " << pid
+                  << " | value=" << compact_double(value)
+                  << " | sigma=" << compact_double(safe_param_sigma(pspp, pid))
+                  << "\n";
+    }
+}
+
+void print_nuisance_marginal_line(const ParamId& pid,
+                                  double value,
+                                  double sigma,
+                                  MarginalType mt,
+                                  const MarginalConfig& cfg)
+{
+    std::cout << "[MC CONFIG]   retained " << pid
+              << " | value=" << compact_double(value)
+              << " | sigma=" << compact_double(sigma)
+              << " | marginal=" << marginal_type_name(mt)
+              << " (" << marginal_config_summary(cfg) << ")\n";
+}
 
 static std::vector<std::map<ParamId, double>> make_sensitivity_contexts(
     const std::map<ParamId, double>& eta0,
@@ -409,70 +523,30 @@ StatisticManager::StatisticManager(StatisticConfig config,
     invalidate_fit_state();
 }
 
-#include "BlockProxy.h"
-
 std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuisance_marginal_distributions() {
     unsigned int seed = 123456u;
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
     marginals.reserve(cache.eta_specs_real.size());
 
-    for (const auto& [pid, _] : cache.eta_specs_real) {
+    const bool print_config = config.print_mc_config || config.print_debug;
+    if (print_config) {
+        std::cout << "[MC CONFIG] Retained nuisance marginals used by MC: "
+                  << cache.eta_specs_real.size() << "\n";
+    }
+
+    for (const auto& [pid, value] : cache.eta_specs_real) {
         const MarginalType mt = resolve_nuisance_marginal_type(pid);
         MarginalConfig cfg = make_nuisance_marginal_config(pid, mt);
-        std::ostringstream oss;
-        oss << pid;
-        const std::string name = oss.str();
-        if ((config.print_mc_config || config.print_debug) &&
-            (name.find("B_Ks:18_3_") != std::string::npos ||
-             name.find("B_Ks:18_6_") != std::string::npos ||
-             name.find("B_Ks:18_1_") != std::string::npos ||
-             name.find("B_Ks:18_4_") != std::string::npos)) {
 
-            std::visit([&](const auto& c) {
-                using T = std::decay_t<decltype(c)>;
-
-                if constexpr (std::is_same_v<T, FlatMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " FLAT a=" << c.a
-                            << " b=" << c.b << '\n';
-                } else if constexpr (std::is_same_v<T, GaussianMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " GAUSSIAN mu=" << c.mu
-                            << " sigma=" << c.sigma << '\n';
-                } else if constexpr (std::is_same_v<T, SplitGaussianMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " SPLIT mu=" << c.mu
-                            << " sigma_p=" << c.sigma_p
-                            << " sigma_m=" << c.sigma_m << '\n';
-                } else {
-                    std::cout << "[MC CFG] " << pid << " other cfg\n";
-                }
-            }, cfg);
-        }
-
-        if ((config.print_mc_config || config.print_debug) &&
-            (name == "B_SCALE:1" || name == "EW_SCALE:1")) {
-            BlockProxy().log_block(ParameterType::WILSON, "B_SCALE");
-            std::visit([&](const auto& c) {
-                using T = std::decay_t<decltype(c)>;
-                if constexpr (std::is_same_v<T, FlatMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " FLAT a=" << c.a
-                            << " b=" << c.b << '\n';
-                } else if constexpr (std::is_same_v<T, GaussianMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " GAUSSIAN mu=" << c.mu
-                            << " sigma=" << c.sigma << '\n';
-                } else if constexpr (std::is_same_v<T, SplitGaussianMarginalCfg>) {
-                    std::cout << "[MC CFG] " << pid
-                            << " SPLIT mu=" << c.mu
-                            << " sigma_p=" << c.sigma_p
-                            << " sigma_m=" << c.sigma_m << '\n';
-                } else {
-                    std::cout << "[MC CFG] " << pid << " other cfg\n";
-                }
-            }, cfg);
+        if (print_config) {
+            print_nuisance_marginal_line(
+                pid,
+                value,
+                safe_param_sigma(pspp, pid),
+                mt,
+                cfg
+            );
         }
 
         marginals.emplace_back(MarginalFactory::create(mt, cfg, seed));
@@ -483,6 +557,13 @@ std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuis
 
 std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution() {
     unsigned int seed = 123456u;
+
+    if (config.print_mc_config || config.print_debug) {
+        std::cout << "[MC CONFIG] Nuisance distribution: "
+                  << cache.eta_specs_real.size() << " retained nuisance(s), copula="
+                  << copula_type_name(config.advanced.nuisance_copula_type)
+                  << "\n";
+    }
 
     std::unique_ptr<ICopula> copula;
     if (config.advanced.nuisance_copula_type == CopulaType::GAUSSIAN) {
@@ -546,19 +627,24 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
 std::map<BinnedObservableId, GaussianSummary> StatisticManager::compute_uncertainties() {
     auto sums = this->compute_uncertainties_and_sampling();
 
-    if (config.print_mc_config || config.print_debug) {
-        for (auto elem : this->merged_nuisance_specs_) {
-            std::cout << elem.first << std::endl;
-            std::cout << elem.second << std::endl;
-            std::cout << "-------------------" << std::endl;
+    if (config.print_debug) {
+        std::cout << "[DEBUG] Merged nuisance specification registry: "
+                  << this->merged_nuisance_specs_.size() << " entry/entries\n";
+        for (const auto& elem : this->merged_nuisance_specs_) {
+            std::cout << "[DEBUG]   " << elem.first << "\n";
+            std::cout << elem.second << "\n";
         }
     }
 
     std::map<BinnedObservableId, GaussianSummary> out;
+    if (config.print_mc_config || config.print_debug) {
+        std::cout << "[MC CONFIG] Observable MC summaries: "
+                  << sums.summary.size() << "\n";
+    }
     for (const auto& gs : sums.summary) {
         out[gs.id] = gs;
         if (config.print_mc_config || config.print_debug) {
-            std::cout << gs << std::endl;
+            std::cout << "[MC CONFIG]   " << gs << "\n";
         }
     }
     return out;
@@ -606,8 +692,22 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
     if (config.advanced.likelihood_mode == StatisticLikelihoodMode::CHI2_MC_COVARIANCE) {
         if (config.print_fit_summary || config.print_debug) {
-            std::cout << "[FIT] Using CHI2_MC_COVARIANCE likelihood backend.\n";
+            std::cout << "[FIT] Likelihood backend: "
+                      << likelihood_mode_name(config.advanced.likelihood_mode) << ".\n";
         }
+
+        const bool show_chi2_progress =
+            config.print_chi2_pipeline_progress ||
+            config.print_mc_progress ||
+            config.print_debug;
+        StatisticStageProgressReporter chi2_progress(
+            show_chi2_progress,
+            "CHI2 workflow",
+            5
+        );
+        chi2_progress.start(
+            "Starting chi-square workflow: MC covariance, experimental covariance, likelihood construction, then maximum-likelihood fit. The MC bar estimates only the MC part; later steps are reported separately."
+        );
 
         auto rvg = build_nuisance_distribution();
         std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
@@ -620,6 +720,11 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         );
 
         MCRealization mc_real = mc.sample_predictions(this->cache.p_specs);
+        chi2_progress.step(
+            1,
+            "Monte-Carlo sampling completed; building the MC covariance matrix."
+        );
+
         const std::vector<BinnedObservableId> cov_ids =
             binned_ids_from_experiment_obs(obs_ids);
 
@@ -628,6 +733,10 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             cov_ids,
             this->config.advanced.chi2_covariance_ridge_rel,
             this->config.advanced.chi2_covariance_ridge_abs
+        );
+        chi2_progress.step(
+            2,
+            "MC covariance ready; collecting experimental uncertainties."
         );
 
         std::map<ExperimentObs, double> exp_obs_sigmas;
@@ -667,9 +776,13 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             this->config.advanced.chi2_covariance_ridge_rel,
             this->config.advanced.chi2_covariance_ridge_abs
         );
+        chi2_progress.step(
+            3,
+            "Total covariance ready; preparing the chi-square likelihood."
+        );
 
         if (config.print_fit_summary || config.print_debug) {
-            std::cout << "[FIT] CHI2 covariance backend uses covariance_total = covariance_MC + covariance_exp.\n";
+            std::cout << "[FIT] Covariance model: total = MC theory covariance + experimental covariance.\n";
         }
 
         auto ctx = std::make_shared<LikelihoodContext>();
@@ -726,9 +839,15 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             covariance_total_inv
         );
 
+        chi2_progress.step(
+            4,
+            "Likelihood ready; running the maximum-likelihood fit. ETA is not reliable for this backend-dependent step."
+        );
+
         MLFitOptions fitopt = make_mlfit_options_from_config(config);
         last_fitter_ = std::make_shared<MLFitter>(last_like_, fitopt);
         last_fit_raw_ = last_fitter_->maximum_likelihood_fit(p0);
+        chi2_progress.finish("Chi-square workflow completed.");
 
         last_fit_param_ids_ = p_ids;
         last_nuisance_ids_.clear();
@@ -1073,6 +1192,18 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 
     std::unordered_set<ParamId> eta_infos_leaf = this->sp->get_all_leaf_sources(eta_infos);
 
+    if (config.print_mc_config || config.print_debug) {
+        std::vector<ParamId> candidate_ids(eta_infos_leaf.begin(), eta_infos_leaf.end());
+        std::sort(candidate_ids.begin(), candidate_ids.end(), [](const ParamId& a, const ParamId& b) {
+            return param_name(a) < param_name(b);
+        });
+        print_nuisance_candidate_table(
+            "Potential nuisance candidates before pruning",
+            candidate_ids,
+            pspp
+        );
+    }
+
     std::map<ParamId, double> eta_specs_real_leaf;
     std::map<ParamId, double> delta_rel;
 
@@ -1114,13 +1245,17 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 
     for (const auto& [pid, d] : delta_rel) {
         const double rel_to_max = std::isfinite(d) ? (d / delta_rel_max) : 1.0;
-    }
-
-    for (const auto& [pid, d] : delta_rel) {
-        const double rel_to_max = std::isfinite(d) ? (d / delta_rel_max) : 1.0;
         if (rel_to_max > config.advanced.nuisance_relevance_cutoff || !std::isfinite(d)) {
             eta_specs_real_leaf[pid] = pspp->get_param(pid)->get_val();
         }
+    }
+
+    if (config.print_mc_config || config.print_debug) {
+        print_nuisance_value_table(
+            "Nuisances after relative-uncertainty preselection",
+            eta_specs_real_leaf,
+            pspp
+        );
     }
 
     if (config.advanced.nuisance_sensitivity_pruning &&
@@ -1340,10 +1475,19 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         eta_specs_real_leaf = std::move(screened_eta_specs);
     }
 
+    if (config.print_mc_config || config.print_debug) {
+        print_nuisance_value_table(
+            "Final retained nuisances passed to MC/fit",
+            eta_specs_real_leaf,
+            pspp
+        );
+    }
+
     if (config.print_fit_summary || config.print_debug) {
-        LOG_INFO("Significant nuisances");
+        std::cout << "[FIT] Significant nuisances retained: "
+                  << eta_specs_real_leaf.size() << "\n";
         for (const auto& [pid, val] : eta_specs_real_leaf) {
-            LOG_INFO(pid, val);
+            std::cout << "[FIT]   " << pid << " = " << compact_double(val) << "\n";
         }
     }
 

@@ -112,8 +112,9 @@ struct StatisticConfig {
     std::size_t MC_draws = 100;                 ///< Number of accepted MC draws used for uncertainty propagation.
     double skew_abs_threshold = 0.2;            ///< Absolute skewness threshold below which a summary is treated as symmetric.
 
-    bool print_mc_progress = true;             ///< Print MC progress with ETA based on measured draw time.
-    bool print_mc_config = false;               ///< Print selected marginal/covariance debug configuration.
+    bool print_mc_progress = true;              ///< Print MC progress with ETA based on measured draw time.
+    bool print_chi2_pipeline_progress = false;  ///< Print chi-square workflow stages after/beside the MC progress bar.
+    bool print_mc_config = false;               ///< Print nuisance candidates and retained MC marginal configuration.
     bool print_fit_summary = false;             ///< Print high-level fit backend summaries.
     bool print_scan_summary = false;            ///< Print likelihood-scan summaries.
     bool print_cache_summary = false;           ///< Print internal cache diagnostics.

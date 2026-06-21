@@ -2285,18 +2285,16 @@
       "syst_error": 0
     }
   },
-  "B_SCALE": {
+  "SCALE_NUIS": {
     "1": {
-      "central_value": 4.78750,
-      "stat_error": 0,
-      "syst_error": 0
-    }
-  },
-  "EW_SCALE": {
-    "1": {
-      "central_value": 80.3692,
-      "stat_error": 0,
-      "syst_error": 0
+      "central_value": 0.0,
+      "stat_error": 0.5773502691896258,
+      "syst_error": 0.0
+    },
+    "2": {
+      "central_value": 0.0,
+      "stat_error": 0.5773502691896258,
+      "syst_error": 0.0
     }
   },
   "D_SCALE": {

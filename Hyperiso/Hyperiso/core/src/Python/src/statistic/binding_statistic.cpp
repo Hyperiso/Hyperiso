@@ -631,6 +631,7 @@ and output options.  Expert knobs live under ``advanced``.
         .def_readwrite("MC_draws", &StatisticConfig::MC_draws)
         .def_readwrite("skew_abs_threshold", &StatisticConfig::skew_abs_threshold)
         .def_readwrite("print_mc_progress", &StatisticConfig::print_mc_progress)
+        .def_readwrite("print_chi2_pipeline_progress", &StatisticConfig::print_chi2_pipeline_progress)
         .def_readwrite("print_mc_config", &StatisticConfig::print_mc_config)
         .def_readwrite("print_fit_summary", &StatisticConfig::print_fit_summary)
         .def_readwrite("print_scan_summary", &StatisticConfig::print_scan_summary)
