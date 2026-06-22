@@ -1,5 +1,39 @@
 #include "GroupDefinition.h"
 
+#include <algorithm>
+
+
+std::vector<GroupDefinition::SetupHook> GroupDefinition::hooks_for(Model model) const {
+    std::vector<SetupHook> hooks = common_setup;
+
+    auto append_unique = [&hooks](const std::vector<SetupHook>& src) {
+        for (const auto& hook : src) {
+            const auto* target = hook.target<void(*)(const BuildContext&, CoefficientGroup&)>();
+            const bool already_present = target && std::any_of(
+                hooks.begin(), hooks.end(),
+                [target](const SetupHook& existing) {
+                    const auto* existing_target = existing.target<void(*)(const BuildContext&, CoefficientGroup&)>();
+                    return existing_target && (*existing_target == *target);
+                });
+            if (!already_present) {
+                hooks.push_back(hook);
+            }
+        }
+    };
+
+    if (model == Model::MARTY) {
+        if (auto it = setup.find(Model::SM); it != setup.end()) {
+            append_unique(it->second);
+        }
+    }
+
+    if (auto it = setup.find(model); it != setup.end()) {
+        append_unique(it->second);
+    }
+
+    return hooks;
+}
+
 namespace {
     static std::unordered_map<WGroupId, GroupDefinition> kCustomDefs;
 }

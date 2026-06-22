@@ -40,7 +40,7 @@
  * - removing composed entities,
  * - optionally removing all composed entities at once.
  *
- * The interface also provides a shared registry @ref composed_blocks used
+ * The interface also provides a per-composer registry @ref composed_blocks used
  * by implementations to track which blocks were created during composition.
  */
 class IBlockComposer {
@@ -87,7 +87,7 @@ public:
     virtual void remove_all_composed_blocks() = 0;
 
     /**
-     * @brief Returns whether a block has already been composed by any composer instance.
+     * @brief Returns whether a block has already been composed by this composer instance.
      *
      * This is intentionally lightweight and is used by setup hooks to stay idempotent
      * when a group is built more than once, e.g. active group + SM intermediate group.
@@ -98,13 +98,13 @@ public:
 
 protected:
     /**
-     * @brief Registry of blocks composed through implementations of IBlockComposer.
+     * @brief Registry of blocks composed through this composer instance.
      *
-     * This shared set allows "bulk cleanup" operations (remove_all_composed_blocks).
-     *
-     * Note: being `static`, this is shared across *all instances* of composer classes.
+     * This instance-local set allows manager-scoped cleanup operations
+     * (remove_all_composed_blocks) without leaking state across independent
+     * WilsonBuilder/CoefficientManager instances or tests.
      */
-    inline static std::unordered_set<std::string> composed_blocks;
+    std::unordered_set<std::string> composed_blocks;
 };
 
 #endif // IBLOCKCOMPOSER_H

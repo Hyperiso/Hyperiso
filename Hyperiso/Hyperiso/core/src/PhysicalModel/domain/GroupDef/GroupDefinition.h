@@ -22,7 +22,7 @@
  * - a group id (@ref WGroupId),
  * - the list of coefficients belonging to the group (@ref members),
  * - per-basis/per-order source specifications (see @ref CoefficientGroupSources),
- * - optional model-specific "setup hooks" executed during group build time (see @ref SetupHook).
+ * - optional common and model-specific "setup hooks" executed during group build time (see @ref SetupHook).
  *
  * It also provides the @ref GroupDefinitions namespace which acts as a registry / factory
  * for built-in group definitions and user-registered custom ones.
@@ -125,7 +125,7 @@ inline constexpr const char* MATCHING_BLOCK_PLACEHOLDER = "$MATCHING_BLOCK$";
  * - @ref id : a unique group identifier
  * - @ref members : the list of coefficient enums in this group
  * - @ref sources : per-basis and per-order description of required blocks and computation functions
- * - @ref setup : optional model-specific setup hooks
+ * - @ref common_setup / @ref setup : optional common and model-specific setup hooks
  *
  * Sources:
  * - `sources[basis][order]` returns a @ref CoefficientGroupSources describing:
@@ -133,8 +133,10 @@ inline constexpr const char* MATCHING_BLOCK_PLACEHOLDER = "$MATCHING_BLOCK$";
  *   - which function computes the running coefficients for that (basis, order).
  *
  * Setup hooks:
- * - Hooks are stored per model:
+ * - Hooks can be model-independent (`common_setup`) or stored per model:
  *   `setup[Model::SM]`, `setup[Model::SUSY]`, etc.
+ * - Marty builds also inherit SM hooks unless the same hook is already registered
+ *   explicitly for Model::MARTY.
  * - Each hook is invoked with a @ref BuildContext and the concrete @ref CoefficientGroup
  *   being built/initialized.
  * - Hooks are typically used to compose auxiliary blocks (e.g. running matrices) needed by
@@ -173,6 +175,14 @@ struct GroupDefinition {
     using SetupHook = std::function<void(const BuildContext&, CoefficientGroup&)>;
 
     /**
+     * @brief Setup hooks to run for every model/backend during group construction.
+     *
+     * Prefer this for auxiliary blocks that are independent of the coefficient
+     * backend, e.g. common running matrices.
+     */
+    std::vector<SetupHook> common_setup;
+
+    /**
      * @brief Model-specific setup hooks to run during group construction.
      *
      * Example:
@@ -181,6 +191,12 @@ struct GroupDefinition {
      * @endcode
      */
     std::unordered_map<Model, std::vector<SetupHook>> setup;
+
+    /**
+     * @brief Returns hooks applicable to @p model, including common hooks and
+     *        the explicit Marty -> SM compatibility fallback.
+     */
+    std::vector<SetupHook> hooks_for(Model model) const;
 };
 
 /**

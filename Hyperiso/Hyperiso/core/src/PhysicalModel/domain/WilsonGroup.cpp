@@ -24,7 +24,8 @@ CoefficientGroup::CoefficientGroup(const CoefficientGroup& other)
     current_order = other.current_order;
     id = other.id;
     member_ids = other.member_ids;
-    block_name = GroupMapper::str(this->id, ScaleType::MATCHING);
+    sources = other.sources;
+    block_name = other.block_name;
 }
 
 CoefficientGroup::CoefficientGroup(std::map<std::string, std::shared_ptr<WilsonCoefficient>>& coeffs, WilsonGroupAdapterConfig adapters) : CoefficientGroup(adapters) {

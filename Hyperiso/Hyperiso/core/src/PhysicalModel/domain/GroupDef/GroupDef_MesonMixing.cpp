@@ -26,10 +26,7 @@ namespace GroupDefinitions {
 
             d.sources.emplace(WilsonBasis::B_STANDARD, std::move(m));
 
-            d.setup[Model::SM].push_back(&Setup_Mixing_RunningMatrices);
-            d.setup[Model::SUSY].push_back(&Setup_Mixing_RunningMatrices);
-            d.setup[Model::THDM].push_back(&Setup_Mixing_RunningMatrices);
-            d.setup[Model::MARTY].push_back(&Setup_Mixing_RunningMatrices);
+            d.common_setup.push_back(&Setup_Mixing_RunningMatrices);
             return d;
         }();
         return def;

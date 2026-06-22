@@ -1,5 +1,6 @@
 #include "WilsonManager.h"
 #include "WilsonBlockNames.h"
+#include "WilsonRunningValidation.h"
 
 
 
@@ -743,10 +744,10 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
     const std::string bsm_run_block_name = hadronic_bsm_intermediate_block_name(groupName, basis);
 
     auto make_partial_running_func =
-        [matching_block_name, ord, funcs, members]
+        [matching_block_name, ord, funcs, members, groupName, basis]
         (ContributionType kept_contrib, const std::string& target_block_name) {
 
-        return [matching_block_name, ord, funcs, kept_contrib, target_block_name, members]
+        return [matching_block_name, ord, funcs, kept_contrib, target_block_name, members, groupName, basis]
                (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
             auto raw = src.raw();
             auto it = raw.find(matching_block_name);
@@ -785,15 +786,24 @@ void CoefficientManager::init_group_hadronic(const std::string& groupName,
 
             std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>> res_one;
 
+            auto run_order = [&](QCDOrder qcd_order) {
+                WilsonRunningValidation::require_running_function(funcs, qcd_order, groupName, basis);
+                WilsonRunningValidation::require_matching_input_complete(matching_one, members, qcd_order, groupName, basis);
+
+                auto result = funcs.at(qcd_order)(matching_one, src);
+                WilsonRunningValidation::require_running_result_known_members(result, members, qcd_order, groupName, basis);
+                res_one[qcd_order] = std::move(result);
+            };
+
             switch (ord) {
                 case QCDOrder::NNLO:
-                    res_one[QCDOrder::NNLO] = funcs.at(QCDOrder::NNLO)(matching_one, src);
+                    run_order(QCDOrder::NNLO);
                     [[fallthrough]];
                 case QCDOrder::NLO:
-                    res_one[QCDOrder::NLO] = funcs.at(QCDOrder::NLO)(matching_one, src);
+                    run_order(QCDOrder::NLO);
                     [[fallthrough]];
                 case QCDOrder::LO:
-                    res_one[QCDOrder::LO] = funcs.at(QCDOrder::LO)(matching_one, src);
+                    run_order(QCDOrder::LO);
                     break;
                 default:
                     break;
@@ -1064,7 +1074,9 @@ void CoefficientManager::printGroupCoefficients(const std::string& groupName) co
 
 CoefficientManager::~CoefficientManager() {
     LOG_TRACE("Call to CoefficientManager destructor");
-    // ports_config.iblock_c->remove_all_composed_blocks();
+    if (ports_config.iblock_c) {
+        ports_config.iblock_c->remove_all_composed_blocks();
+    }
 
 }
 
@@ -1097,7 +1109,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::s
     for (auto& group: groups) {
         LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
+        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
         manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_DEBUG("(CoefficientManager) Manager successfully initialized");
