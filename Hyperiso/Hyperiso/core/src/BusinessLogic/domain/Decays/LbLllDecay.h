@@ -1,5 +1,5 @@
-#ifndef __LBLLLDECAY_H__
-#define __LBLLLDECAY_H__
+#ifndef LBLLLDECAY_H
+#define LBLLLDECAY_H
 
 #include "DecayParent.h"
 #include "General.h"
@@ -79,6 +79,7 @@ public:
     LbLllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) :  DecayParentConfigurable(DecayMapper::to_id(Decays::Lambda_b__Lambda_l_l), matching_scale, hadronic_scale, order, ports), cache(ports.iobspp_sm) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)};
         this->max_order = QCDOrder::NNLO;
+        this->binned = true;
     }
 
     void load_params() override;

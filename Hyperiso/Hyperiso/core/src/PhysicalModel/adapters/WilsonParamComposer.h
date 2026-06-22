@@ -28,7 +28,7 @@
  * Responsibilities:
  * - Compose dependent blocks into the Wilson scope (dest = ParameterType::WILSON).
  * - Compose dependent parameters, ensuring the target ParamId is typed as WILSON.
- * - Track created block names through IBlockComposer::composed_blocks so they can be removed later.
+ * - Track created block names in this composer instance so they can be removed later.
  *
  * Notes on typing behavior:
  * - compose_parameter() ensures the destination pid.type is ParameterType::WILSON.
@@ -46,7 +46,7 @@ public:
      * CompositeParamAdapter().add_block_dependency(..., ParameterType::WILSON, ...);
      * @endcode
      *
-     * Also records @p block_name into IBlockComposer::composed_blocks.
+     * Also records @p block_name into the instance-local composed-block registry.
      */
     void compose_block(const std::string& block_name, const std::unordered_map<ParameterType, std::vector<std::string>>& source_names, const DepUpdateFunc& update_func) override;
 
@@ -58,7 +58,7 @@ public:
      *   - missing type => assumed WILSON
      *   - specified type => preserved
      *
-     * Also records the destination block name into IBlockComposer::composed_blocks.
+     * Also records the destination block name into the instance-local composed-block registry.
      */
     void compose_parameter(const ParamId&, const std::unordered_set<ParamId>&, const DepParamUpdateFunc&) override;
 
@@ -75,7 +75,7 @@ public:
     /**
      * @brief Removes all dependent blocks composed via this composer.
      *
-     * Iterates over IBlockComposer::composed_blocks and removes each block from
+     * Iterates over the instance-local composed-block registry and removes each block from
      * the Wilson scope, then clears the registry.
      */
     void remove_all_composed_blocks() override;

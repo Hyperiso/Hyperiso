@@ -8,167 +8,80 @@
 
 /**
  * @file ObsWilsonHelper.h
- * @brief High-level helper to manage Wilson group lifecycle for observable computations.
+ * @brief Per-manager helper that manages the Wilson group lifecycle for observable computations.
  *
- * @details
- * ObsWilsonHelper is a *stateful orchestration utility* that sits at the boundary
- * between the observable layer and the Wilson infrastructure.
- *
- * Its purpose is to:
- *  - decide which Wilson coefficient groups need to be (re)built,
- *  - avoid rebuilding groups that are already available,
- *  - freeze Wilson blocks that are no longer needed,
- *  - unfreeze previously frozen groups when they are requested again.
- *
- * This logic is essential for observable-driven workflows, where different
- * observables may require different subsets of Wilson coefficient groups,
- * possibly in multiple successive calls.
- *
- * ---
- * ## Conceptual role
- *
- * The helper maintains a **global static state** tracking, for each Wilson group:
- *  - whether it has already been built,
- *  - whether it is currently frozen.
- *
- * When a new observable requests a set of Wilson groups:
- *
- *  1. Groups that are *not requested anymore* are frozen (to avoid recomputation).
- *  2. Groups that are *newly requested* are scheduled for construction.
- *  3. Groups that were frozen but are requested again are unfrozen.
- *
- * Only the minimal required set of Wilson groups is passed to the builder.
- *
- * ---
- * ## Interaction with other components
- *
- * ObsWilsonHelper coordinates three key actors:
- *
- *  - @ref IObsWilsonBuilder  
- *    Responsible for actually building Wilson coefficient groups.
- *
- *  - @ref IWilsonFreezer  
- *    Responsible for freezing/unfreezing Wilson parameter blocks
- *    at both matching and hadronic scales.
- *
- *  - @ref WilsonBuildConfig  
- *    Describes which Wilson groups are required, at which scales and QCD order.
- *
- * ObsWilsonHelper itself does **not** compute Wilson coefficients;
- * it only manages *when* and *whether* they are built or frozen.
- *
- * ---
- * ## Typical usage
- *
- * @code
- * std::shared_ptr<IObsWilsonBuilder> wil_builder = ...;
- * std::shared_ptr<IWilsonFreezer<WGroupId>> freezer = ...;
- *
- * WilsonBuildConfig cfg;
- * cfg.groups = { GroupMapper::to_id(WGroup::B),
- *                GroupMapper::to_id(WGroup::MESON_MIXING) };
- *
- * ObsWilsonHelper::build(cfg, wil_builder, freezer);
- * @endcode
- *
- * Subsequent calls with different group sets will automatically freeze,
- * unfreeze, or rebuild only what is necessary.
- *
- * ---
- * ## State handling
- *
- * The internal state is stored in a static map:
- *
- * @code
- * static std::unordered_map<WGroupId, bool> state;
- * @endcode
- *
- * where:
- *  - `false` → group is active (built and unfrozen),
- *  - `true`  → group is currently frozen.
- *
- * The optional constructor `ObsWilsonHelper(bool reset)` can be used to
- * explicitly reset this state if needed (e.g. for testing or full reinitialization).
- *
- * ---
- * ## Design notes
- *
- * - This class is intentionally *stateless from the user point of view*,
- *   but *stateful internally*.
- * - It avoids expensive recomputation of Wilson coefficients.
- * - It ensures consistency between the observable layer and the Wilson backend.
- *
- * @see IObsWilsonBuilder
- * @see IWilsonFreezer
- * @see WilsonBuildConfig
- * @see ObsWilsonProxy
+ * The helper decides which Wilson coefficient groups need to be built, which
+ * previously active groups should be frozen, and which frozen groups should be
+ * unfrozen. Its state is intentionally instance-local: two observable managers
+ * with different Wilson builders, scales, or perturbative orders must not share
+ * a global cache keyed only by WGroupId.
  */
 class ObsWilsonHelper {
 public:
-    /**
-     * @brief Build (or update) Wilson groups required by observables.
-     *
-     * This method:
-     *  - determines which groups must be newly built,
-     *  - freezes groups no longer needed,
-     *  - unfreezes groups that are requested again,
-     *  - delegates the actual construction to the Wilson builder.
-     *
-     * If no new group needs to be built, the function returns immediately.
-     *
-     * @param config         Wilson build configuration (groups, scales, order).
-     * @param wil_builder    Observable-level Wilson builder.
-     * @param iobs_wfreezer  Freezer used to freeze/unfreeze Wilson blocks.
-     */
-    static void build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
-
-    /**
-     * @brief Mark a Wilson group as already available in the observable-side cache.
-     *
-     * Runtime custom Wilson groups are installed through @ref IObsWilsonBuilder::add_custom_group
-     * instead of the usual static group builder. Once installed, this method lets
-     * the helper know that the group should not be rebuilt via @ref build().
-     *
-     * @param group Dynamic Wilson group id.
-     * @param frozen Whether the group should initially be considered frozen.
-     */
-    static void mark_built(WGroupId group, bool frozen=false);
-
-    /**
-     * @brief Constructor optionally resetting the internal Wilson group state.
-     *
-     * @param reset If true, clears the internal group state.
-     */
-    ObsWilsonHelper(bool reset) {reset ? state = {} : state;}
-
-    /// Default constructor (does not reset state).
     ObsWilsonHelper() = default;
+
+    /**
+     * @brief Compatibility constructor used by a few apps/tests to request a reset.
+     *
+     * Since the helper is no longer backed by static global state, resetting only
+     * clears this instance.
+     */
+    explicit ObsWilsonHelper(bool reset) { if (reset) clear(); }
+
+    /** @brief Clear the per-helper build/freeze state. */
+    void clear();
+
+    /**
+     * @brief Build or update Wilson groups required by observables.
+     *
+     * A group is rebuilt when it has never been built by this helper, or when it
+     * was previously built with a different matching scale, hadronic scale, or
+     * QCD order. This prevents cross-contamination between configurations.
+     */
+    void build(WilsonBuildConfig config,
+               std::shared_ptr<IObsWilsonBuilder>& wil_builder,
+               std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
+
+    /**
+     * @brief Mark a Wilson group as already available in this helper state.
+     *
+     * Runtime custom Wilson groups are installed through IObsWilsonBuilder and
+     * then marked here so DecayParent::enable() does not try to rebuild them via
+     * the static Wilson group definitions.
+     */
+    void mark_built(WGroupId group, const WilsonBuildConfig& config, bool frozen=false);
+
+    /** @brief Mark a group using a minimal single-group build signature. */
+    void mark_built(WGroupId group,
+                    double matching_scale,
+                    double hadronic_scale,
+                    QCDOrder order,
+                    bool frozen=false);
+
 private:
-    /**
-     * @brief Returns the union of already known groups and newly requested ones.
-     *
-     * @param needed Groups required by the current observable.
-     * @return Union of previous and current group sets.
-     */
-    static std::unordered_set<WGroupId> get_all_groups(const std::unordered_set<WGroupId>& needed);
+    struct BuildSignature {
+        double matching_scale {};
+        double hadronic_scale {};
+        QCDOrder order {QCDOrder::NONE};
 
-    /**
-     * @brief Updates the internal state and determines which groups must be built.
-     *
-     * Groups are:
-     *  - frozen if no longer needed,
-     *  - scheduled for build if newly requested,
-     *  - unfrozen if previously frozen but needed again.
-     *
-     * @param needed        Groups required by the current observable.
-     * @param iobs_wfreezer Wilson freezer.
-     * @return Set of groups that must be newly built.
-     */
+        bool matches(const WilsonBuildConfig& config) const {
+            return matching_scale == config.matching_scale &&
+                   hadronic_scale == config.hadronic_scale &&
+                   order == config.order;
+        }
+    };
 
-    static std::unordered_set<WGroupId> update_state(const std::unordered_set<WGroupId>& needed, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
+    struct GroupState {
+        bool frozen {false};
+        BuildSignature signature {};
+    };
 
-    /// Internal static state tracking frozen/active Wilson groups.
-    static inline std::unordered_map<WGroupId, bool> state;
+    std::unordered_set<WGroupId> get_all_groups(const std::unordered_set<WGroupId>& needed) const;
+    std::unordered_set<WGroupId> update_state(const WilsonBuildConfig& config,
+                                              std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer);
+    static BuildSignature make_signature(const WilsonBuildConfig& config);
+
+    std::unordered_map<WGroupId, GroupState> state;
 };
 
 #endif // OBSWILSONHELPER_H

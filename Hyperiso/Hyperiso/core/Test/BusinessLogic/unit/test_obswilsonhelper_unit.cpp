@@ -60,7 +60,7 @@ static WilsonBuildConfig make_cfg(std::initializer_list<WGroupId> groups) {
 int main() {
     std::cout << "== ObsWilsonHelper UNIT ==\n";
 
-    ObsWilsonHelper(true);
+    ObsWilsonHelper helper;
 
     auto builder_spy = std::make_shared<SpyObsWilsonBuilder>();
     std::shared_ptr<IObsWilsonBuilder> builder = builder_spy;
@@ -76,7 +76,7 @@ int main() {
         freezer_spy->clear();
         auto cfg = make_cfg({g1, g2});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(builder_spy->last_groups == set_from({g1, g2}));
@@ -88,7 +88,7 @@ int main() {
         freezer_spy->clear();
         auto cfg = make_cfg({g1, g2});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(freezer_spy->froze.empty());
@@ -99,7 +99,7 @@ int main() {
         freezer_spy->clear();
         auto cfg = make_cfg({g1});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(set_from(freezer_spy->froze) == set_from({g2}));
@@ -110,7 +110,7 @@ int main() {
         freezer_spy->clear();
         auto cfg = make_cfg({g1, g2});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(freezer_spy->froze.empty());
@@ -121,7 +121,7 @@ int main() {
         freezer_spy->clear();
         auto cfg = make_cfg({g3});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 2);
         assert(builder_spy->last_groups == set_from({g3}));
@@ -130,11 +130,11 @@ int main() {
     }
 
     {
-        ObsWilsonHelper(true);
+        helper.clear();
         freezer_spy->clear();
         auto cfg = make_cfg({g1});
 
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 3);
         assert(builder_spy->last_groups == set_from({g1}));

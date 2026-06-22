@@ -4,6 +4,7 @@
 #include <memory>
 #include <map>
 #include <unordered_set>
+#include <optional>
 
 #include "ParamID.h"
 #include "Observable.h"
@@ -142,6 +143,16 @@ public:
      * @return A copy of the manager (builder-like chaining). Note: this returns by value.
      */
     ObsManager add_obs(BinnedObservableId id, QCDOrder order, bool add_deps=false);
+
+    /**
+     * @brief Return whether the decay stores and requires q² bins.
+     */
+    bool is_decay_binned(Decays decay) const;
+
+    /**
+     * @brief Return whether the decay stores and requires q² bins.
+     */
+    bool is_decay_binned(DecayId decay) const;
 
     /**
      * @brief Remove an observable (internal ObservableId) from the manager.
@@ -340,8 +351,7 @@ public:
      *
      * This is a convenience method to (re)initialize decays for all currently registered observables.
      *
-     * Note: current implementation may enable the same decay multiple times if several observables
-     * map to the same decay (a TODO exists to avoid double enabling).
+     * Each decay is enabled at most once, even when several observables map to it.
      */
     void enable_obs();
 
@@ -424,8 +434,9 @@ private:
     /// Ports used by all decays/observables built by this manager.
     ObservablePortsConfig obs_port_conf;
 
-    //TODO : change this
-    // std::optional<DecayId> active_decay;
+    /// Currently selected single decay, if the manager is in single-active-decay mode.
+    /// A null value means no decay is active yet, or enable_obs() deliberately enabled several decays.
+    std::optional<DecayId> active_decay;
 };
 
 #endif // OBSERVABLEMANAGER_H

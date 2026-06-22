@@ -110,11 +110,17 @@ protected:
     /// Freezer to freeze/unfreeze Wilson blocks when they are not needed by active decays.
     std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer;
 
+    /// Per-manager Wilson lifecycle helper.
+    std::shared_ptr<ObsWilsonHelper> w_helper;
+
     /// Wilson build configuration used when enabling this decay (scales, order, groups).
     WilsonBuildConfig w_config {};
 
     /// Whether the decay is enabled (i.e. Wilson groups built and parameters loaded).
     bool enabled {false};
+
+    /// Whether this decay requires q² bins before its observables can be computed.
+    bool binned {false};
 
     /// Unique decay identifier.
     DecayId id;
@@ -187,8 +193,10 @@ public:
      * @brief Set the QCD order for this decay (one-shot policy).
      *
      * - If MARTY is enabled and @p new_order > LO, it is downgraded to LO.
-     * - If the order was never set (w_config.order == NONE), it is set (and clamped).
-     * - Otherwise, a warning is emitted and the order is NOT changed.
+     * - The requested order is clamped to the maximum supported by the decay.
+     * - Changing the order invalidates cached parameters and disables the decay;
+     *   the next enable() call rebuilds Wilson groups if the helper detects that
+     *   the build signature changed.
      *
      * @param new_order Requested order.
      */
@@ -278,6 +286,14 @@ public:
      * Wilson proxy yet and must not be asked to reload their parameters.
      */
     bool is_enabled() const { return enabled; }
+
+    /**
+     * @brief Return whether this decay expects q² bins for its observable API.
+     *
+     * Binned decays store bins at decay level. They should be added through
+     * add_obs(BinnedObservableId) or through add_observables(decay, ..., bin).
+     */
+    bool is_binned() const { return binned; }
 };
 
 /**

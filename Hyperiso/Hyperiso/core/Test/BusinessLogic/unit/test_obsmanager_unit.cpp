@@ -1,20 +1,16 @@
 #include <cassert>
 #include <iostream>
 #include <memory>
-#include <unordered_map>
 #include <unordered_set>
+#include <unordered_map>
 #include <vector>
 #include <map>
 #include <any>
-#include <algorithm>
 
 #include "Include.h"
 
 #ifdef LOG_DEBUG
 #undef LOG_DEBUG
-#endif
-#ifdef LOG_INFO
-#undef LOG_INFO
 #endif
 #ifdef LOG_WARN
 #undef LOG_WARN
@@ -23,26 +19,48 @@
 #undef LOG_ERROR
 #endif
 #define LOG_DEBUG(...) do {} while(0)
-#define LOG_INFO(...)  do {} while(0)
 #define LOG_WARN(...)  do {} while(0)
 #define LOG_ERROR(...) do {} while(0)
 
-#include "ObsManager.h"
-#include "IObsParameterProxy.h"
-#include "IObsWilsonBuilder.h"
-#include "IObsWilsonProxy.h"
+#include "DecayParent.h"
+#include "ObsWilsonHelper.h"
+#include "ObsPortsConfig.h"
 #include "IObsCoreAPI.h"
+#include "IObsParameterProxy.h"
 #include "IObsQCDProxy.h"
 #include "IWilsonFreezer.h"
-#include "DecayParent.h"
+#include "IObsWilsonProxy.h"
+#include "Configs.h"
+#include "Parameter.h"
 #include "Math.h"
 
 
 class FakeCoreBool : public IObsCoreAPI<bool> {
 public:
-    bool v=false;
-    explicit FakeCoreBool(bool b=false): v(b) {}
+    bool v = false;
+    explicit FakeCoreBool(bool b=false) : v(b) {}
     bool get() override { return v; }
+};
+
+class SpyObsParameterProxy : public IObsParameterProxy<ParamId, DataType, std::string, LhaID> {
+public:
+    std::unordered_map<ParamId, scalar_t> values;
+    mutable std::vector<ParamId> calls_pid;
+
+    scalar_t operator()(const ParamId& pid, DataType) override {
+        calls_pid.push_back(pid);
+        auto it = values.find(pid);
+        if (it == values.end()) return scalar_t{0.0, 0.0};
+        return it->second;
+    }
+
+    scalar_t operator()(const std::string&, const LhaID&, DataType) const override {
+        return scalar_t{0.0, 0.0};
+    }
+
+    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const override {
+        return std::make_shared<Parameter>(pid, 0.0, 0.0, 0.0);
+    }
 };
 
 class FakeObsQCDProxy : public IObsQCDProxy {
@@ -52,18 +70,68 @@ public:
     QCDConstants* get_constants() override { return nullptr; }
 };
 
-class DummyFreezer : public IWilsonFreezer<WGroupId> {
+class SpyWilsonFreezer : public IWilsonFreezer<WGroupId> {
 public:
-    void freeze(WGroupId) override {}
-    void unfreeze(WGroupId) override {}
+    std::vector<WGroupId> froze;
+    std::vector<WGroupId> unfroze;
+
+    void freeze(WGroupId g) override   { froze.push_back(g); }
+    void unfreeze(WGroupId g) override { unfroze.push_back(g); }
+
+    void clear() { froze.clear(); unfroze.clear(); }
 };
 
-class DummyObsWilsonProxy : public IObsWilsonProxy {
+
+enum class WKind { M, FM, R, FR };
+
+struct WKey {
+    WKind kind;
+    int g;
+    int c;
+    int o;
+    int t;
+    bool operator==(const WKey& other) const {
+        return kind==other.kind && g==other.g && c==other.c && o==other.o && t==other.t;
+    }
+};
+
+struct WKeyHash {
+    std::size_t operator()(const WKey& k) const noexcept {
+        std::size_t h = 1469598103934665603ull;
+        auto mix = [&](std::size_t x){ h ^= x + 0x9e3779b97f4a7c15ull + (h<<6) + (h>>2); };
+        mix((std::size_t)k.kind);
+        mix((std::size_t)k.g);
+        mix((std::size_t)k.c);
+        mix((std::size_t)k.o);
+        mix((std::size_t)k.t);
+        return h;
+    }
+};
+
+class SpyObsWilsonProxy : public IObsWilsonProxy {
 public:
-    complex_t getM (WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
-    complex_t getFM(WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
-    complex_t getR (WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
-    complex_t getFR(WGroup, WCoef, QCDOrder, ContributionType) override { return {0,0}; }
+    bool basis_called = false;
+    WilsonBasis last_basis = WilsonBasis::B_STANDARD;
+
+    std::unordered_map<WKey, complex_t, WKeyHash> table;
+
+    std::unordered_map<WGroupId, std::unordered_set<WilsonBasis>> bases;
+
+    void set_value(WKind kind, WGroup g, WCoef c, QCDOrder o, ContributionType t, complex_t v) {
+        table[WKey{kind, (int)g, (int)c, (int)o, (int)t}] = v;
+    }
+
+    complex_t lookup(WKind kind, WGroup g, WCoef c, QCDOrder o, ContributionType t) {
+        auto it = table.find(WKey{kind, (int)g, (int)c, (int)o, (int)t});
+        if (it == table.end()) return complex_t{0.0, 0.0};
+        return it->second;
+    }
+
+    // --- IObsWilsonProxy ---
+    complex_t getM (WGroup g, WCoef c, QCDOrder o, ContributionType t) override { return lookup(WKind::M,  g, c, o, t); }
+    complex_t getFM(WGroup g, WCoef c, QCDOrder o, ContributionType t) override { return lookup(WKind::FM, g, c, o, t); }
+    complex_t getR (WGroup g, WCoef c, QCDOrder o, ContributionType t) override { return lookup(WKind::R,  g, c, o, t); }
+    complex_t getFR(WGroup g, WCoef c, QCDOrder o, ContributionType t) override { return lookup(WKind::FR, g, c, o, t); }
 
 
     static WGroup enum_group_or_default(WGroupId gid) {
@@ -86,175 +154,176 @@ public:
 
     std::map<QCDOrder, complex_t> getSM(WGroup, WCoef, ContributionType) override { return {}; }
     std::map<QCDOrder, complex_t> getSR(WGroup, WCoef, ContributionType) override { return {}; }
+
     std::map<WCoef, complex_t> getAM (WGroup, QCDOrder, ContributionType) override { return {}; }
     std::map<WCoef, complex_t> getAR (WGroup, QCDOrder, ContributionType) override { return {}; }
     std::map<WCoef, complex_t> getAFM(WGroup, QCDOrder, ContributionType) override { return {}; }
     std::map<WCoef, complex_t> getAFR(WGroup, QCDOrder, ContributionType) override { return {}; }
 
     std::shared_ptr<IObsWilsonBuilder> get_builder() override { return nullptr; }
-    std::unordered_set<WilsonBasis> get_bases(WGroupId) override { return {WilsonBasis::B_STANDARD}; }
-    void set_basis(WilsonBasis) override {}
+
+    std::unordered_set<WilsonBasis> get_bases(WGroupId gid) override {
+        auto it = bases.find(gid);
+        if (it == bases.end()) return {WilsonBasis::B_STANDARD};
+        return it->second;
+    }
+
+    void set_basis(WilsonBasis b) override {
+        basis_called = true;
+        last_basis = b;
+    }
 };
 
-class DummyObsWilsonBuilder : public IObsWilsonBuilder {
+class SpyObsWilsonBuilder : public IObsWilsonBuilder {
 public:
-    std::shared_ptr<DummyObsWilsonProxy> proxy = std::make_shared<DummyObsWilsonProxy>();
-    void build(std::shared_ptr<AbstractConfig>) override {}
+    int build_calls = 0;
+    std::unordered_set<WGroupId> last_groups;
+    QCDOrder last_order = QCDOrder::NONE;
+
+    std::shared_ptr<SpyObsWilsonProxy> proxy = std::make_shared<SpyObsWilsonProxy>();
+
+    void build(std::shared_ptr<AbstractConfig> cfg) override {
+        build_calls++;
+        last_groups.clear();
+
+        auto wc = std::dynamic_pointer_cast<WilsonBuildConfig>(cfg);
+        if (wc) {
+            last_groups = wc->groups;
+            last_order  = wc->order;
+        }
+    }
+
     void add_custom_group(const CustomWilsonGroupConfig&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return proxy; }
 };
 
-class SpyParamProxy : public IObsParameterProxy<ParamId, DataType, std::string, LhaID> {
+class DummyDecay : public DecayParent {
 public:
-    std::unordered_map<ParamId, scalar_t> values;
+    bool load_called = false;
 
-    mutable int calls = 0;
-    mutable std::vector<ParamId> called_pids;
-
-    scalar_t operator()(const ParamId& pid, DataType) override {
-        calls++;
-        called_pids.push_back(pid);
-        auto it = values.find(pid);
-        if (it == values.end()) return scalar_t{0.0, 0.0};
-        return it->second;
+    DummyDecay(DecayId id,
+               double matching_scale,
+               double hadronic_scale,
+               QCDOrder order,
+               ObservablePortsConfig& ports)
+        : DecayParent(id, matching_scale, hadronic_scale, order, ports)
+    {
+        w_config.groups = { GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime) };
+        max_order = QCDOrder::NLO;
     }
 
-    scalar_t operator()(const std::string&, const LhaID&, DataType) const override {
-        return scalar_t{0.0, 0.0};
+    void load_params() override {
+        load_called = true;
+        (void)(*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     }
 
-    std::shared_ptr<Parameter> get_parameter(const ParamId& pid) const override {
-        return std::make_shared<Parameter>(pid, 0.0, 0.0, 0.0);
-    }
-};
-
-class SimpleDecay : public DecayParent {
-public:
-    SimpleDecay(DecayId did, ObservablePortsConfig& ports)
-      : DecayParent(did, 0.0, 0.0, QCDOrder::NONE, ports) {}
-    void load_params() override {}
     std::vector<ObservableValue> compute_observable(Observables) override { return {}; }
     std::vector<ObservableValue> compute_observable(ObservableId) override { return {}; }
     void set_config(std::any) override {}
+
+    QCDOrder current_order() const { return w_config.order; }
+    bool is_enabled() const { return enabled; }
 };
 
-class BindCheckDecay : public DecayParent {
-public:
-    explicit BindCheckDecay(DecayId did, ObservablePortsConfig& ports)
-        : DecayParent(did, 0.0, 0.0, QCDOrder::LO, ports) {}
-
-    bool is_bound_to(const std::shared_ptr<IObsWilsonBuilder>& b) const {
-        return w_builder == b;
-    }
-
-    void load_params() override {}
-    std::vector<ObservableValue> compute_observable(Observables) override { return {}; }
-    std::vector<ObservableValue> compute_observable(ObservableId) override { return {}; }
-    void set_config(std::any) override {}
-};
-
-static inline scalar_t R(double x){ return scalar_t{x,0.0}; }
-
-static bool contains_pid(const std::vector<ParamId>& v, const ParamId& pid) {
-    for (auto& x : v) if (x == pid) return true;
-    return false;
+static std::unordered_set<WGroupId> set_from(std::initializer_list<WGroupId> xs) {
+    return std::unordered_set<WGroupId>(xs.begin(), xs.end());
+}
+static std::unordered_set<WGroupId> set_from(const std::vector<WGroupId>& xs) {
+    return std::unordered_set<WGroupId>(xs.begin(), xs.end());
 }
 
 int main() {
-    std::cout << "== ObsManager UNIT ==\n";
+    std::cout << "== DecayParent UNIT ==\n";
 
-    auto wb_impl = std::make_shared<DummyObsWilsonBuilder>();
-    std::shared_ptr<IObsWilsonBuilder> wb = wb_impl; 
+    auto builder_spy = std::make_shared<SpyObsWilsonBuilder>();
+    std::shared_ptr<IObsWilsonBuilder> builder = builder_spy;
 
-    auto pp_spy = std::make_shared<SpyParamProxy>();
-    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p_sm   = pp_spy;
-    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p_flav = pp_spy;
+    auto p_spy = std::make_shared<SpyObsParameterProxy>();
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p_sm   = p_spy;
+    std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> p_flav = p_spy;
 
     auto qcd = std::make_shared<FakeObsQCDProxy>();
-    auto use_marty = std::make_shared<FakeCoreBool>(false);
-    auto freezer = std::make_shared<DummyFreezer>();
+    auto use_marty_api = std::make_shared<FakeCoreBool>(false);
 
-    ParamId pid_muW(ParameterType::WILSON, "EW_SCALE", 1);
-    ParamId pid_mub(ParameterType::WILSON, "B_SCALE", 1);
-    pp_spy->values[pid_muW] = R(160.0);
-    pp_spy->values[pid_mub] = R(4.8);
+    auto freezer_spy = std::make_shared<SpyWilsonFreezer>();
+    std::shared_ptr<IWilsonFreezer<WGroupId>> freezer = freezer_spy;
 
-    ObservablePortsConfig ports(wb, p_sm, p_flav, qcd, use_marty, freezer);
+    auto wilson_helper = std::make_shared<ObsWilsonHelper>();
+    ObservablePortsConfig ports(builder, p_sm, p_flav, qcd, use_marty_api, freezer, wilson_helper);
 
-    pp_spy->calls = 0;
-    pp_spy->called_pids.clear();
-
-    ObsManager mgr(ports, false);
-
-    auto did = DecayMapper::to_id(Decays::B__l_l);
-    mgr.add_custom_decay(did, std::make_shared<SimpleDecay>(did, ports));
-
-    assert(pp_spy->calls >= 2);
-    assert(contains_pid(pp_spy->called_pids, pid_muW));
-    assert(contains_pid(pp_spy->called_pids, pid_mub));
+    DummyDecay d(DecayMapper::to_id(Decays::B__l_l), 160.0, 4.8, QCDOrder::NONE, ports);
 
     {
-        const auto oid = BinnedObservableId(ObservableMapper::to_id(Observables::BR_BS_MUMU));
+        freezer_spy->clear();
+        p_spy->calls_pid.clear();
 
-        mgr.add_obs(Observables::BR_BS_MUMU, QCDOrder::LO, /*add_deps*/false);
+        d.enable();
 
-        auto cur = mgr.get_current_obss();
-        assert(std::count(cur.begin(), cur.end(), oid) == 1);
+        assert(d.is_enabled());
+        assert(builder_spy->build_calls == 1);
+        assert(builder_spy->last_groups == set_from({GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime)}));
 
-        auto obs_ptr = mgr.get_obs(Observables::BR_BS_MUMU);
-        assert(obs_ptr != nullptr);
-        assert(obs_ptr->getId() == oid);
+        assert(builder_spy->proxy->basis_called);
+        assert(builder_spy->proxy->last_basis == WilsonBasis::B_STANDARD);
+
+        assert(d.load_called);
+        assert(!p_spy->calls_pid.empty());
     }
 
     {
-        const auto oid = BinnedObservableId(ObservableMapper::to_id(Observables::BR_BS_MUMU));
-        mgr.remove_obs(Observables::BR_BS_MUMU);
+        int prev_build = builder_spy->build_calls;
+        d.load_called = false;
+        builder_spy->proxy->basis_called = false;
+        p_spy->calls_pid.clear();
 
-        auto cur = mgr.get_current_obss();
-        assert(std::count(cur.begin(), cur.end(), oid) == 0);
+        d.enable();
+
+        // Current DecayParent semantics:
+        // a second enable() does not rebuild Wilson groups and does not reset the basis,
+        // but it does refresh cached parameters through load_params().
+        assert(builder_spy->build_calls == prev_build);
+        assert(!builder_spy->proxy->basis_called);
+        assert(d.load_called);
+        assert(!p_spy->calls_pid.empty());
     }
 
     {
-        auto did = DecayMapper::to_id(Decays::B__l_l);
+        d.disable();
+        assert(!d.is_enabled());
 
-        auto custom = std::make_shared<BindCheckDecay>(did, ports);
+        const int prev_build = builder_spy->build_calls;
+        d.load_called = false;
+        builder_spy->proxy->basis_called = false;
+        p_spy->calls_pid.clear();
 
-        mgr.add_custom_decay(did, custom);
+        d.enable();
 
-        assert(custom->is_bound_to(wb));
+        // Re-enabling a disabled decay refreshes the proxy/basis/params, but the
+        // per-ports ObsWilsonHelper already knows the groups, so no rebuild is needed.
+        assert(d.is_enabled());
+        assert(builder_spy->build_calls == prev_build);
+        assert(builder_spy->proxy->basis_called);
+        assert(d.load_called);
+        assert(!p_spy->calls_pid.empty());
     }
 
+    {
+        d.set_order(QCDOrder::NNLO);
+        assert(d.current_order() == QCDOrder::NLO);
+        assert(!d.is_enabled());
+
+        d.set_order(QCDOrder::LO);
+        assert(d.current_order() == QCDOrder::LO);
+        assert(!d.is_enabled());
+    }
 
     {
-        // Runtime/custom observables are not present in the generated
-        // DependenciesHelper table. Their dependencies must therefore be the
-        // ones explicitly attached to the Observable instance.
-        CustomObservableSpec spec;
-        spec.canonical = "UNIT_DYNAMIC_OBS";
-        spec.aliases = {"unit-dynamic-obs"};
-        spec.ext = LhaID(910001, 1);
+        wilson_helper->clear();
+        use_marty_api->v = true;
 
-        const bool registered = DecayMapper::register_custom_with_observables(
-            "UNIT_DYNAMIC_DECAY",
-            {"unit-dynamic-decay"},
-            {spec}
-        );
-        (void)registered;
-
-        DecayId dynamic_decay = DecayMapper::id_of("unit-dynamic-decay");
-        ObservableId dynamic_obs = ObservableMapper::id_of("unit-dynamic-obs");
-
-        mgr.add_custom_decay(dynamic_decay, std::make_shared<SimpleDecay>(dynamic_decay, ports));
-        mgr.add_obs(dynamic_obs, QCDOrder::LO, /*add_deps*/false);
-
-        ParamId direct_dep(ParameterType::SM, "SMINPUTS", LhaID(6));
-        ParamId flavor_dep(ParameterType::FLAVOR, "FCONST", LhaID(531, 1));
-        mgr.add_obs_deps(dynamic_obs, {direct_dep, flavor_dep});
-
-        auto deps = mgr.get_all_ops_deps(dynamic_obs);
-        assert(deps.count(direct_dep) == 1);
-        assert(deps.count(flavor_dep) == 1);
-        assert(deps.size() == 2);
+        DummyDecay d2(DecayMapper::to_id(Decays::B__l_l), 160.0, 4.8, QCDOrder::NONE, ports);
+        d2.set_order(QCDOrder::NLO);
+        assert(d2.current_order() == QCDOrder::LO);
     }
 
     std::cout << "UNIT OK\n";

@@ -235,8 +235,6 @@ static std::unordered_set<WGroupId> set_from(const std::vector<WGroupId>& xs) {
 int main() {
     std::cout << "== DecayParent UNIT ==\n";
 
-    ObsWilsonHelper(true);
-
     auto builder_spy = std::make_shared<SpyObsWilsonBuilder>();
     std::shared_ptr<IObsWilsonBuilder> builder = builder_spy;
 
@@ -250,7 +248,8 @@ int main() {
     auto freezer_spy = std::make_shared<SpyWilsonFreezer>();
     std::shared_ptr<IWilsonFreezer<WGroupId>> freezer = freezer_spy;
 
-    ObservablePortsConfig ports(builder, p_sm, p_flav, qcd, use_marty_api, freezer);
+    auto wilson_helper = std::make_shared<ObsWilsonHelper>();
+    ObservablePortsConfig ports(builder, p_sm, p_flav, qcd, use_marty_api, freezer, wilson_helper);
 
     DummyDecay d(DecayMapper::to_id(Decays::B__l_l), 160.0, 4.8, QCDOrder::NONE, ports);
 
@@ -279,9 +278,7 @@ int main() {
 
         d.enable();
 
-        // Current DecayParent semantics:
-        // a second enable() does not rebuild Wilson groups and does not reset the basis,
-        // but it does refresh cached parameters through load_params().
+
         assert(builder_spy->build_calls == prev_build);
         assert(!builder_spy->proxy->basis_called);
         assert(d.load_called);
@@ -290,21 +287,34 @@ int main() {
 
     {
         d.disable();
+        assert(!d.is_enabled());
 
-        // Current implementation keeps disable() as a no-op placeholder.
+        const int prev_build = builder_spy->build_calls;
+        d.load_called = false;
+        builder_spy->proxy->basis_called = false;
+        p_spy->calls_pid.clear();
+
+        d.enable();
+
         assert(d.is_enabled());
+        assert(builder_spy->build_calls == prev_build);
+        assert(builder_spy->proxy->basis_called);
+        assert(d.load_called);
+        assert(!p_spy->calls_pid.empty());
     }
 
     {
         d.set_order(QCDOrder::NNLO);
         assert(d.current_order() == QCDOrder::NLO);
+        assert(!d.is_enabled());
 
         d.set_order(QCDOrder::LO);
-        assert(d.current_order() == QCDOrder::NLO);
+        assert(d.current_order() == QCDOrder::LO);
+        assert(!d.is_enabled());
     }
 
     {
-        ObsWilsonHelper(true);
+        wilson_helper->clear();
         use_marty_api->v = true;
 
         DummyDecay d2(DecayMapper::to_id(Decays::B__l_l), 160.0, 4.8, QCDOrder::NONE, ports);
