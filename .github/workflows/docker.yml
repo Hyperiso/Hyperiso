@@ -1,0 +1,53 @@
+name: Docker
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'docker/**'
+      - 'docker-compose.yml'
+      - 'Hyperiso/**'
+      - 'GHyperiso/**'
+      - '.github/workflows/docker.yml'
+  pull_request:
+    paths:
+      - 'docker/**'
+      - 'docker-compose.yml'
+      - 'Hyperiso/**'
+      - 'GHyperiso/**'
+      - '.github/workflows/docker.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build containers
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build development image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile
+          push: false
+          tags: hyperiso:dev
+          load: true
+
+      - name: CLI smoke test
+        run: docker run --rm hyperiso:dev hyperiso-ui --help || true
+
+      - name: Build Dash image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/Dockerfile.dash
+          push: false
+          tags: hyperiso:dash

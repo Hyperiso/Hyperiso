@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use HyperIso in scientific work, please cite the software and the associated paper."
+title: "HyperIso: A general BSM calculator for flavour observables"
+version: "0.1.0"
+date-released: "2026-06-19"
+license: "MIT"
+repository-code: "https://github.com/HyperIso/HyperIso"
+url: "https://inspirehep.net/literature/3138024"
+authors:
+  - family-names: "Reymermier"
+    given-names: "Théo"
+  - family-names: "Fardeau"
+    given-names: "Niels"
+  - family-names: "Mahmoudi"
+    given-names: "Farvah"
+preferred-citation:
+  type: article
+  title: "HyperIso: A general BSM calculator for flavour observables"
+  authors:
+    - family-names: "Reymermier"
+      given-names: "Théo"
+    - family-names: "Fardeau"
+      given-names: "Niels"
+    - family-names: "Mahmoudi"
+      given-names: "Farvah"
+  year: 2026
+  url: "https://inspirehep.net/literature/3138024"

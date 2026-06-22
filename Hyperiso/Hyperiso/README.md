@@ -1,40 +1,117 @@
-# Hyperiso
+# HyperIso core and Python package
 
-## Introduction
-Hyperiso is a modern redesign of the SuperIso software, used in particle physics for flavour observables calculations. Its greatest benefit is the uses of the Marty software, allowing calculations in 
-any BSM models (with BSM masses above 100 GeV). Hyperiso is capable of performing wilson coefficients calculations at matching scale (at Leading Order using Marty, or NNLO for SM, SUSY and THDM), running of these coefficients up TO NNLO, calculation of a lot of flavour observables (mainly from B decays).
+This directory contains the buildable HyperIso package:
 
-## Features
-- Calculation of Wilson coefficients
-- Retrieval of SLHA/FLHA data
-- Marty usages
+- `core/` - C++20 backend, CMake build system, CLI and tests;
+- `pyhyperiso/` - Python package wrapping the C++ backend;
+- `examples_cpp/` - C++ examples built against an installed HyperIso package;
+- `examples_python/` - Python examples using `pyhyperiso`;
+- `pyproject.toml` - Python packaging entry point based on scikit-build-core.
 
-## Installation
+## Build the C++ core
 
-### Prerequisites
-- Operating System: Windows, Linux (not MacOS, go buy a real computer)
-- gcc
-- gsl
+From the repository root:
 
-### Installation Steps (C++)
-1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
-2. Go to the repository: `cd hyperiso`
-3. Run cmake: `mkdir build && cd build && cmake ../Hyperiso/Hyperiso/core` (with options like -DBUILD_WITH_MARTY=ON, -DBUILD_WITH_2HDMC=ON or -DBUILD_WITH_SOFTSUSY=ON)
-3. Compile: `cmake --build .`
-4. Install using `cmake --install build --prefix "$HOME/.local"` (the prefix option is used to avoid permission error)
+```bash
+cmake -S Hyperiso/Hyperiso/core -B build \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_WITH_APP=ON
 
-### Installation Steps (Python)
-1. Clone the repository: `git clone https://github.com/Hyperiso/Hyperiso.git`
-2. Go to the repository: `cd Hyperiso`
-3. Run pip install: `pip install Hyperiso/Hyperiso/Python`
+cmake --build build -j
+cmake --install build --prefix "$HOME/.local"
+```
 
-## Usage
-Depending on the interface, create your main file, link it to the Hyperiso library and do what you want !
+Useful options:
 
-### Examples
-- Example 1: Reading SLHA file
+| Option | Default | Purpose |
+|---|---:|---|
+| `ENABLE_TESTS` | `OFF` | Build CTest tests. |
+| `BUILD_WITH_APP` | `OFF` | Build the `hyperiso-ui` command-line executable. |
+| `BUILD_WITH_PYTHON` | `OFF` | Build the Python extension from the CMake tree. |
+| `BUILD_WITH_MARTY` | `OFF` | Enable MARTY integration. |
+| `BUILD_WITH_2HDMC` | `OFF` | Enable 2HDMC support. |
+| `BUILD_WITH_SOFTSUSY` | `OFF` | Enable SoftSusy support. |
+| `BUILD_WITH_MINUIT2` | `OFF` | Enable Minuit2-related backends. |
+| `ENABLE_CLANG_TIDY` | `OFF` | Run clang-tidy during the build. |
+| `ENABLE_ADRESS_SANITIZER` | `OFF` | Enable AddressSanitizer. |
+| `ENABLE_UNDEFINED_SANITIZER` | `OFF` | Enable UndefinedBehaviorSanitizer. |
 
-## Testing
-Tests can be performed by running the command `ctest` in the build folder. Multiple targets, like `testWilson` and `testDatabase`, are available.
+## Run tests
 
-Feel free to adjust the formatting or provide additional details as needed!
+```bash
+cmake -S Hyperiso/Hyperiso/core -B build \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Debug \
+  -DENABLE_TESTS=ON
+
+cmake --build build -j
+ctest --test-dir build --output-on-failure
+```
+
+Labels can be used to select a subset:
+
+```bash
+ctest --test-dir build -L common --output-on-failure
+ctest --test-dir build -L database --output-on-failure
+ctest --test-dir build -L statistic --output-on-failure
+```
+
+Heavy validation/comparison tests are opt-in:
+
+```bash
+cmake -S Hyperiso/Hyperiso/core -B build-comparison \
+  -DENABLE_TESTS=ON \
+  -DHYPERISO_BUILD_COMPARISON_TESTS=ON
+```
+
+## Install the Python package
+
+```bash
+python -m pip install --upgrade pip build
+python -m pip install ./Hyperiso/Hyperiso
+```
+
+Editable development install:
+
+```bash
+python -m pip install -e ./Hyperiso/Hyperiso
+```
+
+Run Python tests:
+
+```bash
+python -m pip install pytest
+pytest Hyperiso/Hyperiso/pyhyperiso/test
+```
+
+## Build examples against an installed package
+
+```bash
+cmake -S Hyperiso/Hyperiso/examples_cpp -B build-examples \
+  -G Ninja \
+  -DCMAKE_PREFIX_PATH="$HOME/.local"
+
+cmake --build build-examples -j
+```
+
+## Public interfaces
+
+| Interface | Entry point |
+|---|---|
+| C++ API | headers and CMake targets exported by the C++ install. |
+| Python API | `pyhyperiso.Common`, `pyhyperiso.Core`, `pyhyperiso.Wilson`, `pyhyperiso.Observable`, `pyhyperiso.Statistic`. |
+| CLI | `hyperiso-ui`, built with `-DBUILD_WITH_APP=ON`. |
+| Dash GUI | `GHyperiso/HyperisoDashGUI`. |
+
+## Versioning
+
+The C++ project, Python package and release tag should use the same semantic version. For example:
+
+```text
+CMake project version: 0.1.0
+Python package version: 0.1.0
+Git tag: v0.1.0
+```
+
+Update all version locations in the same pull request.

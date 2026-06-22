@@ -1,81 +1,91 @@
-# Hyperiso C++ examples
+# HyperIso C++ examples
 
-Ces exemples C++ suivent la structure et les commentaires des exemples Python fournis.
+This directory contains standalone C++ examples built against an installed HyperIso package. They are intended to serve both as user tutorials and as smoke tests for the public C++ API.
 
-## Compilation
+## Prerequisites
 
-```bash
-mkdir -p build
-cd build
-cmake ..
-cmake --build .
-```
-
-Les exemples `Statistic/*` nécessitent que l'installation Hyperiso exporte aussi la cible `Hyperiso::StatisticLib`.
-Si cette cible existe mais pointe vers un include directory absent, CMake ignore automatiquement les targets Statistic au lieu de bloquer tous les autres exemples.
-
-## Organisation
-
-- `Core/` : initialisation, lecture/écriture de paramètres, blocs dépendants, QCD runner.
-- `Wilson/` : coefficients de Wilson, matching/running, exemple MARTY, scans développeur.
-- `Observable/` : observables physiques, configurations de désintégration, scan paramétrique.
-- `Statistic/` : incertitudes, MLE, contours et scan de vraisemblance.
-- `*/dev_examples/` : exemples orientés développement/diagnostic pour tester rapidement des APIs internes.
-
-## Correctif C++ important
-
-Les appels à `WilsonBuildConfig({...}, ...)` sont volontairement typés avec `std::unordered_set<WGroup>{...}` ou `std::unordered_set<WGroupId>{...}`.
-Sans ce type explicite, GCC peut hésiter entre les deux constructeurs suivants :
-
-```cpp
-WilsonBuildConfig(std::unordered_set<WGroup>, ...);
-WilsonBuildConfig(std::unordered_set<WGroupId>, ...);
-```
-
-Donc il faut écrire par exemple :
-
-```cpp
-WilsonBuildConfig config(
-    std::unordered_set<WGroup>{WGroup::B, WGroup::BScalar},
-    81.0,
-    2.0,
-    QCDOrder::LO
-);
-```
-
-## Notes sur les exemples dynamiques
-
-- `Wilson/dev_examples/wilson_dynamic_ids_example.cpp` montre comment ajouter des groupes Wilson à partir de noms (`GroupMapper::id_of`) et comment requêter des coefficients builtin à partir de noms (`WCoefMapper::id_of`).
-- `Observable/dev_examples/observable_dynamic_ids_example.cpp` montre comment ajouter des observables builtin à partir de noms (`ObservableMapper::id_of`) et comment enregistrer un `ObservableId` custom.
-
-Les exemples restent compatibles avec l'API installée actuelle : ils évitent d'appeler directement les overloads dynamiques qui nécessitent un patch du code Hyperiso.
-
-## Patch proposé pour un vrai support dynamique
-
-L'archive contient aussi :
-
-```text
-patches/hyperiso_dynamic_enum_support.patch
-```
-
-Ce patch ajoute les overloads et le routage nécessaires pour mieux supporter les enums dynamiques :
-
-- `WilsonRequest` stocke `WGroupId` / `WCoefId`, avec un constructeur de compatibilité `WGroup` / `WCoef`.
-- `WilsonInterface` ajoute des overloads `WGroupId` / `WCoefId` pour les getters simples : `getM`, `getFM`, `getR`, `getFR`, `getSM`, `getSR`, etc.
-- `ObsManager::add_obs(ObservableId)` et `ObsManager::add_obs(BinnedObservableId)` routent par `DecayMapper::get_decay_id_or_throw(...)` au lieu de repasser par `ObservableMapper::enum_of(...).value()`.
-- `ObsManager::select_decay(ObservableId)` sélectionne aussi le decay par `DecayId`, ce qui permet aux observables custom enregistrées dans le mapper d'être routées proprement.
-
-Application typique depuis la racine du repo Hyperiso :
+Build and install HyperIso first:
 
 ```bash
-patch -p1 < examples_cpp/patches/hyperiso_dynamic_enum_support.patch
+cmake -S Hyperiso/Hyperiso/core -B build \
+  -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_WITH_APP=ON
+cmake --build build -j
+cmake --install build --prefix "$HOME/.local"
 ```
 
+Make sure CMake can find the installed package:
 
+```bash
+export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
+```
 
-## Nouveaux exemples dynamiques par lambdas
+## Build all examples
 
-- `dev_wilson_lambda_custom_group` montre comment déclarer un `WGroupId` custom, des `WCoefId` custom, puis fournir des lambdas de matching et de running via `CustomWilsonGroupConfig`.
-- `dev_observable_lambda_decay` montre comment déclarer un nouveau decay et une nouvelle observable via `LambdaDecayConfig`, puis calculer l'observable avec une lambda utilisateur. La lambda peut lire les Wilson dynamiques via `ctx.W().getFM(group, coeff, ...)`.
+From the repository root:
 
-Ces deux exemples nécessitent l'archive source `hyperiso_dynamic_lambda_update.zip`, pas seulement l'ancienne installation Hyperiso.
+```bash
+cmake -S Hyperiso/Hyperiso/examples_cpp -B build-examples \
+  -G Ninja \
+  -DCMAKE_PREFIX_PATH="$HOME/.local"
+
+cmake --build build-examples -j
+```
+
+## Run a few smoke examples
+
+```bash
+./build-examples/core_base
+./build-examples/wilson_base
+./build-examples/observable_base
+```
+
+Statistic examples require the installed package to export `Hyperiso::StatisticLib`:
+
+```bash
+./build-examples/statistic_base
+```
+
+## Organization
+
+| Directory | Purpose |
+|---|---|
+| `Core/` | Initialization, LHA loading, parameter access, block inspection and QCD utilities. |
+| `Wilson/` | Wilson-coefficient matching, running, MARTY-oriented examples and custom Wilson groups. |
+| `Observable/` | Observable calculations, binned observables, decay configurations and parameter scans. |
+| `Statistic/` | Uncertainty propagation, likelihood scans, maximum-likelihood fits and confidence contours. |
+| `*/dev_examples/` | Advanced examples for developers extending HyperIso internals. |
+
+## Recommended learning path
+
+1. `Core/base_core_example.cpp`
+2. `Core/parameter_provider_example.cpp`
+3. `Wilson/base_wilson_example.cpp`
+4. `Observable/base_observable_example.cpp`
+5. `Statistic/base_statistic_example.cpp`
+6. Advanced `dev_examples` only after the public API workflow is clear.
+
+## Expected behavior
+
+Each example should:
+
+- compile without modifying the source tree;
+- use input files from `Assets/lha` or a documented local path;
+- print enough information to make the result understandable;
+- avoid hidden global state except the documented HyperIso runtime singleton;
+- be runnable in CI as a smoke test whenever dependencies are available.
+
+## Adding a new C++ example
+
+When adding a new example, include:
+
+- a short comment at the top explaining the physics workflow;
+- the required model/backend, for example SM-only, MARTY, THDM or SUSY;
+- a deterministic input file;
+- expected numerical output or tolerance when used as a regression test;
+- a target in `CMakeLists.txt` using `add_hyperiso_example`.
+
+## Notes on dynamic identifiers
+
+Some examples demonstrate dynamic Wilson groups or custom observables. They are useful for extension development, but regular users should start with the built-in enum and mapper examples.

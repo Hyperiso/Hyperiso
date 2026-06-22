@@ -1,28 +1,20 @@
-version: '3.9'
-
 services:
-  backend:
+  hyperiso-dev:
     build:
-      context: ./Hyperiso
-    container_name: hyperiso-backend
-    ports:
-      - "8000:8000"
-    volumes:
-      - ./Hyperiso:/app
-    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload
+      context: .
+      dockerfile: docker/Dockerfile
+    image: hyperiso:dev
+    command: hyperiso-ui --help
 
-  frontend:
+  hyperiso-dash:
     build:
-      context: ./GHyperiso
-    container_name: ghyperiso-frontend
+      context: .
+      dockerfile: docker/Dockerfile.dash
+    image: hyperiso:dash
     ports:
-      - "3000:3000"
+      - "8050:8050"
     volumes:
-      - ./GHyperiso:/app
-    command: npm run dev
+      - ./Assets/lha:/opt/hyperiso/Assets/lha:ro
     environment:
-      - NEXT_PUBLIC_API_BASE=http://localhost:8000
-
-networks:
-  default:
-    name: ghyperiso-net
+      DASH_HOST: 0.0.0.0
+      DASH_PORT: 8050

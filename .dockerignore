@@ -1,0 +1,16 @@
+.git
+.github
+build*
+**/CMakeFiles
+**/CMakeCache.txt
+**/cmake_install.cmake
+**/Makefile
+**/__pycache__
+**/*.pyc
+.venv
+.env
+Hyperiso/Docs/html
+Hyperiso/Docs/latex
+Hyperiso/Hyperiso/dist
+Hyperiso/Hyperiso/wheelhouse
+GHyperiso/HyperisoDashGUI/data/uploaded_lha

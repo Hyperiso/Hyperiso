@@ -1,0 +1,15 @@
+# Default owner for all files.
+* @theo.reymermier
+
+# Core numerical code
+/Hyperiso/Hyperiso/core/ @theo.reymermier
+
+# Python bindings and examples
+/Hyperiso/Hyperiso/pyhyperiso/ @theo.reymermier
+/Hyperiso/Hyperiso/examples_python/ @theo.reymermier
+
+# Dash GUI
+/GHyperiso/HyperisoDashGUI/ @theo.reymermier
+
+# CI and release automation
+/.github/ @theo.reymermier

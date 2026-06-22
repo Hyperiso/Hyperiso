@@ -1,0 +1,72 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  source-archive:
+    name: Source archive
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Create source archive
+        run: |
+          git archive --format tar.gz --prefix hyperiso-${GITHUB_REF_NAME}/ -o hyperiso-${GITHUB_REF_NAME}.tar.gz HEAD
+
+      - name: Upload source archive
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperiso-source-${{ github.ref_name }}
+          path: hyperiso-${{ github.ref_name }}.tar.gz
+
+  python-wheel:
+    name: Python wheel
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev
+          python -m pip install --upgrade pip build
+
+      - name: Build distributions
+        run: python -m build ./Hyperiso/Hyperiso
+
+      - name: Upload Python distributions
+        uses: actions/upload-artifact@v4
+        with:
+          name: pyhyperiso-dist-${{ github.ref_name }}
+          path: Hyperiso/Hyperiso/dist/*
+
+  github-release:
+    name: GitHub Release
+    runs-on: ubuntu-latest
+    needs: [source-archive, python-wheel]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: release-artifacts
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release-artifacts/**/*
+          generate_release_notes: true
+          draft: true
