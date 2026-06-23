@@ -24,13 +24,13 @@ void KllDecay::load_params() {
     cache.BR_KS_gg_exp = (*p)(ParamId{ParameterType::DECAY, "K_ll", 2}, DataType::VALUE);
     cache.alpha_exp = (*p)(ParamId{ParameterType::DECAY, "K_ll", 3}, DataType::VALUE);
     cache.delta_lambda = (*p)(ParamId{ParameterType::DECAY, "K_ll", 4}, DataType::VALUE);
-    cache.mu_b = 5 + 1e-10; // TODO : promote as decay param ?
+    cache.mu_b = 5 + 1e-10; // MAJ : Make it a param in block Kll 
 
     cache.C10 = w_proxy->getFR(WGroup::K, WCoef::CK10, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPK10, w_config.order);
     cache.CQ1 = w_proxy->getFR(WGroup::K, WCoef::CKQ1, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ1, w_config.order);
     cache.CQ2 = w_proxy->getFR(WGroup::K, WCoef::CKQ2, w_config.order) - w_proxy->getFR(WGroup::K, WCoef::CPKQ2, w_config.order);
 
-    cache.C10 = -4.01480; // TODO : Theo
+    // cache.C10 = -4.01480;
 
     // printf("C10m = %.5e\n", cache.C10);
 	// printf("CQ1m = %.5e\n", cache.CQ1);
@@ -54,8 +54,8 @@ complex_t KllDecay::N_L() {
 }
 
 complex_t KllDecay::N_S() {
-    complex_t I_S_mu = {-2.821, 1.216}; // TODO : perform integration over 3D space (VEGAS)
-    complex_t I_S_e = {2.11, -40.41}; // TODO : perform integration over 3D space (VEGAS)
+    complex_t I_S_mu = {-2.821, 1.216}; // MAJ : perform integration over 3D space (VEGAS)
+    complex_t I_S_e = {2.11, -40.41}; // MAJ : perform integration over 3D space (VEGAS)
     complex_t I_S = cfg.gen == 1 ? I_S_e : I_S_mu;
     double r_pi = cache.m_pi / cache.m_K;
     double N0 = 2 * cache.alpha_em_0 * cache.m_l / (PI * cache.f_K * std::pow(cache.m_K, 2) * std::abs(KP::H(0.0, r_pi)))

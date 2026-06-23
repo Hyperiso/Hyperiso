@@ -14,19 +14,19 @@ void BKstarGammaDecay::load_params() {
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE));
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
     // cache.z = std::pow((*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE)) / cache.m_b_mu_b, 2);
-    cache.z = 9.9551e-02; // TODO : Need to homogeneize with QCDfCalculator
+    cache.z = 9.9551e-02; // ASK : Discrepancy between Isospin Asymmetry and BR. Need to homogeneize with QCDfCalculator
     cache.f_Ks_par = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {323, 1}}, DataType::VALUE);
     cache.f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
     cache.alpha_s_mu_h = (*iobs_qcdp)(AlphasConfig(cache.mu_h, MassType::POLE, MassType::POLE));
     cache.lambda_B = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 13}, DataType::VALUE) / (1. - cache.alpha_s_mu_h * log(pow(cache.mu_h, 2)) * 1.8 / (3. * PI));
-    // cache.T1_B_Ks = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 16}); // Make it coherent with the FF choice
+    // cache.T1_B_Ks = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 16}); // ASK : Make it coherent with the FF choice ?
     cache.mu_0 = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 17}, DataType::VALUE);
     if (fpeq(cache.mu_0, -1.)) cache.mu_0 = cache.mu_b;
     cache.L_b = log(cache.mu_b / (*p)(ParamId{ParameterType::SM, "QCD", {5, 3}}, DataType::VALUE));
     cache.C_F = (*iobs_qcdp).get_constants()->C_F;
     cache.Nc = (*iobs_qcdp).get_constants()->Nc;
-    cache.n_f = 5.0; // TODO : Link with get_nf vs. hard-coded ?
+    cache.n_f = 5.0;
     double eta = cache.alpha_s_mu_h / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     cache.f_Ks_perp = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {323, 2}}, DataType::VALUE) * pow(eta, cache.C_F / (*iobs_qcdp).get_constants()->beta[4][0]);
     
@@ -99,44 +99,6 @@ std::vector<ObservableValue> BKstarGammaDecay::compute_observable(Observables ob
 std::vector<ObservableValue> BKstarGammaDecay::compute_observable(ObservableId obs) {
     return compute_observable(ObservableMapper::enum_of(obs).value());
 }
-
-// void BKstarGammaDecay::fill_wilson_cache() {
-//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
-//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-//     WCoef bp_cached[1] {WCoef::CP7};
-
-//     for (auto p : b_wilsons) cache.C.emplace(p); 
-//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
-
-//     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
-//     auto b_wilsons_trad = w_proxy->getAFR(WGroup::B, this->w_config.order);
-//     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-
-//     // cache.C_trad.emplace(WCoef::C1, b_wilsons_trad.at(WCoef::C1) /* + bp_wilsons_trad.at(WCoef::CP1) */ );
-//     // cache.C_trad.emplace(WCoef::C2, b_wilsons_trad.at(WCoef::C2) /* + bp_wilsons_trad.at(WCoef::CP2) */ );
-//     // cache.C_trad.emplace(WCoef::C3, b_wilsons_trad.at(WCoef::C3) /* + bp_wilsons_trad.at(WCoef::CP3) */ );
-//     // cache.C_trad.emplace(WCoef::C4, b_wilsons_trad.at(WCoef::C4) /* + bp_wilsons_trad.at(WCoef::CP4) */ );
-//     // cache.C_trad.emplace(WCoef::C5, b_wilsons_trad.at(WCoef::C5) /* + bp_wilsons_trad.at(WCoef::CP5) */ );
-//     // cache.C_trad.emplace(WCoef::C6, b_wilsons_trad.at(WCoef::C6) /* + bp_wilsons_trad.at(WCoef::CP6) */ );
-//     // cache.C_trad.emplace(WCoef::C7, b_wilsons_trad.at(WCoef::C7) + bp_wilsons_trad.at(WCoef::CP7));
-//     // cache.C_trad.emplace(WCoef::C8, b_wilsons_trad.at(WCoef::C8) + bp_wilsons_trad.at(WCoef::CP8));
-
-//     cache.C_trad.emplace(WCoef::C1, -8.3741e-2);
-//     cache.C_trad.emplace(WCoef::C2, 1.0281);
-//     cache.C_trad.emplace(WCoef::C3, 9.5354e-3);
-//     cache.C_trad.emplace(WCoef::C4, -2.8921e-2);
-//     cache.C_trad.emplace(WCoef::C5, 6.9522e-3);
-//     cache.C_trad.emplace(WCoef::C6, -3.0791e-2);
-//     cache.C_trad.emplace(WCoef::C7, -2.8010e-1);
-//     cache.C_trad.emplace(WCoef::C8, -1.6378e-1);
-
-//     // ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_h);
-//     // cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order) /* + w_proxy->getFR(WGroup::BPrime, WCoef::CP2, w_config.order) */;
-//     // cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
-
-//     cache.C2_h = 9.8536e-1;
-//     cache.C8_h = -1.7263e-1;
-// }
 
 void BKstarGammaDecay::fill_wilson_cache() {
     cache.C.clear();

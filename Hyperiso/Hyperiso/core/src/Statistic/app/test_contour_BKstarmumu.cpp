@@ -930,7 +930,7 @@ int main() {
         BKstarllConfig cfg_BKs;
         cfg_BKs.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::B__Kstar_l_l, cfg_BKs);
-        oint->set_bkstarll_threads(24);
+        oint->set_bkstarll_threads(4);
 
         BKstarGammaConfig cfg_BKsgamma;
         cfg_BKsgamma.ff_src = BV_FF_Src::GRvDV;
@@ -939,12 +939,12 @@ int main() {
         BsPhiConfig cfg_BsPhi;
         cfg_BsPhi.ff_src = BV_FF_Src::GRvDV;
         oint->set_decay_config(Decays::Bs__phi_l_l, cfg_BsPhi);
-        oint->set_bsphi_threads(24);
+        oint->set_bsphi_threads(4);
 
         BKllConfig cfg_BK;
         cfg_BK.ff_src = BP_FF_Src::GKvD_SR_LAT;
         oint->set_decay_config(Decays::B__K_l_l, cfg_BK);
-        oint->set_bkll_threads(24);
+        oint->set_bkll_threads(4);
 
         using O = Observables;
         constexpr bool kAddDeps = false;
@@ -1085,7 +1085,6 @@ int main() {
         add_exp_bin("DEFAULT", O::S_8_B__KSTAR_MU_MU, 17, 19); // 098 S8_BKstarmumu_17_19
         add_exp_bin("DEFAULT", O::S_9_B__KSTAR_MU_MU, 17, 19); // 099 S9_BKstarmumu_17_19
         add_exp_bin("DEFAULT", O::R_1_B__KSTAR_L_L, 0.045, 6); // 100 R-1_BKstarll_0.045_6
-        // // TODO missing enum/mapping: 101 R-1_B0K0ll_1.1_6
         add_exp_bin("DEFAULT", O::R_1_B0__K0_L_L, 1.1, 6); // 101 R-1_B0K0ll_1.1_6
         add_exp_bin("Belle", O::R_1_B__K_L_L, 1, 6); // 102 R-1_BKll_1_6_Belle
         add_exp_bin("CMS", O::F_H_B__K_MU_MU, 1, 6); // 103 FH_BKmumu_1_6_CMS
@@ -1256,7 +1255,7 @@ int main() {
     config.advanced.MLE_trace_first_evals  = true;
     config.advanced.MLE_trace_max_evals  = 20;
     config.advanced.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 1000;
+    config.MC_draws = 100;
     config.advanced.nuisance_sensitivity_contexts = -1;
     config.print_mc_config = false;
     const std::string had_bsm_block =
@@ -1270,16 +1269,11 @@ int main() {
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
     };
-
-    // std::vector<ParamId> p_specs = {
-    //     // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
-    //     ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)}
-    // };
 
 
     std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
@@ -1330,26 +1324,26 @@ int main() {
     save_bestfit_csv("bestfit.csv", fit);
     std::cout << "[INFO] Wrote bestfit.csv\n";
 
-    if (p_specs.size() == 2) {
-        const ParamId p1 = p_specs[0];
-        const ParamId p2 = p_specs[1];
+    const ParamId p1 = p_specs[0];
+    const ParamId p2 = p_specs[1];
 
-        // std::array<double, 4> bounds = {-20, 20, -20, 20};
-        std::array<double, 4> bounds = {
-            -3.0, 2.0,
-            -2.5, 2.5
-        };
+    // std::array<double, 4> bounds = {-20, 20, -20, 20};
+    std::array<double, 4> bounds = {
+        -3.0, 2.0,
+        -2.5, 2.5
+    };
 
-        auto trace = std::make_shared<std::ofstream>("contour_trace.csv");
-        (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
+    auto trace = std::make_shared<std::ofstream>("contour_trace.csv");
+    (*trace) << "type,level,path_id,point_id,x,y,n_paths,n_points,elapsed_s,message\n";
 
-        ContourOptions  opt;
-        opt.primary_contour_method = ContourAlgorithm::MINUIT;
-        opt.fallback_contour_method = ContourAlgorithm::AMS;
-        opt.profile_backend = ProfileBackend::MINUIT;
-        opt.resolution = 10;
+    ContourOptions opt;
+    opt.primary_contour_method = ContourAlgorithm::MINUIT;
+    opt.fallback_contour_method = ContourAlgorithm::AMS;
+    opt.profile_backend = ProfileBackend::MINUIT;
+    opt.profiling_method = ProfilingMethod::SLICE;
+    opt.resolution = 20;
 
-        opt.on_progress = [trace](const ContourProgressEvent& ev) {
+    opt.on_progress = [trace](const ContourProgressEvent& ev) {
         if (!trace || !(*trace)) return;
 
         const char* type_str = "";
@@ -1375,30 +1369,25 @@ int main() {
 
         trace->flush();
     };
-        auto t4 = std::chrono::steady_clock::now();
-        auto c95 = stat.confidence_contour(p1, p2, 2, bounds, opt);
-        auto t5 = std::chrono::steady_clock::now();
-        
-        auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
-        std::cout << "finish first contour" << std::endl;
 
+    auto t4 = std::chrono::steady_clock::now();
+    auto c68 = stat.confidence_contour(p1, p2, 1, bounds, opt);
+    auto t5 = std::chrono::steady_clock::now();
 
-        std::cout << "\nContour done in "
-                << std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count()
-                << " ms\n\n";
+    std::cout << "\nContour done in "
+            << std::chrono::duration_cast<std::chrono::milliseconds>(t5 - t4).count()
+            << " ms\n\n";
 
-        std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
-        std::cout << "[INFO] contour 95% paths = " << c95.level << "\n";
+    std::cout << "[INFO] contour 68% paths = " << c68.level << "\n";
 
-        save_contour_csv(
-            "contours_BKsmumu_ang.csv",
-            fit_app::to_string_any(p1),
-            fit_app::to_string_any(p2),
-            c68.paths,
-            c95.paths
-        );
-        std::cout << "[INFO] Wrote contours.csv\n";
-    }
+    save_contour_csv(
+        "contours_BKsmumu_ang.csv",
+        fit_app::to_string_any(p1),
+        fit_app::to_string_any(p2),
+        c68.paths,
+        {}
+    );
+    std::cout << "[INFO] Wrote contours.csv\n";
 
     return 0;
 }
