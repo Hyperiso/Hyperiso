@@ -121,14 +121,32 @@ void DependentBlockManager::addDependentParameter(
 void DependentBlockManager::removeDependentBlock(const std::string &name,
                                                  ParameterType src)
 {
-    if (!Parameters::GetInstance(src)->blockAccessor->contains(name)) {
+    auto params = Parameters::GetInstance(src);
+    auto accessor = params->blockAccessor;
+
+    if (!accessor->contains(name)) {
         return;
     }
-    std::shared_ptr<Block> dep_block = Parameters::GetInstance(src)->blockAccessor->at(name);
-    dep_block->clear_above();
 
+    // Destroy the dependency subtree first: dependent blocks/parameters can
+    // still observe this block through shared_ptr-owned dependency edges.
+    std::shared_ptr<Block> dep_block = accessor->at(name);
+    if (dep_block) {
+        dep_block->destroy();
+    }
 
-    Parameters::GetInstance(src)->blockAccessor->erase(name);
+    // IMPORTANT:
+    // BlockAccessor is alias-aware. Do not call unordered_map::erase directly.
+    // Direct erase removes the storage entry but leaves alias_to_key_ /
+    // key_to_name_ pointing to a now-missing key.
+    //
+    // That creates the exact crash observed in the benchmark:
+    //
+    //   contains("K_EW_SCALE") == true
+    //   at("K_EW_SCALE") -> std::out_of_range("unordered_map::at")
+    //
+    // Use erase_block() so both the storage and alias metadata are cleaned.
+    accessor->erase_block(name);
 }
 
 void DependentBlockManager::update(const std::string &name, ParameterType src) {

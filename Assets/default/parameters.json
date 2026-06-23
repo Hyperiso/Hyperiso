@@ -2442,6 +2442,11 @@
       "stat_error": 0.004,
       "syst_error": 0
     },
+    "411_1": {
+      "central_value": 0.2126,
+      "stat_error": 0.0007,
+      "syst_error": 0
+    },
     "511_1": {
       "central_value": 0.190,
       "stat_error": 0.0013,

@@ -102,7 +102,7 @@ Options parse_args(int argc, char** argv) {
         else if (arg == "--order") opt.order = parse_order(require_value(arg));
         else if (arg == "--include-unbinned") opt.include_unbinned = true;
         else if (arg == "--bin") {
-            if (opt.bins.size() == 1 && opt.bins.front() == std::pair<double, double>{1.0, 6.0}) {
+            if (opt.bins.size() == 1 && opt.bins.front() == std::pair<double, double>{15.0, 17.0}) {
                 opt.bins.clear();
             }
             opt.bins.push_back(parse_bin(require_value(arg)));

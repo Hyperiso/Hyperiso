@@ -1,5 +1,8 @@
 #include "WilsonParamComposer.h"
 
+#include <algorithm>
+#include <vector>
+
 void WilsonParamComposer::compose_block(
     const std::string &block_name,
     const std::unordered_map<ParameterType, std::vector<std::string>> &source_names,
@@ -35,7 +38,36 @@ void WilsonParamComposer::update(const std::string &block_name) {
 }
 
 void WilsonParamComposer::remove_all_composed_blocks() {
-    for (const auto& block_name : composed_blocks) {
+    // The dependency graph is global in Core::Parameters, while this registry is
+    // manager/composer-local.  Remove downstream blocks before their sources so
+    // no lazy DependentBlock keeps a stale pointer to a source block erased from
+    // the global repository.
+    std::vector<std::string> blocks(composed_blocks.begin(), composed_blocks.end());
+
+    auto removal_rank = [](const std::string& name) {
+        // Final hadronic Wilson blocks depend on the intermediate running
+        // blocks, which depend on matching/helper blocks. Remove in that order.
+        if (name.find("_B_SCALE_") != std::string::npos &&
+            name.find("__") == std::string::npos) {
+            return 0;
+        }
+        if (name.find("__") != std::string::npos) {
+            return 1;
+        }
+        if (name.find("_EW_SCALE") != std::string::npos) {
+            return 2;
+        }
+        return 3;
+    };
+
+    std::sort(blocks.begin(), blocks.end(), [&](const std::string& a, const std::string& b) {
+        const int ra = removal_rank(a);
+        const int rb = removal_rank(b);
+        if (ra != rb) return ra < rb;
+        return a < b;
+    });
+
+    for (const auto& block_name : blocks) {
         CompositeParamAdapter().remove_dependency(block_name, ParameterType::WILSON);
     }
     composed_blocks.clear();

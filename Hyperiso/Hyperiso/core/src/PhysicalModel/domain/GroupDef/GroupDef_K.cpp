@@ -17,6 +17,16 @@ namespace GroupDefinitions {
             lo.func = &KCoefficientGroup::base_1_LO_calculation;
             m[QCDOrder::LO] = lo;
 
+
+            CGS nlo = lo;
+            nlo.func = &KCoefficientGroup::base_1_NLO_calculation;
+
+            CGS nnlo = lo;
+            nnlo.func = &KCoefficientGroup::base_1_NNLO_calculation;
+
+            m[QCDOrder::NLO]  = nlo;
+            m[QCDOrder::NNLO] = nnlo;
+
             d.sources.emplace(WilsonBasis::B_STANDARD, std::move(m));
             return d;
         }();

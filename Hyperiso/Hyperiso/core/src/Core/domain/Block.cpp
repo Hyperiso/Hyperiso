@@ -218,8 +218,6 @@ double Block::get_scale() {
 }
 
 void Block::destroy() {
-    std::cout << "destroying (block) :" << this->blockname << std::endl;
-
     auto dependents = std::exchange(observers, {});
     
     clear_below();

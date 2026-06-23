@@ -92,16 +92,16 @@ double KllDecay::BR_L() {
 
     complex_t B_L = cache.r_chi * std::imag(cache.lambda_t * cache.CQ1);
 
-    printf("lambda_c = %.4e + %.4e i\n", real(cache.lambda_c), imag(cache.lambda_c));
-    printf("lambda_t = %.4e + %.4e i\n", real(cache.lambda_t), imag(cache.lambda_t));
-    printf("lambda = %.4e + %.4e i\n", real(cache.lambda), imag(cache.lambda));
-    printf("P_c = %.4e + %.4e i\n", real(P_c()), imag(P_c()));
+    // printf("lambda_c = %.4e + %.4e i\n", real(cache.lambda_c), imag(cache.lambda_c));
+    // printf("lambda_t = %.4e + %.4e i\n", real(cache.lambda_t), imag(cache.lambda_t));
+    // printf("lambda = %.4e + %.4e i\n", real(cache.lambda), imag(cache.lambda));
+    // printf("P_c = %.4e + %.4e i\n", real(P_c()), imag(P_c()));
 
-    printf("N_L = %.4e + %.4e i\n", real(N_L()), imag(N_L()));
-    printf("A_L = %.4e + %.4e i\n", real(A_L), imag(A_L));
-    printf("B_L = %.4e + %.4e i\n", real(B_L), imag(B_L));
+    // printf("N_L = %.4e + %.4e i\n", real(N_L()), imag(N_L()));
+    // printf("A_L = %.4e + %.4e i\n", real(A_L), imag(A_L));
+    // printf("B_L = %.4e + %.4e i\n", real(B_L), imag(B_L));
 
-    printf("C_A = %.4e + %.4e i\n", real(C_A), imag(C_A));
+    // printf("C_A = %.4e + %.4e i\n", real(C_A), imag(C_A));
 
     return cache.tau_L * std::pow(cache.f_K * cache.G_F * cache.alpha_em, 2) * std::pow(cache.m_K, 3) * cache.beta / (32 * PI3) * (
         std::pow(cache.beta * std::abs(
