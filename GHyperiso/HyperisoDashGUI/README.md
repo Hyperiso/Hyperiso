@@ -1,14 +1,18 @@
-# PyHyperiso Dash GUI
+# HyperIso Dash GUI
 
-A Dash application for driving the PyHyperiso workflow from a professional dark UI inspired by your HepMCGUI project.
+The HyperIso Dash GUI is a local graphical interface for driving the `pyhyperiso` workflow from a browser. It is intended for exploratory work, demonstrations and interactive scans, while scripted production workflows should prefer the C++ API, Python API or CLI.
+
+## Features
 
 The application is organized around five pages:
 
-1. **Core** — initialize or switch the active LHA/SLHA/FLHA input and inspect loaded blocks by `ParameterType`.
-2. **Wilson** — build `WilsonInterface`, run matching/running requests, and scan one or two parameters with automatic restore.
-3. **Observable** — select observables or whole decays, handle binned observables, compute predictions and scan parameter dependence.
-4. **Stat** — χ²-only statistical workflow: uncertainty propagation, best fits, nuisance output, correlations and 2D ΔNLL contours.
-5. **QCD** — compute and plot `alpha_s`, running masses and backend QCD constants.
+| Page | Purpose |
+|---|---|
+| Core | Initialize or switch the active LHA/SLHA/FLHA input and inspect loaded blocks by parameter type. |
+| Wilson | Build Wilson interfaces, request matching/running values and scan one or two parameters. |
+| Observable | Select observables or decays, handle binned observables and scan parameter dependence. |
+| Stat | Run chi-square-oriented uncertainty, fit and likelihood-contour workflows. |
+| QCD | Inspect `alpha_s`, running masses and QCD constants. |
 
 ## Project structure
 
@@ -22,32 +26,32 @@ HyperisoDashGUI/
     ├── components.py
     ├── domain.py
     ├── figures.py
+    ├── latex.py
     ├── services.py
     ├── assets/
-    │   └── styles.css
-    ├── data/
-    │   └── uploaded_lha/
+    ├── latex_data/
     └── pages/
-        ├── core.py
-        ├── observable.py
-        ├── qcd.py
-        ├── stat.py
-        └── wilson.py
 ```
-
-This follows the HepMCGUI spirit: a small `app.py`, a custom CSS theme, reusable domain modules, and heavy logic kept outside the layout definitions.
 
 ## Installation
 
-Install Dash dependencies inside the same environment where `pyhyperiso` is importable:
+Install HyperIso and the GUI dependencies in the same Python environment:
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -e ../../Hyperiso/Hyperiso
+python -m pip install -r requirements.txt
+```
+
+If you run from the repository root:
+
+```bash
+python -m pip install -e ./Hyperiso/Hyperiso
+python -m pip install -r GHyperiso/HyperisoDashGUI/requirements.txt
 ```
 
 ## Run
 
-From the project root:
+From `GHyperiso/HyperisoDashGUI`:
 
 ```bash
 python app.py
@@ -59,30 +63,50 @@ Open:
 http://127.0.0.1:8050
 ```
 
-## Important runtime note
+## Runtime note
 
-Hyperiso uses a C++ singleton behind the bindings. This Dash app intentionally keeps a process-local `HyperisoMaster` alive in `pyhyperiso_dash.services.RUNTIME`.
+HyperIso uses a C++ runtime behind the Python bindings. The Dash application keeps one process-local `HyperisoMaster` instance alive in `pyhyperiso_dash.services.RUNTIME`.
 
-For development and local use, run a single Dash process. If deployed with gunicorn or another server, prefer one worker unless you explicitly want one independent Hyperiso singleton per worker.
+For local use, run a single Dash process. If deploying through a production server, use one worker unless you intentionally want one independent HyperIso runtime per worker.
 
-## Notes on statistical mode
+## Statistical mode
 
-The Stat page forces:
-
-```python
-StatisticLikelihoodMode.CHI2_MC_COVARIANCE
-```
-
-Minuit/Laplace-only options are intentionally not shown. The 2D contour plot is built from the available likelihood scan API rather than from the opaque C++ `Contour` wrapper, so the result can be directly displayed as a Plotly heatmap/contour.
+The dashboard focuses on the chi-square / Monte-Carlo covariance workflow for interactive use. More advanced likelihood profiling and backend choices should be exposed through the Python API first and added to the GUI only once the behavior is stable.
 
 ## Parameter scans
 
-Wilson and observable scans mutate parameters through `ParameterSetter`, read the original central values through `ParameterProvider`, and restore values in a `finally` block. This is important because the C++ runtime is global for the process.
+Scan callbacks must always restore modified parameters after calculation. The current service layer follows the pattern:
 
+1. read the original central value;
+2. set a temporary value;
+3. compute Wilson coefficients or observables;
+4. restore the original value in a `finally` block.
 
-## Patch note: model-aware ParameterType filtering
+This is required because the C++ runtime is global within the Python process.
 
-The GUI filters `ParameterType.BSM` whenever the active Hyperiso model is `SM`.
-This prevents calls into the C++ singleton with a namespace that is not
-registered for the current model, which can otherwise terminate the process
-before Python can catch an exception.
+## Development checklist
+
+Before opening a pull request that changes the GUI:
+
+```bash
+python -m compileall GHyperiso/HyperisoDashGUI
+python GHyperiso/HyperisoDashGUI/app.py
+```
+
+Then manually check:
+
+- application starts;
+- Core page initializes an SM input;
+- Wilson page computes a built-in coefficient;
+- Observable page computes at least one observable;
+- QCD page renders a plot;
+- no callback mutates parameters without restoring them.
+
+## Container
+
+A Dash-oriented container can be built from the repository root:
+
+```bash
+docker build -f docker/Dockerfile.dash -t hyperiso-dash .
+docker run --rm -p 8050:8050 hyperiso-dash
+```

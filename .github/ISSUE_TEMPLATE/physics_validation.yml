@@ -1,0 +1,41 @@
+name: Physics validation
+description: Report or request a numerical/physics validation check
+title: "[Validation]: "
+labels: [physics, validation, needs-triage]
+body:
+  - type: textarea
+    id: observable
+    attributes:
+      label: Observable or coefficient
+      description: Name the observable, decay, Wilson coefficient or fit quantity.
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Setup
+      description: Model, backend, build flags, input file and relevant parameters.
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected value and reference
+      description: Include paper/reference/software comparison and tolerance.
+    validations:
+      required: true
+  - type: textarea
+    id: obtained
+    attributes:
+      label: HyperIso result
+      render: text
+    validations:
+      required: true
+  - type: textarea
+    id: reproducibility
+    attributes:
+      label: Reproduction command
+      render: bash
+    validations:
+      required: true

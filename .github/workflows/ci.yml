@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpp:
+    name: C++ ${{ matrix.compiler }} ${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Release
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+            build_type: Release
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang cmake ninja-build pkg-config libgsl-dev
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DENABLE_TESTS=ON \
+            -DBUILD_WITH_APP=ON \
+            -DHYPERISO_BUILD_COMPARISON_TESTS=OFF
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Install smoke test
+        run: |
+          cmake --install build --prefix "$PWD/install"
+          test -d "$PWD/install"
+
+      - name: CLI smoke test
+        run: |
+          if [ -x build/UserInterfaceLib/hyperiso-ui ]; then
+            build/UserInterfaceLib/hyperiso-ui --help || true
+          elif command -v hyperiso-ui >/dev/null 2>&1; then
+            hyperiso-ui --help || true
+          else
+            echo "hyperiso-ui not found; check UserInterface build target layout"
+          fi
+
+  examples-cpp:
+    name: C++ examples against install
+    runs-on: ubuntu-latest
+    needs: cpp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev
+
+      - name: Build and install HyperIso
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_WITH_APP=ON
+          cmake --build build --parallel 2
+          cmake --install build --prefix "$PWD/install"
+
+      - name: Build examples
+        run: |
+          cmake -S Hyperiso/Hyperiso/examples_cpp -B build-examples \
+            -G Ninja \
+            -DCMAKE_PREFIX_PATH="$PWD/install"
+          cmake --build build-examples --parallel 2

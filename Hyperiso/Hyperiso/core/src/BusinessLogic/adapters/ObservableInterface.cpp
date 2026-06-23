@@ -4,6 +4,7 @@ ObservableInterface::ObservableInterface() {
     WilsonBuildConfig config;
     std::shared_ptr<WilsonBuilder> builder_ptr = std::make_shared<WilsonBuilder>(config);
     std::shared_ptr<IObsWilsonBuilder> builder = std::make_shared<ObsWilsonBuilder>(builder_ptr);
+    std::shared_ptr<ObsWilsonHelper> wilson_helper = std::make_shared<ObsWilsonHelper>();
     
 
     std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm = std::make_shared<ObsParameterProxy>();
@@ -16,7 +17,7 @@ ObservableInterface::ObservableInterface() {
 
     std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer = std::make_shared<WilsonFreezer>(builder);
     
-    ports = std::make_shared<ObservablePortsConfig>(builder, iobspp_sm, iobspp_flav, iobs_qcdp, iobs_use_marty, iobs_wfreezer);
+    ports = std::make_shared<ObservablePortsConfig>(builder, iobspp_sm, iobspp_flav, iobs_qcdp, iobs_use_marty, iobs_wfreezer, wilson_helper);
 
     manager = std::make_shared<ObsManager>(*ports);
 }
@@ -52,6 +53,12 @@ ObservableInterface& ObservableInterface::add_lambda_decay(LambdaDecayConfig con
 
     for (const auto& custom_group : config.custom_wilson_groups) {
         this->ports->iobswb->add_custom_group(custom_group);
+        this->ports->iobs_whelper->mark_built(
+            custom_group.group,
+            custom_group.matching_scale,
+            custom_group.hadronic_scale,
+            custom_group.order
+        );
     }
 
     DecayId decay_id = DecayMapper::id_of(config.canonical);
@@ -104,16 +111,46 @@ void ObservableInterface::add_observables(std::map<ObservableId, QCDOrder> obss,
     }
 }
 
-void ObservableInterface::add_observables(Decays decay, QCDOrder order, bool add_dependencies) {  
+void ObservableInterface::add_observables(Decays decay,
+                                          QCDOrder order,
+                                          bool add_dependencies,
+                                          std::pair<double, double> bin)
+{
+    if (manager->is_decay_binned(decay)) {
+        for (auto &obs : DecayMapper::get_observables(decay)) {
+            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
+        }
+        return;
+    }
+
     for (auto &obs : DecayMapper::get_observables(decay)) {
         add_observable(obs, order, add_dependencies);
     }
 }
 
-void ObservableInterface::add_observables(DecayId decay, QCDOrder order, bool add_dependencies) {  
+void ObservableInterface::add_observables(DecayId decay,
+                                          QCDOrder order,
+                                          bool add_dependencies,
+                                          std::pair<double, double> bin)
+{
+    if (manager->is_decay_binned(decay)) {
+        for (auto &obs : DecayMapper::get_observables(decay)) {
+            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
+        }
+        return;
+    }
+
     for (auto &obs : DecayMapper::get_observables(decay)) {
         add_observable(obs, order, add_dependencies);
     }
+}
+
+bool ObservableInterface::is_decay_binned(Decays decay) const {
+    return manager->is_decay_binned(decay);
+}
+
+bool ObservableInterface::is_decay_binned(DecayId decay) const {
+    return manager->is_decay_binned(decay);
 }
 
 void ObservableInterface::add_observable_parameter(Observables obs, ParamId pid) {

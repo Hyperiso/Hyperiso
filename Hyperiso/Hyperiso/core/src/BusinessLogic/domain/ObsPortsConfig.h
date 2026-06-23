@@ -1,11 +1,15 @@
 #ifndef OBS_PORTS_CONFIG_H
 #define OBS_PORTS_CONFIG_H
 
+#include <memory>
+#include <utility>
+
 #include "IObsParameterProxy.h"
 #include "IObsWilsonBuilder.h"
 #include "IObsCoreAPI.h"
 #include "IWilsonFreezer.h"
 #include "IObsQCDProxy.h"
+#include "ObsWilsonHelper.h"
 
 /**
  * @struct ObservablePortsConfig
@@ -51,10 +55,24 @@ struct ObservablePortsConfig {
      * @param iobs_use_marty API exposing whether the MARTY backend is active.
      * @param iobs_wfreezer Wilson freezer to freeze/unfreeze groups.
      */
-    ObservablePortsConfig(std::shared_ptr<IObsWilsonBuilder> iobswb, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm, std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_flav, std::shared_ptr<IObsQCDProxy> iobs_qcdp, std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) :
-        iobswb(iobswb), 
-        iobspp_sm(iobspp_sm), iobspp_flav(iobspp_flav), iobs_qcdp(iobs_qcdp),
-        iobs_use_marty(iobs_use_marty), iobs_wfreezer(iobs_wfreezer) {}
+    ObservablePortsConfig(std::shared_ptr<IObsWilsonBuilder> iobswb,
+                          std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_sm,
+                          std::shared_ptr<IObsParameterProxy<ParamId, DataType, std::string, LhaID>> iobspp_flav,
+                          std::shared_ptr<IObsQCDProxy> iobs_qcdp,
+                          std::shared_ptr<IObsCoreAPI<bool>> iobs_use_marty,
+                          std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer,
+                          std::shared_ptr<ObsWilsonHelper> iobs_whelper = nullptr) :
+        iobswb(std::move(iobswb)),
+        iobspp_sm(std::move(iobspp_sm)),
+        iobspp_flav(std::move(iobspp_flav)),
+        iobs_qcdp(std::move(iobs_qcdp)),
+        iobs_use_marty(std::move(iobs_use_marty)),
+        iobs_wfreezer(std::move(iobs_wfreezer)),
+        iobs_whelper(std::move(iobs_whelper)) {
+        if (!this->iobs_whelper) {
+            this->iobs_whelper = std::make_shared<ObsWilsonHelper>();
+        }
+    }
 
     /// Builder used to (re)build Wilson coefficient groups on demand.
     std::shared_ptr<IObsWilsonBuilder> iobswb;
@@ -73,6 +91,9 @@ struct ObservablePortsConfig {
 
     /// Freezer allowing Wilson groups to be frozen/unfrozen at the observable level.
     std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer;
+
+    /// Per-manager Wilson lifecycle helper. Must not be shared accidentally across independent managers.
+    std::shared_ptr<ObsWilsonHelper> iobs_whelper;
 
 };
 

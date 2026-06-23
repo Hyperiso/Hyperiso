@@ -18,9 +18,7 @@ void Observable::add_dependence(const ParamId &param_name) {
 
 void Observable::add_dependences(const std::unordered_set<ParamId> &param_names) {
     LOG_DEBUG("Adding parameter list to compound");
-    std::set_union(dependences.begin(), dependences.end(),
-                   param_names.begin(), param_names.end(),
-                   std::inserter(dependences, dependences.begin()));
+    dependences.insert(param_names.begin(), param_names.end());
 }
 
 const std::unordered_set<ParamId> &Observable::get_dependences() const {

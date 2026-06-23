@@ -58,7 +58,7 @@ static WilsonBuildConfig make_cfg(std::initializer_list<WGroupId> groups) {
 int main() {
     std::cout << "== ObsWilsonHelper INTEGRATION (ports) ==\n";
 
-    ObsWilsonHelper(true);
+    ObsWilsonHelper helper;
 
     auto builder_spy = std::make_shared<SpyObsWilsonBuilder>();
     std::shared_ptr<IObsWilsonBuilder> builder = builder_spy;
@@ -72,7 +72,7 @@ int main() {
     {
         freezer->clear();
         auto cfg = make_cfg({A, B});
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(builder_spy->history_groups.back() == set_from({A, B}));
@@ -84,47 +84,46 @@ int main() {
     {
         freezer->clear();
         auto cfg = make_cfg({B});
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
-        assert(builder_spy->build_calls == 1); 
+        assert(builder_spy->build_calls == 1);
         assert(set_from(freezer->froze) == set_from({A}));
         assert(freezer->unfroze.empty());
     }
 
-    // {A,B} => A était frozen => unfreeze(A)
+    // {A,B} => A was frozen => unfreeze(A)
     {
         freezer->clear();
         auto cfg = make_cfg({A, B});
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 1);
         assert(freezer->froze.empty());
         assert(set_from(freezer->unfroze) == set_from({A}));
     }
 
-    // {} => freeze (A,B)
+    // {} => freeze(A,B)
     {
         freezer->clear();
         auto cfg = make_cfg({});
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
-        assert(builder_spy->build_calls == 1); 
+        assert(builder_spy->build_calls == 1);
         assert(set_from(freezer->froze) == set_from({A, B}));
         assert(freezer->unfroze.empty());
     }
 
-    // {C,B} => B frozen => unfreeze(B), C  => build({C})
-    //          A => freeze(A) (A est connu)
+    // {C,B} => B was frozen => unfreeze(B), C is new => build({C}).
     {
         freezer->clear();
         auto cfg = make_cfg({C, B});
-        ObsWilsonHelper::build(cfg, builder, freezer);
+        helper.build(cfg, builder, freezer);
 
         assert(builder_spy->build_calls == 2);
         assert(builder_spy->history_groups.back() == set_from({C}));
 
         assert(set_from(freezer->unfroze) == set_from({B}));
-        assert(set_from(freezer->froze)   == set_from({A}));
+        assert(freezer->froze.empty());
     }
 
     std::cout << "INTEGRATION OK\n";

@@ -1,0 +1,38 @@
+name: Feature request
+description: Suggest a new feature or improvement
+title: "[Feature]: "
+labels: [enhancement, needs-triage]
+body:
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: What problem would this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed solution
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Wilson coefficients
+        - Observables
+        - Statistics
+        - MARTY integration
+        - Python API
+        - CLI
+        - Dash GUI
+        - Documentation
+        - CI/build/release
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered

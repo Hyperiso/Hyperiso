@@ -185,6 +185,7 @@ public:
     BKllDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__K_l_l), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime), GroupMapper::to_id(WGroup::BScalar)};
         this->max_order = QCDOrder::NNLO;
+        this->binned = true;
     }
     
     void load_params() override;

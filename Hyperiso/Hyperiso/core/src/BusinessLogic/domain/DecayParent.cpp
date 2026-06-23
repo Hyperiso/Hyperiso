@@ -1,5 +1,6 @@
 #include "DecayParent.h"
 #include <iostream>
+#include <algorithm>
 
 QCDOrder DecayParent::check_max_order(QCDOrder order) const {
     if (order > max_order) {
@@ -10,7 +11,7 @@ QCDOrder DecayParent::check_max_order(QCDOrder order) const {
 }
 
 DecayParent::DecayParent(DecayId id, double matching_scale, double hadronic_scale, QCDOrder order, ObservablePortsConfig& ports) : 
-    ports(ports), use_marty(ports.iobs_use_marty), p(ports.iobspp_sm), iobs_qcdp(ports.iobs_qcdp), iobs_wfreezer(ports.iobs_wfreezer) {
+    ports(ports), use_marty(ports.iobs_use_marty), p(ports.iobspp_sm), iobs_qcdp(ports.iobs_qcdp), iobs_wfreezer(ports.iobs_wfreezer), w_helper(ports.iobs_whelper) {
     bind_wilson_builder(ports.iobswb);
     this->id = id;
     this->w_config.matching_scale = matching_scale;
@@ -27,33 +28,45 @@ void DecayParent::enable() {
         load_params();
         return;
     }
-    ObsWilsonHelper::build(this->w_config, this->w_builder, iobs_wfreezer);
+    if (!w_helper) {
+        w_helper = std::make_shared<ObsWilsonHelper>();
+    }
+    w_helper->build(this->w_config, this->w_builder, iobs_wfreezer);
     this->w_proxy = this->w_builder->get_proxy();
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
     load_params();
     this->enabled = true;
 }
 
-//TODO : do better than this
 void DecayParent::disable() {
-    // this->enabled = false;
+    this->enabled = false;
 }
 
-//TODO : everything here, just for make it works
 void DecayParent::set_order(QCDOrder new_order) {
     if (use_marty->get() && new_order > QCDOrder::LO) {
         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
         new_order = QCDOrder::LO;
     }
-    if (this->w_config.order == new_order) {
+
+    QCDOrder effective_order = check_max_order(new_order);
+    if (this->w_config.order == effective_order) {
         return;
     }
-    
-    if (this->w_config.order == QCDOrder::NONE) {
-        this->w_config.order = check_max_order(new_order);
-    } else {
-        LOG_WARN("QCD order for this decay has already been set.");
+
+    if (this->enabled) {
+        LOG_WARN(
+            "Changing QCD order for enabled decay",
+            DecayMapper::str(this->id),
+            "from",
+            OrderMapper::str(this->w_config.order),
+            "to",
+            OrderMapper::str(effective_order),
+            ": cached parameters are invalidated."
+        );
+        disable();
     }
+
+    this->w_config.order = effective_order;
 }
 
 void DecayParent::set_n_threads(size_t n_threads) {
@@ -77,11 +90,14 @@ void DecayParent::set_bins(std::vector<std::pair<double, double>> new_bins) {
 void DecayParent::add_bin(std::pair<double, double> new_bin) {
     if (new_bin.first > new_bin.second)
         LOG_WARN("Found inverted bin [", new_bin.first, ",", new_bin.second, "].");
-    
-    if (this->bins.has_value()) {
-        this->bins.value().emplace_back(new_bin);
-    } else {
-        this->bins = std::vector(1, new_bin);
+
+    if (!this->bins.has_value()) {
+        this->bins = std::vector<std::pair<double, double>>{};
+    }
+
+    auto& current_bins = this->bins.value();
+    if (std::find(current_bins.begin(), current_bins.end(), new_bin) == current_bins.end()) {
+        current_bins.emplace_back(new_bin);
     }
 }
 

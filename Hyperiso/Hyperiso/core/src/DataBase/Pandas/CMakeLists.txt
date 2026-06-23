@@ -5,6 +5,10 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 project(Pandas)
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+endif()
+
 if (NOT TARGET CommonLib)
     add_subdirectory(../../Common CommonLib)
 endif()
@@ -49,6 +53,9 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "CMakeFiles" EXCLUDE
 )
 
+if (BUILD_WITH_APP)
 add_executable(TEST_PANDAS main.cpp)
 
 target_link_libraries(TEST_PANDAS PRIVATE PandasLib)
+endif()
+

@@ -8,6 +8,7 @@
 #include <exception>
 #include <iostream>
 #include <cmath>
+#include <utility>
 
 #include "Include.h"
 #include "Decays.h"
@@ -201,8 +202,10 @@ public:
      * @param decay           Decay enum.
      * @param order           Maximum QCD order requested for this decay.
      * @param add_dependencies If true, add allowed dependences for each observable.
+     * @param bin q² bin to attach when the decay is binned; ignored otherwise.
      */
-    void add_observables(Decays decay, QCDOrder order, bool add_dependencies=false);
+    void add_observables(Decays decay, QCDOrder order, bool add_dependencies=false,
+                         std::pair<double, double> bin={1.0, 6.0});
 
     /**
      * @brief Add all observables belonging to a decay.
@@ -210,8 +213,20 @@ public:
      * @param decay           Decay dynamic enum.
      * @param order           Maximum QCD order requested for this decay.
      * @param add_dependencies If true, add allowed dependences for each observable.
+     * @param bin q² bin to attach when the decay is binned; ignored otherwise.
      */
-    void add_observables(DecayId decay, QCDOrder order, bool add_dependencies=false);
+    void add_observables(DecayId decay, QCDOrder order, bool add_dependencies=false,
+                         std::pair<double, double> bin={1.0, 6.0});
+
+    /**
+     * @brief Return whether all observables of this decay require q² bins.
+     */
+    bool is_decay_binned(Decays decay) const;
+
+    /**
+     * @brief Return whether all observables of this decay require q² bins.
+     */
+    bool is_decay_binned(DecayId decay) const;
 
      /**
      * @brief Manually add a single parameter dependence to an observable (enum API).

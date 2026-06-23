@@ -43,7 +43,7 @@ struct BKstarGammaCache {
  */
 class BKstarGammaDecay : public DecayParentConfigurable<BKstarGammaConfig> {
 public:
-    BKstarGammaDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Kstar_l_l), matching_scale, hadronic_scale, order, ports) {
+    BKstarGammaDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::B__Kstar_gamma), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::B), GroupMapper::to_id(WGroup::BPrime), GroupMapper::to_id(WGroup::BScalar)};
         this->max_order = QCDOrder::NNLO;
     }

@@ -1,7 +1,13 @@
 #include "ObsWilsonHelper.h"
 
-void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<IObsWilsonBuilder>& wil_builder, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
-    config.groups = update_state(config.groups, iobs_wfreezer);
+void ObsWilsonHelper::clear() {
+    state.clear();
+}
+
+void ObsWilsonHelper::build(WilsonBuildConfig config,
+                            std::shared_ptr<IObsWilsonBuilder>& wil_builder,
+                            std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
+    config.groups = update_state(config, std::move(iobs_wfreezer));
     if (config.groups.empty()) {
         return;
     }
@@ -11,35 +17,74 @@ void ObsWilsonHelper::build(WilsonBuildConfig config, std::shared_ptr<IObsWilson
     wil_builder->build(std::make_shared<WilsonBuildConfig>(config));
 }
 
-
-void ObsWilsonHelper::mark_built(WGroupId group, bool frozen) {
-    state[group] = frozen;
+void ObsWilsonHelper::mark_built(WGroupId group, const WilsonBuildConfig& config, bool frozen) {
+    state[group] = GroupState{frozen, make_signature(config)};
 }
 
-std::unordered_set<WGroupId> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroupId> &needed) {
-    std::unordered_set<WGroupId> all_groups = get_keys(state);
-    std::set_union(
-        all_groups.begin(), all_groups.end(),
-        needed.begin(), needed.end(),
-        std::inserter(all_groups, all_groups.end())
-    );
+void ObsWilsonHelper::mark_built(WGroupId group,
+                                 double matching_scale,
+                                 double hadronic_scale,
+                                 QCDOrder order,
+                                 bool frozen) {
+    WilsonBuildConfig config;
+    config.groups = {group};
+    config.matching_scale = matching_scale;
+    config.hadronic_scale = hadronic_scale;
+    config.order = order;
+    mark_built(group, config, frozen);
+}
+
+std::unordered_set<WGroupId> ObsWilsonHelper::get_all_groups(const std::unordered_set<WGroupId>& needed) const {
+    std::unordered_set<WGroupId> all_groups;
+    all_groups.reserve(state.size() + needed.size());
+
+    for (const auto& [group, _] : state) {
+        all_groups.emplace(group);
+    }
+    all_groups.insert(needed.begin(), needed.end());
+
     return all_groups;
 }
 
-std::unordered_set<WGroupId> ObsWilsonHelper::update_state(const std::unordered_set<WGroupId> &needed, std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
+std::unordered_set<WGroupId> ObsWilsonHelper::update_state(const WilsonBuildConfig& config,
+                                                           std::shared_ptr<IWilsonFreezer<WGroupId>> iobs_wfreezer) {
     std::unordered_set<WGroupId> to_build;
-    for (auto group : get_all_groups(needed)) {
-        if (!needed.contains(group)) {
-            iobs_wfreezer->freeze(group);
-            state[group] = true;
-        } else if (!state.contains(group)) {
+    const auto signature = make_signature(config);
+
+    for (auto group : get_all_groups(config.groups)) {
+        if (!config.groups.contains(group)) {
+            auto it = state.find(group);
+            if (it != state.end() && !it->second.frozen && iobs_wfreezer) {
+                iobs_wfreezer->freeze(group);
+                it->second.frozen = true;
+            }
+            continue;
+        }
+
+        auto it = state.find(group);
+        if (it == state.end()) {
             to_build.emplace(group);
-            state[group] = false;
-        } else if (state[group]) {
-            iobs_wfreezer->unfreeze(group);
-            state[group] = false;
+            state[group] = GroupState{false, signature};
+            continue;
+        }
+
+        if (!it->second.signature.matches(config)) {
+            to_build.emplace(group);
+            it->second = GroupState{false, signature};
+            continue;
+        }
+
+        if (it->second.frozen) {
+            if (iobs_wfreezer) {
+                iobs_wfreezer->unfreeze(group);
+            }
+            it->second.frozen = false;
         }
     }
 
     return to_build;
+}
+
+ObsWilsonHelper::BuildSignature ObsWilsonHelper::make_signature(const WilsonBuildConfig& config) {
+    return BuildSignature{config.matching_scale, config.hadronic_scale, config.order};
 }

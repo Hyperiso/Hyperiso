@@ -205,8 +205,6 @@ static double expected_BR_Bs_mumu(const SpyObsParameterProxy& pp,
 int main() {
     std::cout << "== BllDecay INTEGRATION ==\n";
 
-    ObsWilsonHelper(true);
-
     auto builder_spy = std::make_shared<SpyObsWilsonBuilder>();
     std::shared_ptr<IObsWilsonBuilder> builder = builder_spy;
 
@@ -220,7 +218,8 @@ int main() {
     auto freezer_spy = std::make_shared<SpyWilsonFreezer>();
     std::shared_ptr<IWilsonFreezer<WGroupId>> freezer = freezer_spy;
 
-    ObservablePortsConfig ports(builder, p_sm, p_flav, qcd, use_marty, freezer);
+    auto wilson_helper = std::make_shared<ObsWilsonHelper>();
+    ObservablePortsConfig ports(builder, p_sm, p_flav, qcd, use_marty, freezer, wilson_helper);
 
     p_spy->values[ParamId{ParameterType::SM,     "SMINPUTS", 2}]       = R(1.0e-5);
     p_spy->values[ParamId{ParameterType::SM,     "EW", {1,2}}]         = R(1.0/137.0);
@@ -279,7 +278,7 @@ int main() {
     }
 
     {
-        ObsWilsonHelper(true);
+        wilson_helper->clear();
         use_marty->v = true;
 
         BllDecay decay2(QCDOrder::NONE, 160.0, 4.8, ports);
