@@ -2688,6 +2688,25 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(ObservableId obs)
     return compute_observable(ObservableMapper::enum_of(obs).value());
 }
 
+bool BKstarllDecay::is_observable_binned(ObservableId obs) const {
+    const auto enum_obs = ObservableMapper::enum_of(obs);
+    if (!enum_obs.has_value()) {
+        return true;
+    }
+
+    switch (enum_obs.value()) {
+    case Observables::Q0_A_FB_B__KSTAR_E_E:
+    case Observables::Q0_A_FB_B__KSTAR_MU_MU:
+    case Observables::Q0_A_FB_B__KSTAR_TAU_TAU:
+    case Observables::Q0_A_FB_B0__KSTAR0_E_E:
+    case Observables::Q0_A_FB_B0__KSTAR0_MU_MU:
+    case Observables::Q0_A_FB_B0__KSTAR0_TAU_TAU:
+        return false;
+    default:
+        return true;
+    }
+}
+
 void BKstarllDecay::set_n_threads(size_t n_threads) {
     unsigned int available_threads = std::thread::hardware_concurrency();
 
