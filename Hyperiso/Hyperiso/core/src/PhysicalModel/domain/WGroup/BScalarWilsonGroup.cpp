@@ -21,7 +21,7 @@ std::unordered_map<WCoefId, scalar_t> BScalarCoefficientGroup::base_1_LO_calcula
     }
 
     double eta = src.get_val("WPARAM_RUN_SM",2);
-    double beta_0 = src.get_val("WPARAM_SI_SM",5); // TODO : change to QCD params
+    double beta_0 = src.get_val("WPARAM_SI_SM",5);
     double fact = pow(eta, -4 / beta_0);
     
     std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
@@ -44,7 +44,7 @@ std::unordered_map<WCoefId, scalar_t> BScalarCoefficientGroup::base_1_NLO_calcul
     }
 
     double eta = src.get_val("WPARAM_RUN_SM",2);
-    double beta_0 = src.get_val("WPARAM_SI_SM",5); // TODO : change to QCD params
+    double beta_0 = src.get_val("WPARAM_SI_SM",5);
     double fact = pow(eta, 1 - 4 / beta_0);
     
     std::unordered_map<WCoefId, scalar_t> Ci_run_map {};

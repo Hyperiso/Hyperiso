@@ -17,7 +17,7 @@ void EWHelper::Init() {
         double alpha_Z = 1 / inv_alpha_m_Z;
         double alpha_b = alpha_5_mu_b(inv_alpha_m_Z, m_Z, mu_b);
         double alpha_c = alpha_4_mu_c(inv_alpha_m_Z, m_Z, m_b_pole, mu_b, mu_c);
-        double alpha_0 = 1 / 137.036; // TODO : Store somewhere
+        double alpha_0 = 1 / 137.036; // MAJ : Store somewhere
 
         dep_block->store_or_assign({1, 1}, std::make_shared<Parameter>(ParamId{ParameterType::SM, "EW", {1, 1}}, alpha_Z, 0., 0.));
         dep_block->store_or_assign({1, 2}, std::make_shared<Parameter>(ParamId{ParameterType::SM, "EW", {1, 2}}, alpha_b, 0., 0.));

@@ -6,7 +6,7 @@ CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar, ScaleTyp
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
-            {"WPARAM_MATCH_SM", {5, 1}},     // m_b(muW) ?! (voir TODO)
+            {"WPARAM_MATCH_SM", {5, 1}},     // m_b(muW) ?! (voir ASK)
             {"WPARAM_SI_SM", 1},             // xh
             {"WPARAM_SI_SM", 3},             // ml
             {"WPARAM_SI_SM", 4},             // sw2
@@ -23,7 +23,7 @@ CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar, ScaleTyp
 
 double CQ1::compute_LO(const ParamSrc& src) {
     double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});; // TODO : Ask Nazila (check SI first) : Why {5,2} and not {5,1} ?
+    double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});; // ASK : Why {5,2} and not {5,1} ?
     double xh     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 1);;
     double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);;
     double sw2    = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;

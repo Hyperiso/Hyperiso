@@ -22,8 +22,8 @@ std::unique_ptr<IMarginalDistribution> MarginalFactory::create(MarginalType name
             return make(seed, cfg);
         case MarginalType::FLAT:
             return make(seed, cfg);
-        //TODO : 
         case MarginalType::LIKELIHOOD:
+            // MAJ
             throw std::invalid_argument("LIKELIHOOD needs data (values, weights). Use createLikelihood(...).");
             return make(seed, cfg);
         default:

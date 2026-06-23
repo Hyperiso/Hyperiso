@@ -11344,7 +11344,7 @@ complex_t BV::A_Seidel(double s_hat, double L_b) {
         return mu_b_term + c0 + c1 * (1.-s_hat) + c2 * pow(1.-s_hat, 2);
     }
 
-    // TODO : Check consistency of std::log with gsl::Li2 (see old comment below)
+    // MAJ : Check consistency of std::log with gsl::Li2 (see old comment below)
     /* In the A expression, for (CLi2(s_hat)+log(s_hat)*std::log(1.-s_hat)), the real part is calculated correctly
      * but the imaginary part above the branch cut is not (in principle it should get cancelled).
      * I fixed the CLi2 to use the same branch cut as std::log, so it can be used directly */

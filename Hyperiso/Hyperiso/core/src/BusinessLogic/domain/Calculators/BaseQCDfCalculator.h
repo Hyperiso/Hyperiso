@@ -11,7 +11,7 @@ class BaseQCDfCalculator {
 protected:
     double mu_b, L_b;
     double m_c_pole, m_b_pole, m_b_PS;
-    double m_B, m_X;
+    double m_Bd, m_B, m_X;
     double f_B, f_X_par, f_X_perp {0};
     double z_c;
     double Delta_M;

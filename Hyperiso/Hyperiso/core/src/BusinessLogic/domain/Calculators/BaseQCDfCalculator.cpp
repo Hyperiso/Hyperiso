@@ -26,21 +26,20 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->alpha_s_mu_f = (*iobs_qcdp)(AlphasConfig(mu_f, MassType::POLE, MassType::POLE));
     this->loop_f_mu_f = this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI);
     this->loop_f_mu_b = this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI);
-    // this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", 4});
-    this->m_c_pole = 1.4790; // TODO : 1-loop value of m_c_pole to match superiso : implement in QCDHelper
-    // this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}});
-    this->m_b_pole = 4.5806; // TODO : 1-loop value of m_b_pole to match superiso : implement in QCDHelper
+    this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", {4, 1}}, DataType::VALUE);
+    this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 5}}, DataType::VALUE);
     double eta_f = this->alpha_s_mu_f / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     double m_b_pole_2loop = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE);
     this->m_b_PS = m_b_pole_2loop - 4 * (*iobs_qcdp)(AlphasConfig(m_b_pole_2loop, MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     this->m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
+    this->m_Bd = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 511}, DataType::VALUE);
     this->m_X = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", X_id}, DataType::VALUE);
     this->f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {B_id, 1}}, DataType::VALUE);
     this->f_X_par = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 1}}, DataType::VALUE);
     this->lambda_B_p = (*p)(ParamId{ParameterType::DECAY, this->src_block, 13}, DataType::VALUE) / (1. - this->alpha_s_mu_f * log(pow(mu_f, 2)) * 1.8 / (3. * PI));
     this->lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
-    // this->lambda_hat_u = 0.0; // TODO : Why neglected in SI for B > K l l ?
+    // this->lambda_hat_u = 0.0; // ASK : Why neglected in SI for B > K l l ?
     this->a_1_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}, DataType::VALUE), eta_f, gamma_par(1));
     this->a_2_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}, DataType::VALUE), eta_f, gamma_par(2));
 
@@ -137,9 +136,8 @@ complex_t BaseQCDfCalculator::Y_u(double q2) {
 }
 
 complex_t BaseQCDfCalculator::t_perp(double u, double m_q, double q2, double E_Kstar) {
-    // double mB2 = this->m_B * this->m_B;
-    // TODO : Why always m_Bd and not m_B for B+ decay ? 
-    double mB2 = 5.27972 * 5.27972;
+    double mB2 = this->m_Bd * this->m_Bd;
+    // ASK : Why always m_Bd and not m_B for B+ decay ? 
     if(fpeq(q2, 0.)) {
 		if (fpeq(m_q, 0.)) return 4./(1.-u);
 		double epsilon=1.e-10;
@@ -148,17 +146,15 @@ complex_t BaseQCDfCalculator::t_perp(double u, double m_q, double q2, double E_K
 		return 4./(1.-u)*(1.+2.*m_q*m_q/(1.-u)/mB2*(BV::L_1(xp)+BV::L_1(xm)));
 	} else {
         double s_hat = q2 / mB2;
-        double mq_hat = m_q / 5.27972;
-        return 2.*5.27972/(1.-u)/E_Kstar*BV::I_1(u,s_hat,mq_hat)+q2/(1.-u)/(1.-u)/E_Kstar/E_Kstar*(BV::B_0((1.-u)*mB2+u*q2,m_q)-BV::B_0(q2,m_q));
+        double mq_hat = m_q / m_Bd;
+        return 2.*m_Bd/(1.-u)/E_Kstar*BV::I_1(u,s_hat,mq_hat)+q2/(1.-u)/(1.-u)/E_Kstar/E_Kstar*(BV::B_0((1.-u)*mB2+u*q2,m_q)-BV::B_0(q2,m_q));
     }
 }
 
 complex_t BaseQCDfCalculator::t_par(double u, double m_q, double q2, double E_Kstar) {
-    // double mB2 = this->m_B * this->m_B;
-    double mB2 = 5.27972 * 5.27972;
+    double mB2 = this->m_Bd * this->m_Bd;
     double s_hat = q2 / mB2;
-    // double mq_hat = m_q / this->m_B;
-    double mq_hat = m_q / 5.27972;
+    double mq_hat = m_q / this->m_Bd;
     
     // printf("In t_par(u = %.4e, m_q = %.4e, q2 = %.4e, E_K* = %.4e)\n", u, m_q, q2, E_Kstar);
     // printf("I_1 = %.4e + %.4e i\n", real(BV::I_1(u,s_hat,mq_hat)), imag(BV::I_1(u,s_hat,mq_hat)));
@@ -166,7 +162,7 @@ complex_t BaseQCDfCalculator::t_par(double u, double m_q, double q2, double E_Ks
     // printf("B_0(1) = %.4e + %.4e i\n", real(BV::B_0(q2,m_q)), imag(BV::B_0(q2,m_q)));
 
     // return 2.*this->m_B/(1.-u)/E_Kstar*BV::I_1(u,s_hat,mq_hat)+((1.-u)*mB2+u*q2)/(1.-u)/(1.-u)/E_Kstar/E_Kstar*(BV::B_0((1.-u)*mB2+u*q2,m_q)-BV::B_0(q2,m_q));
-    return 2.*5.27972/(1.-u)/E_Kstar*BV::I_1(u,s_hat,mq_hat)+((1.-u)*mB2+u*q2)/(1.-u)/(1.-u)/E_Kstar/E_Kstar*(BV::B_0((1.-u)*mB2+u*q2,m_q)-BV::B_0(q2,m_q));
+    return 2.*this->m_Bd/(1.-u)/E_Kstar*BV::I_1(u,s_hat,mq_hat)+((1.-u)*mB2+u*q2)/(1.-u)/(1.-u)/E_Kstar/E_Kstar*(BV::B_0((1.-u)*mB2+u*q2,m_q)-BV::B_0(q2,m_q));
 
 }
 

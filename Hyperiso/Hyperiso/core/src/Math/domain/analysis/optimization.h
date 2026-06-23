@@ -36,7 +36,7 @@ struct ScalarMinimizationResult {
     double min;
 };
 
-// TODO : use GSL for consistency and make return type MinimizationResult
+// MAJ : use GSL for consistency and make return type MinimizationResult
 bool find_bracket(const RealValuedFunction& f, double x_min, double x_max, double &a, double &b, int n_samples = 100);   
 double brent_root(const RealValuedFunction& f, double a, double b, double xtol = 1e-6, double ftol = 1e-6, int max_it = 100);
 

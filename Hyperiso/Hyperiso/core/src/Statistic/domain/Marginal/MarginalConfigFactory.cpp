@@ -15,15 +15,16 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
         return FlatMarginalCfg {mu - sigma * std::sqrt(3), mu + sigma * std::sqrt(3)};
         break;
     case MarginalType::HALF_GAUSSIAN:
-        // TODO
+        // MAJ : Update data structure to store asymmetric uncertainty
         throw std::runtime_error("NYI");
     case MarginalType::LIKELIHOOD:
+        // MAJ
         throw std::runtime_error("NYI");
     default:
         throw std::invalid_argument("Unknown marginal type");
     }
 }
-//TODO : checkkkkkk
+
 MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
                                              MarginalType marginal) {
     std::map<ExperimentObs, double> sigma = p(oid.obs, DataType::STD_COMBINED);;
@@ -34,7 +35,6 @@ MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
             if (s.first == oid) {
                 out = GaussianMarginalCfg (0.0, s.second);
             }
-            // out[s.first] = GaussianMarginalCfg (0.0, s.second);
         }
         return out;
         break;
@@ -43,12 +43,11 @@ MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
             if (s.first == oid) {
                 out = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
             }
-            // out[s.first] = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
         }
         return out;
         break;
     case MarginalType::HALF_GAUSSIAN:
-        // TODO
+        // MAJ : Same as above
         throw std::runtime_error("NYI");
     case MarginalType::LIKELIHOOD:
         throw std::runtime_error("NYI");

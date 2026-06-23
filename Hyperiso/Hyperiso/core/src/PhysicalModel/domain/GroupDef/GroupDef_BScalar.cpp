@@ -266,7 +266,7 @@ namespace GroupDefinitions {
 //     };
 
 //     const double eta    = src.get_val("WPARAM_RUN_SM",2);
-//     const double beta_0 = src.get_val("WPARAM_SI_SM",5); // TODO: passer aux vrais params QCD si dispo
+//     const double beta_0 = src.get_val("WPARAM_SI_SM",5);
 
 //     const double fact = std::pow(eta, -4.0 / beta_0);
 

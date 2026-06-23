@@ -642,7 +642,7 @@ scalar_t C7_susy::compute_LO(const ParamSrc& src) {
     // std::cout << "mW" << mW << std::endl;
     complex_t C7Heps2_0 = 0.;
 
-    // TODO : Use MODSEL block instead
+    // MAJ : Use MODSEL block instead
     if ((m_A02 == 0.) && (m_H03 == 0.)) {
         C7Heps2_0 = -epsilon2 * epsilon1p * pow(tanb, 2.) / (1. + epsilonb * tanb) / (1. + epsilon0 * tanb) * F7_2(yt);
         C7Heps2_0 += epsilon2 / pow(1. + epsilonb * tanb, 2.) * (1. + pow(tanb, 2.)) / (1. + epsilon0 * tanb) / 72. *

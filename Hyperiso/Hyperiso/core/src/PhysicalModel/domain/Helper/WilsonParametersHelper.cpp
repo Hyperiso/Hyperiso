@@ -23,12 +23,13 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
 
     auto func = [gen] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
         double xh = pow(src.get_val("MASS", 25) / src.get_val("MASS", 24), 2);
+        // MAJ : Valid only down to m_c
 		int nf = 5;
         dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 1}, xh, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 2}, gen, 0., 0.));
 		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 3}, src.get_val("MASS", 9 + 2 * gen), 0., 0.));
 		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 4}, src.get_val("SMINPUTS", {7, 1}), 0., 0.));
-		dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 5}, 11.-2./3.*nf, 0., 0.)); //TODO, beta0
+		dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 5}, 11.-2./3.*nf, 0., 0.));
     };
     iblock_c->compose_block("WPARAM_SI_SM", src, func);
 }

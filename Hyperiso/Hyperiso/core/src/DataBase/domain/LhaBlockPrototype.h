@@ -73,7 +73,7 @@ const Prototype YD = Prototype{{"YD", "DCOUPL"}, 4, 3, -1, -1, -1, true};
 const Prototype YE = Prototype{{"YE", "LCOUPL", "YL"}, 4, 3, -1, -1, -1, true};
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
-const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX}; //TODO : SPINFO pb
+const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX}; // MAJ : SPINFO/FCINFO pb (values are string)
 
 // FLHA Block prototypes
 const Prototype FCINFO = Prototype{"FCINFO"};
@@ -85,7 +85,7 @@ const Prototype FCONSTRATIO = Prototype{"FCONSTRATIO", 7, 4, 5, 6};
 const Prototype FBAG = Prototype{"FBAG", 5, 2, 3, 4};
 // const Prototype FWCOEF = Prototype{"FWCOEF", 6, 5, -1, -1, true};
 // const Prototype IMFWCOEF = Prototype{"IMFWCOEF", 6, 5, -1, -1, true};
-const Prototype FWCOEF   = Prototype{"FWCOEF",   7, 6, -1, -1, -1, true}; //TODO : try to fix variant error.
+const Prototype FWCOEF   = Prototype{"FWCOEF",   7, 6, -1, -1, -1, true}; // TODO : try to fix variant error. To be tested.
 const Prototype IMFWCOEF = Prototype{"IMFWCOEF", 7, 6, -1, -1, -1, true};
 const Prototype FOBS = Prototype{"FOBS", 11, 2, 3, -1, 4};
 const Prototype FOBSERR = Prototype{"FOBSERR", 11, 2, 3, -1, 4};

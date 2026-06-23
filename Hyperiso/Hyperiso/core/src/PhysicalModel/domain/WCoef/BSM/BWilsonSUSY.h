@@ -7,8 +7,6 @@
 #include "Utils.h"
 #include "ChargedCurrentsWilsonGroup.h"
 
-
-// TODO : adapt with storage_block constructor as in THDM
 class C1_susy : public WilsonCoefficient {
 public:
     C1_susy();

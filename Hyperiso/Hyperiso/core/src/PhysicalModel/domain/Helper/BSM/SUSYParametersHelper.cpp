@@ -219,7 +219,7 @@ void SUSYParameterHelper::init_scale_independent_block(int) {
 
 		double kappa = 1.0 / (pow(src.get_val("GAUGE", 2), 2.) * 
 						std::real((src.get_val("VCKM", {2,2}))*(src.get_val("VCKM", {2,1})))); //VCKM 33 et 32
-		//TODO : careful with real
+		//ASK : careful with real
 
 		double kappaFactor = -0.5 * kappa;
 

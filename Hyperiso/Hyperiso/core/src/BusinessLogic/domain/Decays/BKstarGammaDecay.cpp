@@ -103,8 +103,6 @@ std::vector<ObservableValue> BKstarGammaDecay::compute_observable(ObservableId o
 void BKstarGammaDecay::fill_wilson_cache() {
     cache.C.clear();
     cache.C_trad.clear();
-
-    // On force explicitement la base standard pour la partie "normale"
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
 
     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
@@ -123,7 +121,7 @@ void BKstarGammaDecay::fill_wilson_cache() {
     auto b_wilsons_trad  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
 
-    // On garde tes valeurs hardcodées pour le test
+    // TODO : Check values for trad basis ?
     cache.C_trad[WCoef::C1] = -8.3741e-2;
     cache.C_trad[WCoef::C2] =  1.0281;
     cache.C_trad[WCoef::C3] =  9.5354e-3;
@@ -144,10 +142,10 @@ void BKstarGammaDecay::fill_wilson_cache() {
     cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order);
     cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
 
-    // cache.C2_h =  9.8536e-1;
-    // cache.C8_h = -1.7263e-1;
+    // TODO : Check values for trad basis ?
+    cache.C2_h =  9.8536e-1;
+    cache.C8_h = -1.7263e-1;
 
-    // Important : on remet la base standard pour éviter les effets de bord
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_b);
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
 }

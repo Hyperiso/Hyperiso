@@ -2,7 +2,7 @@
 #include "special_SUSY.h"
 #include "special_THDM.h"
 
-// TODO : Complete separation between SM and THDM/SUSY according to headers
+// MAJ : Complete separation between SM and THDM/SUSY according to headers
 
 /*--------------------------------------------------------------------*/
 

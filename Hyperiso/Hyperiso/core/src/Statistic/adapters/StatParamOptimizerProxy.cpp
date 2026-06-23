@@ -9,7 +9,7 @@
  * - DECAY parameters,
  * - WILSON parameters.
  */
-StatParamOptimizerProxy::StatParamOptimizerProxy() : poa({ParameterType::SM, ParameterType::FLAVOR, ParameterType::DECAY, ParameterType::WILSON}) { //TODO : add the right parameterType
+StatParamOptimizerProxy::StatParamOptimizerProxy() : poa({ParameterType::SM, ParameterType::FLAVOR, ParameterType::DECAY, ParameterType::WILSON}) {
     
 }
 

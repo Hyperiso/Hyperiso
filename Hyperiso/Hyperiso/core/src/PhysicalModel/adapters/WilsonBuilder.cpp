@@ -20,7 +20,7 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_CC_su(*reg);
     register_CC_du(*reg);
     register_K(*reg);
-    register_MesonMixing(*reg); //TODO
+    register_MesonMixing(*reg);
     return reg;
 }
 
@@ -39,7 +39,6 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     
     Model model = ModelAPI().get();
 
-    //TODO :: better
     if (model == Model::THDM) {
         wilson_param_helpers[model] = std::make_shared<THDMParameterHelper>(iblock_c);
         for (const auto& elem : config.groups) {

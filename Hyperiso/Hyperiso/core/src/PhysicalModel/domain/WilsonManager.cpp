@@ -1109,7 +1109,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::s
     for (auto& group: groups) {
         LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
         manager->init_group_matching(group.first, order);
-        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order); //TODO : Camilia change, need to be done correctly
+        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
         manager->init_group_hadronic_all_bases(group.first, order);
     }
     LOG_DEBUG("(CoefficientManager) Manager successfully initialized");

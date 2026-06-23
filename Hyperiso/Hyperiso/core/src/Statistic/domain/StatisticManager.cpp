@@ -603,7 +603,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     std::vector<ExperimentObs> obs_ids = unzipped.ids;
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
-    for (auto& [oid, mt] : exp_data_marginals) {//TODO : checkkkkkk
+    for (auto& [oid, mt] : exp_data_marginals) {
         MarginalConfig cfg = MarginalConfigFactory().create(oid, mt);
         auto m_ptr = MarginalFactory::create(mt, cfg, seed);
         marginals.emplace_back(std::move(m_ptr));

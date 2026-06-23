@@ -112,8 +112,12 @@ private:
 
     /// Computes charm pole mass from Λ_4 and SM inputs.
     static double calc_mc_pole(double lambda_4);
+    /// Computes charm pole mass from Λ_4 and SM inputs at one loop.
+    static double calc_mc_pole_one_loop(double lambda_4);
     /// Computes bottom pole mass from Λ_5 and SM inputs.
     static double calc_mb_pole(double lambda_5);
+    /// Computes bottom pole mass from Λ_5 and SM inputs at one loop.
+    static double calc_mb_pole_one_loop(double lambda_5);
     /// Computes kinematic bottom mass from m_b(m_b) and Λ_3.
     static double calc_mb_kinematic(double mb_mb, double lambda_3);
     /// Computes 1S bottom mass from Λ_4 and m_b^pole.
