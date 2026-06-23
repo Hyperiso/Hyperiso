@@ -1,0 +1,19 @@
+{
+  "name": "HyperIso development",
+  "build": {
+    "dockerfile": "../docker/Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/opt/hyperiso",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools",
+        "ms-python.python",
+        "charliermarsh.ruff"
+      ]
+    }
+  },
+  "postCreateCommand": "python3 -m pip install --break-system-packages pre-commit pytest && pre-commit install || true"
+}
