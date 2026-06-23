@@ -1,5 +1,8 @@
-#ifndef __LBLLLDECAY_H__
-#define __LBLLLDECAY_H__
+#ifndef LBLLLDECAY_H
+#define LBLLLDECAY_H
+
+#include <algorithm>
+#include <thread>
 
 #include "DecayParent.h"
 #include "General.h"
@@ -12,6 +15,7 @@ struct LbLllConfig {
 
     LbL_FF_Src ff_src {LbL_FF_Src::DM};
     Lepton gen {Lepton::MU};
+    size_t n_threads {1};
 };
 
 struct LbLllDecayCache {
@@ -28,6 +32,7 @@ struct LbLllDecayCache {
 
     std::array<std::vector<double>, 6> K_i_binned;
     std::array<std::vector<double>, 6> K_i_bar_binned;
+    std::vector<double> bin_widths;  // effective integration widths used for bin-averaged dBR/dq2 / dGamma/dq2
 };
 
 /**
@@ -67,7 +72,7 @@ protected:
 
     void compute_binned_K_i();
 
-    std::vector<ObservableValue> dBR_dq2_binned(Observables oid);
+    std::vector<ObservableValue> dBR_dq2_binned(Observables oid, bool br);
     double dG_dq2_avg_bin(size_t bin);
     std::vector<ObservableValue> A_FB_l(Observables oid);
     std::vector<ObservableValue> A_FB_h(Observables oid);
@@ -83,6 +88,7 @@ public:
     }
 
     void load_params() override;
+    void set_n_threads(size_t n_threads) override;
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 

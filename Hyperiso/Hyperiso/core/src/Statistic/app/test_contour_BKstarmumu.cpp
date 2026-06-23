@@ -1255,7 +1255,7 @@ int main() {
     config.advanced.MLE_trace_first_evals  = true;
     config.advanced.MLE_trace_max_evals  = 20;
     config.advanced.likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE;
-    config.MC_draws = 100;
+    config.MC_draws = 1000;
     config.advanced.nuisance_sensitivity_contexts = -1;
     config.print_mc_config = false;
     const std::string had_bsm_block =
