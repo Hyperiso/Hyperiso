@@ -444,3 +444,7 @@ ObsManager ObsManager::set_bkll_threads(size_t n_threads) {
 ObsManager ObsManager::set_bsphi_threads(size_t n_threads) {
     return set_decay_threads(Decays::Bs__phi_l_l, n_threads);
 }
+
+ObsManager ObsManager::set_lblll_threads(size_t n_threads) {
+    return set_decay_threads(Decays::Lambda_b__Lambda_l_l, n_threads);
+}

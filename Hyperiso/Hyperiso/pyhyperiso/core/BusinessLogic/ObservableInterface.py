@@ -696,6 +696,17 @@ class ObservableInterface:
         """
         self._cpp_obj.enable_obs()
 
+    def set_decay_threads(self, decay: Decays, n_threads: int) -> None:
+        """Configure the number of threads used by a decay that supports it.
+
+        Args:
+            decay: Decay family whose decay engine should receive the thread setting.
+            n_threads: Number of worker threads requested by the C++ decay
+                implementation. ``0`` delegates to hardware concurrency for
+                supported decays.
+        """
+        self._cpp_obj.set_decay_threads(_cpp_decay(decay), int(n_threads))
+
     def set_bkstarll_threads(self, n_threads: int) -> None:
         """Configure the number of threads used by the ``B -> K* ll`` decay.
 
@@ -722,6 +733,15 @@ class ObservableInterface:
                 implementation.
         """
         self._cpp_obj.set_bsphi_threads(int(n_threads))
+
+    def set_lblll_threads(self, n_threads: int) -> None:
+        """Configure the number of threads used by the ``Lambda_b -> Lambda ll`` decay.
+
+        Args:
+            n_threads: Number of worker threads requested by the C++ decay
+                implementation.
+        """
+        self._cpp_obj.set_lblll_threads(int(n_threads))
 
 
 __all__ = ["ObservableInterface"]

@@ -483,10 +483,13 @@ class LbLllConfig(DecayConfig):
     Args:
         ff_src: Source of Lambda_b -> Lambda form factors.
         gen: Lepton generation. Defaults to ``MU``.
+        n_threads: Requested number of worker threads. ``0`` may be interpreted
+            by the C++ layer as ``std::thread::hardware_concurrency``.
     """
 
     ff_src: LbLFFSource = LbLFFSource.DM
     gen: LbLllLepton = LbLllLepton.MU
+    n_threads: int = 1
 
     @classmethod
     def from_cpp(cls, cpp_obj: _CppLbLllConfig) -> "LbLllConfig":
@@ -494,6 +497,7 @@ class LbLllConfig(DecayConfig):
         return cls(
             ff_src=LbLFFSource(cpp_obj.ff_src),
             gen=LbLllLepton(cpp_obj.gen),
+            n_threads=int(cpp_obj.n_threads),
         )
 
     def to_cpp(self) -> _CppLbLllConfig:
@@ -501,6 +505,7 @@ class LbLllConfig(DecayConfig):
         cfg = _CppLbLllConfig()
         cfg.ff_src = _as_cpp_enum(self.ff_src, LbLFFSource, "ff_src")
         cfg.gen = _as_cpp_enum(self.gen, LbLllLepton, "gen")
+        cfg.n_threads = int(self.n_threads)
         return cfg
 
 

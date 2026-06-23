@@ -243,28 +243,14 @@ void LbLllDecay::compute_binned_K_i() {
     fill_binned(cache.K_i_bar_binned, true);
 }
 
-std::vector<ObservableValue> LbLllDecay::dBR_dq2_binned(Observables oid, bool br) {
+std::vector<ObservableValue> LbLllDecay::dBR_dq2_binned(Observables oid) {
     std::vector<ObservableValue> out;
-    double br_factor = br ? cache.life_L : 1.0;
-
     for (size_t i = 0; i < this->bins.value().size(); i++) {
         double K1ss = cache.K_i_binned[0][i] + cache.K_i_bar_binned[0][i];
         double K1cc = cache.K_i_binned[1][i] + cache.K_i_bar_binned[1][i];
-        double integrated_rate = (2 * K1ss + K1cc) / 2;
-        const double requested_width = this->bins.value()[i].second - this->bins.value()[i].first;
-        const double width =
-            (i < cache.bin_widths.size() && std::isfinite(cache.bin_widths[i]) && cache.bin_widths[i] > 0.0)
-            ? cache.bin_widths[i]
-            : requested_width;
-
-        const double res =
-            (std::isfinite(width) && width > 0.0)
-            ? integrated_rate * br_factor / width
-            : std::numeric_limits<double>::quiet_NaN();
-
+        double res = (2 * K1ss + K1cc) / 2 * cache.life_L;
         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-    }
-
+    }   
     return out;
 }
 
@@ -330,10 +316,7 @@ std::vector<ObservableValue> LbLllDecay::compute_observable(Observables obs) {
     switch (obs) {
     case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_E_E:   
         set_cfg_flags(LbLllConfig::Lepton::E);
-        return dBR_dq2_binned(obs, true);
-    case Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E:   
-        set_cfg_flags(LbLllConfig::Lepton::E);
-        return dBR_dq2_binned(obs, false);
+        return dBR_dq2_binned(obs);
     case Observables::A_FB_L_LAMBDA_B__LAMBDA_E_E:   
         set_cfg_flags(LbLllConfig::Lepton::E);
         return A_FB_l(obs);
@@ -351,10 +334,7 @@ std::vector<ObservableValue> LbLllDecay::compute_observable(Observables obs) {
         return F_T(obs);
     case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU:
         set_cfg_flags(LbLllConfig::Lepton::MU);
-        return dBR_dq2_binned(obs, true);
-    case Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_MU_MU:   
-        set_cfg_flags(LbLllConfig::Lepton::MU);
-        return dBR_dq2_binned(obs, false);
+        return dBR_dq2_binned(obs);
     case Observables::A_FB_L_LAMBDA_B__LAMBDA_MU_MU:
         set_cfg_flags(LbLllConfig::Lepton::MU);
         return A_FB_l(obs);
@@ -372,10 +352,7 @@ std::vector<ObservableValue> LbLllDecay::compute_observable(Observables obs) {
         return F_T(obs);
     case Observables::DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU:
         set_cfg_flags(LbLllConfig::Lepton::TAU);   
-        return dBR_dq2_binned(obs, true);
-    case Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_TAU_TAU:   
-        set_cfg_flags(LbLllConfig::Lepton::TAU);
-        return dBR_dq2_binned(obs, false);
+        return dBR_dq2_binned(obs);
     case Observables::A_FB_L_LAMBDA_B__LAMBDA_TAU_TAU:
         set_cfg_flags(LbLllConfig::Lepton::TAU);   
         return A_FB_l(obs);

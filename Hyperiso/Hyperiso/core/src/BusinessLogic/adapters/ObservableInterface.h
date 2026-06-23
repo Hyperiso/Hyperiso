@@ -494,6 +494,17 @@ public:
     void set_decay_config(Decays dec, std::any config);
 
     /**
+     * @brief Set the thread option for any decay that supports it.
+     *
+     * Passing 0 delegates to std::thread::hardware_concurrency for supported decays.
+     * Unsupported decays keep their default behavior and emit a warning.
+     *
+     * @param dec Decay enum.
+     * @param n_threads Number of threads.
+     */
+    void set_decay_threads(Decays dec, size_t n_threads);
+
+    /**
      * @brief Set the thread option for the bkstarll decay
      *
      * Because bkstarll is the more time consuming calculation, multithreading is focused on it to improve calculation speed.
@@ -519,6 +530,13 @@ public:
      * @param n_threads Number of threads.
      */
     void set_bsphi_threads(size_t n_threads);
+
+    /**
+     * @brief Set the thread option for the Lambda_b -> Lambda l+ l- decay.
+     *
+     * @param n_threads Number of threads.
+     */
+    void set_lblll_threads(size_t n_threads);
 
     /**
      * @brief Access the underlying ports configuration (advanced use).

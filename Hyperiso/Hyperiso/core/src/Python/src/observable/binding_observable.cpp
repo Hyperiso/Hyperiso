@@ -344,6 +344,7 @@ Configuration for the Lambda_b -> Lambda l+ l- decay engine.
 Attributes:
     ff_src: Source of Lambda_b -> Lambda form factors.
     gen: Lepton generation.
+    n_threads: Number of worker threads requested by the decay implementation.
 )pbdoc");
     py::enum_<LbLllConfig::Lepton>(lblll_cfg, "Lepton", R"pbdoc(Lepton generation option for LbLllConfig.)pbdoc")
         .value("E", LbLllConfig::Lepton::E)
@@ -352,7 +353,8 @@ Attributes:
     lblll_cfg
         .def(py::init<>(), R"pbdoc(Create a Lambda_b -> Lambda l+ l- configuration with backend defaults.)pbdoc")
         .def_readwrite("ff_src", &LbLllConfig::ff_src, R"pbdoc(Lambda_b -> Lambda form-factor source.)pbdoc")
-        .def_readwrite("gen", &LbLllConfig::gen, R"pbdoc(Lepton generation.)pbdoc");
+        .def_readwrite("gen", &LbLllConfig::gen, R"pbdoc(Lepton generation.)pbdoc")
+        .def_readwrite("n_threads", &LbLllConfig::n_threads, R"pbdoc(Number of worker threads.)pbdoc");
 }
 
 template <typename ConfigT>
@@ -591,11 +593,15 @@ void init_observable(py::module &m) {
           },
           py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
           R"pbdoc(Set a generic, empty decay configuration for a configurable decay.)pbdoc")
+     .def("set_decay_threads", &ObservableInterface::set_decay_threads,
+          py::arg("decay"), py::arg("n_threads"))
      .def("set_bkstarll_threads", &ObservableInterface::set_bkstarll_threads,
           py::arg("n_threads"))
      .def("set_bkll_threads", &ObservableInterface::set_bkll_threads,
           py::arg("n_threads"))
      .def("set_bsphi_threads", &ObservableInterface::set_bsphi_threads,
+          py::arg("n_threads"))
+     .def("set_lblll_threads", &ObservableInterface::set_lblll_threads,
           py::arg("n_threads"));
 
 }

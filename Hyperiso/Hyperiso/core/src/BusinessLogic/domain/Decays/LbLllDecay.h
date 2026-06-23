@@ -1,5 +1,5 @@
-#ifndef LBLLLDECAY_H
-#define LBLLLDECAY_H
+#ifndef __LBLLLDECAY_H__
+#define __LBLLLDECAY_H__
 
 #include "DecayParent.h"
 #include "General.h"
@@ -28,7 +28,6 @@ struct LbLllDecayCache {
 
     std::array<std::vector<double>, 6> K_i_binned;
     std::array<std::vector<double>, 6> K_i_bar_binned;
-    std::vector<double> bin_widths;  // effective integration widths used for bin-averaged dBR/dq2 / dGamma/dq2
 };
 
 /**
@@ -68,7 +67,7 @@ protected:
 
     void compute_binned_K_i();
 
-    std::vector<ObservableValue> dBR_dq2_binned(Observables oid, bool br);
+    std::vector<ObservableValue> dBR_dq2_binned(Observables oid);
     double dG_dq2_avg_bin(size_t bin);
     std::vector<ObservableValue> A_FB_l(Observables oid);
     std::vector<ObservableValue> A_FB_h(Observables oid);

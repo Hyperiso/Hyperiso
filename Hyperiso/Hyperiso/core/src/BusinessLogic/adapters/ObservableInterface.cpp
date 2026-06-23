@@ -274,8 +274,12 @@ void ObservableInterface::set_decay_config(Decays dec, std::any config) {
 
 ObservablePortsConfig& ObservableInterface::get_ports() {return this->manager->get_ports();}
 
+void ObservableInterface::set_decay_threads(Decays dec, size_t n_threads) {this->manager->set_decay_threads(dec, n_threads);}
+
 void ObservableInterface::set_bkstarll_threads(size_t n_threads) {this->manager->set_bkstarll_threads(n_threads);}
 
 void ObservableInterface::set_bkll_threads(size_t n_threads) {this->manager->set_bkll_threads(n_threads);}
 
 void ObservableInterface::set_bsphi_threads(size_t n_threads) {this->manager->set_bsphi_threads(n_threads);}
+
+void ObservableInterface::set_lblll_threads(size_t n_threads) {this->manager->set_lblll_threads(n_threads);}

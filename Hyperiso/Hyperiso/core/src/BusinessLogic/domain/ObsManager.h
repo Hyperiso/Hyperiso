@@ -408,6 +408,13 @@ public:
      */
     ObsManager set_bsphi_threads(size_t n_threads);
 
+    /**
+     * @brief Set the thread option for the Lambda_b -> Lambda l+ l- decay.
+     *
+     * @param n_threads Number of threads.
+     */
+    ObsManager set_lblll_threads(size_t n_threads);
+
 private:
     /// Registry of decay engines available to the manager.
     std::unordered_map<DecayId, std::shared_ptr<DecayParent>> decays;
