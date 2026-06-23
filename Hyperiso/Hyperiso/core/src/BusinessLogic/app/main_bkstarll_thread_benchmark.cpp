@@ -200,12 +200,13 @@ int main(int argc, char** argv) {
 
     csv << "threads,repeats,warmups,order,bins,include_unbinned,n_observables,mean_ms,stddev_ms,min_ms,max_ms,checksum\n";
     ObservableInterface interface;
-    add_decay_observables_with_bins(interface, Decays::B__Kstar_l_l, opt.order, opt.bins, opt.include_unbinned);
+    add_decay_observables_with_bins(interface, Decays::B__K_l_l, opt.order, opt.bins, opt.include_unbinned);
 
     for (unsigned int threads = 1; threads <= opt.max_threads; ++threads) {
-        interface.set_bkstarll_threads(threads);
+        interface.set_bkll_threads(threads);
 
         for (int i = 0; i < opt.warmups; ++i) {
+            std::cout << "warmup : " << i << std::endl;
             volatile double sink = checksum(interface.compute_all());
             (void)sink;
         }
@@ -216,6 +217,7 @@ int main(int argc, char** argv) {
         size_t n_observables = 0;
 
         for (int i = 0; i < opt.repeats; ++i) {
+            std::cout << "repeat : " << i << std::endl;
             const auto start = std::chrono::steady_clock::now();
             auto results = interface.compute_all();
             const auto stop = std::chrono::steady_clock::now();

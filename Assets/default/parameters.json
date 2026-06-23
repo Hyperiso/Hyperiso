@@ -1644,6 +1644,21 @@
       "central_value": 0.0,
       "stat_error": 0.05,
       "syst_error": 0
+    },
+    "3_15_0": {
+      "central_value": 0.0,
+      "stat_error": 0.05,
+      "syst_error": 0
+    },
+    "3_15_1": {
+      "central_value": 0.0,
+      "stat_error": 0.05,
+      "syst_error": 0
+    },
+    "3_15_2": {
+      "central_value": 0.0,
+      "stat_error": 0.05,
+      "syst_error": 0
     }
   },
   "B_ll": {
@@ -2538,6 +2553,11 @@
       "stat_error": 6e-06,
       "syst_error": 0
     },
+    "311": {
+      "central_value": 0.497611,
+      "stat_error": 0,
+      "syst_error": 0
+    },
     "313": {
       "central_value": 0.89555,
       "stat_error": 0.00026,
@@ -2561,6 +2581,11 @@
     "411": {
       "central_value": 1.86966,
       "stat_error": 5e-05,
+      "syst_error": 0
+    },
+    "413": {
+      "central_value": 2.01026,
+      "stat_error": 0,
       "syst_error": 0
     },
     "421": {

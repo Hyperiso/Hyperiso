@@ -26,7 +26,7 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->alpha_s_mu_f = (*iobs_qcdp)(AlphasConfig(mu_f, MassType::POLE, MassType::POLE));
     this->loop_f_mu_f = this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI);
     this->loop_f_mu_b = this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI);
-    this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", {4, 1}}, DataType::VALUE);
+    this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", {4, 2}}, DataType::VALUE);
     this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 5}}, DataType::VALUE);
     double eta_f = this->alpha_s_mu_f / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     double m_b_pole_2loop = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE);

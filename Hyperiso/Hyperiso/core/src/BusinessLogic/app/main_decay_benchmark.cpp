@@ -20,13 +20,13 @@
 namespace {
 
 struct Options {
-    std::string input = "lha/si_input.flha";
+    std::string input = "default/lha/testInput.flha";
     std::string output = "benchmark_decays.csv";
     int repeats = 30;
     int warmups = 3;
     unsigned int threads = 0; // 0 -> hardware_concurrency for decays that support it
     QCDOrder order = QCDOrder::NLO;
-    std::vector<std::pair<double, double>> bins {{1.0, 6.0}};
+    std::vector<std::pair<double, double>> bins {{15.0, 17.0}};
     bool include_unbinned = false;
 };
 
@@ -167,7 +167,7 @@ std::vector<DecayCase> default_decay_cases() {
         {Decays::B__l_nu, false, false},
         {Decays::B__Xs_gamma, false, false},
         {Decays::B__Xs_l_l, false, true},
-        {Decays::M0_Mix, false, false},
+        // {Decays::M0_Mix, false, false},
         {Decays::B__Kstar_l_l, true, true},
         {Decays::B__K_l_l, true, true},
         {Decays::Bs__phi_l_l, true, true},
