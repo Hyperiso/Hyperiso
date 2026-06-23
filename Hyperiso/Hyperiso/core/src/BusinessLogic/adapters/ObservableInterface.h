@@ -219,14 +219,24 @@ public:
                          std::pair<double, double> bin={1.0, 6.0});
 
     /**
-     * @brief Return whether all observables of this decay require q² bins.
+     * @brief Return whether this decay has at least one observable requiring q² bins.
      */
     bool is_decay_binned(Decays decay) const;
 
     /**
-     * @brief Return whether all observables of this decay require q² bins.
+     * @brief Return whether this decay has at least one observable requiring q² bins.
      */
     bool is_decay_binned(DecayId decay) const;
+
+    /**
+     * @brief Return whether a specific observable requires q² bins.
+     */
+    bool is_observable_binned(Observables obs) const;
+
+    /**
+     * @brief Return whether a specific observable requires q² bins.
+     */
+    bool is_observable_binned(ObservableId obs) const;
 
      /**
      * @brief Manually add a single parameter dependence to an observable (enum API).

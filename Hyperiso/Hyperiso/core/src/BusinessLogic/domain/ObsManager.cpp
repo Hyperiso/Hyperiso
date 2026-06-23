@@ -43,11 +43,11 @@ ObsManager ObsManager::add_obs(ObservableId id, QCDOrder order, bool add_deps) {
                   "but this decay is not registered in ObsManager.");
     }
 
-    if (dec_it->second->is_binned()) {
+    if (dec_it->second->is_observable_binned(id)) {
         LOG_ERROR(
             "APIError",
             "Observable", ObservableMapper::str(id),
-            "belongs to binned decay", DecayMapper::str(dec_id),
+            "requires q² bins in decay", DecayMapper::str(dec_id),
             ". Use add_observable(BinnedObservableId, ...) or add_observables(decay, ..., bin)."
         );
     }
@@ -79,6 +79,21 @@ bool ObsManager::is_decay_binned(DecayId decay) const {
         LOG_ERROR("KeyError", "Decay", decay.str(), "is not registered in ObsManager.");
     }
     return dec_it->second->is_binned();
+}
+
+bool ObsManager::is_observable_binned(Observables obs) const {
+    return is_observable_binned(ObservableMapper::to_id(obs));
+}
+
+bool ObsManager::is_observable_binned(ObservableId obs) const {
+    DecayId dec_id = DecayMapper::get_decay_id_or_throw(obs);
+    auto dec_it = this->decays.find(dec_id);
+    if (dec_it == this->decays.end()) {
+        LOG_ERROR("KeyError", "Observable", ObservableMapper::str(obs),
+                  "is attached to decay", dec_id.str(),
+                  "but this decay is not registered in ObsManager.");
+    }
+    return dec_it->second->is_observable_binned(obs);
 }
 
 ObsManager ObsManager::remove_obs(Observables id) {
@@ -115,11 +130,11 @@ ObsManager ObsManager::add_obs(BinnedObservableId id, QCDOrder order, bool add_d
         );
     }
 
-    if (!dec_it->second->is_binned()) {
+    if (!dec_it->second->is_observable_binned(id.s)) {
         LOG_ERROR(
             "APIError",
             "Observable", obs_name,
-            "belongs to non-binned decay", DecayMapper::str(dec_id),
+            "does not require q² bins in decay", DecayMapper::str(dec_id),
             ". Use add_observable(ObservableId, ...) or add_observables(decay, ...)."
         );
     }
@@ -195,6 +210,11 @@ std::vector<ObservableValue> ObsManager::evaluate(Observables id) {
 
 ObservableValue ObsManager::evaluate(BinnedObservableId id) {
     ObservableId obs_id = id.s;
+
+    if (!is_observable_binned(obs_id)) {
+        LOG_ERROR("APIError", "Observable", ObservableMapper::str(obs_id),
+                  "does not accept q² bins. Use compute_observable(ObservableId) instead.");
+    }
 
     auto results = evaluate(obs_id);
 
@@ -299,8 +319,9 @@ std::vector<BinnedObservableId> ObsManager::get_current_obss() {
     std::vector<BinnedObservableId> ids;
     for (const auto& [oid, _] : this->obss) {
         DecayId dec_id = DecayMapper::get_decay_id(oid).value();
-        auto bins = this->decays.at(dec_id)->get_bins();
-        if (!bins.has_value()) {
+        auto decay = this->decays.at(dec_id);
+        auto bins = decay->get_bins();
+        if (!decay->is_observable_binned(oid) || !bins.has_value()) {
             ids.emplace_back(oid);
             continue;
         }

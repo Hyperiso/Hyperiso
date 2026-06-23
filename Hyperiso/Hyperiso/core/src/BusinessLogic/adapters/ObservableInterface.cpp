@@ -116,15 +116,12 @@ void ObservableInterface::add_observables(Decays decay,
                                           bool add_dependencies,
                                           std::pair<double, double> bin)
 {
-    if (manager->is_decay_binned(decay)) {
-        for (auto &obs : DecayMapper::get_observables(decay)) {
-            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
-        }
-        return;
-    }
-
     for (auto &obs : DecayMapper::get_observables(decay)) {
-        add_observable(obs, order, add_dependencies);
+        if (manager->is_observable_binned(obs)) {
+            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
+        } else {
+            add_observable(obs, order, add_dependencies);
+        }
     }
 }
 
@@ -133,15 +130,12 @@ void ObservableInterface::add_observables(DecayId decay,
                                           bool add_dependencies,
                                           std::pair<double, double> bin)
 {
-    if (manager->is_decay_binned(decay)) {
-        for (auto &obs : DecayMapper::get_observables(decay)) {
-            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
-        }
-        return;
-    }
-
     for (auto &obs : DecayMapper::get_observables(decay)) {
-        add_observable(obs, order, add_dependencies);
+        if (manager->is_observable_binned(obs)) {
+            add_observable(BinnedObservableId(obs, bin), order, add_dependencies);
+        } else {
+            add_observable(obs, order, add_dependencies);
+        }
     }
 }
 
@@ -151,6 +145,14 @@ bool ObservableInterface::is_decay_binned(Decays decay) const {
 
 bool ObservableInterface::is_decay_binned(DecayId decay) const {
     return manager->is_decay_binned(decay);
+}
+
+bool ObservableInterface::is_observable_binned(Observables obs) const {
+    return manager->is_observable_binned(obs);
+}
+
+bool ObservableInterface::is_observable_binned(ObservableId obs) const {
+    return manager->is_observable_binned(obs);
 }
 
 void ObservableInterface::add_observable_parameter(Observables obs, ParamId pid) {

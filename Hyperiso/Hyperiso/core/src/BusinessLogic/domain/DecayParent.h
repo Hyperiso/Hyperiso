@@ -288,12 +288,26 @@ public:
     bool is_enabled() const { return enabled; }
 
     /**
-     * @brief Return whether this decay expects q² bins for its observable API.
+     * @brief Return whether this decay has at least one observable requiring q² bins.
      *
-     * Binned decays store bins at decay level. They should be added through
-     * add_obs(BinnedObservableId) or through add_observables(decay, ..., bin).
+     * Bins are stored at decay level, but mixed decays may expose both
+     * binned and non-binned observables. Use is_observable_binned(...) for
+     * single-observable routing.
      */
     bool is_binned() const { return binned; }
+
+    /**
+     * @brief Return whether one observable of this decay requires q² bins.
+     *
+     * Most decays are either fully binned or fully unbinned, but some mixed
+     * decays such as B -> K*ll also expose global observables like q0(A_FB).
+     */
+    virtual bool is_observable_binned(ObservableId) const { return binned; }
+
+    /** @brief Convenience overload for public observable enum ids. */
+    virtual bool is_observable_binned(Observables obs) const {
+        return is_observable_binned(ObservableMapper::to_id(obs));
+    }
 };
 
 /**

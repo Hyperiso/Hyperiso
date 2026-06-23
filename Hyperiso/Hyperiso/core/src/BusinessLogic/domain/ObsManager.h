@@ -145,14 +145,24 @@ public:
     ObsManager add_obs(BinnedObservableId id, QCDOrder order, bool add_deps=false);
 
     /**
-     * @brief Return whether the decay stores and requires q² bins.
+     * @brief Return whether this decay has at least one observable requiring q² bins.
      */
     bool is_decay_binned(Decays decay) const;
 
     /**
-     * @brief Return whether the decay stores and requires q² bins.
+     * @brief Return whether this decay has at least one observable requiring q² bins.
      */
     bool is_decay_binned(DecayId decay) const;
+
+    /**
+     * @brief Return whether a specific observable requires q² bins.
+     */
+    bool is_observable_binned(Observables obs) const;
+
+    /**
+     * @brief Return whether a specific observable requires q² bins.
+     */
+    bool is_observable_binned(ObservableId obs) const;
 
     /**
      * @brief Remove an observable (internal ObservableId) from the manager.
