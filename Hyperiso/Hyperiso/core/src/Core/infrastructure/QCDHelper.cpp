@@ -36,8 +36,8 @@ void QCDHelper::Init() {
         dep_block->store_or_assign(LhaID(1, 5), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 5)}, lambda_5, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 6, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 6, 1)}, lambda_6_mt_mt, 0., 0.));
         dep_block->store_or_assign(LhaID(1, 6, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(1, 6, 2)}, lambda_6_mt_pole, 0., 0.));
-        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(4, 1)}, m_c_pole, 0., 0.));
-        dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(4, 2)}, m_c_pole_one_loop, 0., 0.));
+        dep_block->store_or_assign(LhaID(4, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(4, 1)}, m_c_pole, 0., 0.));
+        dep_block->store_or_assign(LhaID(4, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(4, 2)}, m_c_pole_one_loop, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 1), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 1)}, m_b_mb, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 2), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 2)}, m_b_pole, 0., 0.));
         dep_block->store_or_assign(LhaID(5, 3), std::make_shared<Parameter>(ParamId{ParameterType::SM, "QCD", LhaID(5, 3)}, m_b_1S, 0., 0.));

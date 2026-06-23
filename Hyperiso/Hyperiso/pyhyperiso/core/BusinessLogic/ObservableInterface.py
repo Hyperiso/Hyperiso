@@ -19,7 +19,7 @@ Example:
 
 from __future__ import annotations
 
-from typing import Dict, List, Mapping, Set
+from typing import Dict, List, Mapping, Sequence, Set, Tuple
 
 from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableInterface as _CppObservableInterface
 from pyhyperiso.core.BusinessLogic.ObservableValue import ObservableValue
@@ -47,6 +47,16 @@ def _cpp_observable_id(obs: ObservableId):
 
 def _cpp_binned_observable_id(obs: BinnedObservableId):
     return _require(obs, BinnedObservableId, "obs").to_cpp()
+
+
+def _cpp_bin(bin_range: Sequence[float]) -> Tuple[float, float]:
+    if not (isinstance(bin_range, (tuple, list)) and len(bin_range) == 2):
+        raise TypeError("bin doit être un tuple/list (q2_min, q2_max).")
+    q2_min = float(bin_range[0])
+    q2_max = float(bin_range[1])
+    if q2_min >= q2_max:
+        raise ValueError("bin doit vérifier q2_min < q2_max.")
+    return (q2_min, q2_max)
 
 
 def _cpp_qcd_order(order: QCDOrder):
@@ -265,6 +275,7 @@ class ObservableInterface:
         decay: Decays,
         qcd_order: QCDOrder,
         add_dependencies: bool = True,
+        bin: Tuple[float, float] = (1.0, 6.0),
     ) -> "ObservableInterface":
         """Register every observable attached to a decay channel.
 
@@ -274,12 +285,46 @@ class ObservableInterface:
                 decay family.
             add_dependencies: Whether to attach dependencies for the selected
                 observables.
+            bin: q² interval used only for observables that require bins. Mixed
+                decays such as ``B -> K* ll`` keep their non-binned observables
+                unbinned.
 
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observables(_cpp_decay(decay), _cpp_qcd_order(qcd_order), bool(add_dependencies))
+        self._cpp_obj.add_observables(
+            _cpp_decay(decay),
+            _cpp_qcd_order(qcd_order),
+            bool(add_dependencies),
+            _cpp_bin(bin),
+        )
         return self
+
+    def is_decay_binned(self, decay: Decays) -> bool:
+        """Return whether a decay has at least one q²-binned observable.
+
+        Args:
+            decay: Decay family to inspect.
+
+        Returns:
+            ``True`` if at least one observable in the decay requires a q² bin.
+        """
+        return bool(self._cpp_obj.is_decay_binned(_cpp_decay(decay)))
+
+    def is_observable_binned(self, obs: Observables) -> bool:
+        """Return whether an enum observable requires a q² bin.
+
+        Args:
+            obs: Observable enum value to inspect.
+
+        Returns:
+            ``True`` if the observable must be added/computed as binned.
+        """
+        return bool(self._cpp_obj.is_observable_binned(_cpp_observable_enum(obs)))
+
+    def is_observable_id_binned(self, obs: ObservableId) -> bool:
+        """Return whether an internal observable id requires a q² bin."""
+        return bool(self._cpp_obj.is_observable_binned(_cpp_observable_id(obs)))
 
     def add_observable_parameter(self, obs: Observables, pid: ParamId) -> "ObservableInterface":
         """Add one explicit parameter dependency to an enum observable.
@@ -405,6 +450,17 @@ class ObservableInterface:
         """
         return [ObservableValue.from_cpp(v) for v in self._cpp_obj.compute_observable(_cpp_observable_id(obs))]
 
+    def compute_binned_observable(self, obs: BinnedObservableId) -> ObservableValue:
+        """Compute one observable at one explicit q² bin.
+
+        Args:
+            obs: Binned observable identifier.
+
+        Returns:
+            The C++ ``ObservableValue`` for the requested bin.
+        """
+        return ObservableValue.from_cpp(self._cpp_obj.compute_observable(_cpp_binned_observable_id(obs)))
+
     def compute_observable_central(self, obs: Observables) -> float:
         """Compute a scalar central value for an unbinned enum observable.
 
@@ -482,6 +538,10 @@ class ObservableInterface:
         """
         return float(self._cpp_obj.get_exp_value(_cpp_observable_id(obs)))
 
+    def get_exp_value_binned(self, obs: BinnedObservableId) -> float:
+        """Return the experimental central value for one binned observable."""
+        return float(self._cpp_obj.get_exp_value(_cpp_binned_observable_id(obs)))
+
     def get_exp_uncertainty(
         self,
         obs: Observables,
@@ -515,6 +575,14 @@ class ObservableInterface:
             Requested experimental uncertainty.
         """
         return float(self._cpp_obj.get_exp_uncertainty(_cpp_observable_id(obs), _cpp_uncertainty_type(u_type)))
+
+    def get_exp_uncertainty_binned(
+        self,
+        obs: BinnedObservableId,
+        u_type: UncertaintyType = UncertaintyType.COMBINED,
+    ) -> float:
+        """Return an experimental uncertainty for one binned observable."""
+        return float(self._cpp_obj.get_exp_uncertainty(_cpp_binned_observable_id(obs), _cpp_uncertainty_type(u_type)))
 
     def get_current_observables(self) -> List[BinnedObservableId]:
         """Return the currently registered observable/bin identifiers.

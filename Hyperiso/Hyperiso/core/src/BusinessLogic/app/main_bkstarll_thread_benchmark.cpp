@@ -26,7 +26,7 @@ struct Options {
     int warmups = 3;
     unsigned int max_threads = 0; // 0 -> hardware_concurrency
     QCDOrder order = QCDOrder::NLO;
-    std::vector<std::pair<double, double>> bins {{1.0, 6.0}};
+    std::vector<std::pair<double, double>> bins {{17.0, 19.0}};
     bool include_unbinned = false;
 };
 
@@ -199,10 +199,10 @@ int main(int argc, char** argv) {
     }
 
     csv << "threads,repeats,warmups,order,bins,include_unbinned,n_observables,mean_ms,stddev_ms,min_ms,max_ms,checksum\n";
+    ObservableInterface interface;
+    add_decay_observables_with_bins(interface, Decays::B__Kstar_l_l, opt.order, opt.bins, opt.include_unbinned);
 
     for (unsigned int threads = 1; threads <= opt.max_threads; ++threads) {
-        ObservableInterface interface;
-        add_decay_observables_with_bins(interface, Decays::B__Kstar_l_l, opt.order, opt.bins, opt.include_unbinned);
         interface.set_bkstarll_threads(threads);
 
         for (int i = 0; i < opt.warmups; ++i) {

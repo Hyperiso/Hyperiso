@@ -427,8 +427,32 @@ void init_observable(py::module &m) {
           py::overload_cast<std::map<ObservableId, QCDOrder>, bool>(&ObservableInterface::add_observables),
           py::arg("obss"), py::arg("add_dependencies") = false)
      .def("add_observables", 
-          py::overload_cast<Decays, QCDOrder, bool>(&ObservableInterface::add_observables),
-          py::arg("decay"), py::arg("order"), py::arg("add_dependencies") = false)
+          py::overload_cast<Decays, QCDOrder, bool, std::pair<double, double>>(&ObservableInterface::add_observables),
+          py::arg("decay"), py::arg("order"), py::arg("add_dependencies") = false,
+          py::arg("bin") = std::pair<double, double>{1.0, 6.0},
+          R"pbdoc(Add all observables of a decay. Observables requiring q² bins receive ``bin``; mixed decays keep their unbinned observables unbinned.)pbdoc")
+     .def("add_observables",
+          py::overload_cast<DecayId, QCDOrder, bool, std::pair<double, double>>(&ObservableInterface::add_observables),
+          py::arg("decay"), py::arg("order"), py::arg("add_dependencies") = false,
+          py::arg("bin") = std::pair<double, double>{1.0, 6.0},
+          R"pbdoc(Add all observables of a dynamic decay id. Observables requiring q² bins receive ``bin``.)pbdoc")
+
+     .def("is_decay_binned",
+          py::overload_cast<Decays>(&ObservableInterface::is_decay_binned, py::const_),
+          py::arg("decay"),
+          R"pbdoc(Return true if the decay has at least one q²-binned observable.)pbdoc")
+     .def("is_decay_binned",
+          py::overload_cast<DecayId>(&ObservableInterface::is_decay_binned, py::const_),
+          py::arg("decay"),
+          R"pbdoc(Return true if the dynamic decay has at least one q²-binned observable.)pbdoc")
+     .def("is_observable_binned",
+          py::overload_cast<Observables>(&ObservableInterface::is_observable_binned, py::const_),
+          py::arg("obs"),
+          R"pbdoc(Return true if this observable must be registered/computed with a q² bin.)pbdoc")
+     .def("is_observable_binned",
+          py::overload_cast<ObservableId>(&ObservableInterface::is_observable_binned, py::const_),
+          py::arg("obs"),
+          R"pbdoc(Return true if this observable id must be registered/computed with a q² bin.)pbdoc")
 
      .def("add_observable_parameter",
           py::overload_cast<Observables, ParamId>(&ObservableInterface::add_observable_parameter),
@@ -450,6 +474,9 @@ void init_observable(py::module &m) {
           py::arg("obs"))
      .def("compute_observable",
           py::overload_cast<ObservableId>(&ObservableInterface::compute_observable, py::const_),
+          py::arg("obs"))
+     .def("compute_observable",
+          py::overload_cast<BinnedObservableId>(&ObservableInterface::compute_observable, py::const_),
           py::arg("obs"))
      .def("compute_all", &ObservableInterface::compute_all)
 
@@ -476,12 +503,18 @@ void init_observable(py::module &m) {
      .def("get_exp_value",
           py::overload_cast<ObservableId>(&ObservableInterface::get_exp_value),
           py::arg("obs"))
+     .def("get_exp_value",
+          py::overload_cast<BinnedObservableId>(&ObservableInterface::get_exp_value),
+          py::arg("obs"))
 
      .def("get_exp_uncertainty",
           py::overload_cast<Observables, UncertaintyType>(&ObservableInterface::get_exp_uncertainty),
           py::arg("obs"), py::arg("u_type") = UncertaintyType::COMBINED)
      .def("get_exp_uncertainty",
           py::overload_cast<ObservableId, UncertaintyType>(&ObservableInterface::get_exp_uncertainty),
+          py::arg("obs"), py::arg("u_type") = UncertaintyType::COMBINED)
+     .def("get_exp_uncertainty",
+          py::overload_cast<BinnedObservableId, UncertaintyType>(&ObservableInterface::get_exp_uncertainty),
           py::arg("obs"), py::arg("u_type") = UncertaintyType::COMBINED)
 
      .def("get_current_observables", &ObservableInterface::get_current_observables)
