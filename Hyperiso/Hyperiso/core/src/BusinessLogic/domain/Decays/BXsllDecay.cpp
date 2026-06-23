@@ -468,7 +468,6 @@ double BXsllDecay::PV_breit_wigner(double s, double m_V, double br, double gamma
     double m_V_hat = m_V / cache.m_b_1S;
     double m_V_hat2 = pow(m_V_hat, 2);
     double gamma_tot_hat = gamma_tot / cache.m_b_1S;
-    // double gamma_had_hat = gamma_had / cache.m_b_1S; //TODO : niels ?
     double den = (pow(s - pow(m_V_hat, 2), 2) + pow(m_V_hat * gamma_tot_hat, 2));
     double B = breit_wigner(s, m_V, br, gamma_tot, gamma_had);
     return 9. / pow(cache.alpha_em, 2) * B * (0.5 * log(den / pow(s_c - s, 2)) + (s - m_V_hat2) / gamma_tot_hat * m_V_hat * (atan((s_c - m_V_hat2) / gamma_tot_hat * m_V_hat) - PI / 2.));
@@ -684,18 +683,13 @@ double BXsllDecay::delta_bremA(double s) {
     return 2. * real(c_78 * tau_78(s) + c_89 * tau_89(s) + 0.5 * c_88 * tau_88(s));
 }
 
-//TODO :: Niels check if I didn't break everything
 double BXsllDecay::delta_bremB_base(double s) {
-
-
     constexpr double eps = 1e-6;
-
     s = std::clamp(s, eps, 1.0 - eps);
 
     auto C_0 = cache.C_LO;
     auto CP_0 = cache.C_LO;
     complex_t C9_0 = C9_eff(s, QCDOrder::LO, false);
-    // complex_t CP9_0 = C9_eff(s, QCDOrder::LO, true); //TODO : niels ?
 
     double C_f = (*iobs_qcdp).get_constants()->C_F;
     double C_tau_1 = C_f / (4. * pow((*iobs_qcdp).get_constants()->Nc, 2));
@@ -816,24 +810,6 @@ double BXsllDecay::dB_ds(double s, double ml_hat, double L_l) {
     return dB;
 }
 
-//TODO :: Niels check
-// std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
-//     std::vector<ObservableValue> out;
-//     auto f = [&] (double s) {
-//         return dB_ds(s, cache.m_l_hat, cache.L_l);
-//     };
-
-//     for (size_t i = 0; i < this->bins.value().size(); i++) {
-//         double rand_err = this->bins.value()[i].second < 8.0 ? cache.rand_err[0] : this->bins.value()[i].first < 12.0 ? cache.rand_err[1] : cache.rand_err[2];
-//         double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
-//         double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
-//         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-//         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-//     }   
-
-//     return out;
-// }
-
 std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
     std::vector<ObservableValue> out;
 
@@ -845,6 +821,7 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
     constexpr double s_eps_high = 1e-3; // ou 1e-2 si encore instable
 
     for (size_t i = 0; i < this->bins.value().size(); i++) {
+        double rand_err = this->bins.value()[i].second < 8.0 ? cache.rand_err[0] : this->bins.value()[i].first < 12.0 ? cache.rand_err[1] : cache.rand_err[2];
         const auto [q2_min, q2_max] = this->bins.value()[i];
 
         double s_min_raw = q2_min / std::pow(cache.m_b_1S, 2);
@@ -853,14 +830,14 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
         double s_min = std::max(s_min_raw, s_eps_low);
         double s_max = std::min(s_max_raw, 1.0 - s_eps_high);
 
-        if (s_max_raw >= 1.0) {
+        // if (s_max_raw >= 1.0) {
             // LOG_WARN(
             //     "BXsll bin [", q2_min, ",", q2_max,
             //     "] has s_max = ", s_max_raw,
             //     " >= 1 for m_b_1S = ", cache.m_b_1S,
             //     ". Clipping to ", s_max
             // );
-        }
+        // }
 
         if (!(s_min < s_max)) {
             LOG_WARN(
@@ -877,7 +854,7 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
             continue;
         }
 
-        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3);
+        double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3) * (1 + rand_err);
 
         out.emplace_back(
             ObservableMapper::to_id(oid),
@@ -888,23 +865,6 @@ std::vector<ObservableValue> BXsllDecay::BR_B_Xsll(Observables oid) {
 
     return out;
 }
-
-//TODO :: Niels error
-// std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
-//     std::vector<ObservableValue> out;
-//     auto f = [&] (double s) {
-//         return A_FB(s, cache.m_l_hat, cache.L_l);
-//     };
-
-//     for (size_t i = 0; i < this->bins.value().size(); i++) {
-//         double s_min = this->bins.value()[i].first / std::pow(cache.m_b_1S, 2);
-//         double s_max = this->bins.value()[i].second / std::pow(cache.m_b_1S, 2);
-//         double res = cache.pref_dB_ds * integrate(f, s_min, s_max, 1e-3); 
-//         out.emplace_back(ObservableMapper::to_id(oid), res, this->bins.value()[i]);
-//     }   
-
-//     return out;
-// }
 
 std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
     std::vector<ObservableValue> out;
@@ -945,41 +905,6 @@ std::vector<ObservableValue> BXsllDecay::A_FB_B_Xsll(Observables oid) {
 
     return out;
 }
-
-// double BXsllDecay::BR_B_Xsll(double s_min, double s_max, int gen) {
-//     double s_hat_min = s_min / pow(cache.m_b_1S, 2);
-//     double s_hat_max = s_max / pow(cache.m_b_1S, 2);
-//     double ml_hat = gen == 2 ? cache.m_mu_hat : cache.m_tau_hat;
-//     double L_l = gen == 2 ? cache.L_l_mu : cache.L_l_tau;
-
-//     std::ofstream fs;
-//     fs.open("dB_ds_mu_high.csv", std::ios_base::app);
-//     // fs << "s_hat,dB0_dS,delta_mb2,delta_mb3,delta_mc2,delta_brems_A,delta_brems_B,delta_em,delta_tot,W_7,W_9,W_10,W_79\n";
-
-//     auto f = [&] (double s) {
-//         double res = dB_ds(s, ml_hat, L_l);
-//         fs << s << "," 
-//            << cache.pref_dB_ds * cache.pref_dB0_ds * dB0_ds(s, ml_hat) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_mb2 * delta_mb2(s) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_mb3 * delta_mb3(s) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_mc2 * delta_mc2(s) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_brems * delta_bremA(s) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_brems * delta_bremB(s) << ","
-//            << cache.pref_dB_ds * cache.pref_delta_em * delta_em(s, L_l) << ","
-//            << cache.pref_dB_ds * (cache.pref_delta_mb2 * delta_mb2(s) + cache.pref_delta_mb3 * delta_mb3(s) + cache.pref_delta_mc2 * delta_mc2(s) + cache.pref_delta_brems * (delta_bremA(s) + delta_bremB(s)) + cache.pref_delta_em * delta_em(s, L_l)) << ","
-//            << W_7(s) << ","
-//            << W_9(s) << ","
-//            << W_10(s) << ","
-//            << W_79(s)
-//            << "\n";
-//         return res;
-//     };
-
-//     double res = cache.pref_dB_ds * integrate(f, s_hat_min, s_hat_max, 1e-3);
-//     C7_new_base(0.19961, false);
-    
-//     return res;
-// }
 
 
 std::vector<ObservableValue> BXsllDecay::compute_observable(Observables obs) {

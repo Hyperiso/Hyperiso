@@ -11,7 +11,7 @@ void BXsDecay::load_params() {
     cache.ckm_factor = std::pow(std::abs(std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) / (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE)), 2);
     cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
     cache.mu_W = (*p)(ParamId{ParameterType::WILSON, "EW_SCALE", 1}, DataType::VALUE);
-    cache.beta_0 = (*iobs_qcdp).get_constants()->beta[5 - 1][0]; // TODO : compute n_f based on scale ?
+    cache.beta_0 = (*iobs_qcdp).get_constants()->beta[5 - 1][0];
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
     cache.alpha_s_upsilon = (*iobs_qcdp)(AlphasConfig(cache.m_b_kin, MassType::POLE, MassType::POLE));
     cache.eta = (*iobs_qcdp)(AlphasConfig(cache.mu_W, MassType::POLE, MassType::POLE)) / cache.alpha_s_mu_b;
@@ -31,7 +31,7 @@ void BXsDecay::load_params() {
     // cache.z = 5.9322e-2;
     cache.delta = 1. - 2. * cache.E0 / cache.m_b_kin;
     cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_kin);
-    // cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c); // TODO : 0 in superiso
+    // cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c); // ASK : 0 in superiso but stated in manual
     cache.L_c = 0.0;
     cache.rand_err = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 10}, DataType::VALUE);
     
@@ -534,7 +534,7 @@ double BXsDecay::epsilon_em() {
     // printf("k_SL = %.4e\n", k_SL);
     // printf("C7_em = %.4e\n", C7_em(cache.eta).real());
 
-    // TODO : check eta or alpha_mub
+    // ASK : check eta or alpha_mub
     return (2 * std::real(C7_em(cache.eta) * std::conj(cache.C_b_LO[WCoef::C7])) - k_SL * std::pow(std::abs(cache.C_b_LO[WCoef::C7]), 2)) * cache.alpha_em / cache.alpha_s_mu_b;
 }
 
