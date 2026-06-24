@@ -10,7 +10,7 @@ BVQCDfCalculator::BVQCDfCalculator(int B_id, int V_id, double mu_b, const std::m
 
 double BVQCDfCalculator::F_perp(double s) {
     if (fpeq(s, 0.0)) 
-        return 1.0 + this->a_1_perp + this->a_2_perp;
+        return 1.0 + this->a_1_perp_b + this->a_2_perp_b;
     
     double d = s - 1.;
     double d2 = d * d;
@@ -27,17 +27,28 @@ double BVQCDfCalculator::F_perp(double s) {
 
 double BVQCDfCalculator::X_perp(double s) {
     double u0 = 1 - this->Lambda_h / this->m_B;
+    double u02 = u0 * u0;
+    double u03 = u02 * u0;
+
+    if (fpeq(s, 0.0)) {
+        double x0 = -2 * u0 - 2 * std::log(1 - u0);
+        double x1 = -6*u02 - 6*u0 - 6*std::log(1 - u0);
+        double x2 = -20*u03 - 12*u0 - 12*log(1 - u0);
+        return F_perp(s) + x0 + x1 * this->a_1_perp_b + x2 * this->a_2_perp_b;
+    }
+
     double t = u0 * (s - 1) + 1;
     double t2 = t *t;
     double t3 = t2 * t;
-    double u02 = u0 * u0;
-    double u03 = u02 * u0;
-    return F_perp(s) + 12*u02*(t + 2*u0 - 1)*(t2 + t*(10*u0 - 2) + 10*u02 - 10*u0 + 1)*log(t)/std::pow(t - 1, 5) - 4*u02*(t3*(5*u03 - 15*u02 + 18*u0 + 3) + t2*(-25*u03 + 90*u02 - 18*u0 - 9) + t*(65*u03 - 45*u02 - 18*u0 + 9) + 15*u03 - 30*u02 + 18*u0 - 3)/(t*std::pow(t - 1, 4));
+    double x0 = 2*u02*(t + 2*u0 - 1)*std::log(t)/std::pow(t - 1, 3) - 2*u02*(t*(u0 + 1) + u0 - 1)/(t*std::pow(t - 1, 2));
+    double x1 = -6*u02*(t2 + t*(6*u0 - 2) + 6*u02 - 6*u0 + 1)*std::log(t)/std::pow(t - 1, 4) - 6*u02*(t2*(u02 - 3*u0 - 1) + t*(2 - 5*u02) - 2*u02 + 3*u0 - 1)/(t*std::pow(t - 1, 3));
+    double x2 = 12*u02*(t + 2*u0 - 1)*(t2 + t*(10*u0 - 2) + 10*u02 - 10*u0 + 1)*std::log(t)/std::pow(t - 1, 5) - 4*u02*(t3*(5*u03 - 15*u02 + 18*u0 + 3) + t2*(-25*u03 + 90*u02 - 18*u0 - 9) + t*(65*u03 - 45*u02 - 18*u0 + 9) + 15*u03 - 30*u02 + 18*u0 - 3)/(t*std::pow(t - 1, 4));
+    return F_perp(s) + x0 + x1 * this->a_1_perp + x2 * this->a_2_perp;
 
 
     // if (fpeq(s, 0.0)) {
     //     double cutoff = this->Lambda_h / this->m_B;
-    //     return -2 * (1 + 3 * this->a_1_perp + 6 * this->a_2_perp) * log(cutoff) - (1 + 11 * this->a_1_perp + 31 * this->a_2_perp) + 12 * cutoff * (this->a_1_perp + 5 * this->a_2_perp);
+    //     return -2 * (1 + 3 * this->a_1_perp + 6 * this->a_2_perp) * std::log(cutoff) - (1 + 11 * this->a_1_perp + 31 * this->a_2_perp) + 12 * cutoff * (this->a_1_perp + 5 * this->a_2_perp);
     // }
 
     // double d = s - 1;
@@ -48,7 +59,7 @@ double BVQCDfCalculator::X_perp(double s) {
     // double s2 = s * s;
     // double s3 = s2 * s;
     // double s4 = s3 * s;
-    // double ls = std::log(s);
+    // double ls = std::std::log(s);
     // double f0 = (s2 - 4 * s + 3 + 2. * ls) / d3;
     // double f1 = -(s3 - 9 * s2 - 9. * s + 17. + 6. * (3. * s + 1.) * ls) / d4;
     // double f2 = (-s4 + 16 * s3 + 108. * s2 - 80. * s - 43. - 12. * (6. * s2 + 8. * s + 1.) * ls) / d5;
@@ -80,12 +91,12 @@ complex_t BVQCDfCalculator::H_2() {
     // printf("lambda_B = %.4e\n", lambda_B_p);
 
     double Nc = iobs_qcdp->get_constants()->Nc;
-    return -2 * PI2 * f_B * f_X_perp / (3 * Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * c_integrate(iH2_perp, 0, 1, 1e-4);
+    return -2 * PI2 * f_B * f_X_perp_b / (3 * Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * c_integrate(iH2_perp, 0, 1, 1e-4);
 }
 
 double BVQCDfCalculator::H_8() {
     double Nc = iobs_qcdp->get_constants()->Nc;
-    return 4. * PI2 * f_B * f_X_perp / (Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * (1 - a_1_perp + a_2_perp);
+    return 4. * PI2 * f_B * f_X_perp_b / (Nc * m_B * lambda_B_p * ff_calculator->get(BV_FF::T1, 0.0)) * (1 - a_1_perp + a_2_perp);
 }
 
 complex_t BVQCDfCalculator::T_perp_p(double q2, bool bar) {

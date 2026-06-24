@@ -12,14 +12,14 @@ protected:
     double mu_b, L_b;
     double m_c_pole, m_b_pole, m_b_PS;
     double m_Bd, m_B, m_X;
-    double f_B, f_X_par, f_X_perp {0};
+    double f_B, f_X_par, f_X_perp {0}, f_X_perp_b {0};
     double z_c, z_c_IA;
     double Delta_M;
     double e_q;
     double Lambda_h;
     double alpha_s_mu_f, alpha_s_mu_b;
     double loop_f_mu_f, loop_f_mu_b;
-    double a_1_perp {0}, a_2_perp {0}, a_1_par, a_2_par;
+    double a_1_perp {0}, a_2_perp {0}, a_1_par, a_2_par, a_1_perp_b {0}, a_2_perp_b {0}, a_1_par_b, a_2_par_b;
     double zeta_3_A {0}, zeta_3_V {0}, omega_10_A {0}, delta_t_p {0}, delta_t_m {0};
     double lambda_B_p;
     double pref_perp {0}, pref_par;

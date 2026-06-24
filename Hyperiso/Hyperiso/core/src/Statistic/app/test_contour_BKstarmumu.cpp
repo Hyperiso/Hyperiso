@@ -1225,17 +1225,17 @@ int main() {
     
     LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
     // LOG_INFO(oint->get_exp_value(Observables::IA_B__KSTAR_GAMMA));
-    // LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[1].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B0__KSTAR0_GAMMA)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::BR_B__KSTAR_GAMMA)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
-    // LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_e_e)[1].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B0__KSTAR0_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::BR_B__KSTAR_GAMMA)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
+    LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
 
     exit(0);
 

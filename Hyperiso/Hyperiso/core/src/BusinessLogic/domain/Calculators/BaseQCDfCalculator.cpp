@@ -29,6 +29,7 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->m_c_pole = (*p)(ParamId{ParameterType::SM, "QCD", {4, 2}}, DataType::VALUE);
     this->m_b_pole = (*p)(ParamId{ParameterType::SM, "QCD", {5, 5}}, DataType::VALUE);
     double eta_f = this->alpha_s_mu_f / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
+    double eta_b = this->alpha_s_mu_b / (*iobs_qcdp)(AlphasConfig(1.0, MassType::POLE, MassType::POLE));
     double m_b_pole_2loop = (*p)(ParamId{ParameterType::SM, "QCD", {5, 2}}, DataType::VALUE);
     this->m_b_PS = m_b_pole_2loop - 4 * (*iobs_qcdp)(AlphasConfig(m_b_pole_2loop, MassType::POLE, MassType::POLE)) * mu_f / (3 * PI);
     this->m_B = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", B_id}, DataType::VALUE);
@@ -42,6 +43,8 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     // this->lambda_hat_u = 0.0; // ASK : Why neglected in SI for B > K l l ?
     this->a_1_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}, DataType::VALUE), eta_f, gamma_par(1));
     this->a_2_par = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}, DataType::VALUE), eta_f, gamma_par(2));
+    this->a_1_par_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}, DataType::VALUE), eta_b, gamma_par(1));
+    this->a_2_par_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}, DataType::VALUE), eta_b, gamma_par(2));
 
     // printf("a1par = %.4e\n", a_1_par);
     // printf("a2par = %.4e\n", a_2_par);
@@ -72,8 +75,11 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
         // printf("a10 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}})));
         // printf("a20 = %.4e\n", std::real((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}})));
         this->f_X_perp = run((*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}, DataType::VALUE), eta_f, iobs_qcdp->get_constants()->C_F);
+        this->f_X_perp_b = run((*p)(ParamId{ParameterType::FLAVOR, "FCONST", {X_id, 2}}, DataType::VALUE), eta_b, iobs_qcdp->get_constants()->C_F);
         this->a_1_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}}, DataType::VALUE), eta_f, gamma_perp(1));
         this->a_2_perp = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}}, DataType::VALUE), eta_f, gamma_perp(2));
+        this->a_1_perp_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 1}}, DataType::VALUE), eta_b, gamma_perp(1));
+        this->a_2_perp_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {7, 2}}, DataType::VALUE), eta_b, gamma_perp(2));
 
         
         // printf("a_1_perp = %.4e\n", a_1_perp);
