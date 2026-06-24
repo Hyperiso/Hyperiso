@@ -117,8 +117,8 @@ void BKstarGammaDecay::fill_wilson_cache() {
         cache.C[id] = bp_wilsons.at(id);
     }
 
-    LOG_INFO(cache.mu_b);
-    LOG_INFO(cache.mu_h);
+    // LOG_INFO(cache.mu_b);
+    // LOG_INFO(cache.mu_h);
     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
     auto b_wilsons_trad  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
@@ -134,8 +134,8 @@ void BKstarGammaDecay::fill_wilson_cache() {
     cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order);
     cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
 
-    printf("C2(mu_h) = %.5e\n", std::real(cache.C2_h));
-    printf("C8(mu_h) = %.5e\n", std::real(cache.C8_h));
+    // printf("C2(mu_h) = %.5e\n", std::real(cache.C2_h));
+    // printf("C8(mu_h) = %.5e\n", std::real(cache.C8_h));
 
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_b);
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
@@ -238,6 +238,8 @@ double BKstarGammaDecay::delta_0() {
 	// printf("H2a7 = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_2()), std::imag(cache.qcdf_calculator.H_2()));
 	// printf("G8a7 = %.4e + %.4e i\n", std::real(BV::G8(cache.L_b)), std::imag(BV::G8(cache.L_b)));
 	// printf("G2a7 = %.4e + %.4e i\n", std::real(BV::G2(cache.z, cache.L_b)), std::imag(BV::G2(cache.z, cache.L_b)));
+
+    // LOG_INFO("T1(0) =", cache.ff_calculator.get(BV_FF::T1, 0.0));
 
     complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * cache.ff_calculator.get(BV_FF::T1, 0.0) * a7c);
     complex_t t1 = cache.f_Ks_perp * K1() / cache.m_b_mu_b;

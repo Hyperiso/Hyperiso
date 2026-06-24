@@ -26,24 +26,33 @@ double BVQCDfCalculator::F_perp(double s) {
 }
 
 double BVQCDfCalculator::X_perp(double s) {
-    if (fpeq(s, 0.0)) {
-        double cutoff = this->Lambda_h / this->m_B;
-        return -2 * (1 + 3 * this->a_1_perp + 6 * this->a_2_perp) * log(cutoff) - (1 + 11 * this->a_1_perp + 31 * this->a_2_perp) + 12 * cutoff * (this->a_1_perp + 5 * this->a_2_perp);
-    }
+    double u0 = 1 - this->Lambda_h / this->m_B;
+    double t = u0 * (s - 1) + 1;
+    double t2 = t *t;
+    double t3 = t2 * t;
+    double u02 = u0 * u0;
+    double u03 = u02 * u0;
+    return F_perp(s) + 12*u02*(t + 2*u0 - 1)*(t2 + t*(10*u0 - 2) + 10*u02 - 10*u0 + 1)*log(t)/std::pow(t - 1, 5) - 4*u02*(t3*(5*u03 - 15*u02 + 18*u0 + 3) + t2*(-25*u03 + 90*u02 - 18*u0 - 9) + t*(65*u03 - 45*u02 - 18*u0 + 9) + 15*u03 - 30*u02 + 18*u0 - 3)/(t*std::pow(t - 1, 4));
 
-    double d = s - 1;
-    double d2 = d * d;
-    double d3 = d2 * d;
-    double d4 = d3 * d;
-    double d5 = d4 * d;
-    double s2 = s * s;
-    double s3 = s2 * s;
-    double s4 = s3 * s;
-    double ls = std::log(s);
-    double f0 = (s2 - 4 * s + 3 + 2. * ls) / d3;
-    double f1 = -(s3 - 9 * s2 - 9. * s + 17. + 6. * (3. * s + 1.) * ls) / d4;
-    double f2 = (-s4 + 16 * s3 + 108. * s2 - 80. * s - 43. - 12. * (6. * s2 + 8. * s + 1.) * ls) / d5;
-    return f0 + this->a_1_perp * f1 + this->a_2_perp * f2;
+
+    // if (fpeq(s, 0.0)) {
+    //     double cutoff = this->Lambda_h / this->m_B;
+    //     return -2 * (1 + 3 * this->a_1_perp + 6 * this->a_2_perp) * log(cutoff) - (1 + 11 * this->a_1_perp + 31 * this->a_2_perp) + 12 * cutoff * (this->a_1_perp + 5 * this->a_2_perp);
+    // }
+
+    // double d = s - 1;
+    // double d2 = d * d;
+    // double d3 = d2 * d;
+    // double d4 = d3 * d;
+    // double d5 = d4 * d;
+    // double s2 = s * s;
+    // double s3 = s2 * s;
+    // double s4 = s3 * s;
+    // double ls = std::log(s);
+    // double f0 = (s2 - 4 * s + 3 + 2. * ls) / d3;
+    // double f1 = -(s3 - 9 * s2 - 9. * s + 17. + 6. * (3. * s + 1.) * ls) / d4;
+    // double f2 = (-s4 + 16 * s3 + 108. * s2 - 80. * s - 43. - 12. * (6. * s2 + 8. * s + 1.) * ls) / d5;
+    // return f0 + this->a_1_perp * f1 + this->a_2_perp * f2;
 }
 
 complex_t BVQCDfCalculator::G_perp() {
