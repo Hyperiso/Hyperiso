@@ -22,11 +22,24 @@ void BllDecay::load_params() {
 
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
     cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
-    cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order);
+    cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order); // ASK : Why 0 in SI ?
     cache.CQ2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, w_config.order);
+    // cache.CQ1 = 0;
+    // cache.CQ2 = 0;
     cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
     cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
     cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
+
+    // printf("f_Bs = %.5e\n", cache.f_Bs);
+    // printf("y_s = %.5e\n", cache.ys);
+    // printf("eta_BBs = %.5e\n", cache.eta_BBS);
+    // printf("r_s = %.5e\n", cache.r_s);
+    // printf("C10 = %.4e + %.4e I \n", std::real(cache.C10), std::imag(cache.C10));
+    // printf("Cp10 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order)));
+	// printf("CQ1 = %.4e + %.4e I \n", std::real(cache.CQ1), std::imag(cache.CQ1));
+	// printf("CpQ1 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order)));
+	// printf("CQ2 = %.4e + %.4e I \n", std::real(cache.CQ2), std::imag(cache.CQ2));
+	// printf("CpQ2 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order)));
 }
 
 double BllDecay::BR_avg_Bq_ll(int q, int gen) {

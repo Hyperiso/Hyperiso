@@ -995,7 +995,7 @@ int main() {
         add_exp_bin("DEFAULT", O::BR_B__Xs_e_e, 14.2, 22); // 008 BR_BXsee_14.2_22
         add_exp_unbinned("DEFAULT", O::BR_B0__KSTAR0_GAMMA); // 009 BR_B0Kstar0gamma
         add_exp_unbinned("DEFAULT", O::BR_B__KSTAR_GAMMA); // 010 BR_BKstargamma
-        add_exp_bin("DEFAULT", O::DGAMMA_DQ2_B__KSTAR_MU_MU, 1.1, 6); // 011 dGamma/dq2_BKstarmumu_1.1_6
+        add_exp_bin("DEFAULT", O::DBR_DQ2_B__KSTAR_MU_MU, 1.1, 6); // 011 dGamma/dq2_BKstarmumu_1.1_6
         add_exp_bin("DEFAULT", O::DBR_DQ2_B__KSTAR_MU_MU, 15, 19); // 012 dGamma/dq2_BKstarmumu_15_19
         add_exp_bin("DEFAULT", O::R_1_B0__KSTAR0_L_L, 0.1, 1.1); // 013 R-1_B0Kstar0ll_0.1_1.1
         add_exp_bin("DEFAULT", O::R_1_B0__KSTAR0_L_L, 1.1, 6); // 014 R-1_B0Kstar0ll_1.1_6
@@ -1223,10 +1223,10 @@ int main() {
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
     auto model = std::make_shared<ObservableInterfaceProxy>(oint, spop);
     
-    LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::IA_B__KSTAR_GAMMA)[0].value);
     // LOG_INFO(oint->get_exp_value(Observables::IA_B__KSTAR_GAMMA));
-    LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
-    LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_B_XS_GAMMA)[0].value);
+    // LOG_INFO(oint->compute_observable(Observables::BR_BS_EE_UNTAG)[0].value);
     LOG_INFO(oint->compute_observable(Observables::BR_BS_MUMU_UNTAG)[0].value);
     LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[0].value);
     LOG_INFO(oint->compute_observable(Observables::BR_B__Xs_mu_mu)[1].value);
