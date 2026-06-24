@@ -49,7 +49,7 @@ double BVQCDfCalculator::X_perp(double s) {
 complex_t BVQCDfCalculator::G_perp() {
     auto iG_perp = [this] (double x) {
         double xbar = 1 - x;
-        return phi_X(x, this->a_1_perp, this->a_2_perp) * BV::G(xbar, this->z_c) / (3 * xbar);
+        return phi_X(x, this->a_1_perp, this->a_2_perp) * BV::G(xbar, this->z_c_IA) / (3 * xbar);
     };
 
     return c_integrate(iG_perp, 0, 1, 1e-3);
@@ -57,14 +57,14 @@ complex_t BVQCDfCalculator::G_perp() {
 
 complex_t BVQCDfCalculator::H_perp() {
     auto iH_perp = [this] (double x) {
-        return gv_dga_4(x) * BV::G(1 - x, this->z_c);
+        return gv_dga_4(x) * BV::G(1 - x, this->z_c_IA);
     }; 
     return c_integrate(iH_perp, 0, 1, 1e-3);
 }
 
 complex_t BVQCDfCalculator::H_2() {
     auto iH2_perp = [this] (double x) {
-        return BV::hard_kernel(1 - x, this->z_c) * phi_X(x, this->a_1_perp, this->a_2_perp);
+        return BV::hard_kernel(1 - x, this->z_c_IA) * phi_X(x, this->a_1_perp, this->a_2_perp);
     }; 
 
     // printf("T1(0) = %.4e\n", ff_calculator->get(BV_FF::T1, 0.0));

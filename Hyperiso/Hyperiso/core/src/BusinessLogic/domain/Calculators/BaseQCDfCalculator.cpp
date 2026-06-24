@@ -48,6 +48,7 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
 
     this->e_q = B_id == 521 ? e_u : e_d;
     this->z_c = std::pow(this->m_c_pole / this->m_b_PS, 2);
+    this->z_c_IA = std::pow((*iobs_qcdp)(MassConfig(4, mu_b, MassType::MSBAR, MassType::POLE)) / (*iobs_qcdp)(MassConfig(5, mu_b, MassType::MSBAR, MassType::POLE)), 2);
     this->L_b = std::log(this->mu_b / this->m_b_PS);
     this->Delta_M = -6. * this->L_b - 4. * (1. - mu_f / this->m_b_PS);
     int Nc = iobs_qcdp->get_constants()->Nc;

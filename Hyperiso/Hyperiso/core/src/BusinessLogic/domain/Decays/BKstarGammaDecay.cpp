@@ -4,17 +4,17 @@ using Charge = BKstarGammaConfig::B_Charge;
 
 void BKstarGammaDecay::load_params() {
     cache.mu_b = w_config.hadronic_scale;
-    cache.mu_h = sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_Ks", 14}, DataType::VALUE));
+    cache.m_b_m_b = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 5}, DataType::VALUE);
+    cache.mu_h = sqrt(cache.m_b_m_b * (*p)(ParamId{ParameterType::DECAY, "B_Ks", 14}, DataType::VALUE));
     fill_wilson_cache();
     
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
-    cache.m_b_m_b = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 5}, DataType::VALUE);
     
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}}, DataType::VALUE));
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
-    // cache.z = std::pow((*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE)) / cache.m_b_mu_b, 2);
-    cache.z = 9.9551e-02; // ASK : Discrepancy between Isospin Asymmetry and BR. Need to homogeneize with QCDfCalculator
+    cache.z = std::pow((*iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE)) / cache.m_b_mu_b, 2);
+    // cache.z = 9.9551e-02; // ASK : Discrepancy between Isospin Asymmetry and BR. Need to homogeneize with QCDfCalculator
     cache.f_Ks_par = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {323, 1}}, DataType::VALUE);
     cache.f_B = (*p)(ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
@@ -117,19 +117,11 @@ void BKstarGammaDecay::fill_wilson_cache() {
         cache.C[id] = bp_wilsons.at(id);
     }
 
+    LOG_INFO(cache.mu_b);
+    LOG_INFO(cache.mu_h);
     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
     auto b_wilsons_trad  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-
-    // TODO : Check values for trad basis ?
-    cache.C_trad[WCoef::C1] = -8.3741e-2;
-    cache.C_trad[WCoef::C2] =  1.0281;
-    cache.C_trad[WCoef::C3] =  9.5354e-3;
-    cache.C_trad[WCoef::C4] = -2.8921e-2;
-    cache.C_trad[WCoef::C5] =  6.9522e-3;
-    cache.C_trad[WCoef::C6] = -3.0791e-2;
-    cache.C_trad[WCoef::C7] = -2.8010e-1;
-    cache.C_trad[WCoef::C8] = -1.6378e-1;
 
     for (const auto& [id, val] : b_wilsons_trad) {
         cache.C_trad[id] = val;
@@ -142,9 +134,8 @@ void BKstarGammaDecay::fill_wilson_cache() {
     cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order);
     cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
 
-    // TODO : Check values for trad basis ?
-    cache.C2_h =  9.8536e-1;
-    cache.C8_h = -1.7263e-1;
+    printf("C2(mu_h) = %.5e\n", std::real(cache.C2_h));
+    printf("C8(mu_h) = %.5e\n", std::real(cache.C8_h));
 
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_b);
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);

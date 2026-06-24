@@ -13,7 +13,7 @@ protected:
     double m_c_pole, m_b_pole, m_b_PS;
     double m_Bd, m_B, m_X;
     double f_B, f_X_par, f_X_perp {0};
-    double z_c;
+    double z_c, z_c_IA;
     double Delta_M;
     double e_q;
     double Lambda_h;
