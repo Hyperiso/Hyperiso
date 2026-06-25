@@ -1,13 +1,30 @@
 #include "Interpreter.h"
 #include <iostream>
 
+// Interpreter::Interpreter(const std::string& model,
+//                         std::shared_ptr<ICoreAPI<Model>> api,
+//                         std::shared_ptr<IInterpreterPortsFactory> ports)
+// : marty_api(std::move(api))
+// {
+//     const auto modelPath = FileNameManager::getInstance("C1", model)->getjsondbmodel();
+//     const auto smPath    = FileNameManager::getInstance("C1", "SM")->getjsondbmodel();
+//     resolver = ports->makeResolver(model, modelPath, smPath);
+// }
+
 Interpreter::Interpreter(const std::string& model,
-                        std::shared_ptr<ICoreAPI<Model>> api,
-                        std::shared_ptr<IInterpreterPortsFactory> ports)
+                         std::shared_ptr<ICoreAPI<Model>> api,
+                         std::shared_ptr<IInterpreterPortsFactory> ports)
 : marty_api(std::move(api))
 {
-    const auto modelPath = FileNameManager::getInstance("C1", model)->getjsondbmodel();
-    const auto smPath    = FileNameManager::getInstance("C1", "SM")->getjsondbmodel();
+    auto names = FileNameManager::getInstance("C1", model);
+
+    const auto smPath = names->getSmMappingFileName();
+
+    const auto modelPath =
+        (model == "SM" || model == "sm")
+        ? smPath
+        : names->getjsondbmodel();
+
     resolver = ports->makeResolver(model, modelPath, smPath);
 }
 

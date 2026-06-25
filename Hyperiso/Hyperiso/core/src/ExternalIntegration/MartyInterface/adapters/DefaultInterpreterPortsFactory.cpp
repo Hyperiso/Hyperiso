@@ -45,8 +45,14 @@ void validate_no_mapping_collision(const IMappingDatabasePort& smDB,
         return;
     }
 
+    std::cerr << "[DBG] modelJsonPath = " << modelJsonPath << "\n";
+    std::cerr << "[DBG] smJsonPath    = " << smJsonPath << "\n";
+
     const auto smParams = smDB.getParams();
     const auto modelParams = modelDB.getParams();
+
+    std::cerr << "[DBG] SM has G_F    = " << (smParams.find("G_F") != smParams.end()) << "\n";
+    std::cerr << "[DBG] Model has G_F = " << (modelParams.find("G_F") != modelParams.end()) << "\n";
 
     for (const auto& [name, _] : modelParams) {
         if (smParams.contains(name)) {

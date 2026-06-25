@@ -329,7 +329,8 @@ complex_t BaseQCDfCalculator::T_perp_p_nf(double u, double q2, bool bar) {
     complex_t t_perp_mb = t_perp(u, this->m_b_PS, q2, E);
     complex_t t_perp_0 = t_perp(u, 0.0, q2, E);
 
-    complex_t c8_term = /* fpeq(q2, 0.0) ? 0.0 : */ -4.0 * e_d * this->C[WCoef::C8] / (u + (1 - u) * q2 / (this->m_B * this->m_B));
+    complex_t c8_term = fpeq(q2, 0.0) ? 0.0 : -4.0 * e_d * this->C[WCoef::C8] / (u + (1 - u) * q2 / (this->m_B * this->m_B));
+    // complex_t c8_term = 0;
     return c8_term + this->m_B / (2 * this->m_b_PS) * (
             e_u * (
                 t_perp_mc * (this->C_bar[WCoef::C2] + this->C_bar[WCoef::C4] - this->C_bar[WCoef::C6] + l_u * (this->C[WCoef::C2] - this->C[WCoef::C1] / 6.))

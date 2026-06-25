@@ -1237,7 +1237,7 @@ int main() {
     LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[0].value);
     LOG_INFO(oint->compute_observable(Observables::DBR_DQ2_B__KSTAR_MU_MU)[1].value);
 
-    exit(0);
+    // exit(0);
 
     StatisticConfig config;
     config.advanced.override_nuisance_marginals[
@@ -1269,8 +1269,8 @@ int main() {
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
     };

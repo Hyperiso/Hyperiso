@@ -189,9 +189,9 @@ complex_t BKstarGammaDecay::H_V(double sign, bool bar) {
 complex_t BKstarGammaDecay::K1() {
     double F_p = cache.qcdf_calculator.F_perp(0.0);
 
-    printf("F_perp = %.4e\n", F_p);
-    printf("G_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.G_perp()), std::imag(cache.qcdf_calculator.G_perp()));
-    printf("X_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.X_perp(0.0)), std::imag(cache.qcdf_calculator.X_perp(0.0)));
+    // printf("F_perp = %.4e\n", F_p);
+    // printf("G_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.G_perp()), std::imag(cache.qcdf_calculator.G_perp()));
+    // printf("X_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.X_perp(0.0)), std::imag(cache.qcdf_calculator.X_perp(0.0)));
 
     return -(cache.C_trad[WCoef::C6] + cache.C_trad[WCoef::C5] / cache.Nc) * F_p
            + cache.C_F * cache.alpha_s_mu_b / (4 * cache.Nc * PI) * (
@@ -205,7 +205,7 @@ complex_t BKstarGammaDecay::K1() {
 }
 
 complex_t BKstarGammaDecay::K2(int q) {
-    printf("H_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_perp()), std::imag(cache.qcdf_calculator.H_perp()));
+    // printf("H_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_perp()), std::imag(cache.qcdf_calculator.H_perp()));
     // printf("log(mu_b / mu_0) = %.4e\n", log(cache.mu_b / cache.mu_0));
     // printf("log(mu_b / mb_1S) = %.4e\n", cache.L_b);
 
@@ -234,10 +234,10 @@ double BKstarGammaDecay::delta_0() {
     complex_t a7c = cache.C_trad[WCoef::C7] + cache.alpha_s_mu_b * cache.C_F * (cache.C_trad[WCoef::C2] * BV::G2(cache.z, cache.L_b) + cache.C_trad[WCoef::C8] * BV::G8(cache.L_b)) / (4. * PI) 
                     + cache.alpha_s_mu_h * cache.C_F * (cache.C8_h * cache.qcdf_calculator.H_8() + cache.C2_h * cache.qcdf_calculator.H_2()) / (4 * PI);
 
-    printf("H8a7 = %.4e\n", cache.qcdf_calculator.H_8());
-	printf("H2a7 = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_2()), std::imag(cache.qcdf_calculator.H_2()));
-	printf("G8a7 = %.4e + %.4e i\n", std::real(BV::G8(cache.L_b)), std::imag(BV::G8(cache.L_b)));
-	printf("G2a7 = %.4e + %.4e i\n", std::real(BV::G2(cache.z, cache.L_b)), std::imag(BV::G2(cache.z, cache.L_b)));
+    // printf("H8a7 = %.4e\n", cache.qcdf_calculator.H_8());
+	// printf("H2a7 = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_2()), std::imag(cache.qcdf_calculator.H_2()));
+	// printf("G8a7 = %.4e + %.4e i\n", std::real(BV::G8(cache.L_b)), std::imag(BV::G8(cache.L_b)));
+	// printf("G2a7 = %.4e + %.4e i\n", std::real(BV::G2(cache.z, cache.L_b)), std::imag(BV::G2(cache.z, cache.L_b)));
 
     // LOG_INFO("T1(0) =", cache.ff_calculator.get(BV_FF::T1, 0.0));
 
@@ -247,21 +247,21 @@ double BKstarGammaDecay::delta_0() {
     complex_t bd = -pref * (t1 + f2 * K2(1));
     complex_t bu = 2. * pref * (t1 + f2 * K2(2));
 
-    printf("f_B = %.4e\n", cache.f_B);
-    printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
-    printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
-    printf("f_K*_perp = %.4e\n", cache.f_Ks_perp);
-    printf("f_K*_par = %.4e\n", cache.f_Ks_par);
-    printf("m_K* = %.4e\n", cache.m_Ks);
-    printf("lambda_B = %.4e\n", cache.lambda_B);
-    printf("m_B = %.4e\n", cache.m_B);
+    // printf("f_B = %.4e\n", cache.f_B);
+    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
+    // printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
+    // printf("f_K*_perp = %.4e\n", cache.f_Ks_perp);
+    // printf("f_K*_par = %.4e\n", cache.f_Ks_par);
+    // printf("m_K* = %.4e\n", cache.m_Ks);
+    // printf("lambda_B = %.4e\n", cache.lambda_B);
+    // printf("m_B = %.4e\n", cache.m_B);
 
-    printf("K1 = %.4e + %.4e i\n", std::real(K1()), std::imag(K1()));
-    printf("K2u = %.4e + %.4e i\n", std::real(K2(2)), std::imag(K2(2)));
-    printf("K2d = %.4e + %.4e i\n", std::real(K2(1)), std::imag(K2(1)));
-    printf("a7c = %.4e + %.4e i\n", std::real(a7c), std::imag(a7c));
-    printf("bu = %.4e + %.4e i\n", std::real(bu), std::imag(bu));
-    printf("bd = %.4e + %.4e i\n", std::real(bd), std::imag(bd));
+    // printf("K1 = %.4e + %.4e i\n", std::real(K1()), std::imag(K1()));
+    // printf("K2u = %.4e + %.4e i\n", std::real(K2(2)), std::imag(K2(2)));
+    // printf("K2d = %.4e + %.4e i\n", std::real(K2(1)), std::imag(K2(1)));
+    // printf("a7c = %.4e + %.4e i\n", std::real(a7c), std::imag(a7c));
+    // printf("bu = %.4e + %.4e i\n", std::real(bu), std::imag(bu));
+    // printf("bd = %.4e + %.4e i\n", std::real(bd), std::imag(bd));
 
     return std::real(bd - bu);
 }
