@@ -382,6 +382,19 @@ void BlockAccessor::emplace(const BlockName& name, std::shared_ptr<Block> block)
     merge_name_into_key(key, name);
 }
 
+
+std::shared_ptr<BlockAccessor> BlockAccessor::deep_clone_plain() const {
+    auto clone = std::make_shared<BlockAccessor>();
+    for (const auto& block_name : this->get_block_names()) {
+        const auto& block = this->at(block_name);
+        if (!block) {
+            continue;
+        }
+        clone->emplace(block_name, block->deep_clone_plain());
+    }
+    return clone;
+}
+
 void BlockAccessor::detach_block(const BlockName& block_name) {
     auto blk = this->at(block_name);
 

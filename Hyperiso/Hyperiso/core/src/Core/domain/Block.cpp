@@ -182,6 +182,23 @@ void Block::copy(std::shared_ptr<Block> other) {
     }
 }
 
+std::shared_ptr<Block> Block::deep_clone_plain() const {
+    auto clone = std::make_shared<Block>();
+    clone->blockname = this->blockname;
+    if (this->scale.has_value()) {
+        clone->scale = this->scale;
+    }
+
+    for (const auto& [id, param] : this->items) {
+        if (!param) {
+            continue;
+        }
+        clone->items.emplace(id, std::make_shared<Parameter>(*param));
+    }
+
+    return clone;
+}
+
 void Block::clear_above() {
     for (auto& param: this->items) {
         param.second->clear_above();

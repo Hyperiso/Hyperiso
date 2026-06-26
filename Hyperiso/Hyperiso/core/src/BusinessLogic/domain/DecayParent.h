@@ -252,6 +252,18 @@ public:
      * @param n_threads Requested number of threads.
      */
     virtual void set_n_threads(size_t n_threads);
+
+    /**
+     * @brief Return the currently configured worker-thread count.
+     *
+     * Decays that do not implement internal parallelism return 1.
+     */
+    virtual size_t get_n_threads() const;
+
+    /**
+     * @brief Whether this decay supports runtime thread configuration.
+     */
+    virtual bool supports_thread_config() const;
     
     /**
      * @brief Set the binning for the observables related to this decay.
@@ -276,6 +288,11 @@ public:
      * @brief Return the decay identifier.
      */
     DecayId get_id() { return id; };
+
+    /**
+     * @brief Return the currently configured QCD order for this decay.
+     */
+    QCDOrder get_order() const { return w_config.order; }
 
     /**
      * @brief Return whether the decay has already been enabled.

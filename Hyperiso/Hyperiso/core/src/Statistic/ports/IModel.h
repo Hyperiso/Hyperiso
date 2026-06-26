@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <vector>
 #include <map>
+#include <memory>
 
 #include "Include.h"
 #include "ObservableValue.h"
@@ -33,10 +34,35 @@ using Vec = std::vector<double>;
  * @ref predict_optimized should return predictions consistent with the
  * provided parameter maps.
  */
+class IModelThreadGuard {
+public:
+    virtual ~IModelThreadGuard() = default;
+};
+
 class IModel {
 public:
     /// Default virtual destructor.
     virtual ~IModel() = default;
+
+    /**
+     * @brief Returns an isolated model instance suitable for one worker thread.
+     *
+     * Implementations that cannot provide isolation should return nullptr.
+     */
+    virtual std::shared_ptr<IModel> clone_for_worker() const { return nullptr; }
+
+    /**
+     * @brief Whether clone_for_worker is implemented.
+     */
+    virtual bool can_clone_for_worker() const { return false; }
+
+    /**
+     * @brief Temporarily force internal model/decay thread counts.
+     *
+     * The returned guard restores the previous state on destruction.
+     * Implementations that do not support runtime thread control may return nullptr.
+     */
+    virtual std::unique_ptr<IModelThreadGuard> force_decay_threads(size_t) { return nullptr; }
 
     /**
      * @brief Computes model predictions for a given parameter point.

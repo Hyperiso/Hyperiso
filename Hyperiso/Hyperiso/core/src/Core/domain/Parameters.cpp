@@ -1,12 +1,20 @@
 #include "Parameters.h"
 #include "DependentBlockManager.h"
 #include "MemoryManager.h"
+#include "ParameterRuntimeContext.h"
 
 std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
 std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
     // LOG_INFO("Trying to access Parameters instance of type", static_cast<int>(id));
+    if (auto* ctx = ParameterRuntimeContext::current()) {
+        const auto& allowed = ctx->parameter_types();
+        if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
+            LOG_ERROR("OutOfRange", "Parameter type undefined in runtime context: ", ParameterTypeMapper::str(id));
+        return ctx->get_parameters(id);
+    }
+
     auto allowed = MemoryManager::GetInstance()->getMemoryCache().parameter_types;
     if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
         LOG_ERROR("OutOfRange", "Parameter type undefined: ", ParameterTypeMapper::str(id));
@@ -105,7 +113,9 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     std::unordered_set<BlockName> missing;
 
     const auto available_blocks =
-        MemoryManager::GetInstance()->input_cache->get_block_names();
+        ParameterRuntimeContext::current()
+            ? ParameterRuntimeContext::current()->available_input_blocks()
+            : MemoryManager::GetInstance()->input_cache->get_block_names();
 
     for (const auto& expected : ParamRouter::GetOwnedBlocks(type)) {
         bool found = false;
@@ -134,7 +144,11 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
         LOG_ERROR("NotImplementedError", "Theoretical observable input is not yet implemented.");
     }
 
-    this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(blocks_to_extract);
+    if (auto* ctx = ParameterRuntimeContext::current()) {
+        this->blockAccessor = ctx->extract_blocks(blocks_to_extract);
+    } else {
+        this->blockAccessor = MemoryManager::GetInstance()->extract_blocks(blocks_to_extract);
+    }
     claim_parameters(type);
     return missing;
 }
@@ -512,11 +526,16 @@ void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {
 
 std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
     if (instances.find(id) == instances.end()) {
-        std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
-        instances[id] = std::make_shared<Parameters>(Parameters(strategy));
-        strategy->postInitialization(*instances[id]);
+        instances[id] = CreateUncached(id);
     }
     return instances[id];
+}
+
+std::shared_ptr<Parameters> ParametersFactory::CreateUncached(ParameterType id) {
+    std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
+    auto params = std::make_shared<Parameters>(Parameters(strategy));
+    strategy->postInitialization(*params);
+    return params;
 }
 
 void ParametersFactory::removeParameters(ParameterType id) {

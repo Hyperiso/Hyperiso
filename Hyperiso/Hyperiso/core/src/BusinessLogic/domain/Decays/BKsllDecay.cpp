@@ -1458,7 +1458,7 @@ std::vector<ObservableValue> BKstarllDecay::S_i_binned(size_t i, bool cpv, Obser
     // 0: S1c, 1: S2s, 2: S2c
     std::map<size_t, size_t> J_idx = {{0, 14}, {1, 1}, {2, 2}, {3, 3}, {4, 4}, {5, 5}, {6, 7}, {7, 10}, {8, 12}, {9, 13}, {10, 9}};
     double sign = cpv ? -1 : 1;
-    double global_sign = (i == 10 || i == 2) && cpv ? -1 : 1;
+    double global_sign = i == 10 || i == 2 && cpv ? -1 : 1;
 
     std::vector<ObservableValue> out;
     for (size_t j = 0; j < this->bins.value().size(); j++) {

@@ -101,6 +101,8 @@ public:
 
     void set_config_spe(BKstarllConfig config) override {this->cfg = config;}
     void set_n_threads(size_t n_threads) override;
+    size_t get_n_threads() const override { return cfg.n_threads; }
+    bool supports_thread_config() const override { return true; }
     bool is_observable_binned(ObservableId obs) const override;
 
 private:

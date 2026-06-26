@@ -110,6 +110,9 @@ struct AdvancedStatisticConfig {
  */
 struct StatisticConfig {
     std::size_t MC_draws = 100;                 ///< Number of accepted MC draws used for uncertainty propagation.
+    std::size_t MC_threads = 1;                 ///< Number of worker threads used by MC propagation.
+    bool MC_force_decay_threads_to_one = true;  ///< Give MC priority over internal decay parallelism.
+    std::size_t MC_forced_decay_threads = 1;    ///< Decay thread count while MC workers are running.
     double skew_abs_threshold = 0.2;            ///< Absolute skewness threshold below which a summary is treated as symmetric.
 
     bool print_mc_progress = true;              ///< Print MC progress with ETA based on measured draw time.

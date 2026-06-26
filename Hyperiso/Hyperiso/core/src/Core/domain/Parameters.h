@@ -716,6 +716,15 @@ public:
     static std::shared_ptr<Parameters> GetParameters(ParameterType id);
 
     /**
+     * @brief Creates a fresh uncached repository for a runtime context.
+     *
+     * The returned repository is initialized and post-initialized exactly like
+     * the global singleton repository, but it is not stored in the process-wide
+     * factory cache.
+     */
+    static std::shared_ptr<Parameters> CreateUncached(ParameterType id);
+
+    /**
      * @brief Removes one cached repository.
      *
      * @param id Parameter namespace to remove.

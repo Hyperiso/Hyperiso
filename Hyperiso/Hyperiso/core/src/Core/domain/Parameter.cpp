@@ -7,6 +7,11 @@ Parameter::Parameter(ParamId id, scalar_t mean, scalar_t std_stat, scalar_t std_
     : id(id), expected(mean), deviation_stat(std_stat), deviation_syst(std_syst), shift(0), mode(ParameterMode::FIXED) {}
 
 
+Parameter::Parameter(const Parameter& other) {
+    *this = other;
+}
+
+
 void Parameter::set_mode(ParameterMode new_mode) {
     if (new_mode != mode) {
         mode = new_mode;

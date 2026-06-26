@@ -428,6 +428,14 @@ public:
      * @param blk  Block instance to store.
      */
     void emplace(const BlockName& name, std::shared_ptr<Block> blk);
+
+    /**
+     * @brief Deep-copy all stored blocks as independent plain blocks.
+     *
+     * The clone duplicates Parameter payloads and preserves block names/aliases
+     * and scales. It deliberately does not share observer/dependency links.
+     */
+    std::shared_ptr<BlockAccessor> deep_clone_plain() const;
     
     /**
      * @brief Detaches a dependent block from its upstream dependencies.

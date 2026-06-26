@@ -66,6 +66,16 @@
  * @see ObservablePortsConfig
  * @see DependenciesHelper
  */
+
+struct ObservableSelectionSnapshot {
+    BinnedObservableId id;
+    QCDOrder order = QCDOrder::LO;
+    std::unordered_set<ParamId> dependencies;
+    bool binned = false;
+};
+
+using DecayThreadSnapshot = std::unordered_map<DecayId, size_t>;
+
 class ObsManager {
 public:
     /**
@@ -386,6 +396,26 @@ public:
      * @param n_threads Number of threads.
      */
     ObsManager set_decay_threads(Decays dec, size_t n_threads);
+
+    /**
+     * @brief Snapshot thread settings for all decays with thread configuration support.
+     */
+    DecayThreadSnapshot snapshot_decay_threads() const;
+
+    /**
+     * @brief Set all thread-configurable decays to the same thread count.
+     */
+    void set_all_decay_threads(size_t n_threads);
+
+    /**
+     * @brief Restore a previous decay thread snapshot.
+     */
+    void restore_decay_threads(const DecayThreadSnapshot& snapshot);
+
+    /**
+     * @brief Capture selected observables, bins, orders and dependencies.
+     */
+    std::vector<ObservableSelectionSnapshot> snapshot_observable_selection() const;
 
     /**
      * @brief Set the thread option for the B -> K* l+ l- decay.

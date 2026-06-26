@@ -1,7 +1,13 @@
 #include "MCEngine.h"
 #include "StatisticProgress.h"
+#include "ParameterRuntimeContext.h"
 
+#include <algorithm>
+#include <atomic>
+#include <exception>
 #include <fstream>
+#include <mutex>
+#include <thread>
 
 RealMatrix symmetrize_covariance_matrix2(RealMatrix cov) {
     if (cov.rows() != cov.cols()) {
@@ -198,7 +204,7 @@ std::vector<BinnedObservableId> covariance_ids_from_first_sample(
     return ids;
 }
 
-MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, double>& p) const {
+MCRealization MonteCarloEngine::sample_predictions_serial(const std::map<ParamId, double>& p) const {
     ObsSamples out;
     out.reserve(cfg_.draws);
 
@@ -292,6 +298,216 @@ MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, doubl
             failures,
             "rejected nuisance samples over",
             attempts,
+            "attempts."
+        );
+    }
+
+    return MCRealization{out, accepted_samples};
+}
+
+MCRealization MonteCarloEngine::sample_predictions(const std::map<ParamId, double>& p) const {
+    if (cfg_.n_threads <= 1 || cfg_.draws <= 1) {
+        return sample_predictions_serial(p);
+    }
+
+    if (!model_->can_clone_for_worker()) {
+        LOG_WARN(
+            "Parallel MC requested with",
+            cfg_.n_threads,
+            "threads, but the model cannot be cloned for workers. Falling back to serial MC."
+        );
+        return sample_predictions_serial(p);
+    }
+
+    return sample_predictions_parallel(p);
+}
+
+MCRealization MonteCarloEngine::sample_predictions_parallel(const std::map<ParamId, double>& p) const {
+    const std::size_t n_workers = std::max<std::size_t>(1, std::min(cfg_.n_threads, cfg_.draws));
+
+    std::unique_ptr<IModelThreadGuard> decay_thread_guard;
+    if (cfg_.force_decay_threads_to_one) {
+        decay_thread_guard = model_->force_decay_threads(cfg_.forced_decay_threads);
+    }
+
+    struct WorkerOutput {
+        ObsSamples obss;
+        NuisanceSamples params;
+        std::size_t failures = 0;
+        std::size_t attempts = 0;
+    };
+
+    std::vector<WorkerOutput> worker_outputs(n_workers);
+    std::vector<std::thread> workers;
+    workers.reserve(n_workers);
+
+    std::mutex sampler_mutex;
+    std::mutex progress_mutex;
+    std::mutex exception_mutex;
+    std::exception_ptr first_exception = nullptr;
+
+    std::atomic<std::size_t> accepted_total {0};
+    std::atomic<std::size_t> failures_total {0};
+    std::atomic<std::size_t> attempts_total {0};
+    std::atomic<bool> stop {false};
+
+    StatisticProgressReporter progress(
+        cfg_.print_progress,
+        cfg_.draws,
+        cfg_.progress_probe_draws,
+        cfg_.progress_update_every
+    );
+
+    auto set_exception_once = [&](std::exception_ptr eptr) {
+        std::lock_guard<std::mutex> lock(exception_mutex);
+        if (!first_exception) {
+            first_exception = eptr;
+        }
+        stop.store(true, std::memory_order_release);
+    };
+
+    const std::size_t base_target = cfg_.draws / n_workers;
+    const std::size_t remainder = cfg_.draws % n_workers;
+
+    for (std::size_t worker_id = 0; worker_id < n_workers; ++worker_id) {
+        const std::size_t target = base_target + (worker_id < remainder ? 1 : 0);
+
+        workers.emplace_back([&, worker_id, target]() {
+            auto& local = worker_outputs[worker_id];
+            local.obss.reserve(target);
+            local.params.reserve(target);
+
+            try {
+                ParameterRuntimeContext runtime_context;
+                ScopedParameterRuntimeContext runtime_guard(runtime_context);
+
+                auto worker_model = model_->clone_for_worker();
+                if (!worker_model) {
+                    throw std::runtime_error("MC worker could not clone model");
+                }
+
+                std::unique_ptr<IModelThreadGuard> worker_decay_thread_guard;
+                if (cfg_.force_decay_threads_to_one) {
+                    worker_decay_thread_guard = worker_model->force_decay_threads(cfg_.forced_decay_threads);
+                }
+
+                while (local.obss.size() < target && !stop.load(std::memory_order_acquire)) {
+                    ++local.attempts;
+                    ++attempts_total;
+
+                    std::map<ParamId, double> s;
+                    {
+                        std::lock_guard<std::mutex> lock(sampler_mutex);
+                        s = sampler_.sample();
+                    }
+
+                    try {
+                        auto res = worker_model->predict_optimized(p, s);
+                        auto unzipped_res = flatten(res);
+                        std::map<BinnedObservableId, double> value =
+                            zip(unzipped_res.ids, unzipped_res.vals);
+
+                        bool finite = true;
+                        for (const auto& [oid, v] : value) {
+                            if (!std::isfinite(v)) {
+                                finite = false;
+                                break;
+                            }
+                        }
+
+                        if (!finite) {
+                            throw std::runtime_error("MC prediction contains non-finite observable");
+                        }
+
+                        local.obss.emplace_back(std::move(value));
+                        local.params.emplace_back(std::move(s));
+
+                        const std::size_t accepted_now =
+                            accepted_total.fetch_add(1, std::memory_order_acq_rel) + 1;
+                        {
+                            std::lock_guard<std::mutex> lock(progress_mutex);
+                            progress.accepted(accepted_now);
+                        }
+                    } catch (const std::exception& e) {
+                        ++local.failures;
+                        const std::size_t failures_now =
+                            failures_total.fetch_add(1, std::memory_order_acq_rel) + 1;
+
+                        LOG_WARN(
+                            "Rejected MC nuisance sample",
+                            failures_now,
+                            "in worker",
+                            worker_id,
+                            "while trying to fill local accepted sample",
+                            local.obss.size() + 1,
+                            "of",
+                            target,
+                            ":",
+                            e.what()
+                        );
+
+                        if (!cfg_.retry_failed_predictions ||
+                            failures_now > cfg_.max_prediction_failures) {
+                            set_exception_once(std::current_exception());
+                            break;
+                        }
+                    } catch (...) {
+                        ++local.failures;
+                        const std::size_t failures_now =
+                            failures_total.fetch_add(1, std::memory_order_acq_rel) + 1;
+
+                        LOG_WARN(
+                            "Rejected MC nuisance sample",
+                            failures_now,
+                            "with unknown exception in worker",
+                            worker_id
+                        );
+
+                        if (!cfg_.retry_failed_predictions ||
+                            failures_now > cfg_.max_prediction_failures) {
+                            set_exception_once(std::current_exception());
+                            break;
+                        }
+                    }
+                }
+            } catch (...) {
+                set_exception_once(std::current_exception());
+            }
+        });
+    }
+
+    for (auto& worker : workers) {
+        if (worker.joinable()) {
+            worker.join();
+        }
+    }
+
+    if (first_exception) {
+        std::rethrow_exception(first_exception);
+    }
+
+    ObsSamples out;
+    out.reserve(cfg_.draws);
+    NuisanceSamples accepted_samples;
+    accepted_samples.reserve(cfg_.draws);
+
+    for (auto& local : worker_outputs) {
+        for (auto& row : local.obss) {
+            out.emplace_back(std::move(row));
+        }
+        for (auto& row : local.params) {
+            accepted_samples.emplace_back(std::move(row));
+        }
+    }
+
+    progress.finish(accepted_total.load(), attempts_total.load(), failures_total.load());
+
+    if (failures_total.load() > 0) {
+        LOG_WARN(
+            "MC sampling finished with",
+            failures_total.load(),
+            "rejected nuisance samples over",
+            attempts_total.load(),
             "attempts."
         );
     }

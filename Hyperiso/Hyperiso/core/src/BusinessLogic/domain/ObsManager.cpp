@@ -433,6 +433,65 @@ ObsManager ObsManager::set_decay_threads(Decays dec, size_t n_threads) {
     return *this;
 }
 
+
+DecayThreadSnapshot ObsManager::snapshot_decay_threads() const {
+    DecayThreadSnapshot snapshot;
+    for (const auto& [decay_id, decay] : decays) {
+        if (decay && decay->supports_thread_config()) {
+            snapshot.emplace(decay_id, decay->get_n_threads());
+        }
+    }
+    return snapshot;
+}
+
+void ObsManager::set_all_decay_threads(size_t n_threads) {
+    for (auto& [_, decay] : decays) {
+        if (decay && decay->supports_thread_config()) {
+            decay->set_n_threads(n_threads);
+        }
+    }
+}
+
+void ObsManager::restore_decay_threads(const DecayThreadSnapshot& snapshot) {
+    for (const auto& [decay_id, n_threads] : snapshot) {
+        auto it = decays.find(decay_id);
+        if (it != decays.end() && it->second && it->second->supports_thread_config()) {
+            it->second->set_n_threads(n_threads);
+        }
+    }
+}
+
+std::vector<ObservableSelectionSnapshot> ObsManager::snapshot_observable_selection() const {
+    std::vector<ObservableSelectionSnapshot> out;
+
+    for (const auto& [obs_id, obs] : obss) {
+        DecayId decay_id = DecayMapper::get_decay_id_or_throw(obs_id);
+        auto dec_it = decays.find(decay_id);
+        if (dec_it == decays.end() || !dec_it->second) {
+            LOG_ERROR("KeyError", "Decay", decay_id.str(), "not present while snapshotting observable", ObservableMapper::str(obs_id));
+        }
+
+        const bool binned_obs = dec_it->second->is_observable_binned(obs_id);
+        const auto order = dec_it->second->get_order();
+        const auto deps = obs ? obs->get_dependences() : std::unordered_set<ParamId>{};
+
+        if (binned_obs) {
+            auto bins = dec_it->second->get_bins();
+            if (!bins.has_value() || bins->empty()) {
+                out.push_back(ObservableSelectionSnapshot{BinnedObservableId(obs_id), order, deps, true});
+                continue;
+            }
+            for (const auto& bin : bins.value()) {
+                out.push_back(ObservableSelectionSnapshot{BinnedObservableId(obs_id, bin), order, deps, true});
+            }
+        } else {
+            out.push_back(ObservableSelectionSnapshot{BinnedObservableId(obs_id), order, deps, false});
+        }
+    }
+
+    return out;
+}
+
 ObsManager ObsManager::set_bkstarll_threads(size_t n_threads) {
     return set_decay_threads(Decays::B__Kstar_l_l, n_threads);
 }

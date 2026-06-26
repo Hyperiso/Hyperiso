@@ -56,6 +56,12 @@ public:
     /**
      * @copydoc IModel::n_observables()
      */
+    std::shared_ptr<IModel> clone_for_worker() const override;
+
+    bool can_clone_for_worker() const override { return true; }
+
+    std::unique_ptr<IModelThreadGuard> force_decay_threads(size_t n_threads) override;
+
     std::size_t n_observables() const override;
 
     /**

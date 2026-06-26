@@ -79,6 +79,14 @@ void DecayParent::set_n_threads(size_t n_threads) {
     );
 }
 
+size_t DecayParent::get_n_threads() const {
+    return 1;
+}
+
+bool DecayParent::supports_thread_config() const {
+    return false;
+}
+
 void DecayParent::set_bins(std::vector<std::pair<double, double>> new_bins) {
     for (auto& [qmin, qmax] : new_bins)
         if (qmin > qmax)

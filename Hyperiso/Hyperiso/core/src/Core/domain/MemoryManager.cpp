@@ -51,6 +51,13 @@ std::shared_ptr<BlockAccessor> MemoryManager::extract_block_accessor() {
     return global_ba;
 }
 
+std::shared_ptr<BlockAccessor> MemoryManager::clone_input_cache_deep() const {
+    if (!input_cache) {
+        return std::make_shared<BlockAccessor>();
+    }
+    return input_cache->deep_clone_plain();
+}
+
 const CorrelationRepository &MemoryManager::get_correlation_repository() {
     check_if_ready();
     return correlation_repository;

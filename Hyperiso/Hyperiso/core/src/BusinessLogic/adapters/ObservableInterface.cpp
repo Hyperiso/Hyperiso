@@ -240,6 +240,37 @@ std::vector<BinnedObservableId> ObservableInterface::get_current_observables() {
     return manager->get_current_obss();
 }
 
+std::shared_ptr<ObservableInterface> ObservableInterface::clone_for_worker() const {
+    auto worker = std::make_shared<ObservableInterface>();
+    auto selection = manager->snapshot_observable_selection();
+
+    for (const auto& item : selection) {
+        if (item.binned) {
+            worker->add_observable(item.id, item.order, false);
+        } else {
+            worker->add_observable(item.id.s, item.order, false);
+        }
+
+        if (!item.dependencies.empty()) {
+            worker->add_observable_parameters(item.id.s, item.dependencies);
+        }
+    }
+
+    return worker;
+}
+
+DecayThreadSnapshot ObservableInterface::snapshot_decay_threads() const {
+    return manager->snapshot_decay_threads();
+}
+
+void ObservableInterface::set_all_decay_threads(size_t n_threads) {
+    manager->set_all_decay_threads(n_threads);
+}
+
+void ObservableInterface::restore_decay_threads(const DecayThreadSnapshot& snapshot) {
+    manager->restore_decay_threads(snapshot);
+}
+
 std::map<ObservableId, std::vector<ObservableValue>> ObservableInterface::compute_all() {
     return manager->evaluate_all();
 }

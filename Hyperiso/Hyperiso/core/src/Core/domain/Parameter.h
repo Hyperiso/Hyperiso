@@ -114,6 +114,14 @@ public:
     Parameter(ParamId id, scalar_t mean, scalar_t std_stat, scalar_t std_syst);
 
     /**
+     * @brief Copy constructor that copies only scalar payload/metadata.
+     *
+     * Observer links and owning block are intentionally not copied so deep
+     * clones can be rebound to their new local blocks safely.
+     */
+    Parameter(const Parameter& other);
+
+    /**
      * @brief Sets the parameter mode.
      *
      * This does not trigger notifications by itself.

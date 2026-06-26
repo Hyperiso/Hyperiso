@@ -296,6 +296,14 @@ public:
     std::shared_ptr<BlockAccessor> extract_block_accessor();
 
     /**
+     * @brief Deep-clones the raw input cache as independent plain blocks.
+     *
+     * This is used by per-thread runtime contexts so parameter mutations in one
+     * worker cannot affect the global cache or another worker.
+     */
+    std::shared_ptr<BlockAccessor> clone_input_cache_deep() const;
+
+    /**
      * @brief Retrieves the current correlation repository.
      * @return A const reference to the CorrelationRepository.
      */

@@ -408,6 +408,29 @@ public:
     std::vector<BinnedObservableId> get_current_observables();
 
     /**
+     * @brief Build a fresh ObservableInterface with the same selected builtin observables.
+     *
+     * The worker copy owns a distinct ObsManager, decays, Wilson builder and ports.
+     * It is intended for isolated Monte-Carlo worker evaluation.
+     */
+    std::shared_ptr<ObservableInterface> clone_for_worker() const;
+
+    /**
+     * @brief Snapshot thread settings for thread-configurable decays.
+     */
+    DecayThreadSnapshot snapshot_decay_threads() const;
+
+    /**
+     * @brief Set every thread-configurable decay to the same value.
+     */
+    void set_all_decay_threads(size_t n_threads);
+
+    /**
+     * @brief Restore a previous decay-thread snapshot.
+     */
+    void restore_decay_threads(const DecayThreadSnapshot& snapshot);
+
+    /**
      * @brief Compute all currently registered observables.
      *
      * @return Map (observable id -> vector of predicted values).

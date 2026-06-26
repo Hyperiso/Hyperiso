@@ -479,6 +479,9 @@ MLFitOptions make_mlfit_options_from_config(const StatisticConfig& config) {
 MCConfig make_mc_config_from_config(const StatisticConfig& config, bool for_chi2_covariance = false) {
     MCConfig cfg;
     cfg.draws = config.MC_draws;
+    cfg.n_threads = config.MC_threads;
+    cfg.force_decay_threads_to_one = config.MC_force_decay_threads_to_one;
+    cfg.forced_decay_threads = config.MC_forced_decay_threads;
     cfg.skew_abs_threshold = config.skew_abs_threshold;
     cfg.covariance_ridge_rel = for_chi2_covariance
         ? config.advanced.chi2_covariance_ridge_rel

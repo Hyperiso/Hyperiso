@@ -238,10 +238,12 @@ double BKstarGammaDecay::delta_0() {
 	// printf("H2a7 = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_2()), std::imag(cache.qcdf_calculator.H_2()));
 	// printf("G8a7 = %.4e + %.4e i\n", std::real(BV::G8(cache.L_b)), std::imag(BV::G8(cache.L_b)));
 	// printf("G2a7 = %.4e + %.4e i\n", std::real(BV::G2(cache.z, cache.L_b)), std::imag(BV::G2(cache.z, cache.L_b)));
-
+    //TODO :: warning test theo
     // LOG_INFO("T1(0) =", cache.ff_calculator.get(BV_FF::T1, 0.0));
+    double T1_iso = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 16}, DataType::VALUE);
+    // complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * cache.ff_calculator.get(BV_FF::T1, 0.0) * a7c);
 
-    complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * cache.ff_calculator.get(BV_FF::T1, 0.0) * a7c);
+    complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * T1_iso * a7c);
     complex_t t1 = cache.f_Ks_perp * K1() / cache.m_b_mu_b;
     complex_t f2 = cache.f_Ks_par * cache.m_Ks / (6. * cache.lambda_B * cache.m_B);
     complex_t bd = -pref * (t1 + f2 * K2(1));

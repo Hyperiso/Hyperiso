@@ -70,6 +70,7 @@ add_library(CoreLib STATIC
     domain/Parameter.cpp
     domain/DependentParameter.cpp
     domain/MemoryManager.cpp
+    domain/ParameterRuntimeContext.cpp
     domain/Block.cpp
     domain/BlockAccessor.cpp
     domain/SourceView.cpp

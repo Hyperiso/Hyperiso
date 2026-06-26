@@ -47,6 +47,15 @@ struct MCConfig {
     /** Maximum number of rejected model evaluations before aborting. */
     std::size_t max_prediction_failures = 20000;
 
+    /** Number of MC worker threads. A value <= 1 keeps the serial path. */
+    std::size_t n_threads = 1;
+
+    /** Force thread-configurable decays to @ref forced_decay_threads during parallel MC. */
+    bool force_decay_threads_to_one = true;
+
+    /** Decay thread count used while parallel MC workers are active. */
+    std::size_t forced_decay_threads = 1;
+
     /** Print a progress line with measured draw rate and ETA. */
     bool print_progress = false;
 
@@ -174,6 +183,9 @@ public:
      *         policy is exhausted.
      */
     MCRealization sample_predictions(const std::map<ParamId, double>& p) const;
+
+    MCRealization sample_predictions_serial(const std::map<ParamId, double>& p) const;
+    MCRealization sample_predictions_parallel(const std::map<ParamId, double>& p) const;
 
     /**
      * @brief Runs Monte Carlo propagation and computes summary statistics.

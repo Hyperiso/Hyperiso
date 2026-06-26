@@ -315,6 +315,16 @@ public:
     void copy(std::shared_ptr<Block> other);
 
     /**
+     * @brief Deep-copies this block as a plain independent block.
+     *
+     * All contained Parameter payloads are duplicated, observer links and
+     * owner-block links are not shared with the source block. Dependency graph
+     * objects are intentionally not cloned here; dependent blocks are rebuilt
+     * by the owning Parameters strategy inside each runtime context.
+     */
+    std::shared_ptr<Block> deep_clone_plain() const;
+
+    /**
      * @brief Clears parameter dependencies above this block.
      *
      * Delegates `clear_above()` to all contained parameters.

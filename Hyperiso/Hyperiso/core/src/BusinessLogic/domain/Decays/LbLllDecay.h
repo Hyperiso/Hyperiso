@@ -89,6 +89,8 @@ public:
 
     void load_params() override;
     void set_n_threads(size_t n_threads) override;
+    size_t get_n_threads() const override { return cfg.n_threads; }
+    bool supports_thread_config() const override { return true; }
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 

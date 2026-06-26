@@ -1,5 +1,32 @@
 #include "ObservableInterfaceProxy.h"
 
+#include <utility>
+
+
+namespace {
+class ObservableInterfaceDecayThreadGuard final : public IModelThreadGuard {
+public:
+    ObservableInterfaceDecayThreadGuard(std::shared_ptr<ObservableInterface> oi, size_t forced_threads)
+        : oi_(std::move(oi)) {
+        if (oi_) {
+            snapshot_ = oi_->snapshot_decay_threads();
+            oi_->set_all_decay_threads(forced_threads);
+        }
+    }
+
+    ~ObservableInterfaceDecayThreadGuard() override {
+        if (oi_) {
+            oi_->restore_decay_threads(snapshot_);
+        }
+    }
+
+private:
+    std::shared_ptr<ObservableInterface> oi_;
+    DecayThreadSnapshot snapshot_;
+};
+} // namespace
+
+
 ObservableInterfaceProxy::ObservableInterfaceProxy(
     std::shared_ptr<ObservableInterface> obs,
     std::vector<ParamId> p_specs,
@@ -9,6 +36,24 @@ ObservableInterfaceProxy::ObservableInterfaceProxy(
 }
 
 ObservableInterfaceProxy::ObservableInterfaceProxy(std::shared_ptr<ObservableInterface> obs, std::shared_ptr<IStatParamOptimizerProxy> spop) { oi_ = obs; spop_ = spop;}
+
+std::shared_ptr<IModel> ObservableInterfaceProxy::clone_for_worker() const {
+    if (!oi_) {
+        return nullptr;
+    }
+
+    auto worker_oi = oi_->clone_for_worker();
+    auto worker_spop = std::make_shared<StatParamOptimizerProxy>();
+    return std::make_shared<ObservableInterfaceProxy>(worker_oi, worker_spop);
+}
+
+std::unique_ptr<IModelThreadGuard> ObservableInterfaceProxy::force_decay_threads(size_t n_threads) {
+    if (!oi_) {
+        return nullptr;
+    }
+    return std::make_unique<ObservableInterfaceDecayThreadGuard>(oi_, n_threads);
+}
+
 std::size_t ObservableInterfaceProxy::n_observables() const { return oi_->get_current_observables().size(); }
 
 std::unordered_set<ParamId> ObservableInterfaceProxy::get_obs_deps(ObservableId id) {
