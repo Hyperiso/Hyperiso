@@ -1270,8 +1270,8 @@ int main() {
     std::vector<ParamId> p_specs = {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C9, QCDOrder::LO, ContributionType::BSM)},
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
     };
