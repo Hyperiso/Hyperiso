@@ -56,6 +56,20 @@ std::unique_ptr<IModelThreadGuard> ObservableInterfaceProxy::force_decay_threads
 
 std::size_t ObservableInterfaceProxy::n_observables() const { return oi_->get_current_observables().size(); }
 
+void ObservableInterfaceProxy::prepare_for_prediction() {
+    if (!oi_) {
+        return;
+    }
+
+    // Materialize the local Wilson/PhysicalModel dependency graph before the
+    // first ParamOptimizer commit. Some statistical fit parameters intentionally
+    // target runtime-composed Wilson blocks, for example
+    // BCoefficients_B_SCALE_STANDARD__BSM_INTERMEDIATE. Restoring the observable
+    // selection alone only records which decays/observables are needed; the
+    // blocks are actually created when the decays are enabled.
+    oi_->enable_obs();
+}
+
 std::unordered_set<ParamId> ObservableInterfaceProxy::get_obs_deps(ObservableId id) {
     return oi_->get_all_ops_deps(id);
 }

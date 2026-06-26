@@ -525,15 +525,39 @@ void Parameters::shiftParameter(const ParamId &param_id, scalar_t shift_value) {
 }
 
 std::shared_ptr<Parameters> ParametersFactory::GetParameters(ParameterType id) {
-    if (instances.find(id) == instances.end()) {
-        instances[id] = CreateUncached(id);
+    auto it = instances.find(id);
+    if (it != instances.end()) {
+        return it->second;
     }
-    return instances[id];
+
+    try {
+        return CreateUncachedRegistered(
+            id,
+            [id](const std::shared_ptr<Parameters>& params) {
+                ParametersFactory::instances[id] = params;
+            }
+        );
+    } catch (...) {
+        ParametersFactory::instances.erase(id);
+        throw;
+    }
 }
 
 std::shared_ptr<Parameters> ParametersFactory::CreateUncached(ParameterType id) {
+    return CreateUncachedRegistered(id, {});
+}
+
+std::shared_ptr<Parameters> ParametersFactory::CreateUncachedRegistered(
+    ParameterType id,
+    const std::function<void(const std::shared_ptr<Parameters>&)>& register_before_postinit
+) {
     std::shared_ptr<ModelStrategy> strategy = createStrategy(id);
-    auto params = std::make_shared<Parameters>(Parameters(strategy));
+    auto params = std::shared_ptr<Parameters>(new Parameters(strategy));
+
+    if (register_before_postinit) {
+        register_before_postinit(params);
+    }
+
     strategy->postInitialization(*params);
     return params;
 }

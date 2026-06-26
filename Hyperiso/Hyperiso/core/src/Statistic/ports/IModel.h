@@ -65,6 +65,17 @@ public:
     virtual std::unique_ptr<IModelThreadGuard> force_decay_threads(size_t) { return nullptr; }
 
     /**
+     * @brief Materialize model-side runtime state before repeated predictions.
+     *
+     * Implementations may use this hook to lazily build dependent parameter
+     * blocks, Wilson groups, decay caches, or other mutable runtime structures
+     * that must exist before the first parameter update is committed. The
+     * default implementation is a no-op so existing non-cloneable models keep
+     * their previous behavior.
+     */
+    virtual void prepare_for_prediction() {}
+
+    /**
      * @brief Computes model predictions for a given parameter point.
      *
      * @param p   Map of fit-parameter identifiers to values.

@@ -221,6 +221,8 @@ MCRealization MonteCarloEngine::sample_predictions_serial(const std::map<ParamId
         cfg_.progress_update_every
     );
 
+    model_->prepare_for_prediction();
+
     while (accepted < cfg_.draws) {
         ++attempts;
 
@@ -390,6 +392,8 @@ MCRealization MonteCarloEngine::sample_predictions_parallel(const std::map<Param
                 if (cfg_.force_decay_threads_to_one) {
                     worker_decay_thread_guard = worker_model->force_decay_threads(cfg_.forced_decay_threads);
                 }
+
+                worker_model->prepare_for_prediction();
 
                 while (local.obss.size() < target && !stop.load(std::memory_order_acquire)) {
                     ++local.attempts;

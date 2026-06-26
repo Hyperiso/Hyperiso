@@ -64,6 +64,8 @@ public:
 
     std::size_t n_observables() const override;
 
+    void prepare_for_prediction() override;
+
     /**
      * @copydoc IModel::get_obs_deps(ObservableId)
      */

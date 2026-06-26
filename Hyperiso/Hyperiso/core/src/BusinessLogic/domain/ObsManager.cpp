@@ -461,6 +461,30 @@ void ObsManager::restore_decay_threads(const DecayThreadSnapshot& snapshot) {
     }
 }
 
+DecayConfigSnapshot ObsManager::snapshot_decay_configs() const {
+    DecayConfigSnapshot snapshot;
+    for (const auto& [decay_id, decay] : decays) {
+        if (!decay) {
+            continue;
+        }
+
+        auto cfg = decay->get_config();
+        if (cfg.has_value()) {
+            snapshot.emplace(decay_id, std::move(cfg));
+        }
+    }
+    return snapshot;
+}
+
+void ObsManager::restore_decay_configs(const DecayConfigSnapshot& snapshot) {
+    for (const auto& [decay_id, cfg] : snapshot) {
+        auto it = decays.find(decay_id);
+        if (it != decays.end() && it->second && cfg.has_value()) {
+            it->second->set_config(cfg);
+        }
+    }
+}
+
 std::vector<ObservableSelectionSnapshot> ObsManager::snapshot_observable_selection() const {
     std::vector<ObservableSelectionSnapshot> out;
 

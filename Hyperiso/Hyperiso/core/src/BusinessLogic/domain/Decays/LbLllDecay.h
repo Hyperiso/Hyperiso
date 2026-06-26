@@ -95,6 +95,7 @@ public:
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
     void set_config_spe(LbLllConfig config) override {this->cfg = config;}
+    std::any get_config() const override { return cfg; }
 };
 
 #endif // __LBLLLDECAY_H__

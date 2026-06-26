@@ -4,7 +4,9 @@
 #include <memory>
 #include <map>
 #include <unordered_set>
+#include <unordered_map>
 #include <optional>
+#include <any>
 
 #include "ParamID.h"
 #include "Observable.h"
@@ -75,6 +77,7 @@ struct ObservableSelectionSnapshot {
 };
 
 using DecayThreadSnapshot = std::unordered_map<DecayId, size_t>;
+using DecayConfigSnapshot = std::unordered_map<DecayId, std::any>;
 
 class ObsManager {
 public:
@@ -411,6 +414,16 @@ public:
      * @brief Restore a previous decay thread snapshot.
      */
     void restore_decay_threads(const DecayThreadSnapshot& snapshot);
+
+    /**
+     * @brief Snapshot runtime decay configurations that expose one.
+     */
+    DecayConfigSnapshot snapshot_decay_configs() const;
+
+    /**
+     * @brief Restore runtime decay configurations on matching decays.
+     */
+    void restore_decay_configs(const DecayConfigSnapshot& snapshot);
 
     /**
      * @brief Capture selected observables, bins, orders and dependencies.

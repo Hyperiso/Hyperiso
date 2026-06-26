@@ -49,9 +49,24 @@ std::shared_ptr<Parameters> ParameterRuntimeContext::get_parameters(ParameterTyp
         return it->second;
     }
 
-    auto params = ParametersFactory::CreateUncached(id);
-    local_instances_.emplace(id, params);
-    return params;
+    // The repository must be registered in the local map before
+    // postInitialization runs. Post-initialization attaches dependent blocks via
+    // DependentBlockManager, and that path can recursively call
+    // Parameters::GetInstance(id) for the repository currently being built.
+    // Registering only after CreateUncached returns causes unbounded recursion
+    // and typically shows up as a segfault/stack overflow before MC accepts its
+    // first draw.
+    try {
+        return ParametersFactory::CreateUncachedRegistered(
+            id,
+            [this, id](const std::shared_ptr<Parameters>& params) {
+                local_instances_[id] = params;
+            }
+        );
+    } catch (...) {
+        local_instances_.erase(id);
+        throw;
+    }
 }
 
 std::shared_ptr<BlockAccessor> ParameterRuntimeContext::extract_blocks(

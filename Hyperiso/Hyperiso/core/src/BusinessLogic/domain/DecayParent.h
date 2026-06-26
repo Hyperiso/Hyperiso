@@ -243,6 +243,16 @@ public:
     virtual void set_config(std::any cfg) = 0;
 
     /**
+     * @brief Return the current decay configuration when the decay has one.
+     *
+     * The base implementation returns an empty std::any. Configurable decays
+     * that keep runtime options, such as form-factor source or internal thread
+     * count, override this so ObservableInterface worker clones can reproduce
+     * the same physics setup as the parent interface.
+     */
+    virtual std::any get_config() const { return {}; }
+
+    /**
      * @brief Set the number of worker threads used by decays that support parallel cache filling.
      *
      * The default implementation warns and leaves the decay unchanged. Derived decays

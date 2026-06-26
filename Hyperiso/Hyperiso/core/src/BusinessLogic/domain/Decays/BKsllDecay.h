@@ -100,6 +100,7 @@ public:
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 
     void set_config_spe(BKstarllConfig config) override {this->cfg = config;}
+    std::any get_config() const override { return cfg; }
     void set_n_threads(size_t n_threads) override;
     size_t get_n_threads() const override { return cfg.n_threads; }
     bool supports_thread_config() const override { return true; }

@@ -5,6 +5,7 @@
 #include <ranges>
 #include <algorithm>
 #include <unordered_set>
+#include <functional>
 
 #include "ParameterRouter.h"
 #include "BlockAccessor.h"
@@ -723,6 +724,21 @@ public:
      * factory cache.
      */
     static std::shared_ptr<Parameters> CreateUncached(ParameterType id);
+
+    /**
+     * @brief Creates a fresh uncached repository and registers it before post-initialization.
+     *
+     * Some post-initialization steps create dependent blocks through
+     * DependentBlockManager, which can recursively call Parameters::GetInstance
+     * for the repository currently being built. Runtime-local contexts need the
+     * partially constructed repository to be visible before those dependent
+     * blocks are attached. The callback is invoked after the base repository is
+     * initialized but before ModelStrategy::postInitialization runs.
+     */
+    static std::shared_ptr<Parameters> CreateUncachedRegistered(
+        ParameterType id,
+        const std::function<void(const std::shared_ptr<Parameters>&)>& register_before_postinit
+    );
 
     /**
      * @brief Removes one cached repository.
