@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <cctype>
 #include <memory>
+#include <stdexcept>
 #include <system_error>
 #include <utility>
 
@@ -236,6 +237,16 @@ void HyperisoMaster::pre_init_set_marty_path(const std::string& martyInstallPath
     }
 
     LOG_INFO("MARTY runtime path registered:", install.prefix.string());
+}
+
+
+void HyperisoMaster::pre_init_set_softsusy_path(const std::string& softsusyPath)
+{
+    const auto resolved = SoftsusyRuntimeConfig::set_external_path(softsusyPath);
+    if (!resolved.valid) {
+        throw std::runtime_error(resolved.error);
+    }
+    LOG_INFO("SOFTSUSY runtime path registered:", resolved.executable.string());
 }
 
 void HyperisoMaster::pre_init_set_paths(const std::map<APIPath, std::string>& pathOverrides)

@@ -10,10 +10,7 @@ if (NOT DEFINED BUILD_WITH_APP)
 endif()
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
-    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
-endif()
-if (NOT DEFINED BUILD_WITH_2HDMC)
-    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+    option(BUILD_WITH_SOFTSUSY "Build project with bundled SOFTSUSY fallback" OFF)
 endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
@@ -32,16 +29,15 @@ if (NOT TARGET ConfiguredModule)
     add_subdirectory(../Configured Configured)
 endif()
 
-add_library(ExternalIntegrationLib STATIC 
+add_library(ExternalIntegrationLib STATIC
     Interface.cpp
     2HDMC.cpp
     SoftSusy.cpp
-    MinuitCppBackend.cpp)
+    MinuitCppBackend.cpp
+)
 set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-# set(THIRD_PARTY_DIR "${PROJECT_SOURCE_DIR}/Third_party")
-
-set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY, SOFTSUSY, 2HDMC)")
+set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY and optional SOFTSUSY)")
 if(NOT THIRD_PARTY_DIR)
   get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../.." ABSOLUTE)
   set(THIRD_PARTY_DIR "${_REPO_ROOT}/Third_party")
@@ -49,19 +45,52 @@ endif()
 message(STATUS "Third-party dir: ${THIRD_PARTY_DIR}")
 
 set(MARTY_ROOT "" CACHE PATH "Existing Marty install prefix (has include/ and lib/)")
-set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix (has include/ and lib/)")
-set(TWOHDMC_SRC "" CACHE PATH "Existing 2HDMC sources (folder containing src/)")
+set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix or source tree used when BUILD_WITH_SOFTSUSY=ON")
+
+# 2HDMC is vendored and always built as part of ExternalIntegration.
+find_package(GSL REQUIRED)
+set(HYPERISO_2HDMC_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/2HDMC")
+set(HYPERISO_2HDMC_SRC "${HYPERISO_2HDMC_ROOT}/src")
+
+if(NOT EXISTS "${HYPERISO_2HDMC_SRC}/THDM.cpp")
+    message(FATAL_ERROR "Vendored 2HDMC sources are missing from ${HYPERISO_2HDMC_ROOT}. Re-add Hyperiso/Hyperiso/core/src/ExternalIntegration/third_party/2HDMC.")
+endif()
+
+message(STATUS "Building vendored 2HDMC from: ${HYPERISO_2HDMC_ROOT}")
+target_sources(ExternalIntegrationLib PRIVATE
+    "${HYPERISO_2HDMC_SRC}/THDM.cpp"
+    "${HYPERISO_2HDMC_SRC}/SM.cpp"
+    "${HYPERISO_2HDMC_SRC}/Util.cpp"
+    "${HYPERISO_2HDMC_SRC}/DecayTable.cpp"
+    "${HYPERISO_2HDMC_SRC}/Constraints.cpp"
+)
+target_include_directories(ExternalIntegrationLib PRIVATE
+    "${HYPERISO_2HDMC_SRC}"
+    ${GSL_INCLUDE_DIRS}
+)
+if(TARGET GSL::gsl)
+    target_link_libraries(ExternalIntegrationLib PRIVATE GSL::gsl)
+    if(TARGET GSL::gslcblas)
+        target_link_libraries(ExternalIntegrationLib PRIVATE GSL::gslcblas)
+    endif()
+else()
+    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
+endif()
 
 if (BUILD_WITH_SOFTSUSY)
-    # add_definitions(-DBUILD_WITH_SOFTSUSY)    
     add_compile_definitions(BUILD_WITH_SOFTSUSY)
-    message(STATUS "Building application with SOFTSUSY software")
+    message(STATUS "Building application with bundled SOFTSUSY fallback")
     include(ExternalProject)
-  
+
+    set(_SOFTSUSY_PREFIX "${THIRD_PARTY_DIR}/SOFTSUSY")
+    if(SOFTSUSY_ROOT)
+        set(_SOFTSUSY_PREFIX "${SOFTSUSY_ROOT}")
+    endif()
+
     ExternalProject_Add(SOFTSUSY
         GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git"
         GIT_TAG "v4.1.19"
-        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/SOFTSUSY"
+        PREFIX "${_SOFTSUSY_PREFIX}"
         CONFIGURE_COMMAND ""
         COMMAND autoreconf -fiv
         COMMAND ./configure
@@ -72,70 +101,6 @@ if (BUILD_WITH_SOFTSUSY)
     ExternalProject_Get_Property(SOFTSUSY SOURCE_DIR)
     target_include_directories(ExternalIntegrationLib PRIVATE "${SOURCE_DIR}")
     add_dependencies(ExternalIntegrationLib SOFTSUSY)
-
-endif()
-
-if (BUILD_WITH_2HDMC)
-    # add_definitions(-DBUILD_WITH_2HDMC)
-    add_compile_definitions(BUILD_WITH_2HDMC)
-    message(STATUS "Building application with 2HDMC software")
-    find_package(GSL REQUIRED)
-
-    set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    # set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/")
-    set(EXTRACT_DIR "${THIRD_PARTY_DIR}/2HDMC")
-    set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
-    set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
-
-    if(NOT EXISTS "${EXTRACT_DIR}/src/THDM.cpp")
-        message(STATUS "2HDMC sources not found, preparing download and extraction...")
-
-        file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
-        file(MAKE_DIRECTORY ${EXTRACT_DIR})
-
-        if(EXISTS ${TAR_FILE})
-            file(SIZE ${TAR_FILE} TAR_SIZE)
-            if(${TAR_SIZE} LESS 10000)
-                message(WARNING "2HDMC archive seems corrupted, removing it...")
-                file(REMOVE ${TAR_FILE})
-            endif()
-        endif()
-
-        if(NOT EXISTS ${TAR_FILE})
-            message(STATUS "Downloading 2HDMC source archive...")
-            execute_process(
-                COMMAND wget -O ${TAR_FILE} ${URL}
-                WORKING_DIRECTORY ${DOWNLOAD_DIR}
-                RESULT_VARIABLE DOWNLOAD_RESULT
-            )
-            if(NOT DOWNLOAD_RESULT EQUAL 0)
-                message(FATAL_ERROR "Failed to download 2HDMC archive from ${URL}")
-            endif()
-        else()
-            message(STATUS "2HDMC archive already exists, skipping download.")
-        endif()
-
-        message(STATUS "Extracting 2HDMC source files...")
-        execute_process(
-            COMMAND tar xzf ${TAR_FILE} --strip-components=1 -C ${EXTRACT_DIR}
-            WORKING_DIRECTORY ${DOWNLOAD_DIR}
-            RESULT_VARIABLE TAR_RESULT
-        )
-        if(NOT TAR_RESULT EQUAL 0)
-            message(FATAL_ERROR "Failed to extract 2HDMC archive.")
-        endif()
-    else()
-        message(STATUS "2HDMC source files already present, skipping download and extraction.")
-    endif()
-
-    target_sources(ExternalIntegrationLib PRIVATE
-        "${EXTRACT_DIR}/src/THDM.cpp"
-        "${EXTRACT_DIR}/src/SM.cpp"
-        "${EXTRACT_DIR}/src/Util.cpp"
-        "${EXTRACT_DIR}/src/DecayTable.cpp"
-    )
-    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
-    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src" ${GSL_INCLUDE_DIRS})
 endif()
 
 if (BUILD_WITH_MARTY)

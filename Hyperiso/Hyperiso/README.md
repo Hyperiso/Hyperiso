@@ -30,8 +30,7 @@ Useful options:
 | `BUILD_WITH_APP` | `OFF` | Build the `hyperiso-ui` command-line executable. |
 | `BUILD_WITH_PYTHON` | `OFF` | Build the Python extension from the CMake tree. |
 | `BUILD_WITH_MARTY` | `OFF` | Enable MARTY integration. |
-| `BUILD_WITH_2HDMC` | `OFF` | Enable 2HDMC support. |
-| `BUILD_WITH_SOFTSUSY` | `OFF` | Enable SoftSusy support. |
+| `BUILD_WITH_SOFTSUSY` | `OFF` | Enable bundled SOFTSUSY fallback; Python/C++ can also use a runtime `softpoint.x` path. |
 | `BUILD_WITH_MINUIT2` | `OFF` | Enable Minuit2-related backends. |
 | `ENABLE_CLANG_TIDY` | `OFF` | Run clang-tidy during the build. |
 | `ENABLE_ADRESS_SANITIZER` | `OFF` | Enable AddressSanitizer. |

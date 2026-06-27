@@ -2,7 +2,7 @@
 
 # 1) On garde mémoire des options utilisées à la compilation
 set(HYPERISO_WITH_SOFTSUSY @BUILD_WITH_SOFTSUSY@)
-set(HYPERISO_WITH_2HDMC    @BUILD_WITH_2HDMC@)
+set(HYPERISO_WITH_2HDMC    TRUE)
 set(HYPERISO_WITH_MARTY    @BUILD_WITH_MARTY@)
 
 # 2) Si tu préfères t’appuyer sur des installs système (non-vendored),
