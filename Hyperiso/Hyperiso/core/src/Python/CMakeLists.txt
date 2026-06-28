@@ -10,9 +10,6 @@ endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
-if (NOT DEFINED BUILD_WITH_MINUIT2)
-    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
-endif()
 
 # pybind11 via pybind11-config (OK tant que le package pybind11 est installé via pip)
 execute_process(

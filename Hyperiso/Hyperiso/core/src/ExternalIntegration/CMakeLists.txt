@@ -15,10 +15,6 @@ endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
-if (NOT DEFINED BUILD_WITH_MINUIT2)
-    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
-endif()
-
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -249,54 +245,30 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "CMakeFiles" EXCLUDE
 )
 
-# include(FetchContent)
-
-# FetchContent_Declare(minuit_cpp
-#   GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-#   GIT_TAG b5f2558
-#   GIT_SHALLOW TRUE
-# )
-
-
-# FetchContent_MakeAvailable(minuit_cpp)
-
-# if(NOT TARGET MinuitCpp)
-#   add_library(MinuitCpp INTERFACE)
-
-#   if(TARGET minuit-cpp)
-#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
-#   elseif(TARGET minuit-cpp-static)
-#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
-#   else()
-#     message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
-#   endif()
-
-#   target_include_directories(MinuitCpp INTERFACE
-#     ${minuit_cpp_SOURCE_DIR}/include
-#   )
-
-#   add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
-# endif()
-
-# target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
-
-include(FetchContent)
+# Minuit-cpp is vendored and always built as part of the standard Hyperiso
+# build. This avoids network access during Python/wheel builds and keeps the
+# fitting, profiling and contour backends available out of the box.
 include(CheckIncludeFile)
 
-FetchContent_Declare(minuit_cpp
-  GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-  GIT_TAG b5f2558
-  GIT_SHALLOW TRUE
-)
+set(HYPERISO_MINUIT_CPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/minuit-cpp")
+set(HYPERISO_MINUIT_CPP_SRC "${HYPERISO_MINUIT_CPP_ROOT}/src/lib")
+set(HYPERISO_MINUIT_CPP_BINARY_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-FetchContent_GetProperties(minuit_cpp)
-if(NOT minuit_cpp_POPULATED)
-  FetchContent_Populate(minuit_cpp)
+if(NOT EXISTS "${HYPERISO_MINUIT_CPP_ROOT}/include/minuit-cpp/FCNBase.hh")
+    message(FATAL_ERROR
+        "Vendored minuit-cpp headers are missing from ${HYPERISO_MINUIT_CPP_ROOT}. "
+        "Re-add Hyperiso/Hyperiso/core/src/ExternalIntegration/third_party/minuit-cpp."
+    )
+endif()
+if(NOT EXISTS "${HYPERISO_MINUIT_CPP_ROOT}/src/Config.hh.in")
+    message(FATAL_ERROR
+        "Vendored minuit-cpp Config.hh.in is missing from ${HYPERISO_MINUIT_CPP_ROOT}/src."
+    )
 endif()
 
 check_include_file("getopt.h" HAVE_GETOPT_H)
 if(NOT HAVE_GETOPT_H)
-  set(HAVE_GETOPT_H 0)
+    set(HAVE_GETOPT_H 0)
 endif()
 
 set(MINUIT_CPP_MONIKER "minuit-cpp")
@@ -307,47 +279,57 @@ set(MINUIT_CPP_VERSION_MAJOR "5")
 set(MINUIT_CPP_VERSION_MINOR "29")
 set(MINUIT_CPP_VERSION_PATCH "00")
 set(MINUIT_CPP_VERSION "${MINUIT_CPP_VERSION_MAJOR}.${MINUIT_CPP_VERSION_MINOR}.${MINUIT_CPP_VERSION_PATCH}")
-set(MINUIT_CPP_SOURCE_DIR "${minuit_cpp_SOURCE_DIR}")
-set(MINUIT_CPP_BINARY_DIR "${minuit_cpp_BINARY_DIR}")
+set(MINUIT_CPP_SOURCE_DIR "${HYPERISO_MINUIT_CPP_ROOT}")
+set(MINUIT_CPP_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/minuit-cpp")
 
 set(_HYPERISO_SAVED_PROJECT_NAME "${PROJECT_NAME}")
 set(PROJECT_NAME "MINUIT_CPP")
 
-file(MAKE_DIRECTORY "${minuit_cpp_BINARY_DIR}/include/minuit-cpp")
+file(MAKE_DIRECTORY "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp")
+file(MAKE_DIRECTORY "${MINUIT_CPP_BINARY_DIR}/lib")
 
 configure_file(
-  "${minuit_cpp_SOURCE_DIR}/src/Config.hh.in"
-  "${minuit_cpp_BINARY_DIR}/include/minuit-cpp/Config.hh"
-  @ONLY
+    "${HYPERISO_MINUIT_CPP_ROOT}/src/Config.hh.in"
+    "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp/Config.hh"
+    @ONLY
 )
 
 set(PROJECT_NAME "${_HYPERISO_SAVED_PROJECT_NAME}")
 
 file(GLOB MINUIT_CPP_SOURCES CONFIGURE_DEPENDS
-  "${minuit_cpp_SOURCE_DIR}/src/lib/*.cxx"
+    "${HYPERISO_MINUIT_CPP_SRC}/*.cxx"
 )
 
 add_library(MinuitCpp STATIC ${MINUIT_CPP_SOURCES})
 add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
 
 set_target_properties(MinuitCpp PROPERTIES
-  POSITION_INDEPENDENT_CODE ON
+    POSITION_INDEPENDENT_CODE ON
+    OUTPUT_NAME "minuit-cpp"
 )
 
 target_include_directories(MinuitCpp
-  PUBLIC
-    $<BUILD_INTERFACE:${minuit_cpp_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${minuit_cpp_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    PUBLIC
+        $<BUILD_INTERFACE:${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}>
+        $<BUILD_INTERFACE:${HYPERISO_MINUIT_CPP_ROOT}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(MinuitCpp PUBLIC cxx_std_20)
 
-target_link_libraries(ExternalIntegrationLib PRIVATE MinuitCpp::MinuitCpp)
+target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
 
 install(TARGETS MinuitCpp
-  EXPORT HyperisoTargets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXPORT HyperisoTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY "${HYPERISO_MINUIT_CPP_ROOT}/include/minuit-cpp"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hh"
+)
+install(FILES "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp/Config.hh"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/minuit-cpp
 )

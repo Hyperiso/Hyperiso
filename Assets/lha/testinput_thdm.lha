@@ -45,3 +45,20 @@ Block MASS      #  Mass spectrum (kinematic masses)
     15        1.7768600000e+00   # Mta
     23        9.11876000e+01   # MZ
     24        7.98290000e+01   # MW
+Block MASS      #  Mass spectrum (kinematic masses)
+#  PDG      Mass
+     1        4.70000000e-03   # Md
+     2        2.12000000e-03   # Mu
+     3        9.35000000e-02   # Ms
+     4        1.27300000e+00   # Mc
+     5        4.18000000e+00   # Mb
+     6        1.73340000e+02   # Mt
+    11        5.11000000e-04   # Me
+    13        1.05658000e-01   # Mmu
+    15        1.77693000e+00   # Mta
+    23        9.11876000e+01   # MZ
+    24        8.03695100e+01   # MW
+    25        8.10828748e+01   # Mh1, lightest CP-even Higgs
+    35        3.00546712e+02   # Mh2, heaviest CP-even Higgs
+    36        3.00004219e+02   # Mh3, CP-odd Higgs
+    37        3.10553778e+02   # Mhc
