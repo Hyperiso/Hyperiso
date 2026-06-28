@@ -8,6 +8,7 @@
 #include <set>
 #include <unordered_set>
 #include <unordered_map>
+#include <optional>
 
 #include "config.hpp"
 #include "FileNameManager.h"
@@ -198,6 +199,23 @@ private:
      * @return A string like `"generated_<wilson>_<model>.cpp"`.
      */
     std::string output_binary_name(std::string& wilson, std::string& model);
+
+    /**
+     * @brief Resolve the structural MARTY template index for template models.
+     *
+     * For the 2HDM this reads MINPAR(24), i.e. the Yukawa type, and uses it to
+     * instantiate THDM_Model<N>. Returning std::nullopt means that the model is
+     * not a template model.
+     */
+    std::optional<int> resolve_model_template_index(const std::string& model) const;
+
+    /**
+     * @brief Remove stale generated MARTY files when the resolved model signature changes.
+     */
+    void invalidate_template_model_cache_if_needed(const std::string& wilson,
+                                                   const std::string& model,
+                                                   const std::string& model_path,
+                                                   std::optional<int> model_template_index) const;
 
     /// Set of block names requiring special SM handling (e.g. kinematics, angles).
     std::set<std::string> specials_block {"KIN", "WEIN", "Finite", "REGPROP", "BETA"};

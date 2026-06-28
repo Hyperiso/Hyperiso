@@ -4,6 +4,11 @@
 #include "DefaultInterpreterPortsFactory.h"
 #include "MartyRuntimeConfig.h"
 
+#include <algorithm>
+#include <cmath>
+#include <cctype>
+#include <fstream>
+
 namespace fs = std::filesystem;
 
 
@@ -31,8 +36,11 @@ void MartyInterface::generate(std::string wilson, std::string model, std::string
         return;
     }
 
+    const auto model_template_index = resolve_model_template_index(model);
+    invalidate_template_model_cache_if_needed(wilson, model, model_path, model_template_index);
+
     std::unique_ptr<ModelModifier> smModifier;
-    smModifier = std::make_unique<GeneralModelModifier>(wilson, model, model_path);
+    smModifier = std::make_unique<GeneralModelModifier>(wilson, model, model_path, model_template_index);
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, model)->getTemplateDir());
     templateManager->setModelAndWilson(model, wilson);
@@ -89,6 +97,77 @@ void MartyInterface::calculate(std::string wilson, std::string model, double Q_m
     compile_run(wilson, model);
     generate_numlib(wilson, model);
     compile_run_libs(wilson, model, Q_match);
+}
+
+
+std::optional<int> MartyInterface::resolve_model_template_index(const std::string& model) const {
+    std::string model_upper = model;
+    std::transform(model_upper.begin(), model_upper.end(), model_upper.begin(), [](unsigned char c) {
+        return static_cast<char>(std::toupper(c));
+    });
+
+    if (model_upper != "THDM") {
+        return std::nullopt;
+    }
+
+    if (!param_proxy_bsm) {
+        LOG_ERROR("MartyConfigError", "Cannot instantiate the templated THDM MARTY model: no BSM parameter proxy is available to read MINPAR(24). ",
+                  "Set the THDM Yukawa type in the LHA card or provide a BSM parameter provider before MARTY generation.");
+    }
+
+    const double raw_type = (*param_proxy_bsm)("MINPAR", LhaID(24));
+    const int type = static_cast<int>(std::lround(raw_type));
+
+    if (std::abs(raw_type - static_cast<double>(type)) > 1e-9 || type < 1 || type > 4) {
+        LOG_ERROR("MartyConfigError", "Invalid THDM Yukawa type MINPAR(24)=", raw_type,
+                  ". MARTY THDM generation expects an integer type in {1,2,3,4}.");
+    }
+
+    LOG_INFO("MartyInterface", "Using THDM Yukawa type ", type, " from MINPAR(24) for MARTY generation.");
+    return type;
+}
+
+void MartyInterface::invalidate_template_model_cache_if_needed(const std::string& wilson,
+                                                               const std::string& model,
+                                                               const std::string& model_path,
+                                                               std::optional<int> model_template_index) const {
+    const auto files = FileNameManager::getInstance(wilson, model);
+    const std::string expected_signature = GeneralModelModifier::modelSignature(
+        model,
+        model_path,
+        model_template_index
+    );
+
+    bool stale = true;
+    {
+        std::ifstream in(files->getGeneratedFileName());
+        std::string line;
+        while (std::getline(in, line)) {
+            if (line.find(expected_signature) != std::string::npos) {
+                stale = false;
+                break;
+            }
+            if (line.find("HYPERISO_MARTY_MODEL_SIGNATURE:") != std::string::npos) {
+                break;
+            }
+        }
+    }
+
+    if (!stale) {
+        return;
+    }
+
+    std::error_code ec;
+    fs::remove(files->getGeneratedFileName(), ec);
+    ec.clear();
+    fs::remove(files->getExecutableFileName(), ec);
+    ec.clear();
+    fs::remove_all(files->getLibDir(), ec);
+    ec.clear();
+    fs::remove(files->getCsvWilsonFileName(), ec);
+
+    LOG_INFO("MartyInterface", "Invalidated stale MARTY cache for ", wilson, " / ", model,
+             " because the model signature is now ", expected_signature);
 }
 
 std::unordered_set<InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {
