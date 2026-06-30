@@ -49,6 +49,16 @@ public:
     virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) = 0;
 
     /**
+     * @brief Triggers a calculation where output label and model class differ.
+     */
+    virtual void calculate(std::string wilson,
+                           std::string output_model,
+                           std::string target_model,
+                           double Q_match,
+                           std::string model_path,
+                           bool sm_like_filter) = 0;
+
+    /**
      * @brief Returns the set of block names requiring special handling.
      *
      * @return Set of block names (same semantics as

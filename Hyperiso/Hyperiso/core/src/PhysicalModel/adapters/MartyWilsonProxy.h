@@ -38,6 +38,16 @@ public:
     /// @copydoc IMartyWilsonProxy::calculate
     void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) override {martyAdapter.calculate(wilson, model, Q_match, model_path);}
 
+    /// @copydoc IMartyWilsonProxy::calculate(std::string,std::string,std::string,double,std::string,bool)
+    void calculate(std::string wilson,
+                   std::string output_model,
+                   std::string target_model,
+                   double Q_match,
+                   std::string model_path,
+                   bool sm_like_filter) override {
+        martyAdapter.calculate(wilson, output_model, target_model, Q_match, model_path, sm_like_filter);
+    }
+
     /// @copydoc IMartyWilsonProxy::get_special_blocks
     std::set<std::string>  get_special_blocks() override {return martyAdapter.get_special_blocks();}
 

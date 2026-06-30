@@ -34,17 +34,53 @@ static LhaID flhaid(WCoef c, QCDOrder ord, ContributionType ct) {
 }
 
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
-    std::string name = (ctx.contrib==ContributionType::SM) ? "SM" : ctx.adapters.marty_model_name->get();
-    fs::path path    = (ctx.contrib==ContributionType::SM) ? ctx.adapters.sm_path : ctx.adapters.marty_model_path->get();
+    const bool sm_like_inside_bsm = (ctx.contrib == ContributionType::SM && ctx.model != Model::SM);
+
+    std::string output_name = "SM";
+    std::string generation_name = "SM";
+    fs::path path = ctx.adapters.sm_path;
+
+    if (sm_like_inside_bsm) {
+        output_name = "SM";
+        generation_name = ctx.adapters.marty_model_name->get();
+        path = ctx.adapters.marty_model_path->get();
+    } else if (ctx.contrib != ContributionType::SM) {
+        output_name = ctx.adapters.marty_model_name->get();
+        generation_name = output_name;
+        path = ctx.adapters.marty_model_path->get();
+    }
+
     std::string block= GroupMapper::str(ctx.group_id, ScaleType::MATCHING);
     LhaID id        = flhaid(c, QCDOrder::LO, ctx.contrib);
-    MartyWilsonConfig cfg { name, id, block, path, ctx.adapters.marty_proxy, ctx.marty_paths };
+    MartyWilsonConfig cfg {
+        output_name,
+        generation_name,
+        sm_like_inside_bsm,
+        id,
+        block,
+        path,
+        ctx.adapters.marty_proxy,
+        ctx.marty_paths
+    };
     return std::make_shared<MartyWilson>(cfg);
 }
 
 CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
     if (auto it = table_.find(key(c, ctx.model, ctx.backend)); it != table_.end())
         return it->second(ctx, c);
+
+    // SM-like MARTY generation for a BSM model is intentionally implemented by
+    // the SM/MARTY coefficient factory, but it must receive the original context
+    // (ctx.model != SM) so that MartyWilson can instantiate the target model and
+    // enable the non-SM-particle filter.  This fallback must happen before the
+    // generic Marty->Builtin fallback, otherwise a hardcoded THDM/SUSY coefficient
+    // would be used instead of the SM-like MARTY coefficient.
+    if (ctx.backend == Backend::Marty
+        && ctx.contrib == ContributionType::SM
+        && ctx.model != Model::SM) {
+        if (auto it_sm_marty = table_.find(key(c, Model::SM, Backend::Marty)); it_sm_marty != table_.end())
+            return it_sm_marty->second(ctx, c);
+    }
 
     // fallback Marty -> Builtin
     if (ctx.backend == Backend::Marty) {

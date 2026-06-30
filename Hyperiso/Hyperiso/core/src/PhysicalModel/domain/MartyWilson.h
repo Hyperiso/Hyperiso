@@ -65,8 +65,16 @@
  * Default values target the SM model shipped in the assets directory.
  */
 struct MartyWilsonConfig {
-    /// MARTY model class name (e.g. "SM", or user model name).
+    /// Output model label used for generated libraries/CSV files (e.g. "SM", "THDM").
     std::string model_name{"SM"};
+
+    /// C++ MARTY model class to instantiate. Usually equal to model_name, except
+    /// for SM-like generation inside a BSM model.
+    std::string generation_model_name{"SM"};
+
+    /// If true, generated code instantiates generation_model_name but disables
+    /// all particles not present in SM_Model.
+    bool sm_like_filter{false};
     
     /// Full coefficient id used to store the matching value (including order/type parts).
     LhaID coeff_id;
@@ -149,6 +157,31 @@ struct MartyWilsonConfig {
                       std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy,
                       std::shared_ptr<IMartyWilsonPathProxy> paths = nullptr)
         : model_name(model_name),
+          generation_model_name(model_name),
+          coeff_id(id),
+          storage_block(storage_block_name),
+          model_path(model_path),
+          marty_proxy(proxy),
+          path_provider(paths) {
+        refresh_csv_path();
+    }
+
+    /**
+     * @brief Constructs config with a separate output label and generated model.
+     *
+     * Used for SM-like contributions inside an extended MARTY model.
+     */
+    MartyWilsonConfig(const std::string& output_model_name,
+                      const std::string& generation_model_name,
+                      bool sm_like_filter,
+                      const LhaID& id,
+                      const std::string& storage_block_name,
+                      fs::path model_path,
+                      std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> proxy,
+                      std::shared_ptr<IMartyWilsonPathProxy> paths = nullptr)
+        : model_name(output_model_name),
+          generation_model_name(generation_model_name),
+          sm_like_filter(sm_like_filter),
           coeff_id(id),
           storage_block(storage_block_name),
           model_path(model_path),

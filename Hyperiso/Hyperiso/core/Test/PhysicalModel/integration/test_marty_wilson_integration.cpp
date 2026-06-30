@@ -61,6 +61,11 @@ public:
     explicit FakeMartyProxy(const fs::path& p): csv_path(p) {}
     void calculate(std::string wilson, std::string /*model*/, double Q_match,
                    std::string /*model_path*/) override {
+        calculate(wilson, "SM", "SM", Q_match, "", false);
+    }
+
+    void calculate(std::string wilson, std::string /*output_model*/, std::string /*target_model*/,
+                   double Q_match, std::string /*model_path*/, bool /*sm_like_filter*/) override {
         fs::create_directories(csv_path.parent_path());
         std::ofstream out(csv_path);
         out << "Q_match," << wilson << "_real," << wilson << "_img\n";
