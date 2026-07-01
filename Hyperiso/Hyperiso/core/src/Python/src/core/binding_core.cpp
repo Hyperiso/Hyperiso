@@ -343,6 +343,17 @@ void init_core(py::module &m) {
     mode is allowed to initialize.)doc"
         )
         .def(
+            "pre_init_set_softsusy_path",
+            &HyperisoMaster::pre_init_set_softsusy_path,
+            py::arg("softsusy_path"),
+            R"doc(Register a SOFTSUSY executable or installation directory before initialization.
+
+    The path may point directly to softpoint.x, or to a directory containing
+    softpoint.x, bin/softpoint.x, or src/SOFTSUSY/softpoint.x. This is the
+    recommended Python path when Hyperiso was not built with bundled
+    SOFTSUSY support.)doc"
+        )
+        .def(
             "pre_init_set_paths",
             [](HyperisoMaster& self, const std::map<APIPath, std::string>& path_overrides) {
                 self.pre_init_set_paths(path_overrides);

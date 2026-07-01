@@ -47,6 +47,20 @@ public:
     virtual void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) = 0;
 
     /**
+     * @brief Runs calculation with a separate output label and target model.
+     *
+     * @param output_model Label used for generated output files/libraries.
+     * @param target_model C++ MARTY model class to instantiate.
+     * @param sm_like_filter If true, disable all particles not present in SM_Model.
+     */
+    virtual void calculate(std::string wilson,
+                           std::string output_model,
+                           std::string target_model,
+                           double Q_match,
+                           std::string model_path,
+                           bool sm_like_filter) = 0;
+
+    /**
      * @brief Returns the set of special parameter blocks.
      *
      * These blocks require custom treatment during parameter extraction

@@ -36,6 +36,8 @@ if __name__ == "__main__":
     #The most useful parameter to change is the number of draw for the MonteCarlo generator.
     sc.MC_draws = 100
     
+    #sc.MC_threads = 24 #Use only if your computer support it. Dispatch the MC draws on multiple threads.
+    
     #Main interface for uncertainty calculation, MLE and making 2D contours.
     si = StatisticInterface(sc, oi)
     

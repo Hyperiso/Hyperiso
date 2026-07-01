@@ -219,7 +219,7 @@ double C8_THDM::compute_LO(const ParamSrc& src) {
     double ld = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
     double yt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", 1);
 
-    return 1. / 3. * lu * ld * F8_1(yt) - lu * ld * F8_2(yt);
+    return 1. / 3. * lu * lu * F8_1(yt) - lu * ld * F8_2(yt);
 }
 
 double C8_THDM::compute_NLO(const ParamSrc& src) {

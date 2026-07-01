@@ -1,28 +1,16 @@
 #include "Interface.h"
 
-#ifdef BUILD_WITH_SOFTSUSY
-#include "SoftSusy.h"
-#endif
+#include <stdexcept>
 
-#ifdef BUILD_WITH_2HDMC
 #include "2HDMC.h"
-#endif
-#include "Logger.h"
+#include "SoftSusy.h"
 
 std::shared_ptr<ICalculator> GeneralCalculatorFactory::createCalculator(CalculatorType type) {
     switch(type) {
         case CalculatorType::Softsusy:
-            #ifdef BUILD_WITH_SOFTSUSY
             return std::make_shared<SoftsusyCalculator>();
-            #else
-            // throw std::runtime_error("SOFTSUSY support not enabled.");
-            #endif
         case CalculatorType::TwoHDM:
-            #ifdef BUILD_WITH_2HDMC
             return std::make_shared<TwoHDMCalculator>();
-            #else
-            // throw std::runtime_error("TwoHDM support not enabled.");
-            #endif
         default:
             throw std::invalid_argument("Invalid Calculator Type");
     }
@@ -41,6 +29,6 @@ void GeneralCalculatorFactory::executeCommand(CalculatorType type, const std::st
     if (commandIterator != commonCommands.end()) {
         commandIterator->second(inputFilePath, outputFilePath);
     } else {
-        std::cerr << "Command '" << commandName << "' not recognized." << std::endl;
+        throw std::invalid_argument("Calculator command '" + commandName + "' is not recognized.");
     }
 }

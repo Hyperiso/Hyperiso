@@ -44,6 +44,18 @@ public:
     void calculate(std::string wilson, std::string model, double Q_match, std::string model_path) override {martyInterface.calculate(wilson, model, Q_match, model_path);}
 
     /**
+     * @brief Launches calculation with separate output label and target model.
+     */
+    void calculate(std::string wilson,
+                   std::string output_model,
+                   std::string target_model,
+                   double Q_match,
+                   std::string model_path,
+                   bool sm_like_filter) override {
+        martyInterface.calculate(wilson, output_model, target_model, Q_match, model_path, sm_like_filter);
+    }
+
+    /**
      * @brief Returns the set of special blocks requiring custom handling.
      *
      * Delegates to ::MartyInterface::get_special_blocks.

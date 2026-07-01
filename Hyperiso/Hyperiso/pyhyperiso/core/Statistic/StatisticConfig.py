@@ -169,6 +169,11 @@ class AdvancedStatisticConfig:
     chi2_covariance_ridge_rel: float = 1e-8
     chi2_covariance_ridge_abs: float = 1e-12
 
+    # Advanced MC/decay thread arbitration.  MC_threads itself stays on
+    # StatisticConfig because it is the main user-facing parallelism knob.
+    MC_force_decay_threads_to_one: bool = True
+    MC_forced_decay_threads: int = 1
+
     def to_cpp(self):
         """Convert this Python config to the bound C++ ``AdvancedStatisticConfig``."""
         cpp = st.AdvancedStatisticConfig()
@@ -206,6 +211,8 @@ class AdvancedStatisticConfig:
         cpp.likelihood_mode = _cpp_likelihood_mode(self.likelihood_mode)
         cpp.chi2_covariance_ridge_rel = float(self.chi2_covariance_ridge_rel)
         cpp.chi2_covariance_ridge_abs = float(self.chi2_covariance_ridge_abs)
+        cpp.MC_force_decay_threads_to_one = bool(self.MC_force_decay_threads_to_one)
+        cpp.MC_forced_decay_threads = int(self.MC_forced_decay_threads)
         return cpp
 
 
@@ -220,6 +227,7 @@ class StatisticConfig:
     Args:
         MC_draws: Number of accepted MC predictions used in uncertainty
             propagation or chi-square covariance estimation.
+        MC_threads: Number of worker threads used by MC propagation.
         skew_abs_threshold: Skewness threshold for symmetric vs split-Gaussian
             summaries.
         print_mc_progress: Print a compact progress bar with live ETA during MC
@@ -239,6 +247,7 @@ class StatisticConfig:
     """
 
     MC_draws: int = 100
+    MC_threads: int = 1
     skew_abs_threshold: float = 0.2
 
     print_mc_progress: bool = False
@@ -260,6 +269,7 @@ class StatisticConfig:
         """Convert this Python config to the bound C++ ``StatisticConfig``."""
         cpp = st.StatisticConfig()
         cpp.MC_draws = int(self.MC_draws)
+        cpp.MC_threads = int(self.MC_threads)
         cpp.skew_abs_threshold = float(self.skew_abs_threshold)
         cpp.print_mc_progress = bool(self.print_mc_progress)
         cpp.print_chi2_pipeline_progress = bool(self.print_chi2_pipeline_progress)

@@ -12,6 +12,7 @@
 #include "SpectrumCalculator.h"
 #include "DefaultPathsProvider.h"
 #include "MartyRuntimeConfig.h"
+#include "SoftSusy.h"
 
 /**
  * @file HyperisoMaster.h
@@ -109,6 +110,15 @@ public:
      * code-generation layer instead of the bundled Third_party/MARTY path.
      */
     void pre_init_set_marty_path(const std::string& martyInstallPath);
+
+    /**
+     * @brief Registers a SOFTSUSY executable or installation directory before init().
+     *
+     * The path may point directly to softpoint.x, or to a directory containing
+     * softpoint.x, bin/softpoint.x, or src/SOFTSUSY/softpoint.x. This runtime
+     * path is used even when Hyperiso was not built with BUILD_WITH_SOFTSUSY.
+     */
+    void pre_init_set_softsusy_path(const std::string& softsusyPath);
 
     /**
      * @brief Overrides selected HyperISO filesystem paths before init().

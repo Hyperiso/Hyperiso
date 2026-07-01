@@ -41,7 +41,13 @@ public:
     void calculate(std::string wilson, std::string model, double Q_match,
                    std::string model_path) override
     {
-        last_wilson = wilson; last_model = model; last_Q = Q_match; last_model_path = model_path;
+        calculate(wilson, model, model, Q_match, model_path, false);
+    }
+
+    void calculate(std::string wilson, std::string output_model, std::string /*target_model*/,
+                   double Q_match, std::string model_path, bool /*sm_like_filter*/) override
+    {
+        last_wilson = wilson; last_model = output_model; last_Q = Q_match; last_model_path = model_path;
 
         ensure_parent(csv_path);
         std::ofstream out(csv_path);

@@ -222,6 +222,16 @@ class HyperisoMaster:
         """Register an existing MARTY installation before initialization."""
         self._cpp_obj.pre_init_set_marty_path(os.path.abspath(os.fspath(marty_path)))
 
+    def pre_init_set_softsusy_path(self, softsusy_path: PathLike) -> None:
+        """Register a SOFTSUSY executable or installation directory before initialization.
+
+        ``softsusy_path`` may point directly to ``softpoint.x`` or to a local
+        SOFTSUSY installation/source directory containing one of the usual
+        executable locations: ``softpoint.x``, ``bin/softpoint.x`` or
+        ``src/SOFTSUSY/softpoint.x``.
+        """
+        self._cpp_obj.pre_init_set_softsusy_path(os.path.abspath(os.fspath(softsusy_path)))
+
     def pre_init_set_paths(self, path_overrides: Mapping[Any, PathLike]) -> None:
         """Override selected Hyperiso filesystem paths before initialization.
 

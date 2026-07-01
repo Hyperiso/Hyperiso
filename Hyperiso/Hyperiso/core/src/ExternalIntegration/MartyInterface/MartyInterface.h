@@ -8,6 +8,7 @@
 #include <set>
 #include <unordered_set>
 #include <unordered_map>
+#include <optional>
 
 #include "config.hpp"
 #include "FileNameManager.h"
@@ -91,6 +92,19 @@ public:
     void generate(std::string wilson, std::string model, std::string model_path);
 
     /**
+     * @brief Generates code with a separate output label and target model.
+     *
+     * This is used for SM-like contributions in an extended model: output files
+     * and libraries keep the ``SM`` label, but the generated code instantiates
+     * the target BSM model and may filter out non-SM particles.
+     */
+    void generate(std::string wilson,
+                  std::string output_model,
+                  std::string target_model,
+                  std::string model_path,
+                  bool sm_like_filter);
+
+    /**
      * @brief Compiles and runs the non-numeric generated code.
      *
      * Uses ::GppCompilerStrategy to:
@@ -148,6 +162,16 @@ public:
     void calculate(std::string wilson, std::string model, double Q_match, std::string model_path);
 
     /**
+     * @brief Full pipeline with a separate output label and target model.
+     */
+    void calculate(std::string wilson,
+                   std::string output_model,
+                   std::string target_model,
+                   double Q_match,
+                   std::string model_path,
+                   bool sm_like_filter);
+
+    /**
      * @brief Retrieves the set of parameter dependencies for a given Wilson basis.
      *
      * The dependencies are discovered via numeric template generation, and
@@ -198,6 +222,25 @@ private:
      * @return A string like `"generated_<wilson>_<model>.cpp"`.
      */
     std::string output_binary_name(std::string& wilson, std::string& model);
+
+    /**
+     * @brief Resolve the structural MARTY template index for template models.
+     *
+     * For the 2HDM this reads MINPAR(24), i.e. the Yukawa type, and uses it to
+     * instantiate THDM_Model<N>. Returning std::nullopt means that the model is
+     * not a template model.
+     */
+    std::optional<int> resolve_model_template_index(const std::string& model) const;
+
+    /**
+     * @brief Remove stale generated MARTY files when the resolved model signature changes.
+     */
+    void invalidate_template_model_cache_if_needed(const std::string& wilson,
+                                                   const std::string& output_model,
+                                                   const std::string& target_model,
+                                                   const std::string& model_path,
+                                                   std::optional<int> model_template_index,
+                                                   bool sm_like_filter) const;
 
     /// Set of block names requiring special SM handling (e.g. kinematics, angles).
     std::set<std::string> specials_block {"KIN", "WEIN", "Finite", "REGPROP", "BETA"};

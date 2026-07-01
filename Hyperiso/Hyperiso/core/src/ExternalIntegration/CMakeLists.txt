@@ -10,18 +10,11 @@ if (NOT DEFINED BUILD_WITH_APP)
 endif()
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
-    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
-endif()
-if (NOT DEFINED BUILD_WITH_2HDMC)
-    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
+    option(BUILD_WITH_SOFTSUSY "Build project with bundled SOFTSUSY fallback" OFF)
 endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
-if (NOT DEFINED BUILD_WITH_MINUIT2)
-    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
-endif()
-
 if (NOT TARGET CommonLib)
     add_subdirectory(../Common CommonLib)
 endif()
@@ -32,16 +25,15 @@ if (NOT TARGET ConfiguredModule)
     add_subdirectory(../Configured Configured)
 endif()
 
-add_library(ExternalIntegrationLib STATIC 
+add_library(ExternalIntegrationLib STATIC
     Interface.cpp
     2HDMC.cpp
     SoftSusy.cpp
-    MinuitCppBackend.cpp)
+    MinuitCppBackend.cpp
+)
 set_target_properties(ExternalIntegrationLib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
-# set(THIRD_PARTY_DIR "${PROJECT_SOURCE_DIR}/Third_party")
-
-set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY, SOFTSUSY, 2HDMC)")
+set(THIRD_PARTY_DIR "" CACHE PATH "Third-party directory (contains MARTY and optional SOFTSUSY)")
 if(NOT THIRD_PARTY_DIR)
   get_filename_component(_REPO_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../../../.." ABSOLUTE)
   set(THIRD_PARTY_DIR "${_REPO_ROOT}/Third_party")
@@ -49,19 +41,52 @@ endif()
 message(STATUS "Third-party dir: ${THIRD_PARTY_DIR}")
 
 set(MARTY_ROOT "" CACHE PATH "Existing Marty install prefix (has include/ and lib/)")
-set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix (has include/ and lib/)")
-set(TWOHDMC_SRC "" CACHE PATH "Existing 2HDMC sources (folder containing src/)")
+set(SOFTSUSY_ROOT "" CACHE PATH "Existing SoftSUSY install prefix or source tree used when BUILD_WITH_SOFTSUSY=ON")
+
+# 2HDMC is vendored and always built as part of ExternalIntegration.
+find_package(GSL REQUIRED)
+set(HYPERISO_2HDMC_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/2HDMC")
+set(HYPERISO_2HDMC_SRC "${HYPERISO_2HDMC_ROOT}/src")
+
+if(NOT EXISTS "${HYPERISO_2HDMC_SRC}/THDM.cpp")
+    message(FATAL_ERROR "Vendored 2HDMC sources are missing from ${HYPERISO_2HDMC_ROOT}. Re-add Hyperiso/Hyperiso/core/src/ExternalIntegration/third_party/2HDMC.")
+endif()
+
+message(STATUS "Building vendored 2HDMC from: ${HYPERISO_2HDMC_ROOT}")
+target_sources(ExternalIntegrationLib PRIVATE
+    "${HYPERISO_2HDMC_SRC}/THDM.cpp"
+    "${HYPERISO_2HDMC_SRC}/SM.cpp"
+    "${HYPERISO_2HDMC_SRC}/Util.cpp"
+    "${HYPERISO_2HDMC_SRC}/DecayTable.cpp"
+    "${HYPERISO_2HDMC_SRC}/Constraints.cpp"
+)
+target_include_directories(ExternalIntegrationLib PRIVATE
+    "${HYPERISO_2HDMC_SRC}"
+    ${GSL_INCLUDE_DIRS}
+)
+if(TARGET GSL::gsl)
+    target_link_libraries(ExternalIntegrationLib PRIVATE GSL::gsl)
+    if(TARGET GSL::gslcblas)
+        target_link_libraries(ExternalIntegrationLib PRIVATE GSL::gslcblas)
+    endif()
+else()
+    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
+endif()
 
 if (BUILD_WITH_SOFTSUSY)
-    # add_definitions(-DBUILD_WITH_SOFTSUSY)    
     add_compile_definitions(BUILD_WITH_SOFTSUSY)
-    message(STATUS "Building application with SOFTSUSY software")
+    message(STATUS "Building application with bundled SOFTSUSY fallback")
     include(ExternalProject)
-  
+
+    set(_SOFTSUSY_PREFIX "${THIRD_PARTY_DIR}/SOFTSUSY")
+    if(SOFTSUSY_ROOT)
+        set(_SOFTSUSY_PREFIX "${SOFTSUSY_ROOT}")
+    endif()
+
     ExternalProject_Add(SOFTSUSY
         GIT_REPOSITORY "https://github.com/BAllanach/softsusy.git"
         GIT_TAG "v4.1.19"
-        PREFIX "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/SOFTSUSY"
+        PREFIX "${_SOFTSUSY_PREFIX}"
         CONFIGURE_COMMAND ""
         COMMAND autoreconf -fiv
         COMMAND ./configure
@@ -72,70 +97,6 @@ if (BUILD_WITH_SOFTSUSY)
     ExternalProject_Get_Property(SOFTSUSY SOURCE_DIR)
     target_include_directories(ExternalIntegrationLib PRIVATE "${SOURCE_DIR}")
     add_dependencies(ExternalIntegrationLib SOFTSUSY)
-
-endif()
-
-if (BUILD_WITH_2HDMC)
-    # add_definitions(-DBUILD_WITH_2HDMC)
-    add_compile_definitions(BUILD_WITH_2HDMC)
-    message(STATUS "Building application with 2HDMC software")
-    find_package(GSL REQUIRED)
-
-    set(DOWNLOAD_DIR "${CMAKE_BINARY_DIR}/downloads")
-    # set(EXTRACT_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../Third_party/2HDMC/")
-    set(EXTRACT_DIR "${THIRD_PARTY_DIR}/2HDMC")
-    set(TAR_FILE "${DOWNLOAD_DIR}/2HDMC-1.8.0.tar.gz")
-    set(URL "https://2hdmc.hepforge.org/downloads/?f=2HDMC-1.8.0.tar.gz")
-
-    if(NOT EXISTS "${EXTRACT_DIR}/src/THDM.cpp")
-        message(STATUS "2HDMC sources not found, preparing download and extraction...")
-
-        file(MAKE_DIRECTORY ${DOWNLOAD_DIR})
-        file(MAKE_DIRECTORY ${EXTRACT_DIR})
-
-        if(EXISTS ${TAR_FILE})
-            file(SIZE ${TAR_FILE} TAR_SIZE)
-            if(${TAR_SIZE} LESS 10000)
-                message(WARNING "2HDMC archive seems corrupted, removing it...")
-                file(REMOVE ${TAR_FILE})
-            endif()
-        endif()
-
-        if(NOT EXISTS ${TAR_FILE})
-            message(STATUS "Downloading 2HDMC source archive...")
-            execute_process(
-                COMMAND wget -O ${TAR_FILE} ${URL}
-                WORKING_DIRECTORY ${DOWNLOAD_DIR}
-                RESULT_VARIABLE DOWNLOAD_RESULT
-            )
-            if(NOT DOWNLOAD_RESULT EQUAL 0)
-                message(FATAL_ERROR "Failed to download 2HDMC archive from ${URL}")
-            endif()
-        else()
-            message(STATUS "2HDMC archive already exists, skipping download.")
-        endif()
-
-        message(STATUS "Extracting 2HDMC source files...")
-        execute_process(
-            COMMAND tar xzf ${TAR_FILE} --strip-components=1 -C ${EXTRACT_DIR}
-            WORKING_DIRECTORY ${DOWNLOAD_DIR}
-            RESULT_VARIABLE TAR_RESULT
-        )
-        if(NOT TAR_RESULT EQUAL 0)
-            message(FATAL_ERROR "Failed to extract 2HDMC archive.")
-        endif()
-    else()
-        message(STATUS "2HDMC source files already present, skipping download and extraction.")
-    endif()
-
-    target_sources(ExternalIntegrationLib PRIVATE
-        "${EXTRACT_DIR}/src/THDM.cpp"
-        "${EXTRACT_DIR}/src/SM.cpp"
-        "${EXTRACT_DIR}/src/Util.cpp"
-        "${EXTRACT_DIR}/src/DecayTable.cpp"
-    )
-    target_link_libraries(ExternalIntegrationLib PRIVATE ${GSL_LIBRARIES})
-    target_include_directories(ExternalIntegrationLib PRIVATE "${EXTRACT_DIR}/src" ${GSL_INCLUDE_DIRS})
 endif()
 
 if (BUILD_WITH_MARTY)
@@ -284,54 +245,30 @@ install(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/
     PATTERN "CMakeFiles" EXCLUDE
 )
 
-# include(FetchContent)
-
-# FetchContent_Declare(minuit_cpp
-#   GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-#   GIT_TAG b5f2558
-#   GIT_SHALLOW TRUE
-# )
-
-
-# FetchContent_MakeAvailable(minuit_cpp)
-
-# if(NOT TARGET MinuitCpp)
-#   add_library(MinuitCpp INTERFACE)
-
-#   if(TARGET minuit-cpp)
-#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp)          # shared
-#   elseif(TARGET minuit-cpp-static)
-#     target_link_libraries(MinuitCpp INTERFACE minuit-cpp-static)   # static
-#   else()
-#     message(FATAL_ERROR "Targets minuit-cpp introuvables (minuit-cpp / minuit-cpp-static).")
-#   endif()
-
-#   target_include_directories(MinuitCpp INTERFACE
-#     ${minuit_cpp_SOURCE_DIR}/include
-#   )
-
-#   add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
-# endif()
-
-# target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
-
-include(FetchContent)
+# Minuit-cpp is vendored and always built as part of the standard Hyperiso
+# build. This avoids network access during Python/wheel builds and keeps the
+# fitting, profiling and contour backends available out of the box.
 include(CheckIncludeFile)
 
-FetchContent_Declare(minuit_cpp
-  GIT_REPOSITORY https://github.com/doughague/minuit-cpp.git
-  GIT_TAG b5f2558
-  GIT_SHALLOW TRUE
-)
+set(HYPERISO_MINUIT_CPP_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/third_party/minuit-cpp")
+set(HYPERISO_MINUIT_CPP_SRC "${HYPERISO_MINUIT_CPP_ROOT}/src/lib")
+set(HYPERISO_MINUIT_CPP_BINARY_INCLUDE "${CMAKE_CURRENT_BINARY_DIR}/include")
 
-FetchContent_GetProperties(minuit_cpp)
-if(NOT minuit_cpp_POPULATED)
-  FetchContent_Populate(minuit_cpp)
+if(NOT EXISTS "${HYPERISO_MINUIT_CPP_ROOT}/include/minuit-cpp/FCNBase.hh")
+    message(FATAL_ERROR
+        "Vendored minuit-cpp headers are missing from ${HYPERISO_MINUIT_CPP_ROOT}. "
+        "Re-add Hyperiso/Hyperiso/core/src/ExternalIntegration/third_party/minuit-cpp."
+    )
+endif()
+if(NOT EXISTS "${HYPERISO_MINUIT_CPP_ROOT}/src/Config.hh.in")
+    message(FATAL_ERROR
+        "Vendored minuit-cpp Config.hh.in is missing from ${HYPERISO_MINUIT_CPP_ROOT}/src."
+    )
 endif()
 
 check_include_file("getopt.h" HAVE_GETOPT_H)
 if(NOT HAVE_GETOPT_H)
-  set(HAVE_GETOPT_H 0)
+    set(HAVE_GETOPT_H 0)
 endif()
 
 set(MINUIT_CPP_MONIKER "minuit-cpp")
@@ -342,47 +279,57 @@ set(MINUIT_CPP_VERSION_MAJOR "5")
 set(MINUIT_CPP_VERSION_MINOR "29")
 set(MINUIT_CPP_VERSION_PATCH "00")
 set(MINUIT_CPP_VERSION "${MINUIT_CPP_VERSION_MAJOR}.${MINUIT_CPP_VERSION_MINOR}.${MINUIT_CPP_VERSION_PATCH}")
-set(MINUIT_CPP_SOURCE_DIR "${minuit_cpp_SOURCE_DIR}")
-set(MINUIT_CPP_BINARY_DIR "${minuit_cpp_BINARY_DIR}")
+set(MINUIT_CPP_SOURCE_DIR "${HYPERISO_MINUIT_CPP_ROOT}")
+set(MINUIT_CPP_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/minuit-cpp")
 
 set(_HYPERISO_SAVED_PROJECT_NAME "${PROJECT_NAME}")
 set(PROJECT_NAME "MINUIT_CPP")
 
-file(MAKE_DIRECTORY "${minuit_cpp_BINARY_DIR}/include/minuit-cpp")
+file(MAKE_DIRECTORY "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp")
+file(MAKE_DIRECTORY "${MINUIT_CPP_BINARY_DIR}/lib")
 
 configure_file(
-  "${minuit_cpp_SOURCE_DIR}/src/Config.hh.in"
-  "${minuit_cpp_BINARY_DIR}/include/minuit-cpp/Config.hh"
-  @ONLY
+    "${HYPERISO_MINUIT_CPP_ROOT}/src/Config.hh.in"
+    "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp/Config.hh"
+    @ONLY
 )
 
 set(PROJECT_NAME "${_HYPERISO_SAVED_PROJECT_NAME}")
 
 file(GLOB MINUIT_CPP_SOURCES CONFIGURE_DEPENDS
-  "${minuit_cpp_SOURCE_DIR}/src/lib/*.cxx"
+    "${HYPERISO_MINUIT_CPP_SRC}/*.cxx"
 )
 
 add_library(MinuitCpp STATIC ${MINUIT_CPP_SOURCES})
 add_library(MinuitCpp::MinuitCpp ALIAS MinuitCpp)
 
 set_target_properties(MinuitCpp PROPERTIES
-  POSITION_INDEPENDENT_CODE ON
+    POSITION_INDEPENDENT_CODE ON
+    OUTPUT_NAME "minuit-cpp"
 )
 
 target_include_directories(MinuitCpp
-  PUBLIC
-    $<BUILD_INTERFACE:${minuit_cpp_BINARY_DIR}/include>
-    $<BUILD_INTERFACE:${minuit_cpp_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+    PUBLIC
+        $<BUILD_INTERFACE:${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}>
+        $<BUILD_INTERFACE:${HYPERISO_MINUIT_CPP_ROOT}/include>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
 target_compile_features(MinuitCpp PUBLIC cxx_std_20)
 
-target_link_libraries(ExternalIntegrationLib PRIVATE MinuitCpp::MinuitCpp)
+target_link_libraries(ExternalIntegrationLib PUBLIC MinuitCpp::MinuitCpp)
 
 install(TARGETS MinuitCpp
-  EXPORT HyperisoTargets
-  ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-  RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+    EXPORT HyperisoTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+install(DIRECTORY "${HYPERISO_MINUIT_CPP_ROOT}/include/minuit-cpp"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+    FILES_MATCHING PATTERN "*.hh"
+)
+install(FILES "${HYPERISO_MINUIT_CPP_BINARY_INCLUDE}/minuit-cpp/Config.hh"
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/minuit-cpp
 )

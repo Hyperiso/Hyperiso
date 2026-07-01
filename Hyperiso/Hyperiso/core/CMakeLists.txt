@@ -24,18 +24,8 @@ include(FetchContent)
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
 endif()
-if (NOT DEFINED BUILD_WITH_2HDMC)
-    option(BUILD_WITH_2HDMC "Build project with 2HDMC support" OFF)
-endif()
 if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
-endif()
-if (NOT DEFINED BUILD_WITH_MINUIT2)
-    option(BUILD_WITH_MINUIT2 "Build project with Minuit2 support" OFF)
-endif()
-
-if (BUILD_WITH_2HDMC)
-    add_compile_definitions(BUILD_WITH_2HDMC)
 endif()
 
 if (BUILD_WITH_SOFTSUSY)
@@ -61,10 +51,6 @@ if (BUILD_WITH_SOFTSUSY)
     if(NOT LATEX_EXEC)
         message(FATAL_ERROR "SOFTSUSY requires LaTeX. Install pdflatex and other LaTeX tools.")
     endif()
-endif()
-
-if (BUILD_WITH_2HDMC)
-    message(STATUS "No specific dependency checks defined for 2HDMC in this script.")
 endif()
 
 if (BUILD_WITH_MARTY)
@@ -241,7 +227,6 @@ include(CMakePackageConfigHelpers)
 
 # Passe les options pour qu'elles soient substituées dans le .in
 set(BUILD_WITH_SOFTSUSY ${BUILD_WITH_SOFTSUSY})
-set(BUILD_WITH_2HDMC    ${BUILD_WITH_2HDMC})
 set(BUILD_WITH_MARTY    ${BUILD_WITH_MARTY})
 
 configure_package_config_file(

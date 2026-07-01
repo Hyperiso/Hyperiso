@@ -44,11 +44,6 @@ cmake -S Hyperiso/Hyperiso/core -B build-marty \
 ```
 
 ```bash
-cmake -S Hyperiso/Hyperiso/core -B build-2hdmc \
-  -DBUILD_WITH_2HDMC=ON
-```
-
-```bash
 cmake -S Hyperiso/Hyperiso/core -B build-softsusy \
   -DBUILD_WITH_SOFTSUSY=ON
 ```

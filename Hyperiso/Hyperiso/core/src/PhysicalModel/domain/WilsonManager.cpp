@@ -219,6 +219,16 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
     }
 
     const bool sm_use_marty = allow_hardcoded_sm ? false : marty_backend;
+    const Model active_model = ports_config.model_api ? ports_config.model_api->get() : Model::SM;
+
+    // When MARTY is the active backend for a non-SM model, the SM contribution
+    // must be generated inside the same MARTY model file as the total amplitude,
+    // with the non-SM particles disabled.  Passing Model::SM here would fall back
+    // to sm.h/SM_Model and would reintroduce electroweak-scheme artefacts in
+    // BSM = total(model) - SM(SM_Model).
+    const Model sm_generation_model = (sm_use_marty && active_model != Model::SM)
+        ? active_model
+        : Model::SM;
 
     const QCDOrder sm_max_order = (marty_backend && (max_order > QCDOrder::LO) && !allow_hardcoded_sm)
         ? QCDOrder::LO
@@ -227,7 +237,7 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
     if (ports_config.build_group) {
         sm_group_ptr = ports_config.build_group(
             gid,
-            Model::SM,
+            sm_generation_model,
             sm_use_marty,
             ContributionType::SM,
             sm_block
