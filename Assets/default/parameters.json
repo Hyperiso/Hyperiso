@@ -1589,8 +1589,8 @@
       "syst_error": 0
     },
     "7": {
-      "central_value": 2,
-      "stat_error": 0,
+      "central_value": 2.45,
+      "stat_error": 1.55,
       "syst_error": 0
     },
     "8": {

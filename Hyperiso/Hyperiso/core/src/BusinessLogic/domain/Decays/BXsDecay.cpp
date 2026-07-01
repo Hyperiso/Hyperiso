@@ -29,10 +29,10 @@ void BXsDecay::load_params() {
     cache.m_c_3gev = (*iobs_qcdp)(MassConfig(4, 3.0, MassType::MSBAR, MassType::POLE));
     cache.z = std::pow(cache.m_c_mu_c / cache.m_b_kin, 2);
     // cache.z = 5.9322e-2;
+    // LOG_INFO("z_bsg =", cache.z);
     cache.delta = 1. - 2. * cache.E0 / cache.m_b_kin;
     cache.L_b = 2 * std::log(cache.mu_b / cache.m_b_kin);
-    // cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c); // ASK : 0 in superiso but stated in manual
-    cache.L_c = 0.0;
+    cache.L_c = 2 * std::log(cache.mu_c / cache.m_c_mu_c);
     cache.rand_err = (*p)(ParamId{ParameterType::DECAY, "B_Xs", 10}, DataType::VALUE);
     
     cache.C_b_LO = w_proxy->getAR(WGroup::B, QCDOrder::LO);
@@ -43,6 +43,8 @@ void BXsDecay::load_params() {
     cache.C_w = w_proxy->getAM(WGroup::B, QCDOrder::LO);
 
     // printf("mb_kin = %.8e\n", cache.m_b_kin);
+    // printf("alpha_em bsgamma = %.8e\n", cache.alpha_em);
+    // printf("alpha_em_0 bsgamma = %.8e\n", cache.alpha_em_0);
     // printf("mc_mu_c = %.4e\n", cache.m_c_mu_c);
     // printf("z = %.4e\n", cache.z);
 }   
@@ -385,13 +387,26 @@ std::array<std::array<double, 8>, 8> BXsDecay::K_2_rem(double z) {
     K[1][1] = std::pow((218. / 243 - 208. * L_D / 81), 2);
     K[0][0] = K[1][1] / 36.0;
     K[0][1] = K[1][0] = -K[1][1] / 6.0;
-    K[1][6] = K[6][1] = (218./243.-208./81.*L_D) * K_1[6][6] + (127. / 324 - 35. * L_D / 27) * K_1[6][7] + 2 * (1 - L_D) * (K_1[3][6] - cache.beta_0 * (26. / 81 - 4 * cache.L_b / 27)) / 3 + L_D * (1150 - 4736 * L_D) / 729 - 1617980. / 19683 + 20060 * ZETA3 / 243 + 1664 * cache.L_c / 81;
-    K[1][7] = K[7][1] = (218./243.-208./81.*L_D) * K_1[6][7] + (127. / 324 - 35. * L_D / 27) * K_1[7][7] + 2. * (1 - L_D) * K_1[3][7] / 3.;
-    K[0][6] = K[6][0] = -K[1][6] / 6 + (5. / 16 - 3 * L_D / 4) * K_1[6][7] - 1237. / 729 + 232 * ZETA3 / 27 + L_D * (-20 + 70 * L_D) / 27;
-    K[0][7] = K[7][0] = -K[1][7] / 6 + (5. / 16 - 3 * L_D / 4) * K_1[7][7];
-    K[6][6] = (K_1[6][6] - 4 * phi_77(cache.delta) + 2 * std::log(z) / 3) * K_1[6][6] + L_D * (224. / 27 - 32 * L_D / 9) - 79.2838955662 + cache.L_b * (256 * PI2 / 27 - 2720. / 9 - 160 * cache.L_b / 3) + 512 * PI * cache.alpha_s_upsilon / 27 + 4 * phi_77_rem(cache.delta);
-    K[6][7] = K[7][6] = (-50. / 3 + 8 * PI2 / 3 - 2 * L_D / 3) * K_1[6][7] + L_D * (-112. / 81 + 16 * L_D / 27) + 364. / 243;
-    K[7][7] = (-50. / 3 + 8 * PI2 / 3 - 2 * L_D / 3) * K_1[7][7];
+    K[1][6] = K[6][1] = (218./243.-208./81.*L_D) * K_1[6][6] + (127. / 324. - 35. * L_D / 27) * K_1[6][7] + 2. * (1. - L_D) * (K_1[3][6] - cache.beta_0 * (26. / 81. - 4. * cache.L_b / 27.)) / 3. + L_D * (1150. - 4736. * L_D) / 729. - 1617980. / 19683. + 20060. * ZETA3 / 243. + 1664. * cache.L_c / 81.;
+    K[1][7] = K[7][1] = (218./243.-208./81.*L_D) * K_1[6][7] + (127. / 324. - 35. * L_D / 27) * K_1[7][7] + 2. * (1. - L_D) * K_1[3][7] / 3.;
+    K[0][6] = K[6][0] = -K[1][6] / 6. + (5. / 16. - 3. * L_D / 4.) * K_1[6][7] - 1237. / 729. + 232. * ZETA3 / 27. + L_D * (-20. + 70. * L_D) / 27.;
+    K[0][7] = K[7][0] = -K[1][7] / 6. + (5. / 16. - 3. * L_D / 4.) * K_1[7][7];
+    K[6][6] = (K_1[6][6] - 4. * phi_77(cache.delta) + 2. * std::log(z) / 3.) * K_1[6][6] + L_D * (224. / 27. - 32. * L_D / 9.) - 79.2838955662 + cache.L_b * (256. * PI2 / 27. - 2720. / 9. - 160. * cache.L_b / 3.) + 512. * PI * cache.alpha_s_upsilon / 27. + 4. * phi_77_rem(cache.delta);
+    K[6][7] = K[7][6] = (-50. / 3. + 8. * PI2 / 3. - 2. * L_D / 3.) * K_1[6][7] + L_D * (-112. / 81. + 16. * L_D / 27.) + 364. / 243.;
+    K[7][7] = (-50. / 3. + 8. * PI2 / 3. - 2. * L_D / 3.) * K_1[7][7];
+
+
+    // printf("K2_rem[7][7] = %.4e\n", K[6][6]);
+    // printf("K1[7][7] = %.4e\n", K_1[6][6]);
+    // printf("z, log(z) = %.4e, %.4e\n", z, std::log(z));
+	// printf("phi77 = %.4e\n", phi_77(cache.delta));
+    // printf("First term = %.4e\n", (K_1[6][6] - 4. * phi_77(cache.delta) + 2. * std::log(z) / 3) * K_1[6][6]);
+    // printf("Second term = %.4e\n", L_D * (224. / 27. - 32. * L_D / 9.));
+    // printf("Third term = %.4e\n", - 79.2838955662);
+    // printf("Fourth term = %.4e\n", cache.L_b * (256. * PI2 / 27. - 2720. / 9. - 160. * cache.L_b / 3.));
+    // printf("Fifth term = %.4e\n", 512. * PI * cache.alpha_s_upsilon / 27. + 4. * phi_77_rem(cache.delta));
+    // printf("phi_77_rem = %.4e\n", phi_77_rem(cache.delta));
+
 
     return K;
 }
@@ -427,11 +442,17 @@ double BXsDecay::P22_rem() {
                 + std::real(cache.C_b_LO[WCoef::CP7] * std::conj(4019. * cache.C_b_LO[WCoef::CP1] / 486. - 1184. * cache.C_b_LO[WCoef::CP2] / 81. - 4. * cache.C_b_LO[WCoef::CP7] + 4. * cache.C_b_LO[WCoef::CP8] / 3.));
 
     double phi_77_1 = phi_77(cache.delta);
-    double K1_77 = 4 * phi_77_1 * (-182. / 9 + 8 * PI2 / 9 - gamma_i7[6] * cache.L_b);
+    double K1_77 = 4 * phi_77_1 - 182. / 9 + 8 * PI2 / 9 - gamma_i7[6] * cache.L_b;
     double K77rem_z0 = (K1_77-4.*phi_77_1+2./3.*cache.L_b)*K1_77-587708./729.-628./405.*pow(PI,4.)
 	+32651./729.*PI2+428./27.*PI2*log(2.)+25150./81.*ZETA3-448./9.*cache.L_b*cache.L_b+(80./9.*PI2-2524./9.)*cache.L_b
 	+512./27.*PI*cache.alpha_s_upsilon+4.*phi_77_rem(cache.delta)-8.*(phi_77_1 * cache.L_b + h77(cache.delta))/3.;
     double x5 = K77rem_z0 * (std::pow(std::abs(cache.C_b_LO[WCoef::C7]), 2) + std::pow(std::abs(cache.C_b_LO[WCoef::CP7]), 2));
+
+    // printf("alpha_s_upsilon = %.4e\n", cache.alpha_s_upsilon);
+    // printf("phi_77_rem = %.4e\n", phi_77_rem(cache.delta));
+    // printf("K1_77 = %.4e\n", K1_77);
+    // printf("K77rem_z0 = %.4e\n", K77rem_z0);
+    // printf("h77 = %.4e\n", phi_77_1 * cache.L_b + h77(cache.delta));
 
     auto target = [this, r21_0, r22_0, x1, x2, x5] (double z) {
         auto K_2 = K_2_rem(z);
@@ -547,7 +568,7 @@ double BXsDecay::C() {
 
     // printf("delta_as = %.4e\n", delta_as);
     // printf("delta_b = %.4e\n", delta_b);
-    // printf("delta_c = %.4e\n", delta_c);
+    // printf("m_c(3 GeV) = %.4e\n", cache.m_c_3gev);
     // printf("rho = %.4e\n", rho);
     // printf("g = %.4e\n", g);
 

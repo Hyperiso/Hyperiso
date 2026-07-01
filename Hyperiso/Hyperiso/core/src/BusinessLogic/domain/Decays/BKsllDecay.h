@@ -32,7 +32,7 @@ struct BKstarllCache {
 
     double G_F, alpha_em;
     double mu_b, L_b;
-    double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b;
+    double m_l, m_s, m_c_mu_b, m_b_PS, m_b_mu_b, m_b_mb;
     double Delta_M;
     double alpha_s_mu_b;
     double m_B, m_Ks;
@@ -72,7 +72,7 @@ struct BKstarllCache {
     std::array<double, 3> r2_M;
 
     // Lookups
-    static inline constexpr size_t LOOKUP_SIZE = 50;
+    static inline constexpr size_t LOOKUP_SIZE = 100;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_p_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_m_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_par_m_lookup;

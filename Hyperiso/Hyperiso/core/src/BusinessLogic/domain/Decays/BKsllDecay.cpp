@@ -27,6 +27,7 @@ void BKstarllDecay::load_params() {
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE);
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
+    cache.m_b_mb = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 5}, DataType::VALUE);
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
@@ -39,7 +40,7 @@ void BKstarllDecay::load_params() {
     cache.Delta_M = -6. * cache.L_b - 4. * (1 - mu_f / cache.m_b_PS);
     cache.lambda_hat_u = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE) 
                             / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE));
-    cache.kappa = 1 - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mu_b);
+    cache.kappa = 1. - 2. * cache.alpha_s_mu_b / (3. * PI) * std::log(cache.mu_b / cache.m_b_mb);
     cache.q2_low = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 1}}, DataType::VALUE);
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {15, 2}}, DataType::VALUE);
 
@@ -56,64 +57,6 @@ void BKstarllDecay::load_params() {
     }
 
     load_cfg_dependent_params();
-
-    // printf("alpha_em = %.4e\n", cache.alpha_em);
-    // printf("kappa = %.4e\n", cache.kappa);
-    // printf("N_0 = %.4e + %.4e i\n", std::real(cache.N_0), std::imag(cache.N_0));
-
-    
-    // double q2 = 1.0;
-    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
-    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
-    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
-
-    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
-    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
-    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
-    // exit(0);
-
-    // complex_t ALperp = A_perp(q2, -1, false);
-    // complex_t ARperp = A_perp(q2, 1, false);
-    // complex_t ALpar = A_par(q2, -1, false);
-    // complex_t ARpar = A_par(q2, 1, false);
-    // complex_t AL0 = A_0(q2, -1, false);
-    // complex_t AR0 = A_0(q2, 1, false);
-    // complex_t At = A_t(q2, false);
-    // complex_t AS = A_S(q2, false);
-
-    // complex_t ALperp = A_perp(q2, -1, true);
-    // complex_t ARperp = A_perp(q2, 1, true);
-    // complex_t ALpar = A_par(q2, -1, true);
-    // complex_t ARpar = A_par(q2, 1, true);
-    // complex_t AL0 = A_0(q2, -1, true);
-    // complex_t AR0 = A_0(q2, 1, true);
-    // complex_t At = A_t(q2, true);
-    // complex_t AS = A_S(q2, true);
-
-    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
-	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
-	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
-	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
-	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
-	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
-	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
-	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
-    // exit(0);
-    
-    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
-    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
-    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
-    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
-    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
-    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
-    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
-    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
-    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
-    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
-    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
-    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
-    // exit(0);
-
 }
 
 // void BKstarllDecay::fill_wilson_cache() {
@@ -361,6 +304,76 @@ void BKstarllDecay::load_cfg_dependent_params() {
             cache.r2_M[i] = (*p)(ParamId{ParameterType::DECAY, "B_Ks", {21, 2, i}}, DataType::VALUE);
         }
     }
+
+    // double q2 = 14.0;
+
+    // printf("alpha_em = %.4e\n", cache.alpha_em);
+    // printf("kappa = %.4e\n", cache.kappa);
+    // printf("N_0 = %.4e + %.4e i\n", std::real(cache.N_0 * std::sqrt(q2 * std::sqrt(lambda(q2)) * beta_l(q2))), std::imag(cache.N_0 * std::sqrt(q2 * std::sqrt(lambda(q2)) * beta_l(q2))));
+
+    // double sh = q2 / std::pow(cache.m_b_PS, 2);
+
+    // printf("mb_PS = %.4e\n", cache.m_b_PS);
+    // printf("A = %.4e + %.4e i\n", real(BV::A_Seidel(sh, cache.L_b)), imag(BV::A_Seidel(sh, cache.L_b)));
+    // printf("B = %.4e + %.4e i\n", real(BV::B_Seidel(sh, cache.L_b)), imag(BV::B_Seidel(sh, cache.L_b)));
+    // printf("C = %.4e + %.4e i\n", real(BV::C_Seidel(q2, cache.mu_b)), imag(BV::C_Seidel(q2, cache.mu_b)));
+    // printf("alpha_s_mu_b = %.4e\n", cache.alpha_s_mu_b);
+    // printf("m_b_mu_b = %.4e\n", cache.m_b_mu_b);
+    // printf("kappa = %.4e\n", cache.kappa);
+
+    // LOG_INFO("Anchor");
+    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
+    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
+    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
+
+    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
+    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
+    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
+    // exit(0);
+
+    // complex_t ALperp = A_perp(q2, -1, false);
+    // complex_t ARperp = A_perp(q2, 1, false);
+    // complex_t ALpar = A_par(q2, -1, false);
+    // complex_t ARpar = A_par(q2, 1, false);
+    // complex_t AL0 = A_0(q2, -1, false);
+    // complex_t AR0 = A_0(q2, 1, false);
+    // complex_t At = A_t(q2, false);
+    // complex_t AS = A_S(q2, false);
+
+    // complex_t ALperp = A_perp(q2, -1, true);
+    // complex_t ARperp = A_perp(q2, 1, true);
+    // complex_t ALpar = A_par(q2, -1, true);
+    // complex_t ARpar = A_par(q2, 1, true);
+    // complex_t AL0 = A_0(q2, -1, true);
+    // complex_t AR0 = A_0(q2, 1, true);
+    // complex_t At = A_t(q2, true);
+    // complex_t AS = A_S(q2, true);
+
+    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
+	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
+	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
+	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
+	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
+	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
+	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
+	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
+    // exit(0);
+
+    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
+    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
+    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
+    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
+    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
+    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
+    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
+    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
+    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
+    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
+    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
+    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
+    // exit(0);
+    
+    test_J();
 
     compute_binned_J_i();
 }
@@ -753,9 +766,14 @@ complex_t BKstarllDecay::A_perp_high(double q2, double sign, bool bar) {
 
     // printf("C7eff = %.4e + %.4e i\n", std::real(C7_eff(q2, bar)), std::imag(C7_eff(q2, bar)));
     // printf("C9eff = %.4e + %.4e i\n", std::real(C9_eff(q2, bar)), std::imag(C9_eff(q2, bar)));
+    // printf("m_B = %.4e\n", cache.m_B);
+    // printf("m_Kstar = %.4e\n", cache.m_Ks);
+    // printf("N0 = %.4e + %.4e i\n", real(cache.N_0), imag(cache.N_0));
+    // printf("N/N0 = %.4e\n", std::real(N(q2, bar) / cache.N_0));
+    // printf("N = %.4e + %.4e i\n", std::real(N(q2, bar)), std::imag(N(q2, bar)));
     // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
 
-    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.a_k_high[size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[size_t (0.5 * (1 + sign))]));
+    return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mb * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.a_k_high[size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
@@ -763,7 +781,7 @@ complex_t BKstarllDecay::A_par_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.a_k_high[2 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[2 + size_t (0.5 * (1 + sign))]));
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mb * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PAR, q2) * (1. + cache.a_k_high[2 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[2 + size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
@@ -771,7 +789,7 @@ complex_t BKstarllDecay::A_0_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) - (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mu_b * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.a_k_high[4 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[4 + size_t (0.5 * (1 + sign))]));
+    return -N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mb * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_0, q2)  * (1. + cache.a_k_high[4 + size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[4 + size_t (0.5 * (1 + sign))]));
 }
 
 complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
@@ -781,13 +799,13 @@ complex_t BKstarllDecay::A_t_high(double q2, bool bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
     }
-    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mu_b + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[6] * std::exp(I * cache.phi_k_high[6]));
+    return N(q2, bar) * sqrt(lambda(q2) / q2) * (2. * C10 + q2 / cache.m_l * CQ2 / (cache.m_b_mb + cache.m_s)) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[6] * std::exp(I * cache.phi_k_high[6]));
 }
 
 complex_t BKstarllDecay::A_S_high(double q2, bool bar) {
     complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
     if (bar) CQ1 = std::conj(CQ1);
-    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mu_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[7] * std::exp(I * cache.phi_k_high[7]));
+    return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_mb + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.a_k_high[7] * std::exp(I * cache.phi_k_high[7]));
 }
 
 complex_t BKstarllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {
@@ -1569,8 +1587,8 @@ void BKstarllDecay::test_J() {
     };
 
     size_t n = 200;
-    double dq2 = (this->bins.value()[0].second - this->bins.value()[0].first) / n;
-    double q2 = this->bins.value()[0].first;
+    double dq2 = (cache.q2_max - cache.q2_min) / n;
+    double q2 = cache.q2_min;
 
     for (size_t i = 0; i <= n; i++) {
         write_line(q2);
@@ -1879,7 +1897,8 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::P_PRIME_6_B__KSTAR_MU_MU:    
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
         return Pp_i_binned(6, false, obs);
-    case Observables::P_PRIME_8_B__KSTAR_MU_MU:     
+    case Observables::P_PRIME_8_B__KSTAR_MU_MU:    
+        LOG_INFO("Computing P'8(B > K* mu mu)"); 
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
         return Pp_i_binned(8, false, obs);
     case Observables::S_1C_B__KSTAR_MU_MU:      
@@ -2410,7 +2429,8 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
     case Observables::P_PRIME_6_B0__KSTAR0_MU_MU:    
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
         return Pp_i_binned(6, false, obs);
-    case Observables::P_PRIME_8_B0__KSTAR0_MU_MU:     
+    case Observables::P_PRIME_8_B0__KSTAR0_MU_MU:  
+        LOG_INFO("Computing P'8(B0 > K*0 mu mu)");
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
         return Pp_i_binned(8, false, obs);
     case Observables::S_1C_B0__KSTAR0_MU_MU:      

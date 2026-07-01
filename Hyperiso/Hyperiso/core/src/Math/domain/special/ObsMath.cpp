@@ -4724,6 +4724,7 @@ double f_19_re(double sh, double L_mu, double z, size_t maxpow)   {
 
 
 double f_19_im(double sh, double L_mu, double z, size_t maxpow)   {
+   // printf("Calling f_19_im with sh=%.4e, L_mu=%.4e, z=%.4e\n", sh, L_mu, z);
    double lz = log(z);
 
    double Lsh = log(sh);

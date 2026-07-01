@@ -69,6 +69,7 @@ double QCDHelper::msbar_mass(int pdg_code, double mu, MassType mass_b_type, Mass
     auto p = Parameters::GetInstance();
     double quark_mass = pdg_code < 5 ? (*p)("MASS", pdg_code) : pdg_code == 5 ? (*p)("QCD", LhaID(5, 1)) : (*p)("QCD", 6);
     double Qinit = pdg_code < 4 ? 1 : quark_mass;
+
     int n_i = get_nf(Qinit, mass_b_type, mass_t_type);
     int n_f = get_nf(mu, mass_b_type, mass_t_type);
     auto Q_bounds = getOrderedMasses(mass_b_type, mass_t_type);
@@ -243,6 +244,8 @@ double QCDHelper::alpha_s_explicit(double mu, double lambda, int nf) {
 }
 
 double QCDHelper::runMass(double mass, double Q_i, double Q_f, int nf, MassType m_b_type, MassType m_t_type) {
+    if (fpeq(Q_i, Q_f)) return mass;
+
     return mass * R(alpha_s(Q_f, m_b_type, m_t_type), nf) 
                     / R(alpha_s(Q_i, m_b_type, m_t_type), nf);
 }

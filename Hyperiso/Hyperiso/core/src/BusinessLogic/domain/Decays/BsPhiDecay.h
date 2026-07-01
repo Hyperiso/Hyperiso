@@ -49,7 +49,7 @@ struct BsPhiDecayCache {
     std::array<complex_t, 8> A_had_err_high;
 
     // Lookups
-    static inline constexpr size_t LOOKUP_SIZE = 50;
+    static inline constexpr size_t LOOKUP_SIZE = 100;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_p_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_perp_m_lookup;
     std::array<scalar_t, LOOKUP_SIZE> T_par_m_lookup;

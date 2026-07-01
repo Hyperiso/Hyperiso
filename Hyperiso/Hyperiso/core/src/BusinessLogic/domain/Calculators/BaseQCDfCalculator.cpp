@@ -13,6 +13,8 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
         LOG_ERROR("ValueError", "Wrong meson PDG code in BaseQCDfCalculator constructor:", B_id, ",", X_id);
     }
 
+    // printf("B_id is %i\n", B_id);
+
     this->src_block = allowed_decays.at({B_id, X_id});
     this->delta_qu = double (B_id == 521);
     this->fill_wilson_bar_cache();
@@ -46,6 +48,10 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->a_1_par_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 1}}, DataType::VALUE), eta_b, gamma_par(1));
     this->a_2_par_b = run((*p)(ParamId{ParameterType::DECAY, this->src_block, {8, 2}}, DataType::VALUE), eta_b, gamma_par(2));
 
+    // printf("mcpole_1loop = %.4e\n", this->m_c_pole);
+    // printf("mbpole_1loop = %.4e\n", this->m_b_pole);
+    // printf("mb_PS = %.4e\n", this->m_b_PS);
+
     // printf("a1par = %.4e\n", a_1_par);
     // printf("a2par = %.4e\n", a_2_par);
 
@@ -56,6 +62,8 @@ BaseQCDfCalculator::BaseQCDfCalculator(int B_id, int X_id, double mu_b, const st
     this->Delta_M = -6. * this->L_b - 4. * (1. - mu_f / this->m_b_PS);
     int Nc = iobs_qcdp->get_constants()->Nc;
     this->pref_par = PI2 * this->f_B * this->f_X_par / (Nc * this->m_B);
+
+    // printf("z_c = %.4e\n", z_c);
 
     if (X_id == 333) {
         this->n_T_par_m_0 = -4. * this->m_B / this->m_b_PS * (this->C_bar[WCoef::C3] + 3. * this->C_bar[WCoef::C4] + 12. * (this->C[WCoef::C3] + 10. * this->C[WCoef::C5]) - this->lambda_hat_u * (4. / 3. * this->C[WCoef::C1] + this->C[WCoef::C2]));
@@ -292,6 +300,18 @@ complex_t BaseQCDfCalculator::C_par_nf(double q2, bool bar) {
     complex_t F_19 = BV::f_19_PS(s_hat, this->L_b, this->z_c) * (1. + l_u) + BV::f_19_u(s_hat, this->L_b) * l_u;
     complex_t F_29 = BV::f_29_PS(s_hat, this->L_b, this->z_c) * (1. + l_u) + BV::f_29_u(s_hat, this->L_b) * l_u;
 
+    // printf("z_c = %.4e\n",  this->z_c);
+    // printf("L_b = %.4e\n",  this->L_b);
+
+    // printf("F27 (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_27(s_hat, this->L_b, this->z_c, 10)), std::imag(BV::f_27(s_hat, this->L_b, this->z_c, 10)));
+    // printf("F19 (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_19_PS(s_hat, this->L_b, this->z_c, 10)), std::imag(BV::f_19_PS(s_hat, this->L_b, this->z_c, 10)));
+    // printf("F29 (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_29_PS(s_hat, this->L_b, this->z_c, 10)), std::imag(BV::f_29_PS(s_hat, this->L_b, this->z_c, 10)));
+    // printf("F87 (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_87(s_hat, this->L_b)), std::imag(BV::f_87(s_hat, this->L_b)));
+    // printf("F89 (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_89(s_hat)), std::imag(BV::f_89(s_hat)));
+    // printf("F27_u (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_27_u(s_hat, this->L_b)), std::imag(BV::f_27_u(s_hat, this->L_b)));
+    // printf("F19_u (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_19_u(s_hat, this->L_b)), std::imag(BV::f_19_u(s_hat, this->L_b)));
+    // printf("F29_u (q2 = %.3f) = %.4e + %.4e i\n", q2, std::real(BV::f_29_u(s_hat, this->L_b)), std::imag(BV::f_29_u(s_hat, this->L_b)));
+
     return (
         this->C_bar[WCoef::C2] * F_27
       + this->C[WCoef::C8] * BV::f_87(s_hat, this->L_b)
@@ -330,7 +350,6 @@ complex_t BaseQCDfCalculator::T_perp_p_nf(double u, double q2, bool bar) {
     complex_t t_perp_0 = t_perp(u, 0.0, q2, E);
 
     complex_t c8_term = fpeq(q2, 0.0) ? 0.0 : -4.0 * e_d * this->C[WCoef::C8] / (u + (1 - u) * q2 / (this->m_B * this->m_B));
-    // complex_t c8_term = 0;
     return c8_term + this->m_B / (2 * this->m_b_PS) * (
             e_u * (
                 t_perp_mc * (this->C_bar[WCoef::C2] + this->C_bar[WCoef::C4] - this->C_bar[WCoef::C6] + l_u * (this->C[WCoef::C2] - this->C[WCoef::C1] / 6.))

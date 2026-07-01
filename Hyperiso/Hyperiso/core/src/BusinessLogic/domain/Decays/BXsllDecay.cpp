@@ -9,6 +9,7 @@ void BXsllDecay::load_params() {
     fill_wilson_cache();
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
+    LOG_INFO("Bsll alpha_em =", cache.alpha_em);
     double m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
     cache.m_b_1S = (*p)(ParamId{ParameterType::SM, "QCD", {5, 3}}, DataType::VALUE);
     complex_t V_tb = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE);
@@ -51,7 +52,7 @@ void BXsllDecay::load_params() {
     // printf("z = %.5e\n", cache.z);
     // printf("m_D = %.5e\n", cache.m_D_hat * cache.m_b_1S);
 
-    // double s = 0.8;
+    // double s = 0.0454;
     // double w = 0.5;
     // printf("pref dB_ds = %.5e\n", cache.pref_dB_ds);
     // printf("pref dB0_ds = %.5e\n", cache.pref_dB0_ds);
@@ -64,6 +65,10 @@ void BXsllDecay::load_params() {
     // printf("C7_new = %.4e + %.4e i\n", real(C7_new(s, false)), imag(C7_new(s, false)));
     // printf("C9_new = %.4e + %.4e i\n", real(C9_new(s, false)), imag(C9_new(s, false)));
     // printf("C10_new = %.4e + %.4e i\n", real(C10_new(s, false)), imag(C10_new(s, false)));
+
+    // printf("g(0) = %.4e + %.4e i\n", real(g(0, s)), imag(g(0, s)));
+    // printf("g(1) = %.4e + %.4e i\n", real(g(1, s)), imag(g(1, s)));
+    // printf("g(m_c) = %.4e + %.4e i\n", real(g_ld(cache.m_c_hat, s)), imag(g_ld(cache.m_c_hat, s)));
 
     // printf("f(z) = %.4e\n", f(cache.z));
     // printf("h(z) = %.4e\n", h(cache.z));
@@ -95,13 +100,17 @@ void BXsllDecay::load_params() {
     // printf("sigma_7(s) = %.4e\n", sigma_7(s, cache.L_b));
     // printf("F(s/z) = %.4e + %.4e i\n", real(F(s / cache.z)), imag(F(s / cache.z)));
 
-    // printf("dB0_ds (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_dB0_ds * dB0_ds(s, cache.m_mu_hat));
+    // printf("pref dB_mb2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb2);
+    // printf("pref dB_mb3 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb3);
+    // printf("pref dB_mc2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mc2);
+
+    // printf("dB0_ds (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_dB0_ds * dB0_ds(s, cache.m_l_hat));
     // printf("dB_mb2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb2 * delta_mb2(s));
     // printf("dB_mb3 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mb3 * delta_mb3(s));
     // printf("dB_mc2 (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_mc2 * delta_mc2(s));
     // printf("dB_brems A (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremA(s)));
     // printf("dB_brems B (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_brems * (delta_bremB(s)));
-    // printf("dB_em (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_em * delta_em(s, cache.L_l_mu));
+    // printf("dB_em (s = %.4f) = %.4e\n", s, cache.pref_dB_ds * cache.pref_delta_em * delta_em(s, cache.L_l));
 }
 
 void BXsllDecay::set_cfg_flags(BXsllConfig::Lepton gen) {
@@ -710,10 +719,10 @@ double BXsllDecay::delta_bremB_base(double s) {
     complex_t w_28 = c_18 + c_28;
     complex_t w_29 = c_19 + c_29;
 
-    // printf("c_2 (s = %.4f) = %.4e + %.4e i\n", s, real(w_22), imag(w_22));
-    // printf("c_7 (s = %.4f) = %.4e + %.4e i\n", s, real(w_27), imag(w_27));
-    // printf("c_8 (s = %.4f) = %.4e + %.4e i\n", s, real(w_28), imag(w_28));
-    // printf("c_9 (s = %.4f) = %.4e + %.4e i\n", s, real(w_29), imag(w_29));
+    // printf("w_22 (s = %.4f) = %.4e + %.4e i\n", s, real(w_22), imag(w_22));
+    // printf("w_27 (s = %.4f) = %.4e + %.4e i\n", s, real(w_27), imag(w_27));
+    // printf("w_28 (s = %.4f) = %.4e + %.4e i\n", s, real(w_28), imag(w_28));
+    // printf("w_29 (s = %.4f) = %.4e + %.4e i\n", s, real(w_29), imag(w_29));
 
     auto f = [&] (double w) -> double {
         complex_t D23 = Delta_i_23(s, cache.z, w);

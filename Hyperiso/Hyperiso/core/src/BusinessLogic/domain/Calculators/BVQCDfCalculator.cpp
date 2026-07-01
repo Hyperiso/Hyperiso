@@ -10,7 +10,7 @@ BVQCDfCalculator::BVQCDfCalculator(int B_id, int V_id, double mu_b, const std::m
 
 double BVQCDfCalculator::F_perp(double s) {
     if (fpeq(s, 0.0)) 
-        return 1.0 + this->a_1_perp_b + this->a_2_perp_b;
+        return 1.0 + this->a_1_perp + this->a_2_perp;
     
     double d = s - 1.;
     double d2 = d * d;
@@ -34,7 +34,7 @@ double BVQCDfCalculator::X_perp(double s) {
         double x0 = -2 * u0 - 2 * std::log(1 - u0);
         double x1 = -6*u02 - 6*u0 - 6*std::log(1 - u0);
         double x2 = -20*u03 - 12*u0 - 12*log(1 - u0);
-        return F_perp(s) + x0 + x1 * this->a_1_perp_b + x2 * this->a_2_perp_b;
+        return F_perp(s) + x0 + x1 * this->a_1_perp + x2 * this->a_2_perp;
     }
 
     double t = u0 * (s - 1) + 1;
@@ -111,18 +111,18 @@ complex_t BVQCDfCalculator::T_perp_p(double q2, bool bar) {
     // printf("I_perp_p = %.4e + %.4e i\n", I_perp_p(q2, bar).real(), I_perp_p(q2, bar).imag());
     // printf("delta_T_perp_WA = %.4e + %.4e i\n", delta_T_perp_WA(q2, bar).real(), delta_T_perp_WA(q2, bar).imag());
     // printf("delta_T_perp_HSA = %.4e + %.4e i\n", delta_T_perp_HSA(q2, bar).real(), delta_T_perp_HSA(q2, bar).imag());
-    // printf("I_perp_p = %.4e + %.4e i\n", I_perp_p(q2, bar).real(), I_perp_p(q2, bar).imag());
 
     double xi_perp;
     if (fpeq(q2, 0.0)) {
         // Eq. (8) of BFS 0412400
-        xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->loop_f_mu_b)
-                    + this->loop_f_mu_f * 12 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * F_perp(0.0);
+        // xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->loop_f_mu_b)
+        //             + this->loop_f_mu_f * 12 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * F_perp(0.0);
+        xi_perp = this->ff_calculator->get(BV_FF::T1, q2);
     } else {
         xi_perp = this->ff_calculator->get(BV_FF::XI_PERP, q2);
     }
 
-    // printf("xi_perp(0) = %.4e\n", xi_perp);
+    // printf("pref_perp = %.4e\n", this->pref_perp);
     // printf("T1(0) = %.4e\n", this->ff_calculator->get(BV_FF::T1, 0.0));
 
     return xi_perp * C_perp_p + this->pref_perp * I_perp_p(q2, bar) + delta_T_perp_WA(q2, bar) + delta_T_perp_HSA(q2, bar);
@@ -136,8 +136,9 @@ complex_t BVQCDfCalculator::T_perp_m(double q2, bool bar) {
 
     double xi_perp;
     if (fpeq(q2, 0.0)) {
-        xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI))
-                    + this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI) * 4 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * 3 * F_perp(0.0);
+        // xi_perp = this->ff_calculator->get(BV_FF::T1, 0.0) * (1 - this->alpha_s_mu_b * iobs_qcdp->get_constants()->C_F / (4 * PI))
+        //             + this->alpha_s_mu_f * iobs_qcdp->get_constants()->C_F / (4 * PI) * 4 * PI2 * this->f_B * this->f_X_perp / (iobs_qcdp->get_constants()->Nc * this->m_B * this->lambda_B_p) * 3 * F_perp(0.0);
+        xi_perp = this->ff_calculator->get(BV_FF::T1, q2);
     } else {
         xi_perp = this->ff_calculator->get(BV_FF::XI_PERP, q2);
     }
@@ -152,6 +153,10 @@ complex_t BVQCDfCalculator::T_par_p(double q2, bool bar) {
 
 complex_t BVQCDfCalculator::T_par_m(double q2, bool bar) {
     complex_t C_par_m = C_par_0(q2, -1, bar) + this->loop_f_mu_b * (C_par_f(q2, -1, bar) + C_par_nf(q2, bar));
+
+    // printf("C_par_m_0 = %.4e + %.4e i\n", C_par_0(q2, -1, bar).real(), C_par_0(q2, -1, bar).imag());
+    // printf("C_par_m_f = %.4e + %.4e i\n", C_par_f(q2, -1, bar).real(), C_par_f(q2, -1, bar).imag());
+    // printf("C_par_m_nf = %.4e + %.4e i\n", C_par_nf(q2, bar).real(), C_par_nf(q2, bar).imag());
 
     // printf("C_par_m = %.4e + %.4e i\n", C_par_m.real(), C_par_m.imag());
     // printf("xi_par = %.4e\n", this->ff_calculator->get(BV_FF::XI_PAR, q2));
@@ -188,9 +193,12 @@ complex_t BVQCDfCalculator::I_HSA_2(double q2, bool bar) {
 
 complex_t BVQCDfCalculator::delta_T_perp_WA(double q2, bool bar) {
     double pref = this->e_q * 2. * PI2 * this->f_B / (this->m_b_PS * this->m_B);
-    complex_t l_u = bar ? std::conj(this->lambda_hat_u) : this->lambda_hat_u;
+    complex_t l_u = fpeq(q2, 0.0) ? 0.0 : bar ? std::conj(this->lambda_hat_u) : this->lambda_hat_u;
     complex_t W_perp = this->C[WCoef::C3] + 4. / 3. * (this->C[WCoef::C4] + 3. * this->C[WCoef::C5] + 4. * this->C[WCoef::C6]);
     complex_t W_par = this->C[WCoef::C3] + 4. / 3. * this->C[WCoef::C4] + 16. * this->C[WCoef::C5] + 64. / 3. * this->C[WCoef::C6];
+
+    // printf("delta_qu = %.4e\n", delta_qu);
+
     W_par += delta_qu * l_u * -3. * this->C[WCoef::C2];
     if (this->src_block == "B_phi") {
         W_par += -l_u * (4. / 3 * this->C[WCoef::C1] + this->C[WCoef::C2]);
@@ -201,6 +209,7 @@ complex_t BVQCDfCalculator::delta_T_perp_WA(double q2, bool bar) {
 
     // printf("pref_1(s = %.3f) = %.4e\n", q2, pref * -2. * this->f_X_perp);
     // printf("W_perp(s = %.3f) = %.4e + %.4e i\n", q2, real(W_perp), imag(W_perp));
+    // printf("W_par(s = %.3f) = %.4e + %.4e i\n", q2, real(W_par), imag(W_par));
     // printf("F_perp(s = %.3f) = %.4e\n", q2, F_perp(s_hat));
 
     return pref * (
