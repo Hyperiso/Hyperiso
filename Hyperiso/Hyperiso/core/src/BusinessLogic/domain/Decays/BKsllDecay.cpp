@@ -1898,7 +1898,7 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS);  
         return Pp_i_binned(6, false, obs);
     case Observables::P_PRIME_8_B__KSTAR_MU_MU:    
-        LOG_INFO("Computing P'8(B > K* mu mu)"); 
+        // LOG_INFO("Computing P'8(B > K* mu mu)"); 
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_PLUS); 
         return Pp_i_binned(8, false, obs);
     case Observables::S_1C_B__KSTAR_MU_MU:      
@@ -2430,7 +2430,7 @@ std::vector<ObservableValue> BKstarllDecay::compute_observable(Observables obs) 
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0);  
         return Pp_i_binned(6, false, obs);
     case Observables::P_PRIME_8_B0__KSTAR0_MU_MU:  
-        LOG_INFO("Computing P'8(B0 > K*0 mu mu)");
+        // LOG_INFO("Computing P'8(B0 > K*0 mu mu)");
         set_lepton_gen_and_charge(BKstarllConfig::Lepton::MU, BKstarllConfig::B_Charge::B_0); 
         return Pp_i_binned(8, false, obs);
     case Observables::S_1C_B0__KSTAR0_MU_MU:      

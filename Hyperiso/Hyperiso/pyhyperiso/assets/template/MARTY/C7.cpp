@@ -1,5 +1,6 @@
 #include <iostream>
 
+// HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -25,7 +26,8 @@ int calculate_C7(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * G_F * GetComplexConjugate(V_ts) * V_tb * e_em * m_b / (16 * CSL_PI * CSL_PI * csl::sqrt_s(2));
+    Expr factorOperator = -GetComplexConjugate(V_ts) * V_tb * pow_s(e_em, 3) * m_b
+                          / (32 * CSL_PI * CSL_PI * pow_s(sin_s(theta_W), 2) * pow_s(M_W, 2));
     FeynOptions opts;
     opts.setWilsonOperatorCoefficient(factorOperator);
 

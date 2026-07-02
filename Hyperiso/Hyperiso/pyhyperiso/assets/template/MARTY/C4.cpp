@@ -1,5 +1,6 @@
 #include <iostream>
 
+// HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -25,7 +26,8 @@ int calculate_C4(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -GetComplexConjugate(V_ts) * V_tb * pow_s(e_em, 2)
+                          / (2 * pow_s(sin_s(theta_W), 2) * pow_s(M_W, 2));
     FeynOptions opts;
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
@@ -37,7 +39,6 @@ int calculate_C4(Model &model, gauge::Type gauge) {
 
     auto O4_u = dimension6Operator(model, wil_u, DiracCoupling::VL, DiracCoupling::V, {"C", ColorCoupling::Generator}, {0, 2, 1, 3});
     Expr C4_u = getWilsonCoefficient(wil_u, O4_u);
-    Replace(C4_u, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
     auto wil_c = model.computeWilsonCoefficients(mty::Order::TreeLevel,
         {Incoming("b"), Outgoing("s"),
@@ -46,7 +47,6 @@ int calculate_C4(Model &model, gauge::Type gauge) {
 
     auto O4_c = dimension6Operator(model, wil_u, DiracCoupling::VL, DiracCoupling::V, {"C", ColorCoupling::Generator}, {0, 2, 1, 3});
     Expr C4_c = getWilsonCoefficient(wil_c, O4_c);
-    Replace(C4_c, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C4_SM");
     mty::Library wilsonLib("C4_SM", "libs");

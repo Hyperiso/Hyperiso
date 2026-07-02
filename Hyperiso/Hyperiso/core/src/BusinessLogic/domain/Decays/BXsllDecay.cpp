@@ -9,7 +9,7 @@ void BXsllDecay::load_params() {
     fill_wilson_cache();
 
     cache.alpha_em = (*p)(ParamId{ParameterType::SM, "EW", {1, 1}}, DataType::VALUE);
-    LOG_INFO("Bsll alpha_em =", cache.alpha_em);
+    // LOG_INFO("Bsll alpha_em =", cache.alpha_em);
     double m_c = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE);
     cache.m_b_1S = (*p)(ParamId{ParameterType::SM, "QCD", {5, 3}}, DataType::VALUE);
     complex_t V_tb = (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE);

@@ -8,6 +8,7 @@
 #include <cmath>
 #include <cctype>
 #include <fstream>
+#include <unordered_set>
 
 namespace fs = std::filesystem;
 
@@ -64,25 +65,40 @@ void MartyInterface::generate(std::string wilson,
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model) {
+    generate_numlib(std::move(wilson), model, model);
+}
+
+void MartyInterface::generate_numlib(std::string wilson,
+                                     std::string output_model,
+                                     std::string target_model) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::generate_numlib").valid) {
         return;
     }
 
     bool forceMode = false;
-    auto file_names = FileNameManager::getInstance(wilson, model);
+    auto file_names = FileNameManager::getInstance(wilson, output_model);
     const std::string cinematic_template = file_names->getGeneratedFileName();
 
     std::unique_ptr<SMParamSetter> sm_p_setter = std::make_unique<SMParamSetter>(
-        model,
+        target_model,
         specials_block,
         param_proxy_sm,
         param_proxy_bsm,
         cinematic_template
     );
-    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(wilson, model, std::move(sm_p_setter), core_api, ports, forceMode);
+
+    std::unique_ptr<GeneralNumModelModifier> ModelModifier = std::make_unique<GeneralNumModelModifier>(
+        wilson,
+        output_model,
+        target_model,
+        std::move(sm_p_setter),
+        core_api,
+        ports,
+        forceMode
+    );
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(file_names->getLibDir());
-    templateManager->setModelAndWilson(model, wilson);
+    templateManager->setModelAndWilson(output_model, wilson);
     templateManager->setNumModelModifier(std::move(ModelModifier));
     this->dependencies.insert_or_assign(wilson, templateManager->get_dependencies());
     CodeGenerator codeGenerator(std::move(templateManager));
@@ -116,7 +132,7 @@ void MartyInterface::calculate(std::string wilson,
 
     generate(wilson, output_model, target_model, model_path, sm_like_filter);
     compile_run(wilson, output_model);
-    generate_numlib(wilson, output_model);
+    generate_numlib(wilson, output_model, target_model);
     compile_run_libs(wilson, output_model, Q_match);
 }
 
@@ -161,12 +177,18 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         model_template_index
     );
 
+    const std::unordered_set<std::string> semileptonic_templates = {"C9", "C10", "CP9", "CP10"};
+    const bool needs_semileptonic_template_abi = semileptonic_templates.contains(wilson);
+    constexpr const char* expected_semileptonic_template_abi =
+        "HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-local-vertex-diagnostics-v1";
+
     bool stale = true;
     {
         std::ifstream in(files->getGeneratedFileName());
         std::string line;
         bool has_expected_signature = false;
         bool has_expected_filter_mode = !sm_like_filter;
+        bool has_expected_template_abi = !needs_semileptonic_template_abi;
         while (std::getline(in, line)) {
             if (line.find(expected_signature) != std::string::npos) {
                 has_expected_signature = true;
@@ -174,7 +196,11 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
             if (line.find("HYPERISO_MARTY_SM_LIKE_FILTER:") != std::string::npos) {
                 has_expected_filter_mode = sm_like_filter;
             }
-            if (has_expected_signature && has_expected_filter_mode) {
+            if (needs_semileptonic_template_abi
+                && line.find(expected_semileptonic_template_abi) != std::string::npos) {
+                has_expected_template_abi = true;
+            }
+            if (has_expected_signature && has_expected_filter_mode && has_expected_template_abi) {
                 stale = false;
                 break;
             }

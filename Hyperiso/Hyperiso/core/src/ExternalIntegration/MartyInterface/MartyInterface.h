@@ -133,6 +133,18 @@ public:
     void generate_numlib(std::string wilson, std::string model);
 
     /**
+     * @brief Generates the numeric wrapper while resolving parameters against
+     *        a target model that may differ from the output/cache label.
+     *
+     * This is needed for SM-like calculations inside a BSM model: generated
+     * files keep the ``SM`` label, but the analytic expression may still
+     * depend on target-model parameters such as THDM beta.
+     */
+    void generate_numlib(std::string wilson,
+                         std::string output_model,
+                         std::string target_model);
+
+    /**
      * @brief Compiles and runs the numeric libraries.
      *
      * Uses ::MakeCompilerStrategy to:

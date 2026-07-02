@@ -21,7 +21,7 @@ std::unordered_set<std::string> BlockName::get_alias() const {
 BlockName::operator std::string() const {
     if (block_names.size() > 1) {
         LOG_TRACE("Casting BlockName with multiple aliases to string discards information.");
-        for (const auto& name : block_names) std::cerr << name << std::endl;
+        for (const auto& name : block_names) LOG_TRACE(name);
     }
     return block_names.empty() ? "" : *block_names.begin();
 }

@@ -1,5 +1,6 @@
 #include <iostream>
 
+// HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -44,7 +45,8 @@ int calculate_C5(Model &model, gauge::Type gauge) {
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
     mty::option::excludeExternalLegsCorrections = true;
 
-    Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F / csl::sqrt_s(2);
+    Expr factorOperator = -GetComplexConjugate(V_ts) * V_tb * pow_s(e_em, 2)
+                          / (2 * pow_s(sin_s(theta_W), 2) * pow_s(M_W, 2));
     FeynOptions opts;
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
@@ -56,7 +58,6 @@ int calculate_C5(Model &model, gauge::Type gauge) {
 
     auto O5_u = getO5(model, wil_u, "u");
     Expr C5_u = getWilsonCoefficient(wil_u, O5_u);
-    Replace(C5_u, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
     auto wil_c = model.computeWilsonCoefficients(mty::Order::TreeLevel,
         {Incoming("b"), Outgoing("s"),
@@ -65,7 +66,6 @@ int calculate_C5(Model &model, gauge::Type gauge) {
 
     auto O5_c = getO5(model, wil_c, "c");
     Expr C5_c = getWilsonCoefficient(wil_c, O5_c);
-    Replace(C5_c, e_em, sqrt_s(8 * G_F / sqrt_s(2)) * M_W * sin_s(theta_W));
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C5_SM");
     mty::Library wilsonLib("C5_SM", "libs");

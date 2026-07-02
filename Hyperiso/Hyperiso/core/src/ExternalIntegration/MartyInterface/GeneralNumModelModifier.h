@@ -79,8 +79,31 @@ public:
      * @param force           If true, forces regeneration even when the output file
      *                        appears to be already processed (marker `//42`).
      */
-    GeneralNumModelModifier(const std::string& wilson, const std::string& model, std::unique_ptr<SMParamSetter> param_setter, std::shared_ptr<ICoreAPI<Model>> api, std::shared_ptr<IInterpreterPortsFactory> ports, bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(model, api, ports), paramSetter(std::move(param_setter)), fileWriter(wilson, model), 
+    GeneralNumModelModifier(const std::string& wilson,
+                            const std::string& model,
+                            std::unique_ptr<SMParamSetter> param_setter,
+                            std::shared_ptr<ICoreAPI<Model>> api,
+                            std::shared_ptr<IInterpreterPortsFactory> ports,
+                            bool force = false)
+        : GeneralNumModelModifier(wilson, model, model, std::move(param_setter), std::move(api), std::move(ports), force)
+    {}
+
+    /**
+     * @brief Constructs a numeric model modifier with distinct output and
+     *        parameter-resolution models.
+     *
+     * @param model         Output/cache label used for generated numeric files.
+     * @param mapping_model Model whose MARTY mapping should be used to resolve
+     *                      symbolic parameters extracted from the generated code.
+     */
+    GeneralNumModelModifier(const std::string& wilson,
+                            const std::string& model,
+                            const std::string& mapping_model,
+                            std::unique_ptr<SMParamSetter> param_setter,
+                            std::shared_ptr<ICoreAPI<Model>> api,
+                            std::shared_ptr<IInterpreterPortsFactory> ports,
+                            bool force = false)
+        : wilson(wilson), model(model), forceMode(force), interpreter(mapping_model, api, ports), paramSetter(std::move(param_setter)), fileWriter(wilson, model), 
           lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
         
         initializeParams();
