@@ -22,7 +22,7 @@ int main() {
 
     // BlockProxy().log_block(ParameterType::WILSON, "BCoefficients_B_SCALE_STANDARD");
 
-    for (auto elem : {WCoef::CQ1, WCoef::CQ2}) {
+    for (auto elem : {WCoef::CQ1_MU, WCoef::CQ2_MU}) {
         LOG_INFO(WCoefMapper::str(elem), "(MW) at LO =", wi.getM(WGroup::BScalar, elem, QCDOrder::LO, ContributionType::BSM));
         LOG_INFO(WCoefMapper::str(elem), "(MW) at NLO =", wi.getM(WGroup::BScalar, elem, QCDOrder::NLO, ContributionType::BSM));
         LOG_INFO("\n");
@@ -35,7 +35,7 @@ int main() {
         LOG_INFO("\n");
     }
 
-    for (auto elem : {WCoef::CP1, WCoef::CP2, WCoef::CP3, WCoef::CP4, WCoef::CP5, WCoef::CP6, WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2}) {
+    for (auto elem : {WCoef::CP1, WCoef::CP2, WCoef::CP3, WCoef::CP4, WCoef::CP5, WCoef::CP6, WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1_MU, WCoef::CPQ2_MU}) {
         LOG_INFO(WCoefMapper::str(elem), "(MW) at LO =", wi.getM(WGroup::BPrime, elem, QCDOrder::LO, ContributionType::BSM));
         LOG_INFO(WCoefMapper::str(elem), "(MW) at NLO =", wi.getM(WGroup::BPrime, elem, QCDOrder::NLO, ContributionType::BSM));
         LOG_INFO("\n");

@@ -179,12 +179,12 @@ static double expected_BR_Bs_mumu(const SpyParamProxy& pp,
 
     const complex_t C10_SM = wp.getFR(WGroup::B,      WCoef::C10,  order, ContributionType::SM);
     const complex_t C10    = wp.getFR(WGroup::B,      WCoef::C10,  order, ContributionType::TOTAL);
-    const complex_t CQ1    = wp.getFR(WGroup::BScalar,WCoef::CQ1,  order, ContributionType::TOTAL);
-    const complex_t CQ2    = wp.getFR(WGroup::BScalar,WCoef::CQ2,  order, ContributionType::TOTAL);
+    const complex_t CQ1    = wp.getFR(WGroup::BScalar,WCoef::CQ1_MU,  order, ContributionType::TOTAL);
+    const complex_t CQ2    = wp.getFR(WGroup::BScalar,WCoef::CQ2_MU,  order, ContributionType::TOTAL);
 
     const complex_t CP10   = wp.getFR(WGroup::BPrime, WCoef::CP10, order, ContributionType::TOTAL);
-    const complex_t CPQ1   = wp.getFR(WGroup::BPrime, WCoef::CPQ1, order, ContributionType::TOTAL);
-    const complex_t CPQ2   = wp.getFR(WGroup::BPrime, WCoef::CPQ2, order, ContributionType::TOTAL);
+    const complex_t CPQ1   = wp.getFR(WGroup::BPrime, WCoef::CPQ1_MU, order, ContributionType::TOTAL);
+    const complex_t CPQ2   = wp.getFR(WGroup::BPrime, WCoef::CPQ2_MU, order, ContributionType::TOTAL);
 
     const complex_t C10_m = C10 - CP10;
     const complex_t CQ1_m = CQ1 - CPQ1;
@@ -251,11 +251,11 @@ int main() {
 
     W.fr[WKey{(int)WGroup::B,      (int)WCoef::C10,  (int)ord, (int)ContributionType::SM}]    = complex_t{-4.0, 0.0};
     W.fr[WKey{(int)WGroup::B,      (int)WCoef::C10,  (int)ord, (int)ContributionType::TOTAL}] = complex_t{-3.5, 0.0};
-    W.fr[WKey{(int)WGroup::BScalar,(int)WCoef::CQ1,  (int)ord, (int)ContributionType::TOTAL}] = complex_t{ 0.2, 0.0};
-    W.fr[WKey{(int)WGroup::BScalar,(int)WCoef::CQ2,  (int)ord, (int)ContributionType::TOTAL}] = complex_t{-0.1, 0.0};
+    W.fr[WKey{(int)WGroup::BScalar,(int)WCoef::CQ1_MU,  (int)ord, (int)ContributionType::TOTAL}] = complex_t{ 0.2, 0.0};
+    W.fr[WKey{(int)WGroup::BScalar,(int)WCoef::CQ2_MU,  (int)ord, (int)ContributionType::TOTAL}] = complex_t{-0.1, 0.0};
     W.fr[WKey{(int)WGroup::BPrime, (int)WCoef::CP10, (int)ord, (int)ContributionType::TOTAL}] = complex_t{ 0.1, 0.0};
-    W.fr[WKey{(int)WGroup::BPrime, (int)WCoef::CPQ1, (int)ord, (int)ContributionType::TOTAL}] = complex_t{ 0.05,0.0};
-    W.fr[WKey{(int)WGroup::BPrime, (int)WCoef::CPQ2, (int)ord, (int)ContributionType::TOTAL}] = complex_t{-0.02,0.0};
+    W.fr[WKey{(int)WGroup::BPrime, (int)WCoef::CPQ1_MU, (int)ord, (int)ContributionType::TOTAL}] = complex_t{ 0.05,0.0};
+    W.fr[WKey{(int)WGroup::BPrime, (int)WCoef::CPQ2_MU, (int)ord, (int)ContributionType::TOTAL}] = complex_t{-0.02,0.0};
 
     ObsManager mgr(ports, false);
     auto did = DecayMapper::to_id(Decays::B__l_l);

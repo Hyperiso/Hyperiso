@@ -9,7 +9,7 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-marty-example-aligned-v7-no-global-model-filters
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-gthdm-penguin-patch-v9
 
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
@@ -62,7 +62,12 @@ bool hyperiso_marty_zcorr_force_non_sm_particles(mty::FeynOptions& opts, mty::Mo
 }
 
 Expr hyperiso_z_penguin_rescale_v() {
-    return 4 * csl::pow_s(csl::sin_s(theta_W), 2) * csl::pow_s(csl::cos_s(theta_W), 2);
+    // C9 is now extracted with MARTY's native color/operator normalization
+    // (no external /3).  The old 4*sW^2*cW^2 correction was derived when the
+    // whole C9 projection was divided by 3, so keep the same physical rescaling
+    // by applying the corresponding 1/3 here to the isolated non-SM Z piece.
+    return 4 * csl::pow_s(csl::sin_s(theta_W), 2)
+           * csl::pow_s(csl::cos_s(theta_W), 2) / 3;
 }
 
 int calculate_C9mu(Model &model, gauge::Type gauge) {
@@ -89,7 +94,7 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
                 DiracCoupling::VL,
                 DiracCoupling::V
             )
-        ) / 3;
+        );
     };
 
     auto wil_tree = model.computeWilsonCoefficients(
@@ -99,12 +104,19 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
     );
     Expr C9_tree = extract_4f(wil_tree);
 
-    // Follow MARTY's C9_SM reference test for the photon penguin: force the
-    // photon line explicitly and do not restrict to Topology::Mass.
+    // Photon penguins are the delicate part of C9.  Do not use
+    // forceParticle("A") here: in the 4-fermion special calculation it can keep
+    // pathological photon-penguin structures whose coefficients scale like
+    // 1/(q^2 + reg_prop).  MARTY's validated GTHDM system test instead isolates
+    // the photon contribution with a Z veto and the penguin topologies
+    // Triangle | Mass.  In that path MARTY's internal penguinpatch.cpp is the
+    // piece that turns the massless-vector 0/0 into the regulated q^2/q^2
+    // structure.
     bool old_keep_first_mass_A = mty::option::keepOnlyFirstMassInLoop;
     mty::option::keepOnlyFirstMassInLoop = false;
     FeynOptions opts_A = opts;
-    opts_A.addFilter(mty::filter::forceParticle("A"));
+    opts_A.setTopology(Topology::Triangle | Topology::Mass);
+    opts_A.addFilter(mty::filter::disableParticle("Z"));
     auto wil_A = model.computeWilsonCoefficients(
         mty::Order::OneLoop,
         insertions,
@@ -113,16 +125,13 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
     mty::option::keepOnlyFirstMassInLoop = old_keep_first_mass_A;
     Expr C9_A = extract_4f(wil_A);
 
-    // Follow MARTY's MSSM C9 example: the photon-penguin piece is
-    // extracted with Topology::Triangle only (no Mass topology) and is not
-    // multiplied by an empirical factor.  The forced-non-SM version is kept as
-    // a diagnostic to compare directly with BSM-only MARTY examples.
     Expr C9_A_force_non_sm = CSL_0;
     {
         bool old_keep_first_mass_A_non_sm = mty::option::keepOnlyFirstMassInLoop;
         mty::option::keepOnlyFirstMassInLoop = false;
         FeynOptions opts_A_non_sm = opts;
-        opts_A_non_sm.addFilter(mty::filter::forceParticle("A"));
+        opts_A_non_sm.setTopology(Topology::Triangle | Topology::Mass);
+        opts_A_non_sm.addFilter(mty::filter::disableParticle("Z"));
         if (hyperiso_marty_zcorr_force_non_sm_particles(opts_A_non_sm, model)) {
             auto wil_A_non_sm = model.computeWilsonCoefficients(
                 mty::Order::OneLoop,
@@ -134,6 +143,8 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
         mty::option::keepOnlyFirstMassInLoop = old_keep_first_mass_A_non_sm;
     }
 
+    // Historical name kept for scripts, but this is now the GTHDM-style photon
+    // extraction, not the old forceParticle("A") path.
     Expr C9_A_force_non_sm_mssm_style = C9_A_force_non_sm;
     Expr C9_A_corrected = C9_A;
 
@@ -194,10 +205,10 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
 
     Expr C9_oneloop_corrected = C9_A_corrected + C9_Z_corrected + C9_box;
 
-    // Generic semileptonic strategy inspired by MARTY's MSSM C9/C10 example:
-    // tree-level BSM models (Z', leptoquarks, ...) use the tree-level coefficient
-    // directly; otherwise use a one-loop four-fermion decomposition with
-    //   A-penguin: Triangle only,
+    // Generic semileptonic strategy: tree-level BSM models (Z', leptoquarks,
+    // ...) use the tree coefficient directly; otherwise use a one-loop
+    // four-fermion decomposition with
+    //   A-penguin: MARTY GTHDM-style disable Z + Triangle | Mass,
     //   Z-penguin: Triangle | Mass with Hyperiso/SuperIso Z-lepton normalization,
     //   box: Box with A/Z disabled.
     Expr C9_mu = (C9_tree != CSL_0) ? C9_tree : C9_oneloop_corrected;

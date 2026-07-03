@@ -9,6 +9,7 @@
 #include <cctype>
 #include <fstream>
 #include <unordered_set>
+#include <optional>
 
 namespace fs = std::filesystem;
 
@@ -164,6 +165,27 @@ std::optional<int> MartyInterface::resolve_model_template_index(const std::strin
     return type;
 }
 
+namespace {
+
+std::optional<std::string> expected_semileptonic_template_abi_for(const std::string& wilson) {
+    if (wilson == "C9") {
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-marty-example-aligned-v7-no-global-model-filters"};
+    }
+    if (wilson == "C10") {
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};
+    }
+    return std::nullopt;
+}
+
+bool expects_ew_operator_norm_abi(const std::string& wilson) {
+    static const std::unordered_set<std::string> wilsons = {
+        "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10"
+    };
+    return wilsons.contains(wilson);
+}
+
+} // namespace
+
 void MartyInterface::invalidate_template_model_cache_if_needed(const std::string& wilson,
                                                                const std::string& output_model,
                                                                const std::string& target_model,
@@ -177,39 +199,46 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         model_template_index
     );
 
-    const std::unordered_set<std::string> semileptonic_templates = {"C9", "C10", "CP9", "CP10"};
-    const bool needs_semileptonic_template_abi = semileptonic_templates.contains(wilson);
-    constexpr const char* expected_semileptonic_template_abi =
-        "HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-local-vertex-diagnostics-v1";
+    const auto expected_template_abi = expected_semileptonic_template_abi_for(wilson);
+    const bool needs_template_abi = expected_template_abi.has_value();
 
-    bool stale = true;
+    constexpr const char* expected_operator_norm_abi =
+        "HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1";
+    const bool needs_operator_norm_abi = expects_ew_operator_norm_abi(wilson);
+
+    bool file_present = false;
+    bool has_expected_signature = false;
+    bool has_expected_filter_mode = !sm_like_filter;
+    bool has_expected_template_abi = !needs_template_abi;
+    bool has_expected_operator_norm_abi = !needs_operator_norm_abi;
+    bool found_unexpected_sm_like_filter = false;
+
     {
         std::ifstream in(files->getGeneratedFileName());
+        file_present = static_cast<bool>(in);
         std::string line;
-        bool has_expected_signature = false;
-        bool has_expected_filter_mode = !sm_like_filter;
-        bool has_expected_template_abi = !needs_semileptonic_template_abi;
         while (std::getline(in, line)) {
             if (line.find(expected_signature) != std::string::npos) {
                 has_expected_signature = true;
             }
             if (line.find("HYPERISO_MARTY_SM_LIKE_FILTER:") != std::string::npos) {
                 has_expected_filter_mode = sm_like_filter;
+                found_unexpected_sm_like_filter = !sm_like_filter;
             }
-            if (needs_semileptonic_template_abi
-                && line.find(expected_semileptonic_template_abi) != std::string::npos) {
+            if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {
                 has_expected_template_abi = true;
             }
-            if (has_expected_signature && has_expected_filter_mode && has_expected_template_abi) {
-                stale = false;
-                break;
-            }
-            if (line.find("HYPERISO_MARTY_MODEL_SIGNATURE:") != std::string::npos
-                && !has_expected_signature) {
-                break;
+            if (needs_operator_norm_abi && line.find(expected_operator_norm_abi) != std::string::npos) {
+                has_expected_operator_norm_abi = true;
             }
         }
     }
+
+    const bool stale = !file_present
+                    || !has_expected_signature
+                    || !has_expected_filter_mode
+                    || !has_expected_template_abi
+                    || !has_expected_operator_norm_abi;
 
     if (!stale) {
         return;
@@ -224,8 +253,25 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
     ec.clear();
     fs::remove(files->getCsvWilsonFileName(), ec);
 
+    std::string reason;
+    if (!file_present) {
+        reason = "generated file is missing";
+    } else if (!has_expected_signature) {
+        reason = "model signature mismatch";
+    } else if (!has_expected_filter_mode) {
+        reason = found_unexpected_sm_like_filter
+            ? "SM-like filter marker is present but this output is not SM-like"
+            : "SM-like filter marker is missing";
+    } else if (!has_expected_template_abi) {
+        reason = "template ABI mismatch";
+    } else if (!has_expected_operator_norm_abi) {
+        reason = "operator-normalization ABI mismatch";
+    } else {
+        reason = "cache metadata mismatch";
+    }
+
     LOG_INFO("MartyInterface", "Invalidated stale MARTY cache for ", wilson, " / ", output_model,
-             " because the model signature is now ", expected_signature);
+             " because ", reason, ". Expected model signature: ", expected_signature);
 }
 
 std::unordered_set<InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {

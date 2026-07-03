@@ -74,8 +74,8 @@ if __name__ == "__main__":
         wilson_basis=WilsonBasis.STANDARD
     )
     coefs = {WCoeff.C1, WCoeff.C2, WCoeff.C3, WCoeff.C4, WCoeff.C5, WCoeff.C6, WCoeff.C7, WCoeff.C8, WCoeff.C9, WCoeff.C10}
-    coefs_primes = {WCoeff.CP1, WCoeff.CP2, WCoeff.CP3, WCoeff.CP4, WCoeff.CP5, WCoeff.CP6, WCoeff.CP7, WCoeff.CP8, WCoeff.CP9, WCoeff.CP10, WCoeff.CPQ1, WCoeff.CPQ2}
-    coefs_scalar = {WCoeff.CQ1, WCoeff.CQ2}
+    coefs_primes = {WCoeff.CP1, WCoeff.CP2, WCoeff.CP3, WCoeff.CP4, WCoeff.CP5, WCoeff.CP6, WCoeff.CP7, WCoeff.CP8, WCoeff.CP9, WCoeff.CP10, WCoeff.CPQ1_MU, WCoeff.CPQ2_MU}
+    coefs_scalar = {WCoeff.CQ1_MU, WCoeff.CQ2_MU}
     
     for coef in coefs:
         req.coefficient = coef

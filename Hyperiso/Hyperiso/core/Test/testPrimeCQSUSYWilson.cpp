@@ -12,7 +12,7 @@
 void writeCoefficientsToFile(const std::string& strat_name, const std::string& fileName, const std::shared_ptr<InitializationStrategy>& strategy, double Q_match) {
     std::ofstream file(fileName);
 
-    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
+    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1_MU", "CQ2_MU", "CP7", "CP8", "CP9", "CP10", "CPQ1_MU", "CPQ2_MU"};
 
     file << "Q,alpha_s";
     for (int i = 10; i <= 17; ++i) {

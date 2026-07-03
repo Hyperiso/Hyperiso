@@ -75,7 +75,7 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
 
     std::string root_data_file = project_assets_root.data();
 
-    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1", "CQ2", "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
+    std::vector<std::string> name {"C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10", "CQ1_MU", "CQ2_MU", "CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1_MU", "CPQ2_MU"};
 
     file << "Q,alpha_s";
     for (int i = 10; i <= 23; ++i) {
@@ -114,8 +114,8 @@ void writeCoefficientsPrimeCQToFile(const std::string& strat_name, const std::st
 
     file << mu_h << "," << alpha_s;
 
-    std::vector<std::string> name_scalar {"CQ1", "CQ2"};
-    std::vector<std::string> name_prime {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1", "CPQ2"};
+    std::vector<std::string> name_scalar {"CQ1_MU", "CQ2_MU"};
+    std::vector<std::string> name_prime {"CP1", "CP2", "CP3", "CP4", "CP5", "CP6", "CP7", "CP8", "CP9", "CP10", "CPQ1_MU", "CPQ2_MU"};
 
     for (auto& coeff : name_scalar) {
         complex_t C = {0.,0.};

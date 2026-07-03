@@ -180,11 +180,11 @@ static double expected_BR_Bs_mumu(const SpyObsParameterProxy& pp,
 
     const complex_t C10_SM = wp.getFR(WGroup::B,       WCoef::C10,  order, ContributionType::SM);
     const complex_t C10    = wp.getFR(WGroup::B,       WCoef::C10,  order, ContributionType::TOTAL);
-    const complex_t CQ1    = wp.getFR(WGroup::BScalar, WCoef::CQ1,  order, ContributionType::TOTAL);
-    const complex_t CQ2    = wp.getFR(WGroup::BScalar, WCoef::CQ2,  order, ContributionType::TOTAL);
+    const complex_t CQ1    = wp.getFR(WGroup::BScalar, WCoef::CQ1_MU,  order, ContributionType::TOTAL);
+    const complex_t CQ2    = wp.getFR(WGroup::BScalar, WCoef::CQ2_MU,  order, ContributionType::TOTAL);
     const complex_t CP10   = wp.getFR(WGroup::BPrime,  WCoef::CP10, order, ContributionType::TOTAL);
-    const complex_t CPQ1   = wp.getFR(WGroup::BPrime,  WCoef::CPQ1, order, ContributionType::TOTAL);
-    const complex_t CPQ2   = wp.getFR(WGroup::BPrime,  WCoef::CPQ2, order, ContributionType::TOTAL);
+    const complex_t CPQ1   = wp.getFR(WGroup::BPrime,  WCoef::CPQ1_MU, order, ContributionType::TOTAL);
+    const complex_t CPQ2   = wp.getFR(WGroup::BPrime,  WCoef::CPQ2_MU, order, ContributionType::TOTAL);
 
     const complex_t C10_m = C10 - CP10;
     const complex_t CQ1_m = CQ1 - CPQ1;
@@ -241,11 +241,11 @@ int main() {
 
     W.set_value(WKind::FR, WGroup::B,       WCoef::C10,  ord, ContributionType::SM,    complex_t{-4.0, 0.0});
     W.set_value(WKind::FR, WGroup::B,       WCoef::C10,  ord, ContributionType::TOTAL, complex_t{-3.5, 0.0});
-    W.set_value(WKind::FR, WGroup::BScalar, WCoef::CQ1,  ord, ContributionType::TOTAL, complex_t{ 0.2, 0.0});
-    W.set_value(WKind::FR, WGroup::BScalar, WCoef::CQ2,  ord, ContributionType::TOTAL, complex_t{-0.1, 0.0});
+    W.set_value(WKind::FR, WGroup::BScalar, WCoef::CQ1_MU,  ord, ContributionType::TOTAL, complex_t{ 0.2, 0.0});
+    W.set_value(WKind::FR, WGroup::BScalar, WCoef::CQ2_MU,  ord, ContributionType::TOTAL, complex_t{-0.1, 0.0});
     W.set_value(WKind::FR, WGroup::BPrime,  WCoef::CP10, ord, ContributionType::TOTAL, complex_t{ 0.1, 0.0});
-    W.set_value(WKind::FR, WGroup::BPrime,  WCoef::CPQ1, ord, ContributionType::TOTAL, complex_t{ 0.05,0.0});
-    W.set_value(WKind::FR, WGroup::BPrime,  WCoef::CPQ2, ord, ContributionType::TOTAL, complex_t{-0.02,0.0});
+    W.set_value(WKind::FR, WGroup::BPrime,  WCoef::CPQ1_MU, ord, ContributionType::TOTAL, complex_t{ 0.05,0.0});
+    W.set_value(WKind::FR, WGroup::BPrime,  WCoef::CPQ2_MU, ord, ContributionType::TOTAL, complex_t{-0.02,0.0});
 
     BllDecay decay(QCDOrder::NONE, 160.0, 4.8, ports);
     decay.set_order(QCDOrder::LO);

@@ -55,7 +55,7 @@ int main() {
 
     const std::vector<WCoef> coefs_primes = {
         WCoef::CP1, WCoef::CP2, WCoef::CP3, WCoef::CP4, WCoef::CP5, WCoef::CP6,
-        WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2
+        WCoef::CP7, WCoef::CP8, WCoef::CP9, WCoef::CP10, WCoef::CPQ1_MU, WCoef::CPQ2_MU
     };
 
     std::cout << "\nSeparated matching orders for B group:\n";

@@ -100,8 +100,8 @@ int main(){
     LOG_INFO("C_CU_4(mu_h) at LO =", wi.getR(WGroup::MESON_MIXING, WCoef::C_CU_4, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("C_CU_5(mu_h) at LO =", wi.getR(WGroup::MESON_MIXING, WCoef::C_CU_5, QCDOrder::LO, ContributionType::SM));
 
-    // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1, QCDOrder::LO));
-    // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2, QCDOrder::LO));
+    // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1_MU, QCDOrder::LO));
+    // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2_MU, QCDOrder::LO));
     // LOG_INFO("C10(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C10, QCDOrder::LO));
 
     // LOG_INFO("C7(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::LO));

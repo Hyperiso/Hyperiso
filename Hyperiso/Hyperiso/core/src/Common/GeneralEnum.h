@@ -598,8 +598,10 @@ enum class QCDOrder {
 
 enum class WCoef {
     C1, C2, C3, C4, C5, C6, C7, C8, C9, C10,                                // b > s l l
-    CQ1, CQ2,                                                               // b > s l l
-    CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10, CPQ1, CPQ2,          // b > s l l
+    CQ1_E, CQ1_MU, CQ1_TA, CQ2_E, CQ2_MU, CQ2_TA,                            // b > s l l, scalar lepton-specific
+    CP1, CP2, CP3, CP4, CP5, CP6, CP7, CP8, CP9, CP10,                       // b > s l l
+    CPQ1_E, CPQ1_MU, CPQ1_TA, CPQ2_E, CPQ2_MU, CPQ2_TA,                      // b > s l l, primed scalar lepton-specific
+    CQ1, CQ2, CPQ1, CPQ2,                                                     // deprecated muon aliases kept out of built-in groups
     C_V1_bc, C_V2_bc, C_S1_bc, C_S2_bc, C_T_bc,                             // b > c l nu
     C_V1_bu, C_V2_bu, C_S1_bu, C_S2_bu, C_T_bu,                             // b > u l nu
     C_V1_cs, C_V2_cs, C_S1_cs, C_S2_cs, C_T_cs,                             // c > s l nu

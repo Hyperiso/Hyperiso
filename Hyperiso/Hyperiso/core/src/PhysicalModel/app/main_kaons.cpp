@@ -49,8 +49,8 @@ int main(){
     LOG_INFO("CPKQ1(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CPKQ1, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CPKQ2(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CPKQ2, QCDOrder::LO, ContributionType::SM));
     LOG_INFO("CK_L(mu_h) at LO =", wi.getR(WGroup::K, WCoef::CK_L, QCDOrder::LO, ContributionType::SM));
-    // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1, QCDOrder::LO));
-    // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2, QCDOrder::LO));
+    // LOG_INFO("CQ1(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ1_MU, QCDOrder::LO));
+    // LOG_INFO("CQ2(mu_h) at LO =", wi.getR(WGroup::BScalar, WCoef::CQ2_MU, QCDOrder::LO));
     // LOG_INFO("C10(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C10, QCDOrder::LO));
 
     // LOG_INFO("C7(mu_h) at LO =", wi.getR(WGroup::B, WCoef::C7, QCDOrder::LO));

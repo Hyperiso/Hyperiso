@@ -1,4 +1,5 @@
 #include "BXsllDecay.h"
+#include "wcoef_ids.hpp"
 
 void BXsllDecay::load_params() {
     cache.cc_res_mass =         {3.096916, 3.68609,   3.77292, 4.039 , 4.153  , 4.421 };
@@ -608,9 +609,9 @@ double BXsllDecay::W_910(double s) {
 }
 
 double BXsllDecay::dB0_ds(double s, double ml_hat) {
-    double W_Q1 = pow(abs(cache.C[WCoef::CQ1]), 2) + pow(abs(cache.C[WCoef::CPQ1]), 2);
-    double W_Q2 = pow(abs(cache.C[WCoef::CQ2]), 2) + pow(abs(cache.C[WCoef::CPQ2]), 2);
-    double W_10Q2 = real(cache.C[WCoef::CQ2] * conj(C10_new(s, false))) + real(cache.C[WCoef::CPQ2] * conj(C10_new(s, true)));
+    double W_Q1 = pow(abs(cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))]), 2) + pow(abs(cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))]), 2);
+    double W_Q2 = pow(abs(cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))]), 2) + pow(abs(cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))]), 2);
+    double W_10Q2 = real(cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))] * conj(C10_new(s, false))) + real(cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))] * conj(C10_new(s, true)));
 
     double H7 = 4 * (1. + 2. * ml_hat * ml_hat / s) * (1. + 2. / s) * (1. + cache.alpha_s_mu_b / PI * tau_77(s));
     double H9 = (1. + 2. * ml_hat * ml_hat / s) * (1. + 2. * s) * (1. + cache.alpha_s_mu_b / PI * tau_99(s));
@@ -634,8 +635,8 @@ double BXsllDecay::dB0_ds(double s, double ml_hat) {
 }
 
 double BXsllDecay::A_FB_0(double s, double ml_hat) {
-    double W_7Q1 = real(C7_new(s, false) * cache.C[WCoef::CQ1]) + real(C7_new(s, true) * cache.C[WCoef::CPQ1]);
-    double W_9Q1 = real(C9_new(s, false) * cache.C[WCoef::CQ1]) + real(C9_new(s, true) * cache.C[WCoef::CPQ1]);
+    double W_7Q1 = real(C7_new(s, false) * cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))]) + real(C7_new(s, true) * cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))]);
+    double W_9Q1 = real(C9_new(s, false) * cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))]) + real(C9_new(s, true) * cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))]);
 
     return pow(1 - s, 2) * sqrt(1 - 4 * pow(ml_hat, 2) / s) * (
             2 * (1 + cache.alpha_s_mu_b * tau_710(s) / PI) * W_710(s) + 

@@ -68,7 +68,7 @@ static double nmamix(const BlockSrc& src, int a, int component) {
     return src.get_val("NMAMIX", {a + 1, component + 1});
 }
 
-static complex_t nmssm_pseudoscalar_threshold(const BlockSrc& src, double pseudoscalar_mass) {
+static complex_t nmssm_pseudoscalar_threshold(const BlockSrc& src, double pseudoscalar_mass, int lepton_mass_slot) {
     const double lambda = get_optional(src, "EXTPAR", 61, 0.0);
     const double kappa  = get_optional(src, "EXTPAR", 62, 0.0);
     const double a_lambda = get_optional(src, "EXTPAR", 63, 0.0);
@@ -157,9 +157,9 @@ static complex_t nmssm_pseudoscalar_threshold(const BlockSrc& src, double pseudo
 
     const double mb_muW_pole = src.get_val("WPARAM_MATCH_SM", {5, 2});
     const double sw2 = src.get_val("WPARAM_SI_SM", 4);
-    const double mb_running = src.get_val("WPARAM_SI_SM", 3);
+    const double ml_running = src.get_val("WPARAM_SI_SM", lepton_mass_slot);
 
-    return (v_delta_m_s / 2.0) * mb_muW_pole / sw2 * mb_running * cA / pole;
+    return (v_delta_m_s / 2.0) * mb_muW_pole / sw2 * ml_running * cA / pole;
 }
 } // namespace
 
@@ -183,7 +183,10 @@ BScalar_SUSY_Base1_LO_calculation(
 
     const double mb_muW_pole = src.get_val("WPARAM_MATCH_SM", {5, 2});
     if (!almost_zero(mA1) && mA1 < mb_muW_pole) {
-        out[WCoefMapper::to_id(WCoef::CQ2)] += nmssm_pseudoscalar_threshold(src, mA1);
+        for (int i = 0; i < 3; ++i) {
+            out[WCoefMapper::to_id(WCoefMapper::cq2_for_lepton_index(i))] +=
+                nmssm_pseudoscalar_threshold(src, mA1, WCoefMapper::lepton_mass_slot_from_index(i));
+        }
     }
 
     return out;

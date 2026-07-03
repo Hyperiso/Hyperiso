@@ -1,4 +1,5 @@
 #include "WilsonParametersHelper.h"
+#include "wcoef_ids.hpp"
 
 void WilsonParameterHelper::init(int gen, WGroupId grp) {
 	if (!initialized) {
@@ -28,6 +29,15 @@ void WilsonParameterHelper::init_scale_independent_block(int gen) {
         dep_block->store_or_assign(1, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 1}, xh, 0., 0.));
 		dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 2}, gen, 0., 0.));
 		dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 3}, src.get_val("MASS", 9 + 2 * gen), 0., 0.));
+
+		// Store all charged-lepton masses independently so CQ/CPQ coefficients
+		// can be evaluated for e, mu and tau without mutating the global gen.
+		const int lepton_pdgs[3] = {11, 13, 15};
+		for (int i = 0; i < 3; ++i) {
+			const int slot = WCoefMapper::lepton_mass_slot_from_index(i);
+			dep_block->store_or_assign(slot, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", slot}, src.get_val("MASS", lepton_pdgs[i]), 0., 0.));
+		}
+
 		dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 4}, src.get_val("SMINPUTS", {7, 1}), 0., 0.));
 		dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_SM", 5}, 11.-2./3.*nf, 0., 0.));
     };

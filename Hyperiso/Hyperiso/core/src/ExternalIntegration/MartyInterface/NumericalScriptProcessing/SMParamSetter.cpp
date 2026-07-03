@@ -84,7 +84,7 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
         return asin(sqrt((*sm_proxy)("SMINPUTS", LhaID(7, 1))));
     }
     if (interpretedParam.block == "REGPROP") {
-        return 1e-3;
+        return 1e-6;
     }
     if (interpretedParam.block == "BETA") {
         return atan((*bsm_proxy)("MINPAR", 3));

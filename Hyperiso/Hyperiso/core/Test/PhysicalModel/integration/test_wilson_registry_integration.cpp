@@ -49,8 +49,16 @@ int main() {
             ContributionType::SM,
             GroupMapper::to_id(WGroup::BScalar)
         );
-        auto cq1 = reg.create(ctx_Bs, WCoef::CQ1);
-        assert(cq1 && "CQ1(SM, Builtin) should be creatable");
+        for (WCoef c : {WCoef::CQ1_E, WCoef::CQ1_MU, WCoef::CQ1_TA,
+                         WCoef::CQ2_E, WCoef::CQ2_MU, WCoef::CQ2_TA}) {
+            auto scalar = reg.create(ctx_Bs, c);
+            assert(scalar && "lepton-specific CQ coefficient should be creatable");
+        }
+        for (WCoef c : {WCoef::CPQ1_E, WCoef::CPQ1_MU, WCoef::CPQ1_TA,
+                         WCoef::CPQ2_E, WCoef::CPQ2_MU, WCoef::CPQ2_TA}) {
+            auto scalar_prime = reg.create(ctx_Bp, c);
+            assert(scalar_prime && "lepton-specific CPQ coefficient should be creatable");
+        }
 
         auto ctx_cc_bc = make_ctx(
             Model::SM,

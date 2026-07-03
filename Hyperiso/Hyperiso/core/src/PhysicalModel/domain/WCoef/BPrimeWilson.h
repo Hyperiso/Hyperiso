@@ -2,6 +2,7 @@
 #define BPRIME_WILSON_H
 
 #include "Wilson.h"
+#include "wcoef_ids.hpp"
 
 class CP1 : public WilsonCoefficient {
 public:
@@ -146,7 +147,7 @@ public:
 
 class CPQ1 : public WilsonCoefficient {
 public:
-    CPQ1() : WilsonCoefficient("CPQ1", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ1(WCoef coef = WCoef::CPQ1_MU) : WilsonCoefficient(WCoefMapper::str(coef), GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
      
      
@@ -155,13 +156,11 @@ public:
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ1>(*this);
     }
-
-    int gen{2};
 };
 
 class CPQ2 : public WilsonCoefficient {
 public:
-    CPQ2() : WilsonCoefficient("CPQ2", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ2(WCoef coef = WCoef::CPQ2_MU) : WilsonCoefficient(WCoefMapper::str(coef), GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
      
      
@@ -170,8 +169,6 @@ public:
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ2>(*this);
     }
-
-    int gen{2};
 };
 
 

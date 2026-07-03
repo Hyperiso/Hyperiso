@@ -187,11 +187,11 @@ int main() {
     const QCDOrder ord = QCDOrder::LO;
     W.table[WKey{WKind::FR,(int)WGroup::B,(int)WCoef::C10,(int)ord,(int)ContributionType::SM}]    = complex_t{-4.0,0.0};
     W.table[WKey{WKind::FR,(int)WGroup::B,(int)WCoef::C10,(int)ord,(int)ContributionType::TOTAL}] = complex_t{-3.5,0.0};
-    W.table[WKey{WKind::FR,(int)WGroup::BScalar,(int)WCoef::CQ1,(int)ord,(int)ContributionType::TOTAL}] = complex_t{0.2,0.0};
-    W.table[WKey{WKind::FR,(int)WGroup::BScalar,(int)WCoef::CQ2,(int)ord,(int)ContributionType::TOTAL}] = complex_t{-0.1,0.0};
+    W.table[WKey{WKind::FR,(int)WGroup::BScalar,(int)WCoef::CQ1_MU,(int)ord,(int)ContributionType::TOTAL}] = complex_t{0.2,0.0};
+    W.table[WKey{WKind::FR,(int)WGroup::BScalar,(int)WCoef::CQ2_MU,(int)ord,(int)ContributionType::TOTAL}] = complex_t{-0.1,0.0};
     W.table[WKey{WKind::FR,(int)WGroup::BPrime,(int)WCoef::CP10,(int)ord,(int)ContributionType::TOTAL}] = complex_t{0.1,0.0};
-    W.table[WKey{WKind::FR,(int)WGroup::BPrime,(int)WCoef::CPQ1,(int)ord,(int)ContributionType::TOTAL}] = complex_t{0.05,0.0};
-    W.table[WKey{WKind::FR,(int)WGroup::BPrime,(int)WCoef::CPQ2,(int)ord,(int)ContributionType::TOTAL}] = complex_t{-0.02,0.0};
+    W.table[WKey{WKind::FR,(int)WGroup::BPrime,(int)WCoef::CPQ1_MU,(int)ord,(int)ContributionType::TOTAL}] = complex_t{0.05,0.0};
+    W.table[WKey{WKind::FR,(int)WGroup::BPrime,(int)WCoef::CPQ2_MU,(int)ord,(int)ContributionType::TOTAL}] = complex_t{-0.02,0.0};
 
     auto decay = std::make_shared<BllDecay>(QCDOrder::NONE, 160.0, 4.8, ports);
     decay->set_order(QCDOrder::LO);

@@ -5,6 +5,7 @@
 #include "SUSYParametersHelper.h"
 #include "Math.h"
 #include "Utils.h"
+#include "wcoef_ids.hpp"
 #include "ChargedCurrentsWilsonGroup.h"
 
 class C1_susy : public WilsonCoefficient {
@@ -130,10 +131,12 @@ public:
 
 class CQ1_susy : public WilsonCoefficient {
 public:
-    CQ1_susy();
+    explicit CQ1_susy(WCoef coef = WCoef::CQ1_MU);
 
     static scalar_t compute_LO(const ParamSrc& src);
+    static scalar_t compute_LO(const ParamSrc& src, int lepton_mass_slot);
     static scalar_t compute_NLO(const ParamSrc& src);
+    static scalar_t compute_NLO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ1_susy>(*this);
@@ -142,10 +145,12 @@ public:
 
 class CQ2_susy : public WilsonCoefficient {
 public:
-    CQ2_susy();
+    explicit CQ2_susy(WCoef coef = WCoef::CQ2_MU);
 
     static scalar_t compute_LO(const ParamSrc& src);
+    static scalar_t compute_LO(const ParamSrc& src, int lepton_mass_slot);
     static scalar_t compute_NLO(const ParamSrc& src);
+    static scalar_t compute_NLO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CQ2_susy>(*this);
@@ -265,10 +270,11 @@ public:
 
 class CPQ1_susy : public WilsonCoefficient {
 public:
-    CPQ1_susy();
+    explicit CPQ1_susy(WCoef coef = WCoef::CPQ1_MU);
 
  
     static scalar_t compute_LO(const ParamSrc& src);
+    static scalar_t compute_LO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ1_susy>(*this);
@@ -277,9 +283,10 @@ public:
 
 class CPQ2_susy : public WilsonCoefficient {
 public:
-    CPQ2_susy();
+    explicit CPQ2_susy(WCoef coef = WCoef::CPQ2_MU);
 
     static scalar_t compute_LO(const ParamSrc& src);
+    static scalar_t compute_LO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ2_susy>(*this);

@@ -2,17 +2,18 @@
 
 // ---------- CQ1 ----------
 
-CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+CQ1::CQ1(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef), GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cq1(coef));
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},     // x_t
             {"WPARAM_MATCH_SM", {5, 1}},     // m_b(muW) ?! (voir ASK)
             {"WPARAM_SI_SM", 1},             // xh
-            {"WPARAM_SI_SM", 3},             // ml
+            {"WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
             {"WPARAM_SI_SM", 4},             // sw2
             {ParameterType::SM, "MASS", 24}  // m_W
         },
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -22,10 +23,14 @@ CQ1::CQ1() : WilsonCoefficient("CQ1", GroupMapper::str(WGroup::BScalar, ScaleTyp
 }
 
 double CQ1::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+double CQ1::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});; // ASK : Why {5,2} and not {5,1} ?
     double xh     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 1);;
-    double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);;
+    double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot);;
     double sw2    = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);;
     double mW     = src.get_val(ParameterType::SM, "MASS", 24);;
 
@@ -53,7 +58,8 @@ double CQ1::compute_LO(const ParamSrc& src) {
 
 // ---------- CQ2 ----------
 
-CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+CQ2::CQ2(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef), GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cq2(coef));
     matching_info[QCDOrder::LO] = {
         {
             {"WPARAM_MATCH_SM", {2, 1}},  // xt
@@ -61,11 +67,11 @@ CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar, ScaleTyp
             {"WPARAM_MATCH_SM", {2, 3}},  // xt^3
             {"WPARAM_MATCH_SM", {2, 4}},  // xt^4
             {"WPARAM_MATCH_SM", {5, 1}},  // m_b(muW)
-            {"WPARAM_SI_SM", 3},          // ml
+            {"WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
             {"WPARAM_SI_SM", 4},          // sw2
             {ParameterType::SM, "MASS", 24} // m_W
         },
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -75,12 +81,16 @@ CQ2::CQ2() : WilsonCoefficient("CQ2", GroupMapper::str(WGroup::BScalar, ScaleTyp
 }
 
 double CQ2::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+double CQ2::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double xt2  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 2});
     double xt3  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 3});
     double xt4  = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 4});
     double mb   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
-    double ml   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);
+    double ml   = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot);
     double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
     double mW   = src.get_val(ParameterType::SM, "MASS", 24);
 

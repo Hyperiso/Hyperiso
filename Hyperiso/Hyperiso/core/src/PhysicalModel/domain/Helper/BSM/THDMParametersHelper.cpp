@@ -1,4 +1,5 @@
 #include "THDMParametersHelper.h"
+#include "wcoef_ids.hpp"
 
 
 void THDMParameterHelper::init(int gen, WGroupId) {
@@ -39,7 +40,15 @@ void THDMParameterHelper::init_scale_independent_block(int) {
         dep_block->store_or_assign(7, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 7}, lu, 0., 0.));
         dep_block->store_or_assign(8, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 8}, ld, 0., 0.));
         dep_block->store_or_assign(9, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 9}, alpha, 0., 0.));
-        dep_block->store_or_assign(10, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 10}, le, 0., 0.)); 
+        dep_block->store_or_assign(10, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", 10}, le, 0., 0.));
+
+        // Keep the historical slot 10 for the configured lepton generation, and
+        // additionally expose all three lepton Yukawas for CQ/CPQ_E/MU/TA.
+        for (int i = 0; i < 3; ++i) {
+            const int slot = WCoefMapper::thdm_lepton_yukawa_slot_from_index(i);
+            const double le_i = src.get_val("YE", LhaID(i, i));
+            dep_block->store_or_assign(slot, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", slot}, le_i, 0., 0.));
+        }
     };
 
     iblock_c->compose_block("WPARAM_SI_BSM", src, func);

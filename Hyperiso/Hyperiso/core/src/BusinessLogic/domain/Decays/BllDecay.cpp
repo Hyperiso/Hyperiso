@@ -1,4 +1,5 @@
 #include "BllDecay.h"
+#include "wcoef_ids.hpp"
 
 
 void BllDecay::load_params() {
@@ -22,13 +23,13 @@ void BllDecay::load_params() {
 
     cache.C10_SM = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order, ContributionType::SM);
     cache.C10 = w_proxy->getFR(WGroup::B, WCoef::C10, w_config.order);
-    cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1, w_config.order); // ASK : Why 0 in SI ?
-    cache.CQ2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2, w_config.order);
+    cache.CQ1 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ1_MU, w_config.order); // muon default for legacy debug/cache
+    cache.CQ2 = w_proxy->getFR(WGroup::BScalar, WCoef::CQ2_MU, w_config.order);
     // cache.CQ1 = 0;
     // cache.CQ2 = 0;
     cache.C10_m = cache.C10 - w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order);
-    cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order);
-    cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order);
+    cache.CQ1_m = cache.CQ1 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1_MU, w_config.order);
+    cache.CQ2_m = cache.CQ2 - w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2_MU, w_config.order);
 
     printf("f_Bs = %.5e\n", cache.f_Bs);
     printf("y_s = %.5e\n", cache.ys);
@@ -37,9 +38,9 @@ void BllDecay::load_params() {
     printf("C10 = %.4e + %.4e I \n", std::real(cache.C10), std::imag(cache.C10));
     printf("Cp10 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CP10, w_config.order)));
 	printf("CQ1 = %.4e + %.4e I \n", std::real(cache.CQ1), std::imag(cache.CQ1));
-	printf("CpQ1 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1, w_config.order)));
+	printf("CpQ1 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1_MU, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ1_MU, w_config.order)));
 	printf("CQ2 = %.4e + %.4e I \n", std::real(cache.CQ2), std::imag(cache.CQ2));
-	printf("CpQ2 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2, w_config.order)));
+	printf("CpQ2 = %.4e + %.4e I \n", std::real(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2_MU, w_config.order)), std::imag(w_proxy->getFR(WGroup::BPrime, WCoef::CPQ2_MU, w_config.order)));
 }
 
 double BllDecay::BR_avg_Bq_ll(int q, int gen) {
@@ -61,24 +62,36 @@ double BllDecay::BR_avg_Bq_ll(int q, int gen) {
         r_q = cache.r_s;
     }
 
+    const int lepton_index = gen - 1;
+    const complex_t CQ1_m = w_proxy->getFR(WGroup::BScalar, WCoefMapper::cq1_for_lepton_index(lepton_index), w_config.order)
+                         - w_proxy->getFR(WGroup::BPrime, WCoefMapper::cpq1_for_lepton_index(lepton_index), w_config.order);
+    const complex_t CQ2_m = w_proxy->getFR(WGroup::BScalar, WCoefMapper::cq2_for_lepton_index(lepton_index), w_config.order)
+                         - w_proxy->getFR(WGroup::BPrime, WCoefMapper::cpq2_for_lepton_index(lepton_index), w_config.order);
+
     double m_l = gen == 1 ? cache.m_e : gen == 2 ? cache.m_mu : cache.m_tau;
     double x_l = m_l / m_B;
     double beta_l = std::sqrt(1. - 4. * std::pow(x_l, 2));
 
     double pref = std::pow(cache.G_F * cache.alpha_em, 2) / (64 * std::pow(M_PI, 3)) * cache.eta_BBS;
     return pref * std::pow(f_B * std::abs(lambda_q), 2) * std::pow(m_B, 3) * tau_B * beta_l * (
-        std::pow(beta_l * std::abs(r_q * cache.CQ1_m), 2) 
-        + std::pow(std::abs(r_q * cache.CQ2_m + 2 * x_l * cache.C10_m), 2)
+        std::pow(beta_l * std::abs(r_q * CQ1_m), 2)
+        + std::pow(std::abs(r_q * CQ2_m + 2 * x_l * cache.C10_m), 2)
     );
 }
 
 double BllDecay::BR_untag_Bs_ll(int gen) {
+    const int lepton_index = gen - 1;
+    const complex_t CQ1_m = w_proxy->getFR(WGroup::BScalar, WCoefMapper::cq1_for_lepton_index(lepton_index), w_config.order)
+                         - w_proxy->getFR(WGroup::BPrime, WCoefMapper::cpq1_for_lepton_index(lepton_index), w_config.order);
+    const complex_t CQ2_m = w_proxy->getFR(WGroup::BScalar, WCoefMapper::cq2_for_lepton_index(lepton_index), w_config.order)
+                         - w_proxy->getFR(WGroup::BPrime, WCoefMapper::cpq2_for_lepton_index(lepton_index), w_config.order);
+
     double m_l = gen == 1 ? cache.m_e : gen == 2 ? cache.m_mu : cache.m_tau;
     double x_l = m_l / cache.m_Bs;
     double beta_l = std::sqrt(1. - 4. * std::pow(x_l, 2));
     double f = cache.r_s / (2. * x_l);
-    complex_t S = beta_l * f * cache.CQ1_m / cache.C10_SM;
-    complex_t P = (cache.C10_m + f * cache.CQ2_m) / cache.C10_SM;
+    complex_t S = beta_l * f * CQ1_m / cache.C10_SM;
+    complex_t P = (cache.C10_m + f * CQ2_m) / cache.C10_SM;
     double abs_S = std::pow(std::abs(S), 2);
     double abs_P = std::pow(std::abs(P), 2);
     double A = (abs_P * std::cos(2 * std::arg(P)) - abs_S * std::cos(2 * std::arg(S))) / (abs_P + abs_S);

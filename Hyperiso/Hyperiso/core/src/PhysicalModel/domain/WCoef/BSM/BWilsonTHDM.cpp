@@ -340,10 +340,13 @@ double C10_THDM::compute_NLO(const ParamSrc& src) {
     return -C9llH1(xt, yt, lu, log(pow(Q / mH, 2.0))) / sw2;
 }
 
-CQ1_THDM::CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+CQ1_THDM::CQ1_THDM(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+    const int lepton_index = WCoefMapper::lepton_index_from_cq1(coef);
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(lepton_index);
+    const int lepton_yukawa_slot = WCoefMapper::thdm_lepton_yukawa_slot_from_index(lepton_index);
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_SI_SM", 3},              // ml
+            {"WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
             {"WPARAM_SI_SM", 4},              // sw2
             {"WPARAM_SI_BSM", 1},             // xh
             {"WPARAM_SI_BSM", 2},             // xH
@@ -352,20 +355,24 @@ CQ1_THDM::CQ1_THDM() : WilsonCoefficient("CQ1_THDM", GroupMapper::str(WGroup::BS
             {"WPARAM_SI_BSM", 7},             // lu
             {"WPARAM_SI_BSM", 8},             // ld
             {"WPARAM_SI_BSM", 9},             // alpha
-            {"WPARAM_SI_BSM", 10},            // le
+            {"WPARAM_SI_BSM", lepton_yukawa_slot}, // le(e/mu/tau)
             {"WPARAM_MATCH_SM", {2, 1}},      // xt
             {"WPARAM_MATCH_SM", {5, 1}},      // mass_b_muW
             {ParameterType::SM, "MASS", 24}   // m_W
         },
-        compute_LO,
+        [lepton_mass_slot, lepton_yukawa_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot, lepton_yukawa_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
 
 double CQ1_THDM::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1), WCoefMapper::thdm_lepton_yukawa_slot_from_index(1));
+}
+
+double CQ1_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepton_yukawa_slot) {
     double xh     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 1);
-    double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);
+    double ml     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot);
     double sw2    = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
     double xH     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 2);
     double xH0    = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 3);
@@ -373,7 +380,7 @@ double CQ1_THDM::compute_LO(const ParamSrc& src) {
     double lu     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 7);
     double ld     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
     double alpha  = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 9);
-    double le     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 10);
+    double le     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", lepton_yukawa_slot);
     double xt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
     double mW     = src.get_val(ParameterType::SM, "MASS", 24);
@@ -408,33 +415,40 @@ double CQ1_THDM::compute_LO(const ParamSrc& src) {
     return coeff_temp;
 }
 
-CQ2_THDM::CQ2_THDM() : WilsonCoefficient("CQ2_THDM", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+CQ2_THDM::CQ2_THDM(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+    const int lepton_index = WCoefMapper::lepton_index_from_cq2(coef);
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(lepton_index);
+    const int lepton_yukawa_slot = WCoefMapper::thdm_lepton_yukawa_slot_from_index(lepton_index);
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_SI_SM", 3},               // ml
+            {"WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
             {"WPARAM_SI_SM", 4},               // sw2
             {"WPARAM_SI_BSM", 2},              // xH
             {"WPARAM_SI_BSM", 4},              // xA
             {"WPARAM_SI_BSM", 7},              // lu
             {"WPARAM_SI_BSM", 8},              // ld
-            {"WPARAM_SI_BSM", 10},             // le
+            {"WPARAM_SI_BSM", lepton_yukawa_slot}, // le(e/mu/tau)
             {"WPARAM_MATCH_SM", {2, 1}},       // xt
             {"WPARAM_MATCH_SM", {5, 1}},       // mass_b_muW
             {ParameterType::SM, "MASS", 24}    // m_W
         },
-        compute_LO,
+        [lepton_mass_slot, lepton_yukawa_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot, lepton_yukawa_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
 double CQ2_THDM::compute_LO(const ParamSrc& src) {
-    double ml       = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3);
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1), WCoefMapper::thdm_lepton_yukawa_slot_from_index(1));
+}
+
+double CQ2_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepton_yukawa_slot) {
+    double ml       = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot);
     double sw2      = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
     double xH       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 2);
     double xA       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 4);
     double lu       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 7);
     double ld       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
-    double le       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 10);
+    double le       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", lepton_yukawa_slot);
     double xt       = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double mb_muW   = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
     double mW       = src.get_val(ParameterType::SM, "MASS", 24);

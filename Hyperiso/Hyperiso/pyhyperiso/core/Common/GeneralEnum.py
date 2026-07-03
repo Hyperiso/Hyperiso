@@ -47,6 +47,12 @@ class WCoeff(Enum):
     C8 = _CppWCoef.C8
     C9 = _CppWCoef.C9
     C10 = _CppWCoef.C10
+    CQ1_E = _CppWCoef.CQ1_E
+    CQ1_MU = _CppWCoef.CQ1_MU
+    CQ1_TA = _CppWCoef.CQ1_TA
+    CQ2_E = _CppWCoef.CQ2_E
+    CQ2_MU = _CppWCoef.CQ2_MU
+    CQ2_TA = _CppWCoef.CQ2_TA
     CQ1 = _CppWCoef.CQ1
     CQ2 = _CppWCoef.CQ2
     CP1 = _CppWCoef.CP1
@@ -59,6 +65,12 @@ class WCoeff(Enum):
     CP8 = _CppWCoef.CP8
     CP9 = _CppWCoef.CP9
     CP10 = _CppWCoef.CP10
+    CPQ1_E = _CppWCoef.CPQ1_E
+    CPQ1_MU = _CppWCoef.CPQ1_MU
+    CPQ1_TA = _CppWCoef.CPQ1_TA
+    CPQ2_E = _CppWCoef.CPQ2_E
+    CPQ2_MU = _CppWCoef.CPQ2_MU
+    CPQ2_TA = _CppWCoef.CPQ2_TA
     CPQ1 = _CppWCoef.CPQ1
     CPQ2 = _CppWCoef.CPQ2
     C_V1_bc = _CppWCoef.C_V1_bc

@@ -2341,7 +2341,8 @@ scalar_t CP10_susy::compute_LO(const ParamSrc& src) {
     return C10pH + C10pcharg;
 }
 
-CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
+CPQ1_susy::CPQ1_susy(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_SUSY", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cpq1(coef));
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19},
@@ -2351,7 +2352,7 @@ CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup:
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,1}},
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,2}},
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},
-            {ParameterType::WILSON, "WPARAM_SI_SM", 3},
+            {ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot},
             {ParameterType::WILSON, "WPARAM_SI_SM", 4},
             {ParameterType::SM, "MASS", 24},
             {ParameterType::SM, "MASS", 3},
@@ -2380,7 +2381,7 @@ CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup:
             {ParameterType::BSM, "VMIX", {0+1, 1+1}},
             {ParameterType::BSM, "VMIX", {1+1, 0+1}}
         },
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -2421,6 +2422,10 @@ CPQ1_susy::CPQ1_susy() : WilsonCoefficient("CPQ1_SUSY", GroupMapper::str(WGroup:
 }
 
 scalar_t CPQ1_susy::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CPQ1_susy::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
     double z = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 1);
@@ -2482,16 +2487,16 @@ scalar_t CPQ1_susy::compute_LO(const ParamSrc& src) {
     }		
     
     /* Wilson coefficients CQ1 and CQ2 prime */ 
-    double NQ1pH=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*xt*f30(xt,z);
+    double NQ1pH=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*xt*f30(xt,z);
     
-    double BQ1pH=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*f70(xt,z);
+    double BQ1pH=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*f70(xt,z);
     
     complex_t CQ1pH=(NQ1pH+BQ1pH)*src.get_val(ParameterType::SM, "MASS", 3)/sw2;
     
     double kappa = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 19);
     double BQ1pc=(BQ1pc1+BQ1pc2)*kappa*(mW)*mW/2./g2/g2/sw2;
 
-    NQ1pc*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*(src.get_val(ParameterType::SM, "MASS", 3))/sw2;
+    NQ1pc*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*(src.get_val(ParameterType::SM, "MASS", 3))/sw2;
 
 
     complex_t CQ1pcharg=NQ1pc+BQ1pc;
@@ -2504,13 +2509,14 @@ scalar_t CPQ1_susy::compute_LO(const ParamSrc& src) {
 }
 
 
-CPQ2_susy::CPQ2_susy() : WilsonCoefficient("CPQ2_SUSY", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
+CPQ2_susy::CPQ2_susy(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_SUSY", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cpq2(coef));
     matching_info[QCDOrder::LO] = {
         {
             {ParameterType::WILSON, "WPARAM_SI_BSM", 1},
             {ParameterType::WILSON, "WPARAM_SI_BSM", 19},
             {ParameterType::WILSON, "WPARAM_SI_BSM", 11},
-            {ParameterType::WILSON, "WPARAM_SI_SM", 3},
+            {ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot},
             {ParameterType::WILSON, "WPARAM_SI_SM", 4},
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,0}},
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,1}},
@@ -2557,7 +2563,7 @@ CPQ2_susy::CPQ2_susy() : WilsonCoefficient("CPQ2_SUSY", GroupMapper::str(WGroup:
             {ParameterType::BSM, "VMIX", {0+1, 0+1}},
             {ParameterType::BSM, "VMIX", {1+1, 0+1}}
         },
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -2597,6 +2603,10 @@ CPQ2_susy::CPQ2_susy() : WilsonCoefficient("CPQ2_SUSY", GroupMapper::str(WGroup:
 }
 
 scalar_t CPQ2_susy::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CPQ2_susy::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
     double z = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 1);
@@ -2657,9 +2667,9 @@ scalar_t CPQ2_susy::compute_LO(const ParamSrc& src) {
     } 		
 
     /* Wilson coefficients CQ1 and CQ2 prime */ 
-    double NQ1pH=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*xt*f30(xt,z);
+    double NQ1pH=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*xt*f30(xt,z);
     
-    double BQ1pH=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*f70(xt,z);
+    double BQ1pH=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*f70(xt,z);
     
     complex_t CQ1pH=(NQ1pH+BQ1pH)*src.get_val(ParameterType::SM, "MASS", 3)/sw2;
     
@@ -2668,7 +2678,7 @@ scalar_t CPQ2_susy::compute_LO(const ParamSrc& src) {
     
     double BQ2pc=(BQ1pc1-BQ1pc2)*kappa*(mW)*mW/2./g2/g2/sw2;
 
-    NQ2pc*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*(src.get_val(ParameterType::SM, "MASS", 3))/sw2;
+    NQ2pc*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*(src.get_val(ParameterType::SM, "MASS", 3))/sw2;
 
 
     complex_t CQ2pcharg=NQ2pc+BQ2pc;
@@ -2676,10 +2686,11 @@ scalar_t CPQ2_susy::compute_LO(const ParamSrc& src) {
     return (CQ2pH+CQ2pcharg)/epsfac;
 }
 
-CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)){
+CQ1_susy::CQ1_susy(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_SUSY", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)){
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cq1(coef));
     matching_info[QCDOrder::LO] = {
         {}, // sources seront insérées ensuite par boucle
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -2694,7 +2705,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::BS
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 8});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 9});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 11});
-    sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", 3});
+    sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", 4});
     // sources.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1});
     sources.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", {2,0}});
@@ -2789,7 +2800,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::BS
 
     matching_info[QCDOrder::NLO] = {
         {}, // les sources sont ajoutées juste après
-        compute_NLO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_NLO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::NLO)
     };
 
@@ -2805,7 +2816,7 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::BS
     // sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 8});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 9});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 11});
-    sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", 3});
+    sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", 4});
     // sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}});
@@ -2917,6 +2928,10 @@ CQ1_susy::CQ1_susy() : WilsonCoefficient("CQ1_SUSY", GroupMapper::str(WGroup::BS
 }
 
 scalar_t CQ1_susy::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CQ1_susy::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
     double lu = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 7);
@@ -2983,7 +2998,7 @@ scalar_t CQ1_susy::compute_LO(const ParamSrc& src) {
     complex_t BQ10c=(BQ10c1+BQ10c2)*kappa*mW*mW/2./g2/g2/sw2;
     // printf("BQ10c1 : %.14lf\n", BQ10c1);
     // printf("BQ10c2 : %.14lf\n", BQ10c2);
-    NQ10c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ10c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
     double le = -tanb;
     double G1=-3./4.+ld*lu*F4SP(xt,xH)+lu*lu*F5SP(xt,xH);
     double G2=ld*(ld*lu+1.)*F6SP(xt,xH)-ld*lu*lu*F7SP(xt,xH)
@@ -2993,7 +3008,7 @@ scalar_t CQ1_susy::compute_LO(const ParamSrc& src) {
     +xt/2./xh*(sin(alpha-beta)+cos(alpha-beta)*le)*(sin(alpha-beta)*G1+cos(alpha-beta)*G2)
     +xt/2./xH0*(cos(alpha-beta)-sin(alpha-beta)*le)*(cos(alpha-beta)*G1-sin(alpha-beta)*G2);
     complex_t CQ1H_0=CSc_2HDM(xH,xt,lu,ld,le)+CSn_2HDM;
-    CQ1H_0*=(src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*mass_b_muW/mW/mW)/sw2;
+    CQ1H_0*=(src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*mass_b_muW/mW/mW)/sw2;
 
     // printf("sw2 = %.9lf\n", sw2);
 	// printf("mass_b_muW = %.9lf\n", mass_b_muW);
@@ -3121,14 +3136,14 @@ scalar_t CQ1_susy::compute_LO(const ParamSrc& src) {
                 }
         }
     
-        CQ1H*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
-        CQ2H*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
+        CQ1H*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
+        CQ2H*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
         
         // complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/g2/mW*tanb*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)};
     
             
-        CQ1c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
-        CQ2c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;		
+        CQ1c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
+        CQ2c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
     
         coeff_temp = (CQ1H+CQ1c)*mass_b_muW/sw2/epsfac;
 
@@ -3137,6 +3152,10 @@ scalar_t CQ1_susy::compute_LO(const ParamSrc& src) {
 }
 
 scalar_t CQ1_susy::compute_NLO(const ParamSrc& src) {
+    return compute_NLO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CQ1_susy::compute_NLO(const ParamSrc& src, int lepton_mass_slot) {
     // LOG_INFO("CQ1_susy::NLO 1");
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
@@ -3166,8 +3185,8 @@ scalar_t CQ1_susy::compute_NLO(const ParamSrc& src) {
     double kappa = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 19);
     double epsfac = src.get_val(ParameterType::WILSON, "EPSILON_SUSY", 5);
 
-    complex_t NQ11H=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*(f141(xt,z)+8.*xt*(f30(xt,z)+xt*(f30(xt*1.0001,z)-f30(xt*0.9999,z))/0.0002)*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
-    complex_t BQ11H=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*(f111(xt,z)+8.*(f70(xt*1.0001,z)-f70(xt*0.9999,z))/0.0002*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
+    complex_t NQ11H=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*(f141(xt,z)+8.*xt*(f30(xt,z)+xt*(f30(xt*1.0001,z)-f30(xt*0.9999,z))/0.0002)*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
+    complex_t BQ11H=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*(f111(xt,z)+8.*(f70(xt*1.0001,z)-f70(xt*0.9999,z))/0.0002*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
     complex_t CQ1H_1=(NQ11H+BQ11H)*mass_b_muW/sw2;
     // complex_t CQ2H_1=-CQ1H_1;
 
@@ -3276,8 +3295,8 @@ scalar_t CQ1_susy::compute_NLO(const ParamSrc& src) {
     // complex_t BQ21c=-(BQ11c1-BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
 
 
-    NQ11c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
-    NQ21c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ11c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ21c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
     
     complex_t CQ1charg_1=NQ11c+BQ11c;
     
@@ -3290,9 +3309,9 @@ scalar_t CQ1_susy::compute_NLO(const ParamSrc& src) {
     // complex_t BQ21f=-(BQ11f1-BQ11f2)*2./3.*kappa/g2/g2/sw2;
     
     
-    NQ11f*=-4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ11f*=-4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
 
-    NQ21f*=4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ21f*=4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
 
 
     complex_t CQ1four_1=NQ11f+BQ11f;
@@ -3304,10 +3323,11 @@ scalar_t CQ1_susy::compute_NLO(const ParamSrc& src) {
     return coeff_temp;
 }
 
-CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+CQ2_susy::CQ2_susy(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_SUSY", GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING)) {
+    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cq2(coef));
     matching_info[QCDOrder::LO] = {
         {}, // sources
-        compute_LO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::LO)
     };
 
@@ -3324,7 +3344,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::BS
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 8});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 9});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 11});
-    sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", 3});
+    sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", 4});
     sources.insert({ParameterType::WILSON, "WPARAM_SI_SM", 5});
     sources.insert({ParameterType::WILSON, "WPARAM_RUN_SM", 1});
@@ -3435,7 +3455,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::BS
 
     matching_info[QCDOrder::NLO] = {
         {}, // sources
-        compute_NLO,
+        [lepton_mass_slot](const ParamSrc& src) { return compute_NLO(src, lepton_mass_slot); },
         get_lhaid_from_name(QCDOrder::NLO)
     };
 
@@ -3451,7 +3471,7 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::BS
     // sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 8});
     // sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 9});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_BSM", 11});
-    sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", 3});
+    sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_SI_SM", 4});
     // sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_BSM", 1});
     sources_NLO.insert({ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}});
@@ -3563,6 +3583,10 @@ CQ2_susy::CQ2_susy() : WilsonCoefficient("CQ2_SUSY", GroupMapper::str(WGroup::BS
 }
 
 scalar_t CQ2_susy::compute_LO(const ParamSrc& src) {
+    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CQ2_susy::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
     double lu = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 7);
@@ -3640,9 +3664,9 @@ scalar_t CQ2_susy::compute_LO(const ParamSrc& src) {
     double CPn_2HDM=xt*(-le*(ld*F1SP(xt,xH)+lu*F2SP(xt,xH))+le*lu*F3SP(xt,xH))+xt/2./xA*(le)*G3;
 
     double CQ2H_0=CPc_2HDM(xH,xt,lu,ld,le,sw2)+CPn_2HDM;
-    CQ2H_0*=(src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*mass_b_muW/mW/mW)/sw2;
+    CQ2H_0*=(src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*mass_b_muW/mW/mW)/sw2;
 
-    NQ20c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ20c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
 
     complex_t CQ2charg_0=NQ20c+BQ20c;
 
@@ -3751,27 +3775,27 @@ scalar_t CQ2_susy::compute_LO(const ParamSrc& src) {
                 }
         }
     
-        CQ1H*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
-        CQ2H*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
+        CQ1H*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
+        CQ2H*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
         
         complex_t CAH={0,-lambdaNMSSM*AlambdaNSSM/g2/mW*tanb*f30(mH*mH/mass_top_muW/mass_top_muW,mW*mW/mass_top_muW/mass_top_muW)};
     
             
-        CQ1c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;
-        CQ2c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)/4.*tanb*tanb;		
+        CQ1c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
+        CQ2c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)/4.*tanb*tanb;
     
         coeff_temp = (CQ2H+CQ2c)*mass_b_muW/sw2/epsfac;
 
         complex_t CA=CAH+CAc;
 
-        if(src.get_val(ParameterType::BSM, "MASS", 36)>Q_match) coeff_temp+=-v_deltam_s/2.*mass_b_muW/sw2*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*CA/src.get_val(ParameterType::BSM, "MASS", 36)/src.get_val(ParameterType::BSM, "MASS", 36);
+        if(src.get_val(ParameterType::BSM, "MASS", 36)>Q_match) coeff_temp+=-v_deltam_s/2.*mass_b_muW/sw2*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*CA/src.get_val(ParameterType::BSM, "MASS", 36)/src.get_val(ParameterType::BSM, "MASS", 36);
 
         
         if((src.get_val(ParameterType::BSM, "MASS", 36)>(*Parameters::GetInstance())("QCD", LhaID(5, 1)))&&(src.get_val(ParameterType::BSM, "MASS", 36)<Q_match ))
         {	
             double alphas_Ma1  = QCDHelper::alpha_s(src.get_val(ParameterType::BSM, "MASS", 36));	
             double mass_b_ma1=QCDHelper::msbar_mass(5, src.get_val(ParameterType::BSM, "MASS", 36));
-            coeff_temp+=-v_deltam_s/2.*mass_b_ma1/sw2*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*CA/src.get_val(ParameterType::BSM, "MASS", 36)/src.get_val(ParameterType::BSM, "MASS", 36) *pow(alphas_Ma1/src.get_val(ParameterType::WILSON, "WPARAM_RUN_SM", 1),-4./src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 5));
+            coeff_temp+=-v_deltam_s/2.*mass_b_ma1/sw2*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*CA/src.get_val(ParameterType::BSM, "MASS", 36)/src.get_val(ParameterType::BSM, "MASS", 36) *pow(alphas_Ma1/src.get_val(ParameterType::WILSON, "WPARAM_RUN_SM", 1),-4./src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 5));
         }
         
 
@@ -3782,6 +3806,10 @@ scalar_t CQ2_susy::compute_LO(const ParamSrc& src) {
 
 
 scalar_t CQ2_susy::compute_NLO(const ParamSrc& src) {
+    return compute_NLO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+}
+
+scalar_t CQ2_susy::compute_NLO(const ParamSrc& src, int lepton_mass_slot) {
     LOG_INFO("CQ2_susy::NLO 1");
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1});
 
@@ -3808,8 +3836,8 @@ scalar_t CQ2_susy::compute_NLO(const ParamSrc& src) {
     double kappa = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 19);
     double epsfac = src.get_val(ParameterType::WILSON, "EPSILON_SUSY", 5);
 
-    complex_t NQ11H=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*(f141(xt,z)+8.*xt*(f30(xt,z)+xt*(f30(xt*1.0001,z)-f30(xt*0.9999,z))/0.0002)*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
-    complex_t BQ11H=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/4./mW/mW*(f111(xt,z)+8.*(f70(xt*1.0001,z)-f70(xt*0.9999,z))/0.0002*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
+    complex_t NQ11H=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*(f141(xt,z)+8.*xt*(f30(xt,z)+xt*(f30(xt*1.0001,z)-f30(xt*0.9999,z))/0.0002)*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
+    complex_t BQ11H=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/4./mW/mW*(f111(xt,z)+8.*(f70(xt*1.0001,z)-f70(xt*0.9999,z))/0.0002*log(Q_match*Q_match/mass_top_muW/mass_top_muW));
     complex_t CQ1H_1=(NQ11H+BQ11H)*mass_b_muW/sw2;
     complex_t CQ2H_1=-CQ1H_1;
 
@@ -3919,8 +3947,8 @@ scalar_t CQ2_susy::compute_NLO(const ParamSrc& src) {
     complex_t BQ21c=-(BQ11c1-BQ11c2)*kappa*mW*mW/2./g2/g2/sw2;
 
 
-    NQ11c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
-    NQ21c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ11c*=src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ21c*=-src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
     
     complex_t CQ2charg_1=NQ21c+BQ21c;
         
@@ -3928,9 +3956,9 @@ scalar_t CQ2_susy::compute_NLO(const ParamSrc& src) {
     complex_t BQ21f=-(BQ11f1-BQ11f2)*2./3.*kappa/g2/g2/sw2;
     
     
-    NQ11f*=-4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ11f*=-4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
 
-    NQ21f*=4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 3)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
+    NQ21f*=4./3.*src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot)*(tanb)*tanb/mW/mW/(mH*mH-mW*mW)*aY*mass_b_muW/sw2;
 
     complex_t CQ2four_1=NQ21f+BQ21f;
 

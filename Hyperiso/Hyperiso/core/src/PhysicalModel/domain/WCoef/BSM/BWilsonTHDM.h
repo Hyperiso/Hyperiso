@@ -6,6 +6,7 @@
 #include "THDMParametersHelper.h"
 #include "Math.h"
 #include "Utils.h"
+#include "wcoef_ids.hpp"
 #include "ChargedCurrentsWilsonGroup.h"
 
 
@@ -164,7 +165,7 @@ public:
 
 class CQ1_THDM : public WilsonCoefficient {
 public:
-    CQ1_THDM();
+    explicit CQ1_THDM(WCoef coef = WCoef::CQ1_MU);
 
     
     
@@ -175,11 +176,12 @@ public:
     }
 
     static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepton_yukawa_slot);
 };
 
 class CQ2_THDM : public WilsonCoefficient {
 public:
-    CQ2_THDM();
+    explicit CQ2_THDM(WCoef coef = WCoef::CQ2_MU);
 
     
     
@@ -190,6 +192,7 @@ public:
     }
 
     static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepton_yukawa_slot);
 };
 
 class CP1_THDM : public WilsonCoefficient {
@@ -325,7 +328,7 @@ public:
 
 class CPQ1_THDM : public WilsonCoefficient {
 public:
-    CPQ1_THDM() : WilsonCoefficient("CPQ1_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ1_THDM(WCoef coef = WCoef::CPQ1_MU) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     
     
@@ -338,7 +341,7 @@ public:
 
 class CPQ2_THDM : public WilsonCoefficient {
 public:
-    CPQ2_THDM() : WilsonCoefficient("CPQ2_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ2_THDM(WCoef coef = WCoef::CPQ2_MU) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
 
     
     

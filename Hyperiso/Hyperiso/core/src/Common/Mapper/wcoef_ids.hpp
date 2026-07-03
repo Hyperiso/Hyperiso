@@ -5,6 +5,7 @@
 #include "Map.h"
 #include "hash_utils.hpp"
 #include "GeneralEnum.h"
+#include <stdexcept>
 #include "LhaID.h"
 
 /**
@@ -101,7 +102,7 @@ public:
      * @return Pair of FLHA base indices.
      */
     static std::pair<int,int> flha_base(WCoef e){
-        return wcoef_flha_mapping().at(e);
+        return wcoef_flha_mapping().at(canonical_flha_coef(e));
     }
 
     /**
@@ -116,6 +117,12 @@ public:
      * @throws std::runtime_error if @p id has no associated FLHA key.
      */
     static std::pair<int,int> flha_base(const WCoefId& id){
+        if (auto e = enum_of(id)) {
+            const WCoef canonical = canonical_flha_coef(*e);
+            auto it = wcoef_flha_mapping().find(canonical);
+            if (it != wcoef_flha_mapping().end()) return it->second;
+        }
+
         auto k = external_of(id);
         if (!k) throw std::runtime_error("No FLHA key for " + id.str());
         return *k; // std::pair<int,int>
@@ -136,8 +143,18 @@ public:
      * @param c Contribution type (SM / BSM / TOTAL).
      * @return Corresponding LhaID.
      */
+    static WCoef canonical_flha_coef(WCoef e) {
+        switch (e) {
+            case WCoef::CQ1:  return WCoef::CQ1_MU;
+            case WCoef::CQ2:  return WCoef::CQ2_MU;
+            case WCoef::CPQ1: return WCoef::CPQ1_MU;
+            case WCoef::CPQ2: return WCoef::CPQ2_MU;
+            default: return e;
+        }
+    }
+
     static LhaID flha_full(WCoef e, QCDOrder q, ContributionType c){
-        auto [x,y] = wcoef_flha_mapping().at(e);
+        auto [x,y] = wcoef_flha_mapping().at(canonical_flha_coef(e));
         return LhaID{x,y, int(q)-1, int(c)};
     }
 
@@ -184,6 +201,14 @@ public:
      * @throws std::runtime_error if @p id has no FLHA key.
      */
     static LhaID flha_full(const WCoefId& id, QCDOrder q, ContributionType c){
+        if (auto e = enum_of(id)) {
+            const WCoef canonical = canonical_flha_coef(*e);
+            auto it = wcoef_flha_mapping().find(canonical);
+            if (it != wcoef_flha_mapping().end()) {
+                return LhaID{it->second.first, it->second.second, int(q)-1, int(c)};
+            }
+        }
+
         auto k = external_of(id);
         if (!k) throw std::runtime_error("No FLHA key for "+id.str());
         return LhaID{k->first, k->second, int(q)-1, int(c)};
@@ -218,17 +243,117 @@ public:
         }; return g;
     }
 
-    /// @brief B'-group coefficients (primed + scalar primed).
+    static constexpr int lepton_mass_slot_from_index(int lepton_index) {
+        return 31 + lepton_index;
+    }
+
+    static constexpr int thdm_lepton_yukawa_slot_from_index(int lepton_index) {
+        return 101 + lepton_index;
+    }
+
+    static constexpr int lepton_index_from_pdg(int pdg) {
+        return pdg == 11 ? 0 : pdg == 13 ? 1 : pdg == 15 ? 2 : -1;
+    }
+
+
+    static int lepton_index_from_cq1(WCoef coef) {
+        switch (coef) {
+            case WCoef::CQ1_E: return 0;
+            case WCoef::CQ1_MU:
+            case WCoef::CQ1: return 1;
+            case WCoef::CQ1_TA: return 2;
+            default: throw std::out_of_range("Coefficient is not a CQ1 lepton-specific coefficient");
+        }
+    }
+
+    static int lepton_index_from_cq2(WCoef coef) {
+        switch (coef) {
+            case WCoef::CQ2_E: return 0;
+            case WCoef::CQ2_MU:
+            case WCoef::CQ2: return 1;
+            case WCoef::CQ2_TA: return 2;
+            default: throw std::out_of_range("Coefficient is not a CQ2 lepton-specific coefficient");
+        }
+    }
+
+    static int lepton_index_from_cpq1(WCoef coef) {
+        switch (coef) {
+            case WCoef::CPQ1_E: return 0;
+            case WCoef::CPQ1_MU:
+            case WCoef::CPQ1: return 1;
+            case WCoef::CPQ1_TA: return 2;
+            default: throw std::out_of_range("Coefficient is not a CPQ1 lepton-specific coefficient");
+        }
+    }
+
+    static int lepton_index_from_cpq2(WCoef coef) {
+        switch (coef) {
+            case WCoef::CPQ2_E: return 0;
+            case WCoef::CPQ2_MU:
+            case WCoef::CPQ2: return 1;
+            case WCoef::CPQ2_TA: return 2;
+            default: throw std::out_of_range("Coefficient is not a CPQ2 lepton-specific coefficient");
+        }
+    }
+
+    static WCoef cq1_for_lepton_index(int lepton_index) {
+        switch (lepton_index) {
+            case 0: return WCoef::CQ1_E;
+            case 1: return WCoef::CQ1_MU;
+            case 2: return WCoef::CQ1_TA;
+            default: throw std::out_of_range("Invalid zero-based lepton generation index for CQ1");
+        }
+    }
+
+    static WCoef cq2_for_lepton_index(int lepton_index) {
+        switch (lepton_index) {
+            case 0: return WCoef::CQ2_E;
+            case 1: return WCoef::CQ2_MU;
+            case 2: return WCoef::CQ2_TA;
+            default: throw std::out_of_range("Invalid zero-based lepton generation index for CQ2");
+        }
+    }
+
+    static WCoef cpq1_for_lepton_index(int lepton_index) {
+        switch (lepton_index) {
+            case 0: return WCoef::CPQ1_E;
+            case 1: return WCoef::CPQ1_MU;
+            case 2: return WCoef::CPQ1_TA;
+            default: throw std::out_of_range("Invalid zero-based lepton generation index for CPQ1");
+        }
+    }
+
+    static WCoef cpq2_for_lepton_index(int lepton_index) {
+        switch (lepton_index) {
+            case 0: return WCoef::CPQ2_E;
+            case 1: return WCoef::CPQ2_MU;
+            case 2: return WCoef::CPQ2_TA;
+            default: throw std::out_of_range("Invalid zero-based lepton generation index for CPQ2");
+        }
+    }
+
+    static bool is_cpq(WCoef c) {
+        return c == WCoef::CPQ1_E || c == WCoef::CPQ1_MU || c == WCoef::CPQ1_TA
+            || c == WCoef::CPQ2_E || c == WCoef::CPQ2_MU || c == WCoef::CPQ2_TA
+            || c == WCoef::CPQ1 || c == WCoef::CPQ2;
+    }
+
+    /// @brief B'-group coefficients (primed + lepton-specific scalar primed).
     static const std::vector<WCoef>& B_prime_group(){
         static const std::vector<WCoef> g = {
             WCoef::CP1,WCoef::CP2,WCoef::CP3,WCoef::CP4,WCoef::CP5,WCoef::CP6,
-            WCoef::CP7,WCoef::CP8,WCoef::CP9,WCoef::CP10,WCoef::CPQ1,WCoef::CPQ2
+            WCoef::CP7,WCoef::CP8,WCoef::CP9,WCoef::CP10,
+            WCoef::CPQ1_E,WCoef::CPQ1_MU,WCoef::CPQ1_TA,
+            WCoef::CPQ2_E,WCoef::CPQ2_MU,WCoef::CPQ2_TA
         }; return g;
     }
 
-    /// @brief Scalar B-group coefficients.
+    /// @brief Scalar B-group coefficients, split by charged-lepton generation.
     static const std::vector<WCoef>& B_scalar_group(){
-        static const std::vector<WCoef> g = { WCoef::CQ1, WCoef::CQ2 }; return g;
+        static const std::vector<WCoef> g = {
+            WCoef::CQ1_E,WCoef::CQ1_MU,WCoef::CQ1_TA,
+            WCoef::CQ2_E,WCoef::CQ2_MU,WCoef::CQ2_TA
+        }; return g;
     }
 
     /// @brief Charged-current Wilsons for b -> c l ν.
@@ -318,6 +443,9 @@ public:
      * @throws std::out_of_range if the coefficient is not assigned to any group.
      */
     static WGroup group_of(WCoef c){
+        if (c == WCoef::CQ1 || c == WCoef::CQ2) return WGroup::BScalar;
+        if (c == WCoef::CPQ1 || c == WCoef::CPQ2) return WGroup::BPrime;
+
         static const std::map<WCoef, WGroup> inv = []{
             std::map<WCoef, WGroup> m;
 

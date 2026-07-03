@@ -1,4 +1,5 @@
 #include <algorithm>
+#include "wcoef_ids.hpp"
 #include <exception>
 #include <mutex>
 #include <thread>
@@ -152,10 +153,7 @@ void BsPhiDecay::fill_wilson_cache() {
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
 
-    WCoef bp_cached[5] {
-        WCoef::CP7, WCoef::CP9, WCoef::CP10,
-        WCoef::CPQ1, WCoef::CPQ2
-    };
+    // All BPrime coefficients are cached because CPQ1/CPQ2 are lepton-specific.
 
     for (const auto& [id, val] : b_wilsons) {
         cache.C[id] = val;
@@ -163,8 +161,8 @@ void BsPhiDecay::fill_wilson_cache() {
     for (const auto& [id, val] : bq_wilsons) {
         cache.C[id] = val;
     }
-    for (auto id : bp_cached) {
-        cache.C[id] = bp_wilsons.at(id);
+    for (const auto& [id, val] : bp_wilsons) {
+        cache.C[id] = val;
     }
 }
 
@@ -472,7 +470,7 @@ complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
 
 complex_t BsPhiDecay::A_t_low(double q2, bool bar) {
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
-    complex_t CQ2 = cache.C[WCoef::CQ2] - cache.C[WCoef::CPQ2];
+    complex_t CQ2 = cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))] - cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))];
     if (bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
@@ -489,7 +487,7 @@ complex_t BsPhiDecay::A_t_low(double q2, bool bar) {
 }
 
 complex_t BsPhiDecay::A_S_low(double q2, bool bar) {
-    complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
+    complex_t CQ1 = cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))] - cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))];
     if (bar) CQ1 = std::conj(CQ1);
 
     complex_t F;
@@ -577,7 +575,7 @@ complex_t BsPhiDecay::A_0_high(double q2, double sign, bool bar) {
 
 complex_t BsPhiDecay::A_t_high(double q2, bool bar) {
     complex_t C10 = cache.C[WCoef::C10] - cache.C[WCoef::CP10];
-    complex_t CQ2 = cache.C[WCoef::CQ2] - cache.C[WCoef::CPQ2];
+    complex_t CQ2 = cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))] - cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))];
     if (!bar) {
         C10 = std::conj(C10);
         CQ2 = std::conj(CQ2);
@@ -586,7 +584,7 @@ complex_t BsPhiDecay::A_t_high(double q2, bool bar) {
 }
 
 complex_t BsPhiDecay::A_S_high(double q2, bool bar) {
-    complex_t CQ1 = cache.C[WCoef::CQ1] - cache.C[WCoef::CPQ1];
+    complex_t CQ1 = cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))] - cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))];
     if (!bar) CQ1 = std::conj(CQ1);
     return -2. * N(q2, bar) * sqrt(lambda(q2)) * CQ1 / (cache.m_b_m_b + cache.m_s) * cache.ff_calculator.get(BV_FF::A0, q2) * (1. + cache.A_had_err_high[7]);
 }

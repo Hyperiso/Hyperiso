@@ -158,8 +158,10 @@ void register_BPrime(CoefficientRegistry& reg) {
     REG(WCoef::CP8,  SM, Builtin, std::make_shared<CP8>());
     REG(WCoef::CP9,  SM, Builtin, std::make_shared<CP9>());
     REG(WCoef::CP10, SM, Builtin, std::make_shared<CP10>());
-    REG(WCoef::CPQ1, SM, Builtin, std::make_shared<CPQ1>());
-    REG(WCoef::CPQ2, SM, Builtin, std::make_shared<CPQ2>());
+    for (WCoef c : {WCoef::CPQ1_E, WCoef::CPQ1_MU, WCoef::CPQ1_TA})
+        REG(c, SM, Builtin, std::make_shared<CPQ1>(coef));
+    for (WCoef c : {WCoef::CPQ2_E, WCoef::CPQ2_MU, WCoef::CPQ2_TA})
+        REG(c, SM, Builtin, std::make_shared<CPQ2>(coef));
 
     REG(WCoef::CP1,  SUSY, Builtin, std::make_shared<CP1_susy>());
     REG(WCoef::CP2,  SUSY, Builtin, std::make_shared<CP2_susy>());
@@ -171,8 +173,10 @@ void register_BPrime(CoefficientRegistry& reg) {
     REG(WCoef::CP8,  SUSY, Builtin, std::make_shared<CP8_susy>());
     REG(WCoef::CP9,  SUSY, Builtin, std::make_shared<CP9_susy>());
     REG(WCoef::CP10, SUSY, Builtin, std::make_shared<CP10_susy>());
-    REG(WCoef::CPQ1, SUSY, Builtin, std::make_shared<CPQ1_susy>());
-    REG(WCoef::CPQ2, SUSY, Builtin, std::make_shared<CPQ2_susy>());
+    for (WCoef c : {WCoef::CPQ1_E, WCoef::CPQ1_MU, WCoef::CPQ1_TA})
+        REG(c, SUSY, Builtin, std::make_shared<CPQ1_susy>(coef));
+    for (WCoef c : {WCoef::CPQ2_E, WCoef::CPQ2_MU, WCoef::CPQ2_TA})
+        REG(c, SUSY, Builtin, std::make_shared<CPQ2_susy>(coef));
 
     // THDM builtin
     REG(WCoef::CP1,  THDM, Builtin, std::make_shared<CP1_THDM>());
@@ -185,31 +189,57 @@ void register_BPrime(CoefficientRegistry& reg) {
     REG(WCoef::CP8,  THDM, Builtin, std::make_shared<CP8_THDM>());
     REG(WCoef::CP9,  THDM, Builtin, std::make_shared<CP9_THDM>());
     REG(WCoef::CP10, THDM, Builtin, std::make_shared<CP10_THDM>());
-    REG(WCoef::CPQ1, THDM, Builtin, std::make_shared<CPQ1_THDM>());
-    REG(WCoef::CPQ2, THDM, Builtin, std::make_shared<CPQ2_THDM>());
+    for (WCoef c : {WCoef::CPQ1_E, WCoef::CPQ1_MU, WCoef::CPQ1_TA})
+        REG(c, THDM, Builtin, std::make_shared<CPQ1_THDM>(coef));
+    for (WCoef c : {WCoef::CPQ2_E, WCoef::CPQ2_MU, WCoef::CPQ2_TA})
+        REG(c, THDM, Builtin, std::make_shared<CPQ2_THDM>(coef));
 
     for (WCoef c : {WCoef::CP1,WCoef::CP2,WCoef::CP3,WCoef::CP4,WCoef::CP5,
                     WCoef::CP6,WCoef::CP7,WCoef::CP8,WCoef::CP9,WCoef::CP10,
-                    WCoef::CPQ1,WCoef::CPQ2}) {
+                    WCoef::CPQ1_E,WCoef::CPQ1_MU,WCoef::CPQ1_TA,
+                    WCoef::CPQ2_E,WCoef::CPQ2_MU,WCoef::CPQ2_TA}) {
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
     }
+
+    REG(WCoef::CPQ1, SM, Builtin, std::make_shared<CPQ1>(WCoef::CPQ1_MU));
+    REG(WCoef::CPQ2, SM, Builtin, std::make_shared<CPQ2>(WCoef::CPQ2_MU));
+    REG(WCoef::CPQ1, SUSY, Builtin, std::make_shared<CPQ1_susy>(WCoef::CPQ1_MU));
+    REG(WCoef::CPQ2, SUSY, Builtin, std::make_shared<CPQ2_susy>(WCoef::CPQ2_MU));
+    REG(WCoef::CPQ1, THDM, Builtin, std::make_shared<CPQ1_THDM>(WCoef::CPQ1_MU));
+    REG(WCoef::CPQ2, THDM, Builtin, std::make_shared<CPQ2_THDM>(WCoef::CPQ2_MU));
 
 }
 
 void register_BScalar(CoefficientRegistry& reg) {
     using enum Model; using enum Backend;
 
-    REG(WCoef::CQ1, SM, Builtin, std::make_shared<CQ1>());
-    REG(WCoef::CQ2, SM, Builtin, std::make_shared<CQ2>());
+    for (WCoef c : {WCoef::CQ1_E, WCoef::CQ1_MU, WCoef::CQ1_TA})
+        REG(c, SM, Builtin, std::make_shared<CQ1>(coef));
+    for (WCoef c : {WCoef::CQ2_E, WCoef::CQ2_MU, WCoef::CQ2_TA})
+        REG(c, SM, Builtin, std::make_shared<CQ2>(coef));
 
-    REG(WCoef::CQ1, SUSY, Builtin, std::make_shared<CQ1_susy>());
-    REG(WCoef::CQ2, SUSY, Builtin, std::make_shared<CQ2_susy>());
+    for (WCoef c : {WCoef::CQ1_E, WCoef::CQ1_MU, WCoef::CQ1_TA})
+        REG(c, SUSY, Builtin, std::make_shared<CQ1_susy>(coef));
+    for (WCoef c : {WCoef::CQ2_E, WCoef::CQ2_MU, WCoef::CQ2_TA})
+        REG(c, SUSY, Builtin, std::make_shared<CQ2_susy>(coef));
 
-    REG(WCoef::CQ1, THDM, Builtin, std::make_shared<CQ1_THDM>());
-    REG(WCoef::CQ2, THDM, Builtin, std::make_shared<CQ2_THDM>());
+    for (WCoef c : {WCoef::CQ1_E, WCoef::CQ1_MU, WCoef::CQ1_TA})
+        REG(c, THDM, Builtin, std::make_shared<CQ1_THDM>(coef));
+    for (WCoef c : {WCoef::CQ2_E, WCoef::CQ2_MU, WCoef::CQ2_TA})
+        REG(c, THDM, Builtin, std::make_shared<CQ2_THDM>(coef));
 
-    REG(WCoef::CQ1, SM, Marty, make_marty(ctx, WCoef::CQ1));
-    REG(WCoef::CQ2, SM, Marty, make_marty(ctx, WCoef::CQ2));
+    for (WCoef c : {WCoef::CQ1_E, WCoef::CQ1_MU, WCoef::CQ1_TA,
+                    WCoef::CQ2_E, WCoef::CQ2_MU, WCoef::CQ2_TA})
+        REG(c, SM, Marty, make_marty(ctx, coef));
+
+    // Backward-compatible muonic aliases. They are intentionally not part of
+    // the built-in BScalar/BPrime groups, but still resolve when requested.
+    REG(WCoef::CQ1, SM, Builtin, std::make_shared<CQ1>(WCoef::CQ1_MU));
+    REG(WCoef::CQ2, SM, Builtin, std::make_shared<CQ2>(WCoef::CQ2_MU));
+    REG(WCoef::CQ1, SUSY, Builtin, std::make_shared<CQ1_susy>(WCoef::CQ1_MU));
+    REG(WCoef::CQ2, SUSY, Builtin, std::make_shared<CQ2_susy>(WCoef::CQ2_MU));
+    REG(WCoef::CQ1, THDM, Builtin, std::make_shared<CQ1_THDM>(WCoef::CQ1_MU));
+    REG(WCoef::CQ2, THDM, Builtin, std::make_shared<CQ2_THDM>(WCoef::CQ2_MU));
 
     
 }

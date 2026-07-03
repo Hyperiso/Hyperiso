@@ -1,4 +1,5 @@
 #include "BKllDecay.h"
+#include "wcoef_ids.hpp"
 
 #include <algorithm>
 #include <exception>
@@ -114,19 +115,14 @@ void BKllDecay::fill_wilson_cache() {
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
 
-    WCoef bp_cached[6] {
-        WCoef::CP7, WCoef::CP8, WCoef::CP9,
-        WCoef::CP10, WCoef::CPQ1, WCoef::CPQ2
-    };
-
     for (const auto& [id, val] : b_wilsons) {
         cache.C[id] = val;
     }
     for (const auto& [id, val] : bq_wilsons) {
         cache.C[id] = val;
     }
-    for (auto id : bp_cached) {
-        cache.C[id] = bp_wilsons.at(id);
+    for (const auto& [id, val] : bp_wilsons) {
+        cache.C[id] = val;
     }
 }
 
@@ -364,7 +360,7 @@ complex_t BKllDecay::F_P_low(double q2) {
     // printf("Delta_P_0(s = %.5f GeV²) = %.4e\n", q2, cache.qcdf_calculator.Delta_P_0(q2));
 	// printf("f0_fp(s = %.5f GeV²) = %.4e\n", q2, f0_fp);
 
-    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
+    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * f0_fp * (cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))] + cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))])
                     - cache.m_l * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]) * (1. - (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / q2 * (f0_fp - 1.)));
 }
 
@@ -378,7 +374,7 @@ complex_t BKllDecay::F_S_low(double q2) {
         ff = cache.ff_calculator.get(BP_FF::F_0, q2);
     }
 
-    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * (cache.C[WCoef::CQ1] + cache.C[WCoef::CPQ1]) * ff;
+    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_mu_b - cache.m_s)) * (cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))] + cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))]) * ff;
 }
 
 complex_t BKllDecay::C7_eff(double q2) {
@@ -417,13 +413,13 @@ complex_t BKllDecay::F_A_high(double q2) {
 complex_t BKllDecay::F_P_high(double q2) {
     double f_p = cache.ff_calculator.get(BP_FF::F_PLUS, q2);
     double f0_fp = cache.ff_calculator.get(BP_FF::F_0, q2) / f_p;
-    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * f0_fp * (cache.C[WCoef::CQ2] + cache.C[WCoef::CPQ2])
+    return f_p * ((std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * f0_fp * (cache.C[WCoefMapper::cq2_for_lepton_index(static_cast<int>(cfg.gen))] + cache.C[WCoefMapper::cpq2_for_lepton_index(static_cast<int>(cfg.gen))])
                     - cache.m_l * (cache.C[WCoef::C10] + cache.C[WCoef::CP10]) * (1. - (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / q2 * (f0_fp - 1.)));
 }
 
 complex_t BKllDecay::F_S_high(double q2) {
     double ff = cache.ff_calculator.get(BP_FF::F_0, q2);
-    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * (cache.C[WCoef::CQ1] + cache.C[WCoef::CPQ1]) * ff;
+    return (std::pow(cache.m_B, 2) - std::pow(cache.m_K, 2)) / (2 * (cache.m_b_m_b - cache.m_s)) * (cache.C[WCoefMapper::cq1_for_lepton_index(static_cast<int>(cfg.gen))] + cache.C[WCoefMapper::cpq1_for_lepton_index(static_cast<int>(cfg.gen))]) * ff;
 }
 
 complex_t BKllDecay::interpolate(double q2, complex_t val_low, complex_t val_high) {

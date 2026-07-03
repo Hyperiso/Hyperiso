@@ -2,10 +2,11 @@
 #define BSCALAR_WILSON_H
 
 #include "Wilson.h"
+#include "wcoef_ids.hpp"
 
 class CQ1 : public WilsonCoefficient {
 public:
-    CQ1();
+    explicit CQ1(WCoef coef = WCoef::CQ1_MU);
     
      
     void NNLO_calculation() {} 
@@ -15,11 +16,12 @@ public:
     }
 
     static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot);
 };
 
 class CQ2 : public WilsonCoefficient {
 public:
-    CQ2();
+    explicit CQ2(WCoef coef = WCoef::CQ2_MU);
 
     
      
@@ -30,6 +32,7 @@ public:
     }
 
     static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot);
 };
 
 #endif
