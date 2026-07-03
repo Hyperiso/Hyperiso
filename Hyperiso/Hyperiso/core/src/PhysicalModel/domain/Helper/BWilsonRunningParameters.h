@@ -88,7 +88,11 @@ struct BWilsonRunningParameters {
 	static const std::array<std::array<double, 8>, 8> std_to_trad_LO;
 	static const std::array<std::array<double, 8>, 8> std_to_trad_NLO;
 
-	static constexpr double exp_prime_running[12] = {0, 0, 0, 0, 0, 0, 16./23, 14./23, 0, 0, -12./23, -12./23};
+	static constexpr std::array<double, 16> exp_prime_running = {
+        0, 0, 0, 0, 0, 0, 16./23, 14./23, 0, 0,
+        -12./23, -12./23, -12./23,
+        -12./23, -12./23, -12./23
+    };
 };
 
 #endif // BWILSONRUNNINGPARAMETERS_H
