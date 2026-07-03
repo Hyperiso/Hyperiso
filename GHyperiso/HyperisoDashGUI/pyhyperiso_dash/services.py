@@ -872,8 +872,8 @@ def prune_dependency(action: str, scope: str, param_type_name: str, block_name: 
 
 _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
     "B": [f"C{i}" for i in range(1, 11)],
-    "BPrime": [*(f"CP{i}" for i in range(1, 11)), "CPQ1", "CPQ2"],
-    "BScalar": ["CQ1", "CQ2"],
+    "BPrime": [*(f"CP{i}" for i in range(1, 11)), "CPQ1_E", "CPQ1_MU", "CPQ1_TA", "CPQ2_E", "CPQ2_MU", "CPQ2_TA"],
+    "BScalar": ["CQ1_E", "CQ1_MU", "CQ1_TA", "CQ2_E", "CQ2_MU", "CQ2_TA"],
     "CC_bc": ["C_V1_bc", "C_V2_bc", "C_S1_bc", "C_S2_bc", "C_T_bc"],
 }
 
