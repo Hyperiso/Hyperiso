@@ -74,6 +74,10 @@ void BPFFCalculator::load_FF_params(BP_FF_Src src) {
         this->alpha_ai[BP_FF::F_T][3] = (2 * this->alpha_ai[BP_FF::F_T][2] + this->alpha_ai[BP_FF::F_T][1]) / 3;
         this->L_chi = (*iobspp_sm)({ParameterType::DECAY, this->src_block, 16}, DataType::VALUE);
     }
+
+    if (src == BP_FF_Src::GKvD_SR_LAT || src == BP_FF_Src::GKvD_SR) {
+        this->alpha_ai[BP_FF::F_0][0] = this->alpha_ai[BP_FF::F_PLUS][0];
+    }
 }
 
 double BPFFCalculator::pole(double q2, double m_R) {

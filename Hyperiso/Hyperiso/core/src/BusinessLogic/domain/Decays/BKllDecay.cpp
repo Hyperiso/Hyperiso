@@ -105,32 +105,6 @@ void BKllDecay::load_params() {
     }
 
     load_cfg_dependent_params();
-
-    // printf("alpha_em = %.4e\n", cache.alpha_em);
-    // printf("m_l = %.4e\n", cache.m_l);
-    // printf("m_s = %.4e\n", cache.m_s);
-    // printf("mu_b = %.4e\n", cache.mu_b);
-    // printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
-    // printf("m_c(mu_b) = %.4e\n", cache.m_c_mu_b);
-    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
-    // printf("m_b_PS = %.4e\n", cache.m_b_PS);
-    // printf("L_b = %.4e\n", cache.L_b);
-    // printf("m_B = %.4e\n", cache.m_B);
-    // printf("m_K = %.4e\n", cache.m_K);
-    // printf("Delta_M = %.4e\n", cache.Delta_M);
-    // printf("lambda_hat_u = %.4e + %.4e i\n", cache.lambda_hat_u.real(), cache.lambda_hat_u.imag());
-    // printf("N_0 = %.4e\n", cache.N_0);
-
-    // printf("f_0(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_0, 1.0));
-    // printf("f_+(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, 1.0));
-    // printf("f_T(s = 1.0 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, 1.0));
-
-    // printf("T_P = %.4e + %.4e i\n", real(cache.qcdf_calculator.T_P(1.0, false)), imag(cache.qcdf_calculator.T_P(1.0, false)));
-
-    // printf("F_A(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_A(1.0)), imag(F_A(1.0)));
-    // printf("F_V(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_V(1.0)), imag(F_V(1.0)));
-    // printf("F_S(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_S(1.0)), imag(F_S(1.0)));
-    // printf("F_P(s = 1.0 GeV²) = %.4e + %.4e i\n", real(F_P(1.0)), imag(F_P(1.0)));
 }
 
 void BKllDecay::fill_wilson_cache() {
@@ -264,6 +238,38 @@ void BKllDecay::load_cfg_dependent_params() {
             std::rethrow_exception(first_exception);
         }
     }
+
+    // printf("alpha_em = %.4e\n", cache.alpha_em);
+    // printf("m_l = %.4e\n", cache.m_l);
+    // printf("m_s = %.4e\n", cache.m_s);
+    // printf("mu_b = %.4e\n", cache.mu_b);
+    // printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
+    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
+    // printf("m_b_PS = %.4e\n", cache.m_b_PS);
+    // printf("L_b = %.4e\n", cache.L_b);
+    // printf("m_B = %.4e\n", cache.m_B);
+    // printf("m_K = %.4e\n", cache.m_K);
+    // printf("Delta_M = %.4e\n", cache.Delta_M);
+    // printf("lambda_hat_u = %.4e + %.4e i\n", cache.lambda_hat_u.real(), cache.lambda_hat_u.imag());
+    // printf("N_0 = %.4e\n", cache.N_0);
+
+    // double q2 = 15.0;
+
+    // printf("f_0(s = q2 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_0, q2));
+    // printf("f_+(s = q2 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_PLUS, q2));
+    // printf("f_T(s = q2 GeV²) = %.4e\n", cache.ff_calculator.get(BP_FF::F_T, q2));
+
+    // printf("T_P = %.4e + %.4e i\n", real(cache.qcdf_calculator.T_P(q2, false)), imag(cache.qcdf_calculator.T_P(q2, false)));
+
+    // printf("F_A(s = q2 GeV²) = %.4e + %.4e i\n", real(F_A(q2)), imag(F_A(q2)));
+    // printf("F_V(s = q2 GeV²) = %.4e + %.4e i\n", real(F_V(q2)), imag(F_V(q2)));
+    // printf("F_S(s = q2 GeV²) = %.4e + %.4e i\n", real(F_S(q2)), imag(F_S(q2)));
+    // printf("F_P(s = q2 GeV²) = %.4e + %.4e i\n", real(F_P(q2)), imag(F_P(q2)));
+
+    
+    // printf("a(s = q2 GeV²) = %.4e + %.4e i\n", real(a(q2)), imag(a(q2)));
+    // printf("b(s = q2 GeV²) = %.4e + %.4e i\n", real(b(q2)), imag(b(q2)));
+    // printf("c(s = q2 GeV²) = %.4e + %.4e i\n", real(c(q2)), imag(c(q2)));
 
     compute_binned_abc();
 }

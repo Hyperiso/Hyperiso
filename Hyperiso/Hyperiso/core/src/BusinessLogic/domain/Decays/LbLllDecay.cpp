@@ -16,7 +16,7 @@ void LbLllDecay::load_params() {
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE), MassType::MSBAR, MassType::POLE));
     cache.m_Lb = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 5122}, DataType::VALUE);
     cache.m_L = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", 3122}, DataType::VALUE);
-    cache.life_L = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 5122}, DataType::VALUE);
+    cache.life_L = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 5122}, DataType::VALUE) / HBAR;
     cache.alpha_L = (*p)(ParamId{ParameterType::DECAY, "Lb_L", 8}, DataType::VALUE);
     cache.N_0 = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE) * (*p)(ParamId{ParameterType::SM, "EW", {1, 2}}, DataType::VALUE) / (std::sqrt(6144. * std::pow(PI, 5) * std::pow(cache.m_Lb, 3)));
     cache.q2_max = std::pow(cache.m_Lb - cache.m_L, 2);
@@ -36,18 +36,6 @@ void LbLllDecay::load_params() {
     // printf("h_tilde_+ = %.4e\n", cache.ff_calculator.get(LbL_FF::H_TILDE_PLUS, 1.0));
 }
 
-// void LbLllDecay::fill_wilson_cache() {
-//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
-//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-
-//     cache.C.emplace(WCoef::C7, b_wilsons[WCoef::C7]);
-//     cache.C.emplace(WCoef::C9, b_wilsons[WCoef::C9]); 
-//     cache.C.emplace(WCoef::C10, b_wilsons[WCoef::C10]);
-//     cache.C.emplace(WCoef::CP7, b_wilsons[WCoef::CP7]);
-//     cache.C.emplace(WCoef::CP9, b_wilsons[WCoef::CP9]);
-//     cache.C.emplace(WCoef::CP10, b_wilsons[WCoef::CP10]);
-// }
-
 void LbLllDecay::fill_wilson_cache() {
     cache.C.clear();
 
@@ -58,7 +46,6 @@ void LbLllDecay::fill_wilson_cache() {
     cache.C[WCoef::C9]   = b_wilsons.at(WCoef::C9);
     cache.C[WCoef::C10]  = b_wilsons.at(WCoef::C10);
 
-    // Ici c'était faux avant : il fallait lire dans bp_wilsons
     cache.C[WCoef::CP7]  = bp_wilsons.at(WCoef::CP7);
     cache.C[WCoef::CP9]  = bp_wilsons.at(WCoef::CP9);
     cache.C[WCoef::CP10] = bp_wilsons.at(WCoef::CP10);

@@ -6,6 +6,9 @@ BPQCDfCalculator::BPQCDfCalculator(int B_id, int V_id, double mu_b, const std::m
     BaseQCDfCalculator(B_id, V_id, mu_b, C, ff_tp, p, iobs_qcdp)
 {
     this->ff_calculator = ff_calculator;
+    this->lambda_hat_u = 0.0;
+    this->n_T_par_m_0 = 4. * this->m_B / this->m_b_PS * (- this->C_bar[WCoef::C3] - 3. * this->C_bar[WCoef::C4]);
+    this->n_T_par_m_0_bar = 4. * this->m_B / this->m_b_PS * (- this->C_bar[WCoef::C3] - 3. * this->C_bar[WCoef::C4]);
 }
 
 complex_t BPQCDfCalculator::T_P(double q2, bool bar) {
