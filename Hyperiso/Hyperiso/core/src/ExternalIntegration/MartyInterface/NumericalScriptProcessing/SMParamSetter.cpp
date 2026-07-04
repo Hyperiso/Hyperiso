@@ -84,8 +84,17 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
         return asin(sqrt((*sm_proxy)("SMINPUTS", LhaID(7, 1))));
     }
     if (interpretedParam.block == "REGPROP") {
-        return 1e-6;
-    }
+        // MARTY's massless-vector penguin patch produces a regulated q^2/q^2
+        // structure for photon penguins.  In C9/CP9 the four-fermion photon
+        // path is numerically unstable for an ultra-small regulator, while
+        // O(1 GeV^2) is still negligible compared with the heavy loop masses.
+        // Keep the previous small regulator for the other Wilson coefficients.
+        if (cinematic_template.find("_C9.cpp") != std::string::npos
+            || cinematic_template.find("_CP9.cpp") != std::string::npos) {
+            return 1.0;
+        }
+         return 1e-6;
+     }
     if (interpretedParam.block == "BETA") {
         return atan((*bsm_proxy)("MINPAR", 3));
     }

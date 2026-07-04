@@ -1,52 +1,30 @@
-# Reproducibility plan
+# Reproducibility
 
-This page describes the recommended structure for reproducing the numerical results shown in the HyperIso paper.
+HyperIso ships a compact CPC reference reproducibility suite in the repository
+root under `reproducibility/`.  The suite is the canonical place for the input
+files, commands, frozen reference outputs and numerical tolerances used to check
+that the public command-line workflows reported in the paper can be regenerated
+from the released source archive.
 
-## Goals
+Run it with
 
-The reproducibility package should allow users to regenerate:
-
-- Wilson-coefficient comparison tables;
-- observable validation plots;
-- SM benchmark predictions;
-- MARTY-vs-native model checks;
-- statistical uncertainty and fit examples.
-
-## Proposed structure
-
-```text
-reproducibility/
-├── README.md
-├── inputs/
-│   ├── sm/
-│   ├── thdm/
-│   ├── susy/
-│   └── marty/
-├── scripts/
-│   ├── run_cpp_examples.sh
-│   ├── run_python_examples.py
-│   ├── run_cli_examples.sh
-│   └── make_validation_plots.py
-├── expected/
-│   ├── wilson_sm.json
-│   ├── wilson_thdm.json
-│   ├── wilson_susy.json
-│   └── observables_sm.json
-└── figures/
+```bash
+./reproducibility/scripts/run_cli_suite.sh
 ```
 
-## Numerical-output policy
+or, for a non-standard executable location,
 
-For each benchmark, store:
+```bash
+HYPERISO_BIN=/path/to/hyperiso-ui ./reproducibility/scripts/run_cli_suite.sh
+```
 
-- input file path;
-- command;
-- HyperIso commit hash;
-- backend flags;
-- numerical result;
-- absolute and relative tolerance;
-- reference source.
+Reference outputs should only be updated when the release tag, input files,
+compiler/build setup and numerical tolerances are frozen:
 
-## CI policy
+```bash
+./reproducibility/scripts/run_cli_suite.sh --update-expected
+```
 
-Fast reproducibility tests should run on every pull request. Heavy validation should run on schedule or through `workflow_dispatch`.
+The Monte-Carlo statistic example uses a fixed `--seed` and the serial MC path by
+default.  Parallel MC can be used for performance studies, but serial seeded runs
+are recommended for release-to-release numerical comparison.

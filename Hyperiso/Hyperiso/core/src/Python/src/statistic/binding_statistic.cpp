@@ -632,6 +632,7 @@ and output options.  Expert knobs live under ``advanced``.
         .def(py::init<>())
         .def_readwrite("MC_draws", &StatisticConfig::MC_draws)
         .def_readwrite("MC_threads", &StatisticConfig::MC_threads)
+        .def_readwrite("MC_seed", &StatisticConfig::MC_seed)
         .def_readwrite("skew_abs_threshold", &StatisticConfig::skew_abs_threshold)
         .def_readwrite("print_mc_progress", &StatisticConfig::print_mc_progress)
         .def_readwrite("print_chi2_pipeline_progress", &StatisticConfig::print_chi2_pipeline_progress)

@@ -62,19 +62,19 @@ bool hyperiso_marty_zcorr_force_non_sm_particles(mty::FeynOptions& opts, mty::Mo
 }
 
 Expr hyperiso_z_penguin_rescale_v() {
-    // C9 is now extracted with MARTY's native color/operator normalization
-    // (no external /3).  The old 4*sW^2*cW^2 correction was derived when the
-    // whole C9 projection was divided by 3, so keep the same physical rescaling
-    // by applying the corresponding 1/3 here to the isolated non-SM Z piece.
-    return 4 * csl::pow_s(csl::sin_s(theta_W), 2)
-           * csl::pow_s(csl::cos_s(theta_W), 2) / 3;
-}
+    // The four-fermion projection below is divided by the color trace factor 3
+    // to match HyperIso/SuperIso operator conventions.  Therefore the isolated
+    // non-SM Z-penguin correction uses the physical 4*sW^2*cW^2 factor directly.
+     return 4 * csl::pow_s(csl::sin_s(theta_W), 2)
+           * csl::pow_s(csl::cos_s(theta_W), 2);
+ }
 
 int calculate_C9mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
     model.getParticle("Z")->setGaugeChoice(gauge);
     undefineNumericalValues();
+    const bool old_exclude_external_legs = mty::option::excludeExternalLegsCorrections;
     mty::option::excludeExternalLegsCorrections = false;
 
     Expr factorOperator = hyperiso_semileptonic_factor();
@@ -234,6 +234,7 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
     defineLibPath(wilsonLib);
     wilsonLib.print();
 
+    mty::option::excludeExternalLegsCorrections = old_exclude_external_legs;
     return 0;
 }
 

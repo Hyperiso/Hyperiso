@@ -228,6 +228,7 @@ class StatisticConfig:
         MC_draws: Number of accepted MC predictions used in uncertainty
             propagation or chi-square covariance estimation.
         MC_threads: Number of worker threads used by MC propagation.
+        MC_seed: RNG seed used for reproducible MC nuisance and experimental-data sampling.
         skew_abs_threshold: Skewness threshold for symmetric vs split-Gaussian
             summaries.
         print_mc_progress: Print a compact progress bar with live ETA during MC
@@ -248,6 +249,7 @@ class StatisticConfig:
 
     MC_draws: int = 100
     MC_threads: int = 1
+    MC_seed: int = 123456
     skew_abs_threshold: float = 0.2
 
     print_mc_progress: bool = False
@@ -270,6 +272,7 @@ class StatisticConfig:
         cpp = st.StatisticConfig()
         cpp.MC_draws = int(self.MC_draws)
         cpp.MC_threads = int(self.MC_threads)
+        cpp.MC_seed = int(self.MC_seed)
         cpp.skew_abs_threshold = float(self.skew_abs_threshold)
         cpp.print_mc_progress = bool(self.print_mc_progress)
         cpp.print_chi2_pipeline_progress = bool(self.print_chi2_pipeline_progress)

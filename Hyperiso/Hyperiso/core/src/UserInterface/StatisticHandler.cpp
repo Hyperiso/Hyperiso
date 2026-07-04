@@ -19,9 +19,11 @@ void print_statistic_usage() {
         << "Options:\n"
         << "  --observables <csv>     Observable names, default BR_Bs__mu_mu,BR_B__Xs_gamma\n"
         << "  --draws <n>             MC draws for uncertainty mode, default 200\n"
+        << "  --seed <n>              RNG seed for reproducible MC runs, default 123456\n"
         << "  --uncertainties         Also compute MC uncertainty summaries\n"
         << "  --chi2                  Use CHI2_MC_COVARIANCE advanced likelihood mode\n"
         << "  --progress              Show MC progress bar when MC is run\n"
+        << "  --samples-csv <path>    Write accepted MC observable samples to CSV\n"
         << "  --order <order>         LO, NLO or NNLO, default NNLO\n"
         << "  --model <model>         SM, THDM, MSSM or MARTY, default SM\n"
         << "  --lha <path>            Input LHA/FLHA file\n";
@@ -68,7 +70,12 @@ int handleStatisticOptions(int argc, char* argv[]) {
 
     StatisticConfig cfg;
     cfg.MC_draws = static_cast<std::size_t>(opts.get_int("draws", 200));
+    cfg.MC_seed = static_cast<unsigned int>(opts.get_int("seed", 123456));
     cfg.print_mc_progress = opts.flag("progress", false);
+    if (opts.has("samples-csv")) {
+        cfg.write_mc_samples_csv = true;
+        cfg.mc_samples_csv_path = opts.get("samples-csv");
+    }
     cfg.print_fit_summary = opts.flag("verbose", false);
     cfg.print_scan_summary = opts.flag("verbose", false);
     cfg.advanced.likelihood_mode = opts.flag("chi2", false)
@@ -80,6 +87,7 @@ int handleStatisticOptions(int argc, char* argv[]) {
     print_section("Statistic summary");
     std::cout << "observables=" << obs_names.size()
               << ", draws=" << cfg.MC_draws
+              << ", seed=" << cfg.MC_seed
               << ", mode=" << (opts.flag("chi2", false) ? "CHI2_MC_COVARIANCE" : "PROFILED_NUISANCE")
               << "\n";
 

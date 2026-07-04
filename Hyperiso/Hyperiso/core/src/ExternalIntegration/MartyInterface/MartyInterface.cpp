@@ -169,7 +169,7 @@ namespace {
 
 std::optional<std::string> expected_semileptonic_template_abi_for(const std::string& wilson) {
     if (wilson == "C9") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-marty-example-aligned-v7-no-global-model-filters"};
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-gthdm-penguin-patch-v9"};
     }
     if (wilson == "C10") {
         return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};

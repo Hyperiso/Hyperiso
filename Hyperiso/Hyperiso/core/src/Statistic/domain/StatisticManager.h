@@ -114,6 +114,7 @@ struct AdvancedStatisticConfig {
 struct StatisticConfig {
     std::size_t MC_draws = 100;                 ///< Number of accepted MC draws used for uncertainty propagation.
     std::size_t MC_threads = 1;                 ///< Number of worker threads used by MC propagation.
+    unsigned int MC_seed = 123456u;             ///< RNG seed used for reproducible MC nuisance and experimental-data sampling.
     double skew_abs_threshold = 0.2;            ///< Absolute skewness threshold below which a summary is treated as symmetric.
 
     bool print_mc_progress = true;              ///< Print MC progress with ETA based on measured draw time.

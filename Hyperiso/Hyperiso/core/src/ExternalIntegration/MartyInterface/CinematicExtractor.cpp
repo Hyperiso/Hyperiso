@@ -88,30 +88,85 @@ CinematicProcess CinematicExtractor::extract_process(const std::string& filename
     CinematicProcess process;
     const std::string content = read_file_to_string(filename);
     if (content.empty()) {
-        return process;
-    }
-
-    const auto particle_list = first_braced_argument_list_after_compute(content);
-    if (!particle_list.has_value()) {
-        return process;
+        return {};
     }
 
     const std::regex particle_regex("(Incoming|Outgoing)\\s*\\(\\s*\"([^\"]+)\"");
-    auto begin = std::sregex_iterator(particle_list->begin(), particle_list->end(), particle_regex);
-    auto end = std::sregex_iterator();
 
-    for (auto it = begin; it != end; ++it) {
-        const std::string direction = (*it)[1].str();
-        const std::string particle = normalize_particle_name((*it)[2].str());
+    auto parse_particle_list = [&](const std::string& particle_list) {
+        CinematicProcess process;
+        auto begin = std::sregex_iterator(particle_list.begin(), particle_list.end(), particle_regex);
+        auto end = std::sregex_iterator();
 
-        if (direction == "Incoming") {
-            process.incoming.push_back(particle);
-        } else {
-            process.outgoing.push_back(particle);
+        for (auto it = begin; it != end; ++it) {
+            const std::string direction = (*it)[1].str();
+            const std::string particle = normalize_particle_name((*it)[2].str());
+
+            if (direction == "Incoming") {
+                process.incoming.push_back(particle);
+            } else {
+                process.outgoing.push_back(particle);
+            }
+        }
+        return process;
+    };
+
+    // Preferred path: the process is written literally in the
+    // computeWilsonCoefficients(...) call.
+    if (const auto particle_list = first_braced_argument_list_after_compute(content);
+        particle_list.has_value()) {
+        auto process = parse_particle_list(*particle_list);
+        if (!process.empty()) {
+            return process;
         }
     }
 
-    return process;
+    // Newer templates factor the insertions in a helper such as
+    // hyperiso_bsll_insertions() and pass a variable to computeWilsonCoefficients.
+    // The old parser then saw the first unrelated block after the call and fell
+    // back to legacy KIN values.  As a fallback, scan balanced braced blocks and
+    // return the first one that really contains Incoming/Outgoing insertions.
+    for (std::size_t brace = content.find('{'); brace != std::string::npos;
+         brace = content.find('{', brace + 1)) {
+        int depth = 0;
+        bool in_string = false;
+        bool escaped = false;
+
+        for (std::size_t i = brace; i < content.size(); ++i) {
+            const char c = content[i];
+
+            if (in_string) {
+                if (escaped) {
+                    escaped = false;
+                } else if (c == '\\') {
+                    escaped = true;
+                } else if (c == '"') {
+                    in_string = false;
+                }
+                continue;
+            }
+
+            if (c == '"') {
+                in_string = true;
+                continue;
+            }
+
+            if (c == '{') {
+                ++depth;
+            } else if (c == '}') {
+                --depth;
+                if (depth == 0) {
+                    auto process = parse_particle_list(content.substr(brace, i - brace + 1));
+                    if (!process.empty()) {
+                        return process;
+                    }
+                    break;
+                }
+            }
+         }
+    }
+
+    return {};
 }
 
 std::string CinematicExtractor::normalize_particle_name(std::string particle_name) {
