@@ -24,8 +24,8 @@ void THDMParameterHelper::init_scale_independent_block(int) {
         double beta = atan(src.get_val("MINPAR" ,3));
         double lu = src.get_val("YU" ,LhaID(2,2));
         double ld = src.get_val("YD" ,LhaID(2,2));
-        double gen = src.get_val("WPARAM_SI_SM" , 2);
-        double le = src.get_val("YE" ,LhaID(gen-1, gen-1));
+        const int lepton_gen = static_cast<int>(src.get_val("WPARAM_SI_SM", 2));
+        double le = src.get_val("YE", LhaID(lepton_gen, lepton_gen));
         double mW = src.get_val("MASS", 24);
         double xH=pow(m_H/mW,2.);
         double xH0=pow(src.get_val("MASS" ,35) / mW, 2.);
@@ -46,7 +46,7 @@ void THDMParameterHelper::init_scale_independent_block(int) {
         // additionally expose all three lepton Yukawas for CQ/CPQ_E/MU/TA.
         for (int i = 0; i < 3; ++i) {
             const int slot = WCoefMapper::thdm_lepton_yukawa_slot_from_index(i);
-            const double le_i = src.get_val("YE", LhaID(i, i));
+            const double le_i = src.get_val("YE", LhaID(i + 1, i + 1));
             dep_block->store_or_assign(slot, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", slot}, le_i, 0., 0.));
         }
     };
