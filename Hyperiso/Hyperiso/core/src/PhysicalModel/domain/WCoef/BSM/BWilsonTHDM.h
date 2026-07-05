@@ -276,11 +276,9 @@ public:
 
 class CP7_THDM : public WilsonCoefficient {
 public:
-    CP7_THDM() : WilsonCoefficient("CP7_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP7_THDM();
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP7_THDM>(*this);
@@ -289,11 +287,9 @@ public:
 
 class CP8_THDM : public WilsonCoefficient {
 public:
-    CP8_THDM() : WilsonCoefficient("CP8_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP8_THDM();
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP8_THDM>(*this);
@@ -302,11 +298,9 @@ public:
 
 class CP9_THDM : public WilsonCoefficient {
 public:
-    CP9_THDM() : WilsonCoefficient("CP9_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP9_THDM();
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP9_THDM>(*this);
@@ -315,11 +309,9 @@ public:
 
 class CP10_THDM : public WilsonCoefficient {
 public:
-    CP10_THDM() : WilsonCoefficient("CP10_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    CP10_THDM();
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CP10_THDM>(*this);
@@ -328,11 +320,10 @@ public:
 
 class CPQ1_THDM : public WilsonCoefficient {
 public:
-    explicit CPQ1_THDM(WCoef coef = WCoef::CPQ1_MU) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ1_THDM(WCoef coef = WCoef::CPQ1_MU);
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ1_THDM>(*this);
@@ -341,11 +332,10 @@ public:
 
 class CPQ2_THDM : public WilsonCoefficient {
 public:
-    explicit CPQ2_THDM(WCoef coef = WCoef::CPQ2_MU) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime) + "_MATCH") {}
+    explicit CPQ2_THDM(WCoef coef = WCoef::CPQ2_MU);
 
-    
-    
-    
+    static double compute_LO(const ParamSrc& src);
+    static double compute_LO(const ParamSrc& src, int lepton_mass_slot);
 
     std::shared_ptr<WilsonCoefficient> clone() const override {
         return std::make_shared<CPQ2_THDM>(*this);

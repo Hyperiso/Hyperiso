@@ -174,6 +174,19 @@ std::optional<std::string> expected_semileptonic_template_abi_for(const std::str
     if (wilson == "C10") {
         return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};
     }
+
+    static const std::unordered_set<std::string> scalar_bqll_wilsons = {
+        "CQ1", "CQ2",
+        "CQ1_E", "CQ1_MU", "CQ1_TA",
+        "CQ2_E", "CQ2_MU", "CQ2_TA",
+        "CPQ1", "CPQ2",
+        "CPQ1_E", "CPQ1_MU", "CPQ1_TA",
+        "CPQ2_E", "CPQ2_MU", "CPQ2_TA"
+    };
+    if (scalar_bqll_wilsons.contains(wilson)) {
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-oneloop-externallegs-v1"};
+    }
+
     return std::nullopt;
 }
 

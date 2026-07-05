@@ -3,5 +3,14 @@
     "m_A0": {"block": "MASS", "pdgCode": "36"},
     "m_H0": {"block": "MASS", "pdgCode": "35"},
     "beta": {"block" : "BETA", "pdgCode": ""},
-    "alpha": {"block" : "ALPHA", "pdgCode": ""}
+    "alpha": {"block" : "ALPHA", "pdgCode": ""},
+    "lambda_1": {"block" : "YE", "pdgCode": "1_1"},
+    "lambda_2": {"block" : "YE", "pdgCode": "1_2"},
+    "lambda_3": {"block" : "YE", "pdgCode": "1_3"},
+    "lambda_4": {"block" : "YE", "pdgCode": "2_1"},
+    "lambda_5": {"block" : "YE", "pdgCode": "2_2"},
+    "lambda_6": {"block" : "YE", "pdgCode": "2_3"},
+    "lambda_7": {"block" : "YE", "pdgCode": "3_1"},
+    "lambda_8": {"block" : "YE", "pdgCode": "3_2"},
+    "lambda_9": {"block" : "YE", "pdgCode": "3_3"}
 }
