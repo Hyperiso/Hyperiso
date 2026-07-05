@@ -21,7 +21,7 @@ cmake -S Hyperiso/Hyperiso/core -B build \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug \
   -DENABLE_TESTS=ON \
-  -DBUILD_WITH_APP=ON
+  -DBUILD_WITH_CLI=ON
 
 cmake --build build -j
 ctest --test-dir build --output-on-failure

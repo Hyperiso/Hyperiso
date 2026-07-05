@@ -12,7 +12,10 @@ if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
 if (NOT DEFINED BUILD_WITH_APP)
-    option(BUILD_WITH_APP "Build Hyperiso command-line applications" OFF)
+    option(BUILD_WITH_APP "Build development app/benchmark executable targets" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_CLI)
+    option(BUILD_WITH_CLI "Build the hyperiso-ui command-line executable" OFF)
 endif()
 
 if (NOT TARGET StatisticLib)
@@ -75,7 +78,7 @@ if(DEFINED ENABLE_CLANG_TIDY AND ENABLE_CLANG_TIDY)
     add_clang_tidy_to_target(UserInterfaceLib)
 endif()
 
-if(BUILD_WITH_APP)
+if(BUILD_WITH_CLI)
     add_executable(hyperiso-ui main.cpp)
     target_link_libraries(hyperiso-ui PRIVATE UserInterfaceLib)
 endif()
@@ -89,7 +92,7 @@ install(TARGETS UserInterfaceLib
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
 )
 
-if(BUILD_WITH_APP)
+if(BUILD_WITH_CLI)
     install(TARGETS hyperiso-ui
       RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     )

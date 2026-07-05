@@ -28,6 +28,13 @@ if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
 
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build development app/benchmark executable targets" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_CLI)
+    option(BUILD_WITH_CLI "Build the hyperiso-ui command-line executable" OFF)
+endif()
+
 if (BUILD_WITH_SOFTSUSY)
     add_compile_definitions(BUILD_WITH_SOFTSUSY)
 endif()

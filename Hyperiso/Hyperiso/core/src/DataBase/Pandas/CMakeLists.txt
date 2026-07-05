@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 project(Pandas)
 
 if (NOT DEFINED BUILD_WITH_APP)
-    option(BUILD_WITH_APP "Build app/ executable targets" OFF)
+    option(BUILD_WITH_APP "Build development app/benchmark executable targets" OFF)
 endif()
 
 if (NOT TARGET CommonLib)

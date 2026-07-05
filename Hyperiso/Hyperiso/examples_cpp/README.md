@@ -10,7 +10,7 @@ Build and install HyperIso first:
 cmake -S Hyperiso/Hyperiso/core -B build \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_WITH_APP=ON
+  -DBUILD_WITH_CLI=ON
 cmake --build build -j
 cmake --install build --prefix "$HOME/.local"
 ```
