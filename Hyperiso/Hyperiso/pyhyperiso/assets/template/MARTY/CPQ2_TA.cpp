@@ -36,7 +36,7 @@ int calculate_CQP2tau(Model &model, gauge::Type gauge) {
          Outgoing("tau"), Outgoing(AntiPart("tau"))},
         opts);
 
-    auto QP2 = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::P, {0, 2, 1, 3});
+    auto QP2 = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::P, {1, 0, 2, 3});
     Expr CQP2_tau = getWilsonCoefficient(wil, QP2);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CPQ2_TA_SM");

@@ -23,7 +23,7 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     model.getParticle("Z")->setGaugeChoice(gauge);
 
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
-    mty::option::excludeExternalLegsCorrections = true;
+    mty::option::excludeExternalLegsCorrections = false;
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
@@ -38,6 +38,9 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
          Outgoing(AntiPart("mu"))},
         opts
     );
+
+    Show(wil);
+    Display(wil);
 
     Expr CP10_mu = getWilsonCoefficient(
         wil, 

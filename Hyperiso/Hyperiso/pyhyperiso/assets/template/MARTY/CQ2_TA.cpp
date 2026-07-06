@@ -24,7 +24,7 @@ int calculate_CQ2tau(Model &model, gauge::Type gauge) {
     model.getParticle("Z")->setGaugeChoice(gauge);
 
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
-    mty::option::excludeExternalLegsCorrections = false;
+    mty::option::excludeExternalLegsCorrections = true;
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
@@ -36,7 +36,7 @@ int calculate_CQ2tau(Model &model, gauge::Type gauge) {
          Outgoing("tau"), Outgoing(AntiPart("tau"))},
         opts);
 
-    auto Q2 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::P, {0, 2, 1, 3});
+    auto Q2 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::P, {1, 0, 2, 3});
     Expr CQ2_tau = getWilsonCoefficient(wil, Q2);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CQ2_TA_SM");

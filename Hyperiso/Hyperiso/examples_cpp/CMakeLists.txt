@@ -1,91 +1,89 @@
-# HyperIso C++ examples
+cmake_minimum_required(VERSION 3.20)
+project(hyperiso_examples_cpp LANGUAGES CXX)
 
-This directory contains standalone C++ examples built against an installed HyperIso package. They are intended to serve both as user tutorials and as smoke tests for the public C++ API.
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-## Prerequisites
+find_package(GSL REQUIRED)
+find_package(Hyperiso REQUIRED)  # usually installed in ~/.local/lib/cmake/Hyperiso or /usr/local/lib/cmake/Hyperiso
 
-Build and install HyperIso first:
+set(HYPERISO_CORE_LIB Hyperiso::CoreLib)
+set(HYPERISO_PHYSICAL_MODEL_LIB Hyperiso::PhysicalModelLib)
+set(HYPERISO_BUSINESS_LOGIC_LIB Hyperiso::BusinessLogicLib)
 
-```bash
-cmake -S Hyperiso/Hyperiso/core -B build \
-  -G Ninja \
-  -DCMAKE_BUILD_TYPE=Release \
-  -DBUILD_WITH_CLI=ON
-cmake --build build -j
-cmake --install build --prefix "$HOME/.local"
-```
+option(BUILD_STATISTIC_EXAMPLES "Build examples requiring Hyperiso::StatisticLib" ON)
+set(HYPERISO_STATISTIC_EXAMPLES_AVAILABLE OFF)
 
-Make sure CMake can find the installed package:
+if(BUILD_STATISTIC_EXAMPLES AND TARGET Hyperiso::StatisticLib)
+    set(_hyperiso_stat_target_broken OFF)
+    get_target_property(_hyperiso_stat_includes Hyperiso::StatisticLib INTERFACE_INCLUDE_DIRECTORIES)
 
-```bash
-export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
-```
+    if(_hyperiso_stat_includes)
+        foreach(_inc IN LISTS _hyperiso_stat_includes)
+            # Generator expressions cannot be checked at configure time.
+            if(_inc MATCHES "^\\$<")
+                continue()
+            endif()
 
-## Build all examples
+            if(IS_ABSOLUTE "${_inc}" AND NOT EXISTS "${_inc}")
+                message(WARNING
+                    "Skipping Statistic examples because Hyperiso::StatisticLib exports a missing include directory: ${_inc}")
+                set(_hyperiso_stat_target_broken ON)
+            endif()
+        endforeach()
+    endif()
 
-From the repository root:
+    if(NOT _hyperiso_stat_target_broken)
+        set(HYPERISO_STATISTIC_EXAMPLES_AVAILABLE ON)
+        set(HYPERISO_STATISTIC_LIB Hyperiso::StatisticLib)
+    endif()
+elseif(BUILD_STATISTIC_EXAMPLES)
+    message(WARNING "Skipping Statistic examples because Hyperiso::StatisticLib was not exported by this Hyperiso installation.")
+endif()
 
-```bash
-cmake -S Hyperiso/Hyperiso/examples_cpp -B build-examples \
-  -G Ninja \
-  -DCMAKE_PREFIX_PATH="$HOME/.local"
+function(add_hyperiso_example target source)
+    add_executable(${target} ${source})
+    target_link_libraries(${target} PRIVATE ${ARGN})
+endfunction()
 
-cmake --build build-examples -j
-```
+# -------------------------
+# Core examples
+# -------------------------
+add_hyperiso_example(core_base Core/base_core_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_block_logger Core/block_logger_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_dependency_pruner Core/dependency_pruner_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_parameter_provider Core/parameter_provider_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_parameter_setter Core/parameter_setter_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_preinit Core/preinit_core_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_qcd_runner Core/qcd_runner_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(dev_core_api_diagnostics Core/dev_examples/api_diagnostics_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(dev_core_composite_param Core/dev_examples/composite_param_creator_example.cpp ${HYPERISO_CORE_LIB})
 
-## Run a few smoke examples
+# -------------------------
+# Wilson examples
+# -------------------------
+add_hyperiso_example(wilson_base Wilson/base_wilson_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
+add_hyperiso_example(wilson_marty Wilson/wilson_with_marty_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
+add_hyperiso_example(dev_wilson_bulk_dump Wilson/dev_examples/wilson_bulk_dump_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
+add_hyperiso_example(dev_wilson_scale_scan Wilson/dev_examples/wilson_scale_scan_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
+add_hyperiso_example(dev_wilson_dynamic_ids Wilson/dev_examples/wilson_dynamic_ids_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
+add_hyperiso_example(dev_wilson_lambda_custom_group Wilson/dev_examples/wilson_lambda_custom_group_example.cpp ${HYPERISO_PHYSICAL_MODEL_LIB})
 
-```bash
-./build-examples/core_base
-./build-examples/wilson_base
-./build-examples/observable_base
-```
+# -------------------------
+# Observable examples
+# -------------------------
+add_hyperiso_example(observable_base Observable/base_observable_example.cpp ${HYPERISO_BUSINESS_LOGIC_LIB})
+add_hyperiso_example(dev_observable_scan Observable/dev_examples/observable_parameter_scan_example.cpp ${HYPERISO_BUSINESS_LOGIC_LIB})
+add_hyperiso_example(dev_observable_dynamic_ids Observable/dev_examples/observable_dynamic_ids_example.cpp ${HYPERISO_BUSINESS_LOGIC_LIB})
+add_hyperiso_example(dev_observable_lambda_decay Observable/dev_examples/observable_lambda_decay_example.cpp ${HYPERISO_BUSINESS_LOGIC_LIB})
 
-Statistic examples require the installed package to export `Hyperiso::StatisticLib`:
-
-```bash
-./build-examples/statistic_base
-```
-
-## Organization
-
-| Directory | Purpose |
-|---|---|
-| `Core/` | Initialization, LHA loading, parameter access, block inspection and QCD utilities. |
-| `Wilson/` | Wilson-coefficient matching, running, MARTY-oriented examples and custom Wilson groups. |
-| `Observable/` | Observable calculations, binned observables, decay configurations and parameter scans. |
-| `Statistic/` | Uncertainty propagation, likelihood scans, maximum-likelihood fits and confidence contours. |
-| `*/dev_examples/` | Advanced examples for developers extending HyperIso internals. |
-
-## Recommended learning path
-
-1. `Core/base_core_example.cpp`
-2. `Core/parameter_provider_example.cpp`
-3. `Wilson/base_wilson_example.cpp`
-4. `Observable/base_observable_example.cpp`
-5. `Statistic/base_statistic_example.cpp`
-6. Advanced `dev_examples` only after the public API workflow is clear.
-
-## Expected behavior
-
-Each example should:
-
-- compile without modifying the source tree;
-- use input files from `Assets/lha` or a documented local path;
-- print enough information to make the result understandable;
-- avoid hidden global state except the documented HyperIso runtime singleton;
-- be runnable in CI as a smoke test whenever dependencies are available.
-
-## Adding a new C++ example
-
-When adding a new example, include:
-
-- a short comment at the top explaining the physics workflow;
-- the required model/backend, for example SM-only, MARTY, THDM or SUSY;
-- a deterministic input file;
-- expected numerical output or tolerance when used as a regression test;
-- a target in `CMakeLists.txt` using `add_hyperiso_example`.
-
-## Notes on dynamic identifiers
-
-Some examples demonstrate dynamic Wilson groups or custom observables. They are useful for extension development, but regular users should start with the built-in enum and mapper examples.
+# -------------------------
+# Statistic examples
+# -------------------------
+if(HYPERISO_STATISTIC_EXAMPLES_AVAILABLE)
+    add_hyperiso_example(statistic_base Statistic/base_statistic_example.cpp ${HYPERISO_STATISTIC_LIB})
+    add_hyperiso_example(dev_statistic_likelihood_scan Statistic/dev_examples/likelihood_scan_example.cpp ${HYPERISO_STATISTIC_LIB})
+    add_hyperiso_example(dev_statistic_custom_observables Statistic/dev_examples/custom_observables_dependency_example.cpp ${HYPERISO_STATISTIC_LIB})
+else()
+    message(STATUS "Statistic examples are present in the source tree but are not added as CMake targets for this installation.")
+endif()

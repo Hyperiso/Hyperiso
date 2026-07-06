@@ -36,7 +36,7 @@ int calculate_CQ2mu(Model &model, gauge::Type gauge) {
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto Q2 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::P, {0, 2, 1, 3});
+    auto Q2 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::P, {1, 0, 2, 3});
     Expr CQ2_mu = getWilsonCoefficient(wil, Q2);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CQ2_MU_SM");

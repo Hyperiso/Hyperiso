@@ -480,9 +480,9 @@ double CQ2_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepto
 CP7_THDM::CP7_THDM() : WilsonCoefficient("CP7_THDM", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
-            {ParameterType::WILSON, "WPARAM_SI_BSM", 8},       // lambda_d / -tan(beta) in the SuperIso type-II limit
+            {ParameterType::WILSON, "WPARAM_SI_BSM", 7},        // lambda_u
+            {ParameterType::WILSON, "WPARAM_SI_BSM", 8},        // lambda_d
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},     // y_t = m_t(mu_W)^2 / m_H^2
-            {ParameterType::WILSON, "WPARAM_MATCH_SM", 6},      // m_t(mu_W)
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}}, // m_b(mu_W)
             {ParameterType::SM, "MASS", 3}                      // m_s
         },
@@ -492,23 +492,26 @@ CP7_THDM::CP7_THDM() : WilsonCoefficient("CP7_THDM", GroupMapper::str(WGroup::BP
 }
 
 double CP7_THDM::compute_LO(const ParamSrc& src) {
-    const double ld          = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
-    const double yt          = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", 1);
-    const double mt_muW      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
-    const double mb_muW      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
-    const double ms          = src.get_val(ParameterType::SM, "MASS", 3);
+    const double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+    const double ms     = src.get_val(ParameterType::SM, "MASS", 3);
 
-    // SuperIso v5 Cprime_calculator, charged-Higgs hardcoded piece:
-    // C7pH = m_s m_b(mu_W) / m_t(mu_W)^2 * (1/3) * lambda_d^2 * F7_1(y_t).
-    return ms * mb_muW / (mt_muW * mt_muW) * (1. / 3.) * ld * ld * F7_1(yt);
+    // In the Hyperiso/MARTY O7' convention the dipole operator is normalized with
+    // m_b, as O7 is. The chirality-flipped charged-Higgs contribution is therefore
+    // the same hard interaction as C7_H, multiplied by the external-mass flip m_s/m_b.
+    //
+    // The small m_s*m_b/m_t^2*lambda_d^2 term appearing later in SuperIso v5
+    // Cprime_calculator belongs to the MSSM/large-tan(beta) branch; SuperIso returns
+    // before that block for a pure THDM model. Using it here underestimates CP7_H by
+    // roughly two orders of magnitude and disagrees with the MARTY THDM template.
+    return ms / mb_muW * C7_THDM::compute_LO(src);
 }
 
 CP8_THDM::CP8_THDM() : WilsonCoefficient("CP8_THDM", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
-            {ParameterType::WILSON, "WPARAM_SI_BSM", 8},       // lambda_d / -tan(beta) in the SuperIso type-II limit
+            {ParameterType::WILSON, "WPARAM_SI_BSM", 7},        // lambda_u
+            {ParameterType::WILSON, "WPARAM_SI_BSM", 8},        // lambda_d
             {ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},     // y_t = m_t(mu_W)^2 / m_H^2
-            {ParameterType::WILSON, "WPARAM_MATCH_SM", 6},      // m_t(mu_W)
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1}}, // m_b(mu_W)
             {ParameterType::SM, "MASS", 3}                      // m_s
         },
@@ -518,14 +521,12 @@ CP8_THDM::CP8_THDM() : WilsonCoefficient("CP8_THDM", GroupMapper::str(WGroup::BP
 }
 
 double CP8_THDM::compute_LO(const ParamSrc& src) {
-    const double ld          = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
-    const double yt          = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", 1);
-    const double mt_muW      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6);
-    const double mb_muW      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
-    const double ms          = src.get_val(ParameterType::SM, "MASS", 3);
+    const double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
+    const double ms     = src.get_val(ParameterType::SM, "MASS", 3);
 
-    // SuperIso v5 Cprime_calculator, charged-Higgs hardcoded piece.
-    return ms * mb_muW / (mt_muW * mt_muW) * (1. / 3.) * ld * ld * F8_1(yt);
+    // Same convention as CP7_THDM: O8' is normalized with m_b, so the charged-Higgs
+    // BSM piece follows from the unprimed C8_H term through the external-mass flip.
+    return ms / mb_muW * C8_THDM::compute_LO(src);
 }
 
 CP10_THDM::CP10_THDM() : WilsonCoefficient("CP10_THDM", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
@@ -595,63 +596,20 @@ double CP9_THDM::compute_LO(const ParamSrc& src) {
 }
 
 CPQ1_THDM::CPQ1_THDM(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
-    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cpq1(coef));
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
-            {ParameterType::WILSON, "WPARAM_SI_SM", 4},                // sin^2(theta_W)
-            {ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},            // y_t = m_t(mu_W)^2 / m_H^2
-            {ParameterType::WILSON, "WPARAM_SI_BSM", 2},               // z = m_H^2 / m_W^2
-            {ParameterType::SM, "MASS", 3},                            // m_s
-            {ParameterType::SM, "MASS", 24},                           // m_W
-            {ParameterType::BSM, "MINPAR", 3}                          // tan(beta)
-        },
-        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
-        get_lhaid_from_name(QCDOrder::LO)
-    };
+
 }
+
 
 double CPQ1_THDM::compute_LO(const ParamSrc& src) {
-    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
-}
-
-double CPQ1_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
-    const double ml      = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot);
-    const double sw2     = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
-    const double yt      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", 1);
-    const double z       = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 2);
-    const double ms      = src.get_val(ParameterType::SM, "MASS", 3);
-    const double mW      = src.get_val(ParameterType::SM, "MASS", 24);
-    const double tanb    = src.get_val(ParameterType::BSM, "MINPAR", 3);
-
-    // SuperIso v5 Cprime_calculator, CQ1pH hardcoded piece.
-    const double NQ1pH = -ml * tanb * tanb / (4. * mW * mW) * yt * f30(yt, z);
-    const double BQ1pH =  ml * tanb * tanb / (4. * mW * mW) * f70(yt, z);
-    return (NQ1pH + BQ1pH) * ms / sw2;
+    return 0.0;
 }
 
 CPQ2_THDM::CPQ2_THDM(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_THDM", GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING)) {
-    const int lepton_mass_slot = WCoefMapper::lepton_mass_slot_from_index(WCoefMapper::lepton_index_from_cpq2(coef));
-    matching_info[QCDOrder::LO] = {
-        {
-            {ParameterType::WILSON, "WPARAM_SI_SM", lepton_mass_slot}, // ml(e/mu/tau)
-            {ParameterType::WILSON, "WPARAM_SI_SM", 4},                // sin^2(theta_W)
-            {ParameterType::WILSON, "WPARAM_MATCH_BSM", 1},            // y_t = m_t(mu_W)^2 / m_H^2
-            {ParameterType::WILSON, "WPARAM_SI_BSM", 2},               // z = m_H^2 / m_W^2
-            {ParameterType::SM, "MASS", 3},                            // m_s
-            {ParameterType::SM, "MASS", 24},                           // m_W
-            {ParameterType::BSM, "MINPAR", 3}                          // tan(beta)
-        },
-        [lepton_mass_slot](const ParamSrc& src) { return compute_LO(src, lepton_mass_slot); },
-        get_lhaid_from_name(QCDOrder::LO)
-    };
+
 }
+
 
 double CPQ2_THDM::compute_LO(const ParamSrc& src) {
-    return compute_LO(src, WCoefMapper::lepton_mass_slot_from_index(1));
+    return 0.0;
 }
 
-double CPQ2_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
-    // In the SuperIso v5 charged-Higgs hardcoded piece, CQ2pH is equal to CQ1pH.
-    return CPQ1_THDM::compute_LO(src, lepton_mass_slot);
-}

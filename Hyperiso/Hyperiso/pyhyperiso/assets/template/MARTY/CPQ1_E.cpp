@@ -36,7 +36,7 @@ int calculate_CPQ1e(Model &model, gauge::Type gauge) {
          Outgoing("e"), Outgoing(AntiPart("e"))},
         opts);
 
-    auto QP1 = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::S, {0, 2, 1, 3});
+    auto QP1 = dimension6Operator(model, wil, DiracCoupling::L, DiracCoupling::S, {1, 0, 2, 3});
     Expr CQP1_e = getWilsonCoefficient(wil, QP1);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CPQ1_E_SM");

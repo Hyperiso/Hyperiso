@@ -34,17 +34,12 @@ static LhaID flhaid(WCoef c, QCDOrder ord, ContributionType ct) {
 }
 
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
-    const bool sm_like_inside_bsm = (ctx.contrib == ContributionType::SM && ctx.model != Model::SM);
-
     std::string output_name = "SM";
     std::string generation_name = "SM";
     fs::path path = ctx.adapters.sm_path;
+    bool sm_like_filter = false;
 
-    if (sm_like_inside_bsm) {
-        output_name = "SM";
-        generation_name = ctx.adapters.marty_model_name->get();
-        path = ctx.adapters.marty_model_path->get();
-    } else if (ctx.contrib != ContributionType::SM) {
+    if (ctx.contrib != ContributionType::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
@@ -55,7 +50,7 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     MartyWilsonConfig cfg {
         output_name,
         generation_name,
-        sm_like_inside_bsm,
+        sm_like_filter,
         id,
         block,
         path,
