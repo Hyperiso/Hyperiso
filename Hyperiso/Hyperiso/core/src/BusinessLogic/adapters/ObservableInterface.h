@@ -16,6 +16,7 @@
 #include "ObsUseMarty.h"
 #include "WilsonFreezer.h"
 #include "LambdaDecay.h"
+#include "WilsonMatchingPatch.h"
 
 /**
  * @file ObservableInterface.h
@@ -142,6 +143,14 @@ public:
      * @see LambdaObservableConfig
      */
     ObservableInterface& add_lambda_decay(LambdaDecayConfig config, bool add_observables=true);
+
+    /**
+     * @brief Add an additive Wilson matching patch through the observable layer.
+     */
+    ObservableInterface& add_matching_patch(const WilsonMatchingPatch& patch);
+
+    /** @brief Camel-case alias for add_matching_patch. */
+    ObservableInterface& addMatchingPatch(const WilsonMatchingPatch& patch);
 
     /**
      * @brief Add an observable to the manager (enum API).

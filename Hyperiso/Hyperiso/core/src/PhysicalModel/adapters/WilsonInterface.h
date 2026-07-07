@@ -78,6 +78,9 @@ private:
     std::shared_ptr<WilsonBuilder> builder;
     std::shared_ptr<WilsonProvider> provider;
 
+    /// Patches registered before build(); applied immediately after build().
+    std::vector<WilsonMatchingPatch> pending_matching_patches;
+
     /**
      * @brief Ensures requested QCD order is compatible with MARTY limitations.
      *
@@ -138,6 +141,20 @@ public:
      * @brief Snake-case alias for @ref addCustomWilsonGroup.
      */
     WilsonInterface& add_custom_group(const CustomWilsonGroupConfig& config);
+
+    /**
+     * @brief Add an additive Wilson matching patch.
+     *
+     * If called before build(), the patch is queued and applied as soon as the
+     * Wilson manager exists.  Otherwise it is applied immediately.
+     */
+    WilsonInterface& addMatchingPatch(const WilsonMatchingPatch& patch);
+
+    /** @brief Snake-case alias for addMatchingPatch. */
+    WilsonInterface& add_matching_patch(const WilsonMatchingPatch& patch);
+
+    /** @brief Add several additive Wilson matching patches. */
+    WilsonInterface& addMatchingPatches(const std::vector<WilsonMatchingPatch>& patches);
 
     /**
      * @brief Sets the matching scale (mu_W) in the global parameter system.

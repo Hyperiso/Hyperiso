@@ -1,6 +1,7 @@
 #include "WilsonManager.h"
 #include "WilsonBlockNames.h"
 #include "WilsonRunningValidation.h"
+#include "MartyWilson.h"
 
 
 
@@ -88,6 +89,99 @@ static std::vector<QCDOrder> orders_up_to(QCDOrder max) {
     if (max >= QCDOrder::NLO)  out.push_back(QCDOrder::NLO);
     if (max >= QCDOrder::NNLO) out.push_back(QCDOrder::NNLO);
     return out;
+}
+
+
+bool CoefficientManager::apply_matching_patch_to_group(
+    const std::string& groupName,
+    const WilsonMatchingPatch& patch,
+    std::size_t patch_index,
+    QCDOrder max_order
+) {
+    if (!patch.enabled) {
+        return false;
+    }
+    if (patch.order == QCDOrder::NONE || qcd_index(patch.order) > qcd_index(max_order)) {
+        return false;
+    }
+    if (!this->coefficientGroups.contains(groupName)) {
+        return false;
+    }
+
+    auto group = this->coefficientGroups.at(groupName);
+    if (!group) {
+        return false;
+    }
+    if (!(group->get_group_id() == patch.group)) {
+        return false;
+    }
+    if (group->get_type() != patch.contribution) {
+        return false;
+    }
+
+    const std::string coeff_name = WCoefMapper::str(patch.coefficient);
+    auto coeff_it = group->find(coeff_name);
+    if (coeff_it == group->end() || !coeff_it->second) {
+        return false;
+    }
+
+    if (patch.marty_only && !std::dynamic_pointer_cast<MartyWilson>(coeff_it->second)) {
+        return false;
+    }
+
+    if (!patch.compute) {
+        LOG_ERROR("ValueError", "Wilson matching patch", patch.label, "has no compute function.");
+    }
+
+    const std::string key = groupName + "|" + std::to_string(patch_index);
+    if (this->applied_matching_patches.contains(key)) {
+        return false;
+    }
+
+    coeff_it->second->add_matching_patch(patch.order, patch.sources, patch.compute);
+    this->applied_matching_patches.insert(key);
+
+    LOG_VERBOSE(
+        "Applied Wilson matching patch",
+        patch.label.empty() ? std::string("<anonymous>") : patch.label,
+        "to", groupName, coeff_name, OrderMapper::str(patch.order)
+    );
+    return true;
+}
+
+void CoefficientManager::apply_matching_patches(const std::string& groupName, QCDOrder max_order) {
+    for (std::size_t i = 0; i < ports_config.matching_patches.size(); ++i) {
+        apply_matching_patch_to_group(groupName, ports_config.matching_patches[i], i, max_order);
+    }
+}
+
+void CoefficientManager::add_matching_patch(const WilsonMatchingPatch& patch) {
+    ports_config.matching_patches.push_back(patch);
+    const std::size_t patch_index = ports_config.matching_patches.size() - 1;
+
+    for (auto& [groupName, group] : this->coefficientGroups) {
+        if (!group) {
+            continue;
+        }
+        const QCDOrder reinit_order = qcd_index(group->get_order()) > qcd_index(patch.order)
+            ? group->get_order()
+            : patch.order;
+        const bool applied = apply_matching_patch_to_group(
+            groupName,
+            ports_config.matching_patches[patch_index],
+            patch_index,
+            reinit_order
+        );
+        if (applied) {
+            group->init(reinit_order);
+        }
+    }
+}
+
+void CoefficientManager::add_matching_patches(const std::vector<WilsonMatchingPatch>& patches) {
+    for (const auto& patch : patches) {
+        add_matching_patch(patch);
+    }
 }
 
 void CoefficientManager::throw_no_group_error(const std::string &groupName) const {
@@ -256,6 +350,7 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
         this->registerCoefficientGroup(sm_block, sm_group_ptr);
     }
 
+    apply_matching_patches(sm_block, sm_max_order);
     sm_group_ptr->init(sm_max_order);
 
     const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
@@ -611,6 +706,7 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
 
     if (!has_input) {
         if (!only_total) {
+            apply_matching_patches(groupName, marty_calc_order);
             this->coefficientGroups.at(groupName)->init(marty_calc_order);
         }
 

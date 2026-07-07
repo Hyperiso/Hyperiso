@@ -78,6 +78,16 @@ ObservableInterface& ObservableInterface::add_lambda_decay(LambdaDecayConfig con
     return *this;
 }
 
+
+ObservableInterface& ObservableInterface::add_matching_patch(const WilsonMatchingPatch& patch) {
+    this->ports->iobswb->add_matching_patch(patch);
+    return *this;
+}
+
+ObservableInterface& ObservableInterface::addMatchingPatch(const WilsonMatchingPatch& patch) {
+    return add_matching_patch(patch);
+}
+
 ObservableInterface& ObservableInterface::add_observable(Observables obs, QCDOrder order, bool add_dependencies) {
     manager->add_obs(obs, order, add_dependencies);
     return *this;

@@ -106,6 +106,9 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     }
 
     WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo, marty_paths};
+    if (use_marty->get()) {
+        port_config.matching_patches.push_back(make_hyperiso_c9_light_photon_sm_patch());
+    }
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
@@ -213,6 +216,21 @@ void WilsonBuilder::add_custom_group(const CustomWilsonGroupConfig& config) {
     this->cm->registerCoefficientGroup(group_name, std::move(group));
     this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
     this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
+}
+
+
+void WilsonBuilder::add_matching_patch(const WilsonMatchingPatch& patch) {
+    if (!this->cm) {
+        LOG_ERROR("LogicError", "Cannot add a Wilson matching patch before WilsonBuilder has been built.");
+    }
+    this->cm->add_matching_patch(patch);
+}
+
+void WilsonBuilder::add_matching_patches(const std::vector<WilsonMatchingPatch>& patches) {
+    if (!this->cm) {
+        LOG_ERROR("LogicError", "Cannot add Wilson matching patches before WilsonBuilder has been built.");
+    }
+    this->cm->add_matching_patches(patches);
 }
 
 std::shared_ptr<WilsonProvider> WilsonBuilder::get_wilson_provider() {

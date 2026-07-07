@@ -13,6 +13,11 @@ void WilsonInterface::build(WilsonBuildConfig config) {
     this->builder = std::make_shared<WilsonBuilder>(config);
     this->provider = this->builder->get_wilson_provider();
     built = true;
+
+    for (const auto& patch : pending_matching_patches) {
+        this->builder->add_matching_patch(patch);
+    }
+    pending_matching_patches.clear();
 }
 
 void WilsonInterface::addWilsonGroup(WilsonBuildConfig config) {
@@ -44,6 +49,27 @@ WilsonInterface& WilsonInterface::addCustomWilsonGroup(const CustomWilsonGroupCo
 
 WilsonInterface& WilsonInterface::add_custom_group(const CustomWilsonGroupConfig& config) {
     return addCustomWilsonGroup(config);
+}
+
+WilsonInterface& WilsonInterface::addMatchingPatch(const WilsonMatchingPatch& patch) {
+    if (built && this->builder) {
+        this->builder->add_matching_patch(patch);
+        this->provider = this->builder->get_wilson_provider();
+    } else {
+        pending_matching_patches.push_back(patch);
+    }
+    return *this;
+}
+
+WilsonInterface& WilsonInterface::add_matching_patch(const WilsonMatchingPatch& patch) {
+    return addMatchingPatch(patch);
+}
+
+WilsonInterface& WilsonInterface::addMatchingPatches(const std::vector<WilsonMatchingPatch>& patches) {
+    for (const auto& patch : patches) {
+        addMatchingPatch(patch);
+    }
+    return *this;
 }
 
 void WilsonInterface::set_matching_scale(double mu_W) {

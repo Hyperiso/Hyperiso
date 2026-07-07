@@ -244,6 +244,17 @@ public:
     void set_contribution_type(ContributionType type);
 
     /**
+     * @brief Add an extra additive term to the matching function of one QCD order.
+     *
+     * The patch is composed at the coefficient level before the dependent
+     * parameter is registered by CoefficientGroup::init().  Extra source
+     * parameters are merged into the coefficient's source set.
+     */
+    void add_matching_patch(QCDOrder order,
+                            std::unordered_set<ParamId> extra_sources,
+                            std::function<scalar_t(const ParamSrc&)> patch);
+
+    /**
      * @brief Reads the coefficient value from the storage backend for a given order/type.
      *
      * This is a *read* operation through an @ref IParameterProxy (commonly WILSON scope).

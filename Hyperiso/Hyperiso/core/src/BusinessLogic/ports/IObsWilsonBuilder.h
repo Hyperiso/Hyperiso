@@ -5,6 +5,7 @@
 
 #include "AbstractConfig.h"
 #include "CustomWilsonLambda.h"
+#include "WilsonMatchingPatch.h"
 
 class IObsWilsonProxy;
 
@@ -43,6 +44,11 @@ public:
      * @param config Runtime/custom Wilson group configuration.
      */
     virtual void add_custom_group(const CustomWilsonGroupConfig& config) = 0;
+
+    /**
+     * @brief Add an additive Wilson matching patch.
+     */
+    virtual void add_matching_patch(const WilsonMatchingPatch& patch) = 0;
 
     /**
      * @brief Return a proxy used by observables to access Wilson coefficients.

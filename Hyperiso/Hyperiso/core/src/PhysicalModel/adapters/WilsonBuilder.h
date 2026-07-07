@@ -115,6 +115,16 @@ public:
     void add_custom_group(const CustomWilsonGroupConfig& config);
 
     /**
+     * @brief Add one additive matching patch to the active Wilson manager.
+     */
+    void add_matching_patch(const WilsonMatchingPatch& patch);
+
+    /**
+     * @brief Add several additive matching patches to the active Wilson manager.
+     */
+    void add_matching_patches(const std::vector<WilsonMatchingPatch>& patches);
+
+    /**
      * @brief Returns a provider facade around this builder.
      *
      * The provider offers runtime coefficient access using a request/config object.

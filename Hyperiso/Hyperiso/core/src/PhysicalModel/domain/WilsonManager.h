@@ -17,6 +17,7 @@
 #include "IParamSetter.h"
 #include "IWilsonParameters.h"
 #include "IMartyWilsonPathProxy.h"
+#include "WilsonMatchingPatch.h"
 
 /**
  * @file WilsonManager.h
@@ -121,6 +122,9 @@ struct WilsonPortsConfig {
     /// Path provider for MARTY-generated Wilson CSV files.
     std::shared_ptr<IMartyWilsonPathProxy> marty_paths;
 
+    /// Additive matching patches applied before group initialization.
+    std::vector<WilsonMatchingPatch> matching_patches;
+
     /**
      * @brief Optional group builder hook.
      *
@@ -180,6 +184,15 @@ private:
 
     /// Wiring / service access (composer, proxies, APIs, optional builder hook).
     WilsonPortsConfig ports_config;
+
+    /// Patch applications already installed, keyed by group name and patch index.
+    std::set<std::string> applied_matching_patches;
+
+    bool apply_matching_patch_to_group(const std::string& groupName,
+                                       const WilsonMatchingPatch& patch,
+                                       std::size_t patch_index,
+                                       QCDOrder max_order);
+    void apply_matching_patches(const std::string& groupName, QCDOrder max_order);
 
     /// Logs a detailed message listing available groups when a group name is missing.
     void throw_no_group_error(const std::string& groupName) const;
@@ -301,6 +314,12 @@ public:
      * @param only_total If true, avoid calling group->init(order) (useful for workflows that only need TOTAL).
      */
     void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total);
+
+    /// Add one additive matching patch and apply it to already-registered groups when relevant.
+    void add_matching_patch(const WilsonMatchingPatch& patch);
+
+    /// Add several additive matching patches.
+    void add_matching_patches(const std::vector<WilsonMatchingPatch>& patches);
 
     /// Updates the manager by changing scales (delegates to set_matching_scale / set_hadronic_scale).
     void update(double mu_W, double mu_h);

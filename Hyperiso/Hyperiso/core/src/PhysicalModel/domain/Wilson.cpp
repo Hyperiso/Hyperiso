@@ -33,6 +33,27 @@ std::unordered_set<ParamId> WilsonCoefficient::get_sources(QCDOrder order) {
     return this->matching_info[order].sources;
 }
 
+
+void WilsonCoefficient::add_matching_patch(QCDOrder order,
+                                           std::unordered_set<ParamId> extra_sources,
+                                           std::function<scalar_t(const ParamSrc&)> patch) {
+    if (!patch) {
+        LOG_ERROR("ValueError", "Cannot add an empty Wilson matching patch to", this->get_name());
+    }
+
+    auto& info = this->matching_info[order];
+    auto base_compute = info.compute;
+
+    info.sources.insert(extra_sources.begin(), extra_sources.end());
+    info.compute = [base_compute, patch = std::move(patch)](const ParamSrc& src) -> scalar_t {
+        scalar_t base = 0.0;
+        if (base_compute) {
+            base = base_compute(src);
+        }
+        return base + patch(src);
+    };
+}
+
 LhaID WilsonCoefficient::get_lhaid(QCDOrder order) {
     return this->matching_info[order].lhaid;
 }

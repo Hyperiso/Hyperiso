@@ -5,6 +5,24 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
+
+namespace {
+bool hyperiso_marty_is_light_up_photon_penguin(mty::FeynmanDiagram const& diag) {
+    const bool has_light_up_loop =
+        diag.contains("u",   mty::FeynmanDiagram::DiagramParticleType::Loop) ||
+        diag.contains("u_L", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
+        diag.contains("u_R", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
+        diag.contains("c",   mty::FeynmanDiagram::DiagramParticleType::Loop) ||
+        diag.contains("c_L", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
+        diag.contains("c_R", mty::FeynmanDiagram::DiagramParticleType::Loop);
+
+    const bool has_photon_mediator =
+        diag.contains("A", mty::FeynmanDiagram::DiagramParticleType::Mediator);
+
+    return has_light_up_loop && has_photon_mediator;
+}
+} // namespace
+
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
     lib.addLPath(MARTY_LIBRARY_PATH);
@@ -27,6 +45,9 @@ int calculate_CP9mu(Model &model, gauge::Type gauge) {
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
+    opts.addFilter([](mty::FeynmanDiagram const& diag) {
+        return !hyperiso_marty_is_light_up_photon_penguin(diag);
+    });
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
 

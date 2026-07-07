@@ -72,6 +72,11 @@ public:
     void add_custom_group(const CustomWilsonGroupConfig& config) override;
 
     /**
+     * @brief Add an additive Wilson matching patch to the underlying Wilson manager.
+     */
+    void add_matching_patch(const WilsonMatchingPatch& patch) override;
+
+    /**
      * @brief Create and return a proxy object used by observables to query Wilson coefficients.
      *
      * The returned proxy is an @ref ObsWilsonProxy that wraps the core @ref WilsonProvider
