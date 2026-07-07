@@ -77,4 +77,64 @@ inline WilsonMatchingPatch make_hyperiso_c9_light_photon_sm_patch() {
     return make_hyperiso_c9_sm_photon_patch();
 }
 
+/**
+ * @brief THDM charged-Higgs photon-penguin piece for C9 at LO.
+ *
+ * The MARTY C9 BSM template vetoes the massless photon linker to avoid the
+ * reg_prop-dependent four-fermion projection.  In the THDM this finite photon
+ * matching contribution is known analytically and is the -D9H0(y_t, lambda_u)
+ * term in the HyperIso/SuperIso C9_THDM coefficient.
+ */
+inline WilsonMatchingPatch make_hyperiso_c9_thdm_photon_patch() {
+    WilsonMatchingPatch patch;
+    patch.group = GroupMapper::to_id(WGroup::B);
+    patch.coefficient = WCoefMapper::to_id(WCoef::C9);
+    patch.order = QCDOrder::LO;
+    patch.contribution = ContributionType::BSM;
+    patch.sources = {
+        ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(7)},
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1)}
+    };
+    patch.compute = [](const ParamSrc& src) -> scalar_t {
+        const double lu = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(7));
+        const double yt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1));
+        return scalar_t(-D9H0(yt, lu));
+    };
+    patch.label = "Hyperiso:C9:THDM-photon";
+    patch.marty_only = true;
+    return patch;
+}
+
+/**
+ * @brief THDM charged-Higgs photon-penguin piece for CP9 at LO.
+ *
+ * This is only the finite photon term removed from the MARTY CP9 template,
+ * not the full CP9_THDM coefficient.
+ */
+inline WilsonMatchingPatch make_hyperiso_cp9_thdm_photon_patch() {
+    WilsonMatchingPatch patch;
+    patch.group = GroupMapper::to_id(WGroup::BPrime);
+    patch.coefficient = WCoefMapper::to_id(WCoef::CP9);
+    patch.order = QCDOrder::LO;
+    patch.contribution = ContributionType::BSM;
+    patch.sources = {
+        ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(8)},
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1)},
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6)},
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 1)},
+        ParamId{ParameterType::SM, "MASS", LhaID(3)}
+    };
+    patch.compute = [](const ParamSrc& src) -> scalar_t {
+        const double ld     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(8));
+        const double yt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1));
+        const double mt_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6));
+        const double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 1));
+        const double ms     = src.get_val(ParameterType::SM, "MASS", LhaID(3));
+        return scalar_t(-ms * mb_muW / (mt_muW * mt_muW) * D9H0(yt, ld));
+    };
+    patch.label = "Hyperiso:CP9:THDM-photon";
+    patch.marty_only = true;
+    return patch;
+}
+
 #endif // HYPERISO_WILSON_MATCHING_PATCH_H

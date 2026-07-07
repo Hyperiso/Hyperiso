@@ -28,11 +28,34 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
                    << " because LoopTools mudim must stay at its default value.\n";
     }
 
-    outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
-
     if (bsm_split_generation) {
-        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_COMPONENT\", " + wilson + "_SM(param), Q_match, path);\n";
-        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_COMPONENT\", " + wilson + "_TOT(param), Q_match, path);\n";
+        outputFile << "\t// Split MARTY coefficient policy. The main function " << wilson
+                   << " is generated without the photon linker; " << wilson
+                   << "_A contains only BSM photon-linker diagrams.\n";
+        outputFile << "\t// Non-photon: reg_prop = 1e-6. Photon component: reg_prop = 1.\n";
+        outputFile << "\tauto hyperiso_regprop_it = param.realParams.find(\"reg_prop\");\n";
+        outputFile << "\tdouble hyperiso_regprop_saved = 1e-6;\n";
+        outputFile << "\tbool hyperiso_has_regprop = hyperiso_regprop_it != param.realParams.end() && hyperiso_regprop_it->second != nullptr;\n";
+        outputFile << "\tif (hyperiso_has_regprop) {\n";
+        outputFile << "\t\t*hyperiso_regprop_it->second = 1e-6;\n";
+        outputFile << "\t}\n";
+        outputFile << "\tauto hyperiso_non_photon = " + wilson + "(param);\n";
+        outputFile << "\tauto hyperiso_sm_component = " + wilson + "_SM(param);\n";
+        outputFile << "\tif (hyperiso_has_regprop) {\n";
+        outputFile << "\t\t*hyperiso_regprop_it->second = 1.0;\n";
+        outputFile << "\t}\n";
+        outputFile << "\tauto hyperiso_photon = " + wilson + "_A(param);\n";
+        outputFile << "\tif (hyperiso_has_regprop) {\n";
+        outputFile << "\t\t*hyperiso_regprop_it->second = hyperiso_regprop_saved;\n";
+        outputFile << "\t}\n";
+        outputFile << "\tauto hyperiso_split_total = hyperiso_non_photon + hyperiso_photon;\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_split_total, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_NONPHOTON\", hyperiso_non_photon, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_A\", hyperiso_photon, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_COMPONENT\", hyperiso_sm_component, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_COMPONENT\", hyperiso_split_total, Q_match, path);\n";
+    } else {
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
     }
 
 }

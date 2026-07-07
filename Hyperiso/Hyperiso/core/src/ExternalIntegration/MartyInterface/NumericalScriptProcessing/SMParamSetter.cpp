@@ -114,16 +114,15 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
         return 1.0;
     }
     if (interpretedParam.block == "REGPROP") {
-        // MARTY's massless-vector penguin patch produces a regulated q^2/q^2
-        // structure for photon penguins.  In C9/CP9 the four-fermion photon
-        // path is numerically unstable for an ultra-small regulator, while
-        // O(1 GeV^2) is still negligible compared with the heavy loop masses.
-        // Keep the previous small regulator for the other Wilson coefficients.
-        if (cinematic_template.find("_C9.cpp") != std::string::npos
-            || cinematic_template.find("_CP9.cpp") != std::string::npos) {
-            return 1.0;
-        }
-         return 1e-6;
+        // Default MARTY regulator for generated Wilson libraries.
+        //
+        // C9/CP9 are special only in the numeric wrapper: their BSM photon
+        // component is exported as a separate *_A function and evaluated with
+        // reg_prop = 1, while the non-photon part keeps this small regulator.
+        // Keeping the parameter-file default small makes the policy local to
+        // the coefficient writer and lets the same mechanism be reused for
+        // future split coefficients.
+        return 1e-6;
      }
     if (interpretedParam.block == "BETA") {
         return atan((*bsm_proxy)("MINPAR", 3));

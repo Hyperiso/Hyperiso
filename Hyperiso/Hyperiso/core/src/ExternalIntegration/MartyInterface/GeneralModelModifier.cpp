@@ -198,7 +198,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
             outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM internal particle in "
                        << this->model_instantiation << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v17\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v20\n";
             return;
         }
 
@@ -312,18 +312,20 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         if (currentLine.find("int main") != std::string::npos) {
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
-            outputFile << "    auto hyperiso_marty_bsm_tree = hyperiso_marty_build_" << this->wilson
-                       << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, false);\n";
-            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_bsm_tree.first;\n";
-            outputFile << "    if (hyperiso_marty_bsm_tree.second == 0 || hyperiso_marty_bsm == CSL_0) {\n";
-            outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
+            outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
+            outputFile << "    auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
                        << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-            outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
-            outputFile << "    }\n";
+            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
+            outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
+            outputFile << "    auto hyperiso_marty_bsm_photon_loop = hyperiso_marty_build_" << this->wilson
+                       << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
+            outputFile << "    Expr hyperiso_marty_bsm_photon = hyperiso_marty_bsm_photon_loop.first;\n";
+            outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
             outputFile << "    [[maybe_unused]] int sysres = system(\"rm -rf libs/" << this->wilson << "_" << this->output_model << "\");\n";
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_" << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "\", hyperiso_marty_bsm);\n";
+            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_A\", hyperiso_marty_bsm_photon);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_SM\", CSL_0);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_TOT\", hyperiso_marty_bsm);\n";
             outputFile << "    defineLibPath(wilsonLib);\n";
