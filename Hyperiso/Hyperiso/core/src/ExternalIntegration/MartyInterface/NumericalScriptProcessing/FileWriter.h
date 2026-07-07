@@ -85,7 +85,7 @@ private:
 
     std::string wilson; ///< Wilson basis / identifier.
     std::string model;  ///< Model name associated with the generated code.
-    bool bsm_split_generation{false}; ///< Write extra SM/TOT columns for split BSM libraries.
+    bool bsm_split_generation{false}; ///< Write extra diagnostic columns for BSM-only libraries.
 };
 
 #endif

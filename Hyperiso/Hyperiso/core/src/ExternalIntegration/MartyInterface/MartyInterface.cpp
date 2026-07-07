@@ -173,10 +173,10 @@ namespace {
 
 std::optional<std::string> expected_semileptonic_template_abi_for(const std::string& wilson) {
     if (wilson == "C9") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-no-photon-penguin-v11"};
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-vector-penguin-only-v12"};
     }
     if (wilson == "CP9") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-no-photon-penguin-v11"};
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-vector-penguin-only-v12"};
     }
     if (wilson == "C10") {
         return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};
@@ -247,7 +247,7 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                 has_expected_filter_mode = sm_like_filter;
                 found_unexpected_sm_like_filter = !sm_like_filter;
             }
-            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v15") != std::string::npos) {
+            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v17") != std::string::npos) {
                 has_expected_bsm_split_mode = bsm_split_generation;
             }
             if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {

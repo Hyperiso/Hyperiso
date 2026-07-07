@@ -76,7 +76,9 @@ struct MartyWilsonConfig {
     /// all particles not present in SM_Model.
     bool sm_like_filter{false};
 
-    /// If true, generated MARTY code writes the BSM piece as TOTAL - SM-like.
+    /// If true, generated MARTY code writes a pure BSM piece directly.  This is
+    /// currently used only by C9/CP9, where the SM-like MARTY photon-penguin
+    /// subtraction is not a valid short-distance matching coefficient.
     bool bsm_split_generation{false};
     
     /// Full coefficient id used to store the matching value (including order/type parts).

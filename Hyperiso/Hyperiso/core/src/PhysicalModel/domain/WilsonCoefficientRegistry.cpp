@@ -33,6 +33,10 @@ static LhaID flhaid(WCoef c, QCDOrder ord, ContributionType ct) {
     return WCoefMapper::flha_full(c, ord, ct);
 }
 
+static bool is_c9_like_marty_patch_target(WCoef c) {
+    return c == WCoef::C9 || c == WCoef::CP9;
+}
+
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     std::string output_name = "SM";
     std::string generation_name = "SM";
@@ -41,14 +45,15 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     bool bsm_split_generation = false;
 
     if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
-        // MARTY now behaves like the builtin backend at PhysicalModel level:
-        // the generated library writes the pure BSM piece directly.  In the
-        // generated code we keep only diagrams with at least one non-SM internal
-        // particle, so no unreliable MARTY SM coefficient enters the result.
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
-        bsm_split_generation = true;
+
+        // The special “generate BSM directly, do not compute TOTAL-SM” mode is
+        // deliberately limited to C9/CP9.  Their SM four-fermion penguin
+        // projection is not a stable short-distance coefficient in MARTY.  All
+        // other coefficients keep the historical MARTY path.
+        bsm_split_generation = is_c9_like_marty_patch_target(c);
     } else if (ctx.contrib != ContributionType::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;

@@ -79,13 +79,23 @@ std::string GeneralModelModifier::makeSmFilterHelper() {
     return R"cpp(
 namespace {
 std::unordered_set<std::string> hyperiso_marty_sm_particle_names() {
-    mty::SM_Model sm_reference;
-
-    std::unordered_set<std::string> sm_particle_names;
-    for (const auto& particle : sm_reference.getParticles()) {
-        sm_particle_names.emplace(std::string(particle->getName()));
-    }
-    return sm_particle_names;
+    // Do not instantiate an mty::SM_Model inside a generated BSM executable.
+    // MARTY keeps global model state internally; constructing a reference SM
+    // model while a THDM/SUSY model is active can corrupt that state and has
+    // been observed to segfault during fermion embedding.  The split filter
+    // only needs a stable name list, so keep it explicit and local.
+    return {
+        "A", "Z", "W", "Wp", "Wm", "G", "Gp", "Gm", "G0",
+        "h",
+        "u", "c", "t", "d", "s", "b",
+        "u_L", "c_L", "t_L", "d_L", "s_L", "b_L",
+        "u_R", "c_R", "t_R", "d_R", "s_R", "b_R",
+        "e", "mu", "tau",
+        "e_L", "mu_L", "tau_L",
+        "e_R", "mu_R", "tau_R",
+        "nu_e", "nu_mu", "nu_tau",
+        "ve", "vmu", "vtau"
+    };
 }
 
 std::vector<mty::Particle> hyperiso_marty_non_sm_particles(mty::Model& model) {
@@ -188,7 +198,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
             outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM internal particle in "
                        << this->model_instantiation << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v15\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v17\n";
             return;
         }
 

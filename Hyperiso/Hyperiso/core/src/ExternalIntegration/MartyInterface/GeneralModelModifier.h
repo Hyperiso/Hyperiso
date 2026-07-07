@@ -108,7 +108,7 @@ private:
     std::string marty_path{};   ///< Path to MARTY's main include.
     std::optional<int> model_template_index{}; ///< Optional template index.
     bool disable_non_sm_particles{false}; ///< Whether to add the SM-like filter.
-    bool bsm_split_generation{false}; ///< Build one BSM library from TOTAL-SM in MARTY generation.
+    bool bsm_split_generation{false}; ///< Build one BSM-only library by requiring a non-SM internal particle.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.

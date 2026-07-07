@@ -47,7 +47,7 @@ class GeneralNumModelModifier {
 private:
     std::string wilson;     ///< Wilson basis name.
     std::string model;      ///< Model name (e.g. "SM", "THDM", ...).
-    bool bsm_split_generation{false}; ///< Numeric wrapper writes extra SM/TOT diagnostics for BSM split libraries.
+    bool bsm_split_generation{false}; ///< Numeric wrapper writes extra diagnostic columns for BSM-only libraries.
     bool forceMode; ///< If true, forces rewriting even if marker `//42` is found.
     
     Interpreter                 interpreter;
