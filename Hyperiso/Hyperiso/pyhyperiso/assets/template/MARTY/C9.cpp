@@ -1,26 +1,28 @@
 #include <iostream>
+#include <string>
 
+// HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-no-photon-penguin-v11
 using namespace csl;
 using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-
 namespace {
-bool hyperiso_marty_is_light_up_photon_penguin(mty::FeynmanDiagram const& diag) {
-    const bool has_light_up_loop =
-        diag.contains("u",   mty::FeynmanDiagram::DiagramParticleType::Loop) ||
-        diag.contains("u_L", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
-        diag.contains("u_R", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
-        diag.contains("c",   mty::FeynmanDiagram::DiagramParticleType::Loop) ||
-        diag.contains("c_L", mty::FeynmanDiagram::DiagramParticleType::Loop) ||
-        diag.contains("c_R", mty::FeynmanDiagram::DiagramParticleType::Loop);
 
-    const bool has_photon_mediator =
-        diag.contains("A", mty::FeynmanDiagram::DiagramParticleType::Mediator);
-
-    return has_light_up_loop && has_photon_mediator;
+bool hyperiso_marty_is_photon_name(std::string const& name) {
+    return name == "A" || name == "A;\\gamma" || name.find("\\gamma") != std::string::npos;
 }
+
+bool hyperiso_marty_has_photon_mediator(mty::FeynmanDiagram const& diag) {
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Mediator)) {
+        if (hyperiso_marty_is_photon_name(std::string(particle->getName()))) {
+            return true;
+        }
+    }
+    return false;
+}
+
 } // namespace
 
 void defineLibPath(Library &lib) {
@@ -45,8 +47,13 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
+    // The photon-penguin part of b -> s l l is not used directly as a MARTY
+    // four-fermion coefficient: at q^2 -> 0 it carries the regulated photon
+    // propagator and must be replaced by a finite EFT matching term.  The SM
+    // branch is supplied by HyperIso/SuperIso analytically; BSM photon pieces
+    // are expected to be added through WilsonMatchingPatch if needed.
     opts.addFilter([](mty::FeynmanDiagram const& diag) {
-        return !hyperiso_marty_is_light_up_photon_penguin(diag);
+        return !hyperiso_marty_has_photon_mediator(diag);
     });
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
@@ -63,7 +70,7 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
     Expr C9_mu = getWilsonCoefficient(
         wil, 
         dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V)
-    ) / 3;
+    );
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
     mty::Library wilsonLib("C9_SM", "libs");

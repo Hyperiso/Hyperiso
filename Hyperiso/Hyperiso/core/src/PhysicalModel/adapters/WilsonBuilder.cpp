@@ -106,9 +106,10 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     }
 
     WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo, marty_paths};
-    if (use_marty->get()) {
-        port_config.matching_patches.push_back(make_hyperiso_c9_light_photon_sm_patch());
-    }
+    // C9/CP9 photon-penguin finite pieces are intentionally not injected as a
+    // hidden default here.  The SM C9 branch uses the builtin HyperIso/SuperIso
+    // coefficient; BSM photon pieces can be provided explicitly by the user via
+    // WilsonMatchingPatch.
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);

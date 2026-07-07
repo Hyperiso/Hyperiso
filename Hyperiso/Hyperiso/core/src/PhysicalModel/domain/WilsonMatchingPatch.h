@@ -39,34 +39,42 @@ struct WilsonMatchingPatch {
 };
 
 /**
- * @brief Hyperiso/SuperIso SM light-photon piece for C9 at LO.
+ * @brief Optional HyperIso/SuperIso SM photon piece for C9 at LO.
  *
- * The MARTY C9 template removes photon-penguin diagrams with light up-type
- * quarks (u,c) in the loop.  This patch adds back the finite EFT matching term
- * that replaces those diagrams in the standard NDR convention:
+ * The production MARTY path now uses the builtin HyperIso/SuperIso SM C9,
+ * so this helper is not registered automatically.  It is kept as an explicit
+ * building block for workflows that deliberately compute the non-photon SM
+ * C9 pieces with MARTY and want to add the finite photon matching term by hand:
  *
- *     + 38/27 - 4/9 L,    L = log(mu_W^2 / M_W^2)
+ *     -D0t(x_t) + 38/27 - 4/9 L,    L = log(mu_W^2 / M_W^2).
  *
- * This is only the light photon-penguin finite piece.  It does not include the
- * SM charm/up box contribution (+1/(4 s_W^2)), which remains in the MARTY
- * calculation because only photon-mediated light diagrams are filtered.
+ * For BSM photon penguins there is no universal replacement; users should add
+ * a model-specific WilsonMatchingPatch.
  */
-inline WilsonMatchingPatch make_hyperiso_c9_light_photon_sm_patch() {
+inline WilsonMatchingPatch make_hyperiso_c9_sm_photon_patch() {
     WilsonMatchingPatch patch;
     patch.group = GroupMapper::to_id(WGroup::B);
     patch.coefficient = WCoefMapper::to_id(WCoef::C9);
     patch.order = QCDOrder::LO;
     patch.contribution = ContributionType::SM;
     patch.sources = {
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1)},
         ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(3)}
     };
     patch.compute = [](const ParamSrc& src) -> scalar_t {
-        const scalar_t L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 3);
-        return scalar_t(38. / 27.) - scalar_t(4. / 9.) * L;
+        const double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(2, 1));
+        const scalar_t L = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(3));
+        return scalar_t(-D0t(xt) + 38. / 27.) - scalar_t(4. / 9.) * L;
     };
-    patch.label = "Hyperiso:C9:SM-light-photon";
+    patch.label = "Hyperiso:C9:SM-photon";
     patch.marty_only = true;
     return patch;
+}
+
+// Backward-compatible alias for older user code.  The old name only described
+// the light u/c part; the helper now returns the full SM photon matching piece.
+inline WilsonMatchingPatch make_hyperiso_c9_light_photon_sm_patch() {
+    return make_hyperiso_c9_sm_photon_patch();
 }
 
 #endif // HYPERISO_WILSON_MATCHING_PATCH_H
