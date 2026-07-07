@@ -11,8 +11,8 @@ const std::unordered_set<std::string>& wilsons_without_mudim() {
 }
 }
 
-FileWriter::FileWriter(const std::string& wilson, const std::string& model) :
-    wilson(wilson), model(model) {}
+FileWriter::FileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation) :
+    wilson(wilson), model(model), bsm_split_generation(bsm_split_generation) {}
 
 bool FileWriter::should_set_mudim() const {
     return wilsons_without_mudim().find(this->wilson) == wilsons_without_mudim().end();
@@ -29,6 +29,11 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
     }
 
     outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
+
+    if (bsm_split_generation) {
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_COMPONENT\", " + wilson + "_SM(param), Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_COMPONENT\", " + wilson + "_TOT(param), Q_match, path);\n";
+    }
 
 }
 

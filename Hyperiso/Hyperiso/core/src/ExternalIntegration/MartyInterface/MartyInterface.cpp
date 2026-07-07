@@ -34,26 +34,27 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
 }
 
 void MartyInterface::generate(std::string wilson, std::string model, std::string model_path) {
-    generate(std::move(wilson), model, model, std::move(model_path), false);
+    generate(std::move(wilson), model, model, std::move(model_path), false, false);
 }
 
 void MartyInterface::generate(std::string wilson,
                               std::string output_model,
                               std::string target_model,
                               std::string model_path,
-                              bool sm_like_filter) {
+                              bool sm_like_filter,
+                              bool bsm_split_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::generate").valid) {
         return;
     }
 
     const auto model_template_index = resolve_model_template_index(target_model);
     invalidate_template_model_cache_if_needed(
-        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter
+        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter, bsm_split_generation
     );
 
     std::unique_ptr<ModelModifier> smModifier;
     smModifier = std::make_unique<GeneralModelModifier>(
-        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter
+        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter, bsm_split_generation
     );
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, output_model)->getTemplateDir());
@@ -66,12 +67,13 @@ void MartyInterface::generate(std::string wilson,
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model) {
-    generate_numlib(std::move(wilson), model, model);
+    generate_numlib(std::move(wilson), model, model, false);
 }
 
 void MartyInterface::generate_numlib(std::string wilson,
                                      std::string output_model,
-                                     std::string target_model) {
+                                     std::string target_model,
+                                     bool bsm_split_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::generate_numlib").valid) {
         return;
     }
@@ -95,7 +97,8 @@ void MartyInterface::generate_numlib(std::string wilson,
         std::move(sm_p_setter),
         core_api,
         ports,
-        forceMode
+        forceMode,
+        bsm_split_generation
     );
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(file_names->getLibDir());
@@ -118,7 +121,7 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
 }
 
 void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path) {
-    calculate(std::move(wilson), model, model, Q_match, std::move(model_path), false);
+    calculate(std::move(wilson), model, model, Q_match, std::move(model_path), false, false);
 }
 
 void MartyInterface::calculate(std::string wilson,
@@ -126,14 +129,15 @@ void MartyInterface::calculate(std::string wilson,
                                std::string target_model,
                                double Q_match,
                                std::string model_path,
-                               bool sm_like_filter) {
+                               bool sm_like_filter,
+                               bool bsm_split_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::calculate").valid) {
         return;
     }
 
-    generate(wilson, output_model, target_model, model_path, sm_like_filter);
+    generate(wilson, output_model, target_model, model_path, sm_like_filter, bsm_split_generation);
     compile_run(wilson, output_model);
-    generate_numlib(wilson, output_model, target_model);
+    generate_numlib(wilson, output_model, target_model, bsm_split_generation);
     compile_run_libs(wilson, output_model, Q_match);
 }
 
@@ -204,7 +208,8 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                                                                const std::string& target_model,
                                                                const std::string& model_path,
                                                                std::optional<int> model_template_index,
-                                                               bool sm_like_filter) const {
+                                                               bool sm_like_filter,
+                                                               bool bsm_split_generation) const {
     const auto files = FileNameManager::getInstance(wilson, output_model);
     const std::string expected_signature = GeneralModelModifier::modelSignature(
         target_model,
@@ -225,6 +230,7 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
     bool has_expected_template_abi = !needs_template_abi;
     bool has_expected_operator_norm_abi = !needs_operator_norm_abi;
     bool found_unexpected_sm_like_filter = false;
+    bool has_expected_bsm_split_mode = !bsm_split_generation;
 
     {
         std::ifstream in(files->getGeneratedFileName());
@@ -237,6 +243,9 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
             if (line.find("HYPERISO_MARTY_SM_LIKE_FILTER:") != std::string::npos) {
                 has_expected_filter_mode = sm_like_filter;
                 found_unexpected_sm_like_filter = !sm_like_filter;
+            }
+            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v14") != std::string::npos) {
+                has_expected_bsm_split_mode = bsm_split_generation;
             }
             if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {
                 has_expected_template_abi = true;
@@ -251,7 +260,8 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                     || !has_expected_signature
                     || !has_expected_filter_mode
                     || !has_expected_template_abi
-                    || !has_expected_operator_norm_abi;
+                    || !has_expected_operator_norm_abi
+                    || !has_expected_bsm_split_mode;
 
     if (!stale) {
         return;
@@ -279,6 +289,8 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         reason = "template ABI mismatch";
     } else if (!has_expected_operator_norm_abi) {
         reason = "operator-normalization ABI mismatch";
+    } else if (!has_expected_bsm_split_mode) {
+        reason = bsm_split_generation ? "BSM split ABI missing" : "BSM split ABI present but not expected";
     } else {
         reason = "cache metadata mismatch";
     }

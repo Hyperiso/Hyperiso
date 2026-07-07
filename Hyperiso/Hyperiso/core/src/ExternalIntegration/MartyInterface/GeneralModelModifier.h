@@ -74,7 +74,8 @@ public:
                          std::string target_model,
                          std::string model_path,
                          std::optional<int> model_template_index,
-                         bool disable_non_sm_particles);
+                         bool disable_non_sm_particles,
+                         bool bsm_split_generation = false);
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -107,6 +108,12 @@ private:
     std::string marty_path{};   ///< Path to MARTY's main include.
     std::optional<int> model_template_index{}; ///< Optional template index.
     bool disable_non_sm_particles{false}; ///< Whether to add the SM-like filter.
+    bool bsm_split_generation{false}; ///< Build one BSM library from TOTAL-SM in MARTY generation.
+    bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
+    bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
+    bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.
+    bool pending_wilson_graph_count{false}; ///< True while rewriting a multi-line computeWilsonCoefficients call.
+    std::string pending_wilson_set{}; ///< WilsonSet variable whose graphs must be counted.
     ModelClassInfo model_class{}; ///< Resolved C++ class and whether it is templated.
     std::string model_instantiation{}; ///< Concrete C++ type written in the generated file.
 };

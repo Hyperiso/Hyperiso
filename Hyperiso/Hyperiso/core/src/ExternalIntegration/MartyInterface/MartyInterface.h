@@ -102,7 +102,8 @@ public:
                   std::string output_model,
                   std::string target_model,
                   std::string model_path,
-                  bool sm_like_filter);
+                  bool sm_like_filter,
+                  bool bsm_split_generation = false);
 
     /**
      * @brief Compiles and runs the non-numeric generated code.
@@ -142,7 +143,8 @@ public:
      */
     void generate_numlib(std::string wilson,
                          std::string output_model,
-                         std::string target_model);
+                         std::string target_model,
+                         bool bsm_split_generation = false);
 
     /**
      * @brief Compiles and runs the numeric libraries.
@@ -181,7 +183,8 @@ public:
                    std::string target_model,
                    double Q_match,
                    std::string model_path,
-                   bool sm_like_filter);
+                   bool sm_like_filter,
+                  bool bsm_split_generation = false);
 
     /**
      * @brief Retrieves the set of parameter dependencies for a given Wilson basis.
@@ -252,7 +255,8 @@ private:
                                                    const std::string& target_model,
                                                    const std::string& model_path,
                                                    std::optional<int> model_template_index,
-                                                   bool sm_like_filter) const;
+                                                   bool sm_like_filter,
+                                                   bool bsm_split_generation) const;
 
     /// Set of block names requiring special SM handling (e.g. kinematics, angles).
     std::set<std::string> specials_block {"KIN", "WEIN", "Finite", "REGPROP", "BETA"};

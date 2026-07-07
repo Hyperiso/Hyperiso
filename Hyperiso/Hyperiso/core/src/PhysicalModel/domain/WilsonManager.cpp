@@ -219,16 +219,9 @@ void CoefficientManager::ensure_sm_intermediate_and_copy_to_final(
     }
 
     const bool sm_use_marty = allow_hardcoded_sm ? false : marty_backend;
-    const Model active_model = ports_config.model_api ? ports_config.model_api->get() : Model::SM;
-
-    // When MARTY is the active backend for a non-SM model, the SM contribution
-    // must be generated inside the same MARTY model file as the total amplitude,
-    // with the non-SM particles disabled.  Passing Model::SM here would fall back
-    // to sm.h/SM_Model and would reintroduce electroweak-scheme artefacts in
-    // BSM = total(model) - SM(SM_Model).
-    const Model sm_generation_model = (sm_use_marty && active_model != Model::SM)
-        ? active_model
-        : Model::SM;
+    // The SM intermediate is now always a genuine SM_Model calculation.
+    // BSM-specific MARTY subtractions are done inside the generated BSM library.
+    const Model sm_generation_model = Model::SM;
 
     const QCDOrder sm_max_order = (marty_backend && (max_order > QCDOrder::LO) && !allow_hardcoded_sm)
         ? QCDOrder::LO
@@ -443,7 +436,6 @@ void CoefficientManager::compose_missing_from_calculation(
 ) {
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
-    const bool marty_backend = ports_config.use_marty->get();
 
     const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
 
@@ -458,23 +450,13 @@ void CoefficientManager::compose_missing_from_calculation(
         ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
         ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
 
-        if (marty_backend) {
-            ports_config.iblock_c->compose_parameter(
-                pid_bsm,
-                std::unordered_set<ParamId>{ pid_tot, pid_sm },
-                [pid_tot, pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                    dep->set_expected(src.get_val(pid_tot) - src.get_val(pid_sm));
-                }
-            );
-        } else {
-            ports_config.iblock_c->compose_parameter(
-                pid_tot,
-                std::unordered_set<ParamId>{ pid_sm, pid_bsm },
-                [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                    dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
-                }
-            );
-        }
+        ports_config.iblock_c->compose_parameter(
+            pid_tot,
+            std::unordered_set<ParamId>{ pid_sm, pid_bsm },
+            [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
+            }
+        );
     }
 }
 

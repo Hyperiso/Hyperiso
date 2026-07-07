@@ -473,10 +473,10 @@ int main() {
         ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C10, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C7, QCDOrder::LO, ContributionType::BSM)},
         // ParamId{ParameterType::WILSON, had_bsm_block, WCoefMapper::flha_full(WCoef::C8, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
-        ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block3, WCoefMapper::flha_full(WCoef::CP9, QCDOrder::LO, ContributionType::BSM)},
-        // ParamId{ParameterType::WILSON, had_bsm_block3, WCoefMapper::flha_full(WCoef::CP10, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ1, QCDOrder::LO, ContributionType::BSM)},
+        // ParamId{ParameterType::WILSON, had_bsm_block2, WCoefMapper::flha_full(WCoef::CQ2, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block3, WCoefMapper::flha_full(WCoef::CP9, QCDOrder::LO, ContributionType::BSM)},
+        ParamId{ParameterType::WILSON, had_bsm_block3, WCoefMapper::flha_full(WCoef::CP10, QCDOrder::LO, ContributionType::BSM)},
     };
 
 
@@ -544,7 +544,7 @@ int main() {
     opt.primary_contour_method = ContourAlgorithm::MINUIT;
     opt.fallback_contour_method = ContourAlgorithm::AMS;
     opt.profile_backend = ProfileBackend::MINUIT;
-    opt.profiling_method = ProfilingMethod::PRIOR_CONSTRAINED_PROJECTION;
+    opt.profiling_method = ProfilingMethod::FREE_PROJECTION;
     opt.resolution = 50;
 
     opt.on_progress = [trace](const ContourProgressEvent& ev) {

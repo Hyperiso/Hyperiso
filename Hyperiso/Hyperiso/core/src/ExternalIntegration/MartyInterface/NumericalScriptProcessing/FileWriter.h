@@ -35,7 +35,7 @@ public:
      * @param wilson  Wilson basis or identifier (used in filenames and in code).
      * @param model   Physics model name (used in filenames and in code).
      */
-    FileWriter(const std::string& wilson, const std::string& model);
+    FileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation = false);
 
     /**
      * @brief Writes C++ code that handles writing Wilson coefficients to a CSV.
@@ -85,6 +85,7 @@ private:
 
     std::string wilson; ///< Wilson basis / identifier.
     std::string model;  ///< Model name associated with the generated code.
+    bool bsm_split_generation{false}; ///< Write extra SM/TOT columns for split BSM libraries.
 };
 
 #endif

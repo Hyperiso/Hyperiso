@@ -47,6 +47,7 @@ class GeneralNumModelModifier {
 private:
     std::string wilson;     ///< Wilson basis name.
     std::string model;      ///< Model name (e.g. "SM", "THDM", ...).
+    bool bsm_split_generation{false}; ///< Numeric wrapper writes extra SM/TOT diagnostics for BSM split libraries.
     bool forceMode; ///< If true, forces rewriting even if marker `//42` is found.
     
     Interpreter                 interpreter;
@@ -85,7 +86,7 @@ public:
                             std::shared_ptr<ICoreAPI<Model>> api,
                             std::shared_ptr<IInterpreterPortsFactory> ports,
                             bool force = false)
-        : GeneralNumModelModifier(wilson, model, model, std::move(param_setter), std::move(api), std::move(ports), force)
+        : GeneralNumModelModifier(wilson, model, model, std::move(param_setter), std::move(api), std::move(ports), force, false)
     {}
 
     /**
@@ -102,10 +103,17 @@ public:
                             std::unique_ptr<SMParamSetter> param_setter,
                             std::shared_ptr<ICoreAPI<Model>> api,
                             std::shared_ptr<IInterpreterPortsFactory> ports,
-                            bool force = false)
-        : wilson(wilson), model(model), forceMode(force), interpreter(mapping_model, api, ports), paramSetter(std::move(param_setter)), fileWriter(wilson, model), 
-          lineProcessor(includeManager, fileWriter, force), modelWriter(lineProcessor, paramWriter) {
-        
+                            bool force = false,
+                            bool bsm_split_generation = false)
+        : wilson(wilson),
+          model(model),
+          bsm_split_generation(bsm_split_generation),
+          forceMode(force),
+          interpreter(mapping_model, api, ports),
+          paramSetter(std::move(param_setter)),
+          fileWriter(wilson, model, bsm_split_generation),
+          lineProcessor(includeManager, fileWriter, force),
+          modelWriter(lineProcessor, paramWriter) {
         initializeParams();
     }
 
@@ -115,10 +123,11 @@ public:
     inline GeneralNumModelModifier(const GeneralNumModelModifier& other)
     : wilson(other.wilson),
       model(other.model),
+      bsm_split_generation(other.bsm_split_generation),
       forceMode(other.forceMode),
       interpreter(other.interpreter),
       paramSetter(other.paramSetter ? std::make_unique<SMParamSetter>(*other.paramSetter) : nullptr),
-      fileWriter(other.wilson, other.model),
+      fileWriter(other.wilson, other.model, other.bsm_split_generation),
       lineProcessor(includeManager, fileWriter, other.forceMode),
       modelWriter(lineProcessor, paramWriter),
       paramWriter(other.paramWriter),

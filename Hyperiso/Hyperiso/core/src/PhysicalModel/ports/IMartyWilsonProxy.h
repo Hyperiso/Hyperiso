@@ -58,7 +58,8 @@ public:
                            std::string target_model,
                            double Q_match,
                            std::string model_path,
-                           bool sm_like_filter) = 0;
+                           bool sm_like_filter,
+                           bool bsm_split_generation = false) = 0;
 
     /**
      * @brief Returns the set of special parameter blocks.

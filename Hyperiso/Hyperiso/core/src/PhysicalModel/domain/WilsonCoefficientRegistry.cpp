@@ -38,8 +38,18 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     std::string generation_name = "SM";
     fs::path path = ctx.adapters.sm_path;
     bool sm_like_filter = false;
+    bool bsm_split_generation = false;
 
-    if (ctx.contrib != ContributionType::SM) {
+    if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
+        // MARTY now behaves like the builtin backend at PhysicalModel level:
+        // the generated library writes the pure BSM piece.  The subtraction
+        // TOTAL(model)-SM-like(model) is done inside the MARTY generated code,
+        // not by CoefficientManager.
+        output_name = ctx.adapters.marty_model_name->get();
+        generation_name = output_name;
+        path = ctx.adapters.marty_model_path->get();
+        bsm_split_generation = true;
+    } else if (ctx.contrib != ContributionType::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
@@ -51,6 +61,7 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
         output_name,
         generation_name,
         sm_like_filter,
+        bsm_split_generation,
         id,
         block,
         path,
@@ -71,8 +82,8 @@ CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
     // generic Marty->Builtin fallback, otherwise a hardcoded THDM/SUSY coefficient
     // would be used instead of the SM-like MARTY coefficient.
     if (ctx.backend == Backend::Marty
-        && ctx.contrib == ContributionType::SM
-        && ctx.model != Model::SM) {
+        && ctx.model != Model::SM
+        && (ctx.contrib == ContributionType::SM || ctx.contrib == ContributionType::BSM)) {
         if (auto it_sm_marty = table_.find(key(c, Model::SM, Backend::Marty)); it_sm_marty != table_.end())
             return it_sm_marty->second(ctx, c);
     }

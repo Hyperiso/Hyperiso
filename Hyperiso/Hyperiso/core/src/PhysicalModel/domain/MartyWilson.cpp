@@ -13,11 +13,12 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
     std::string marty_model = config.model_name;
     std::string marty_generation_model = config.generation_model_name;
     bool marty_sm_like_filter = config.sm_like_filter;
+    bool marty_bsm_split_generation = config.bsm_split_generation;
     std::string marty_model_path = config.model_path;
 
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = config.marty_proxy;
 
-    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_model_path, marty_proxy] (const ParamSrc& src) -> scalar_t {
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_bsm_split_generation, marty_model_path, marty_proxy] (const ParamSrc& src) -> scalar_t {
         LOG_DEBUG("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.get_val({ParameterType::WILSON, "EW_SCALE", 1});
@@ -26,7 +27,7 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         CSVReader csv_reader;
         DataFrame df;
 
-        marty_proxy->calculate(name, marty_model, marty_generation_model, ew_scale, marty_model_path, marty_sm_like_filter);
+        marty_proxy->calculate(name, marty_model, marty_generation_model, ew_scale, marty_model_path, marty_sm_like_filter, marty_bsm_split_generation);
         df = csv_reader.read_csv(csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 

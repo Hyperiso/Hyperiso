@@ -44,8 +44,9 @@ public:
                    std::string target_model,
                    double Q_match,
                    std::string model_path,
-                   bool sm_like_filter) override {
-        martyAdapter.calculate(wilson, output_model, target_model, Q_match, model_path, sm_like_filter);
+                   bool sm_like_filter,
+                   bool bsm_split_generation = false) override {
+        martyAdapter.calculate(wilson, output_model, target_model, Q_match, model_path, sm_like_filter, bsm_split_generation);
     }
 
     /// @copydoc IMartyWilsonProxy::get_special_blocks

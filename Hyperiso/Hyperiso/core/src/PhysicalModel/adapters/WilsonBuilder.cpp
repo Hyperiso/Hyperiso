@@ -92,13 +92,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     const bool marty = use_marty->get();
 
     for (auto& g_id : config.groups) {
-        ContributionType ct;
-        std::string gn_str = GroupMapper::str(g_id);
-        if (marty) {
-            ct = ContributionType::TOTAL;
-        } else {
-            ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
-        }
+        ContributionType ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
         auto grp = build_group_fn(g_id, model, marty, ct);
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
@@ -174,8 +168,7 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         : std::make_shared<MartyWilsonPathProxy>();
 
     for (auto& g_id : config.groups) {
-        ContributionType ct = marty ? ContributionType::TOTAL
-                                    : ((model == Model::SM) ? ContributionType::SM : ContributionType::BSM);
+        ContributionType ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
 
         BuildContext ctx{
             .adapters = *this->current_group_adapters,

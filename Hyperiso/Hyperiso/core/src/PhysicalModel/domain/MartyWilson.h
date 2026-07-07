@@ -75,6 +75,9 @@ struct MartyWilsonConfig {
     /// If true, generated code instantiates generation_model_name but disables
     /// all particles not present in SM_Model.
     bool sm_like_filter{false};
+
+    /// If true, generated MARTY code writes the BSM piece as TOTAL - SM-like.
+    bool bsm_split_generation{false};
     
     /// Full coefficient id used to store the matching value (including order/type parts).
     LhaID coeff_id;
@@ -174,6 +177,7 @@ struct MartyWilsonConfig {
     MartyWilsonConfig(const std::string& output_model_name,
                       const std::string& generation_model_name,
                       bool sm_like_filter,
+                      bool bsm_split_generation,
                       const LhaID& id,
                       const std::string& storage_block_name,
                       fs::path model_path,
@@ -182,6 +186,7 @@ struct MartyWilsonConfig {
         : model_name(output_model_name),
           generation_model_name(generation_model_name),
           sm_like_filter(sm_like_filter),
+          bsm_split_generation(bsm_split_generation),
           coeff_id(id),
           storage_block(storage_block_name),
           model_path(model_path),
