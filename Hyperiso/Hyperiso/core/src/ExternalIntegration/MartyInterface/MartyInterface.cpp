@@ -247,7 +247,7 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                 has_expected_filter_mode = sm_like_filter;
                 found_unexpected_sm_like_filter = !sm_like_filter;
             }
-            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v14") != std::string::npos) {
+            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v15") != std::string::npos) {
                 has_expected_bsm_split_mode = bsm_split_generation;
             }
             if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {

@@ -42,9 +42,9 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
 
     if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
         // MARTY now behaves like the builtin backend at PhysicalModel level:
-        // the generated library writes the pure BSM piece.  The subtraction
-        // TOTAL(model)-SM-like(model) is done inside the MARTY generated code,
-        // not by CoefficientManager.
+        // the generated library writes the pure BSM piece directly.  In the
+        // generated code we keep only diagrams with at least one non-SM internal
+        // particle, so no unreliable MARTY SM coefficient enters the result.
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();

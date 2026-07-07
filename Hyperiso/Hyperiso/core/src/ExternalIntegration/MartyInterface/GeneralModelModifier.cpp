@@ -78,14 +78,19 @@ std::string GeneralModelModifier::modelSignature(const std::string& model,
 std::string GeneralModelModifier::makeSmFilterHelper() {
     return R"cpp(
 namespace {
-std::vector<mty::Particle> hyperiso_marty_non_sm_particles(mty::Model& model) {
+std::unordered_set<std::string> hyperiso_marty_sm_particle_names() {
     mty::SM_Model sm_reference;
-    mty::Model::current = &model;
 
     std::unordered_set<std::string> sm_particle_names;
     for (const auto& particle : sm_reference.getParticles()) {
         sm_particle_names.emplace(std::string(particle->getName()));
     }
+    return sm_particle_names;
+}
+
+std::vector<mty::Particle> hyperiso_marty_non_sm_particles(mty::Model& model) {
+    mty::Model::current = &model;
+    const auto sm_particle_names = hyperiso_marty_sm_particle_names();
 
     std::vector<mty::Particle> non_sm_particles;
     for (const auto& particle : model.getParticles()) {
@@ -103,6 +108,33 @@ void hyperiso_marty_disable_non_sm_particles(mty::FeynOptions& opts, mty::Model&
     if (!non_sm_particles.empty()) {
         opts.addFilter(mty::filter::disableParticles(non_sm_particles));
     }
+}
+
+bool hyperiso_marty_is_non_sm_particle_name(const std::string& name,
+                                            const std::unordered_set<std::string>& sm_particle_names) {
+    return sm_particle_names.find(name) == sm_particle_names.end();
+}
+
+bool hyperiso_marty_has_non_sm_internal_particle(mty::FeynmanDiagram const& diag,
+                                                 const std::unordered_set<std::string>& sm_particle_names) {
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Loop)) {
+        if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
+            return true;
+        }
+    }
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Mediator)) {
+        if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void hyperiso_marty_require_non_sm_internal_particle(mty::FeynOptions& opts) {
+    const auto sm_particle_names = hyperiso_marty_sm_particle_names();
+    opts.addFilter([sm_particle_names](mty::FeynmanDiagram const& diag) {
+        return hyperiso_marty_has_non_sm_internal_particle(diag, sm_particle_names);
+    });
 }
 } // namespace
 )cpp";
@@ -154,9 +186,9 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include \"" + this->model_path + "\"" << "\n";
             outputFile << "#include \"" + this->marty_path + "\"" << "\n";
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT: TOTAL minus SM-like in "
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM internal particle in "
                        << this->model_instantiation << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v14\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v15\n";
             return;
         }
 
@@ -182,6 +214,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << currentLine << "\n";
             outputFile << "    if (hyperiso_marty_sm_like_filter) {\n";
             outputFile << "        hyperiso_marty_disable_non_sm_particles(opts, model);\n";
+            outputFile << "    } else {\n";
+            outputFile << "        hyperiso_marty_require_non_sm_internal_particle(opts);\n";
             outputFile << "    }\n";
             return;
         }
@@ -268,29 +302,20 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         if (currentLine.find("int main") != std::string::npos) {
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
-            outputFile << "    auto hyperiso_marty_total_tree = hyperiso_marty_build_" << this->wilson
+            outputFile << "    auto hyperiso_marty_bsm_tree = hyperiso_marty_build_" << this->wilson
                        << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, false);\n";
-            outputFile << "    auto hyperiso_marty_sm_tree = hyperiso_marty_build_" << this->wilson
-                       << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, true);\n";
-            outputFile << "    const bool hyperiso_marty_has_bsm_tree = hyperiso_marty_total_tree.second > hyperiso_marty_sm_tree.second;\n";
-            outputFile << "    Expr hyperiso_marty_total = hyperiso_marty_total_tree.first;\n";
-            outputFile << "    Expr hyperiso_marty_sm = hyperiso_marty_sm_tree.first;\n";
-            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_total_tree.first - hyperiso_marty_sm_tree.first;\n";
-            outputFile << "    if (!hyperiso_marty_has_bsm_tree && hyperiso_marty_bsm == CSL_0) {\n";
-            outputFile << "        auto hyperiso_marty_total_loop = hyperiso_marty_build_" << this->wilson
+            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_bsm_tree.first;\n";
+            outputFile << "    if (hyperiso_marty_bsm_tree.second == 0 || hyperiso_marty_bsm == CSL_0) {\n";
+            outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
                        << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-            outputFile << "        auto hyperiso_marty_sm_loop = hyperiso_marty_build_" << this->wilson
-                       << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true);\n";
-            outputFile << "        hyperiso_marty_total = hyperiso_marty_total_loop.first;\n";
-            outputFile << "        hyperiso_marty_sm = hyperiso_marty_sm_loop.first;\n";
-            outputFile << "        hyperiso_marty_bsm = hyperiso_marty_total - hyperiso_marty_sm;\n";
+            outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
             outputFile << "    }\n";
             outputFile << "    [[maybe_unused]] int sysres = system(\"rm -rf libs/" << this->wilson << "_" << this->output_model << "\");\n";
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_" << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "\", hyperiso_marty_bsm);\n";
-            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_SM\", hyperiso_marty_sm);\n";
-            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_TOT\", hyperiso_marty_total);\n";
+            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_SM\", CSL_0);\n";
+            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_TOT\", hyperiso_marty_bsm);\n";
             outputFile << "    defineLibPath(wilsonLib);\n";
             outputFile << "    wilsonLib.print();\n";
             outputFile << "    return 0;\n";
