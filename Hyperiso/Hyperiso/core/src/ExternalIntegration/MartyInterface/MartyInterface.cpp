@@ -184,7 +184,7 @@ std::optional<std::string> expected_semileptonic_template_abi_for(const std::str
         "CPQ2_E", "CPQ2_MU", "CPQ2_TA"
     };
     if (scalar_bqll_wilsons.contains(wilson)) {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-oneloop-externallegs-v1"};
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-finite-scheme-v12"};
     }
 
     return std::nullopt;

@@ -10,6 +10,20 @@ namespace {
 double sqr(double x) { return x * x; }
 double fourth(double x) { const double x2 = x * x; return x2 * x2; }
 
+bool containsAny(const std::string& text, std::initializer_list<const char*> needles) {
+    return std::any_of(needles.begin(), needles.end(), [&](const char* needle) {
+        return text.find(needle) != std::string::npos;
+    });
+}
+
+bool isScalarQ1LikeTemplate(const std::string& path) {
+    return containsAny(path, {"_CQ1", "_CPQ1"});
+}
+
+bool isScalarQ2LikeTemplate(const std::string& path) {
+    return containsAny(path, {"_CQ2", "_CPQ2"});
+}
+
 } // namespace
 
 SMParamSetter::SMParamSetter(const std::string& model,
@@ -82,6 +96,22 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
     }
     if (interpretedParam.block == "WEIN") {
         return asin(sqrt((*sm_proxy)("SMINPUTS", LhaID(7, 1))));
+    }
+    if (interpretedParam.block == "Finite") {
+        // MARTY leaves a finite local term in the scalar/pseudoscalar 4-fermion
+        // matching.  SuperIso's CQ basis corresponds to different finite
+        // prescriptions for scalar and pseudoscalar lepton bilinears.  Apply the
+        // prescription per generated Wilson coefficient instead of using a
+        // single global value: Q1-like coefficients use Finite=0, Q2-like
+        // coefficients use Finite=4.  Other generated libraries keep MARTY's
+        // historical default value Finite=1.
+        if (isScalarQ1LikeTemplate(cinematic_template)) {
+            return 0.0;
+        }
+        if (isScalarQ2LikeTemplate(cinematic_template)) {
+            return 4.0;
+        }
+        return 1.0;
     }
     if (interpretedParam.block == "REGPROP") {
         // MARTY's massless-vector penguin patch produces a regulated q^2/q^2

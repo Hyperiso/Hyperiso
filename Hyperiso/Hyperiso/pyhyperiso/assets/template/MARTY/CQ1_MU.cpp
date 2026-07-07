@@ -1,5 +1,6 @@
 #include <iostream>
-// HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-oneloop-externallegs-v1
+
+// HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-finite-scheme-v12
 
 using namespace csl;
 using namespace mty;
@@ -36,8 +37,8 @@ int calculate_CQ1mu(Model &model, gauge::Type gauge) {
          Outgoing("mu"), Outgoing(AntiPart("mu"))},
         opts);
 
-    auto Q1 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {1, 0, 2, 3});
-    Expr CQ1_mu = getWilsonCoefficient(wil, Q1);
+    auto Q1_mu = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {1, 0, 2, 3});
+    Expr CQ1_mu = getWilsonCoefficient(wil, Q1_mu);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CQ1_MU_SM");
     mty::Library wilsonLib("CQ1_MU_SM", "libs");
