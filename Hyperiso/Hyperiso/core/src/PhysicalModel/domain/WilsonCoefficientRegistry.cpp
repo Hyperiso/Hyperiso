@@ -33,8 +33,12 @@ static LhaID flhaid(WCoef c, QCDOrder ord, ContributionType ct) {
     return WCoefMapper::flha_full(c, ord, ct);
 }
 
-static bool is_c9_like_marty_patch_target(WCoef c) {
-    return c == WCoef::C9 || c == WCoef::CP9;
+static bool is_split_regprop_marty_target(WCoef c) {
+    return c == WCoef::C9 || c == WCoef::CP9 || c == WCoef::CP10;
+}
+
+static bool is_split_regprop_with_sm_components(WCoef c) {
+    return c == WCoef::CP10;
 }
 
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
@@ -44,16 +48,24 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     bool sm_like_filter = false;
     bool bsm_split_generation = false;
 
-    if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
+    if (ctx.model != Model::SM && is_split_regprop_with_sm_components(c)) {
+        // CP10 needs both SM-like and BSM components from the same generated
+        // target model so that the numeric wrapper can combine:
+        //   SM non-A, SM A, BSM non-A, BSM A
+        // with the appropriate reg_prop value for each A/non-A piece.
+        output_name = ctx.adapters.marty_model_name->get();
+        generation_name = output_name;
+        path = ctx.adapters.marty_model_path->get();
+        bsm_split_generation = true;
+    } else if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
 
-        // The special “generate BSM directly, do not compute TOTAL-SM” mode is
-        // deliberately limited to C9/CP9.  Their SM four-fermion penguin
-        // projection is not a stable short-distance coefficient in MARTY.  All
-        // other coefficients keep the historical MARTY path.
-        bsm_split_generation = is_c9_like_marty_patch_target(c);
+        // The split-reg_prop mode is deliberately limited to the coefficients
+        // whose raw MARTY photon-linker part needs a different reg_prop policy.
+        // All other coefficients keep the historical MARTY path.
+        bsm_split_generation = is_split_regprop_marty_target(c);
     } else if (ctx.contrib != ContributionType::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
@@ -112,7 +124,9 @@ CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
     // would be used instead of the SM-like MARTY coefficient.
     if (ctx.backend == Backend::Marty
         && ctx.model != Model::SM
-        && (ctx.contrib == ContributionType::SM || ctx.contrib == ContributionType::BSM)) {
+        && (ctx.contrib == ContributionType::SM
+            || ctx.contrib == ContributionType::BSM
+            || (ctx.contrib == ContributionType::TOTAL && is_split_regprop_with_sm_components(c)))) {
         if (auto it_sm_marty = table_.find(key(c, Model::SM, Backend::Marty)); it_sm_marty != table_.end())
             return it_sm_marty->second(ctx, c);
     }

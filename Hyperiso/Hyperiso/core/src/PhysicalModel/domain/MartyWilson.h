@@ -77,7 +77,7 @@ struct MartyWilsonConfig {
     bool sm_like_filter{false};
 
     /// If true, generated MARTY code writes a pure BSM piece directly.  This is
-    /// currently used only by C9/CP9, where the SM-like MARTY photon-penguin
+    /// currently used by C9/CP9/CP10, where selected MARTY photon-linker
     /// subtraction is not a valid short-distance matching coefficient.
     bool bsm_split_generation{false};
     

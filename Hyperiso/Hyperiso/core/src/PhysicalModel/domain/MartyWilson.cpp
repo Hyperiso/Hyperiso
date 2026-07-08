@@ -17,8 +17,9 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
     std::string marty_model_path = config.model_path;
 
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = config.marty_proxy;
+    ContributionType contribution_type = this->type;
 
-    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_bsm_split_generation, marty_model_path, marty_proxy] (const ParamSrc& src) -> scalar_t {
+    matching_info[QCDOrder::LO].compute = [&sources, name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_bsm_split_generation, marty_model_path, marty_proxy, contribution_type] (const ParamSrc& src) -> scalar_t {
         LOG_DEBUG("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.get_val({ParameterType::WILSON, "EW_SCALE", 1});
@@ -31,10 +32,21 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         df = csv_reader.read_csv(csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 
+        std::string csv_column_base = name;
+        if (marty_bsm_split_generation && name == "CP10") {
+            if (contribution_type == ContributionType::SM) {
+                csv_column_base = name + "_SM_SPLIT";
+            } else if (contribution_type == ContributionType::BSM) {
+                csv_column_base = name + "_BSM_SPLIT";
+            } else if (contribution_type == ContributionType::TOTAL) {
+                csv_column_base = name + "_TOTAL_SPLIT";
+            }
+        }
+
         for (size_t i = 0; i < df.getRowCount(); ++i) {
             double Q_match = df.iat<double>(i, "Q_match");
             if (fabs(Q_match - ew_scale) < epsi) {
-                result = {df.iat<double>(i, name+"_real"), df.iat<double>(i, name+"_img")};
+                result = {df.iat<double>(i, csv_column_base+"_real"), df.iat<double>(i, csv_column_base+"_img")};
                 break; 
             }
         }
