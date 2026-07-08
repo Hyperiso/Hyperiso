@@ -38,7 +38,13 @@ static bool is_split_regprop_marty_target(WCoef c) {
 }
 
 static bool is_split_regprop_with_sm_components(WCoef c) {
-    return c == WCoef::CP10;
+    // SM primed semileptonic C'9/C'10 pieces are zero in the SuperIso
+    // matching convention.  Earlier versions generated a SM-like CP10 MARTY
+    // component for diagnostics, but it is a raw 4-fermion projection and can
+    // leak a small spurious value.  Keep SM from the builtin backend and split
+    // only the BSM MARTY contribution.
+    (void)c;
+    return false;
 }
 
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
@@ -110,6 +116,15 @@ static CoefPtr make_cp9_marty_compatible(const BuildContext& ctx) {
         return std::make_shared<CP9>();
     }
     return make_marty(ctx, WCoef::CP9);
+}
+
+static CoefPtr make_cp10_marty_compatible(const BuildContext& ctx) {
+    // In the SuperIso convention the SM primed C10 coefficient is zero at the
+    // matching scale.  Do not use a MARTY SM-like 4-fermion projection for it.
+    if (ctx.contrib == ContributionType::SM) {
+        return std::make_shared<CP10>();
+    }
+    return make_marty(ctx, WCoef::CP10);
 }
 
 CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
@@ -250,6 +265,7 @@ void register_BPrime(CoefficientRegistry& reg) {
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
     }
     REG(WCoef::CP9, Model::SM, Backend::Marty, make_cp9_marty_compatible(ctx));
+    REG(WCoef::CP10, Model::SM, Backend::Marty, make_cp10_marty_compatible(ctx));
 
     REG(WCoef::CPQ1, SM, Builtin, std::make_shared<CPQ1>(WCoef::CPQ1_MU));
     REG(WCoef::CPQ2, SM, Builtin, std::make_shared<CPQ2>(WCoef::CPQ2_MU));

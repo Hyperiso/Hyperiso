@@ -2,7 +2,7 @@
 #include <string>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-linker-components-v18
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-top-only-v19
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -34,6 +34,28 @@ bool hyperiso_marty_is_scalar_particle(const mty::Particle& particle) {
 
 bool hyperiso_marty_is_photon_linker_particle(const mty::Particle& particle) {
     return hyperiso_marty_is_photon_name(std::string(particle->getName()));
+}
+
+bool hyperiso_marty_is_light_up_name(std::string const& name) {
+    // SuperIso's THDM C'_10 formula is the GIM-subtracted charged-Higgs top
+    // contribution, proportional to f20(m_t^2/M_H+^2). MARTY's raw THDM loop
+    // keeps u/c charged-Higgs diagrams before that EFT/GIM subtraction; after
+    // normalization by V_tb V_ts^* they generate the CKM-phase artefact seen in
+    // CP10.  Veto only light up-type loop fermions.
+    return name == "u" || name == "c"
+        || name.find("u_L") != std::string::npos
+        || name.find("u_R") != std::string::npos
+        || name.find("c_L") != std::string::npos
+        || name.find("c_R") != std::string::npos;
+}
+
+bool hyperiso_marty_has_light_up_loop(mty::FeynmanDiagram const& diag) {
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Loop)) {
+        if (hyperiso_marty_is_light_up_name(std::string(particle->getName()))) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool hyperiso_marty_is_forbidden_cp10_linker_particle(const mty::Particle& particle) {
@@ -153,6 +175,9 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     //   - PhotonOnly      -> CP10_A / CP10_SM_A, evaluated with reg_prop = 1.
     opts.addFilter([](mty::FeynmanDiagram const& diag) {
         return hyperiso_marty_accept_c9_linker(diag);
+    });
+    opts.addFilter([](mty::FeynmanDiagram const& diag) {
+        return !hyperiso_marty_has_light_up_loop(diag);
     });
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);

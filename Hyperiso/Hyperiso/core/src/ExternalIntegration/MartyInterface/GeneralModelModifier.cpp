@@ -198,7 +198,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
             outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM internal particle in "
                        << this->model_instantiation << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v23\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v24\n";
             return;
         }
 
@@ -310,7 +310,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         }
 
         if (currentLine.find("int main") != std::string::npos) {
-            const bool split_sm_components = (this->wilson == "CP10");
+            const bool split_sm_components = false;
             const bool split_linker_components = (this->wilson == "CP10");
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";

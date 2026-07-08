@@ -12,11 +12,8 @@ const std::unordered_set<std::string>& wilsons_without_mudim() {
 
 const std::unordered_set<std::string>& wilsons_with_marty_split_sm_components() {
     static const std::unordered_set<std::string> values = {
-        // CP10 is generated in four pieces: SM/non-photon, SM/photon,
-        // BSM/non-photon and BSM/photon. C9/CP9 keep their SM part outside
-        // MARTY, so the generated MARTY library may legitimately not export
-        // *_SM or *_SM_A when those expressions are exactly zero.
-        "CP10"
+        // Empty by design: SM primed semileptonic coefficients are supplied by
+        // the builtin backend.  For C9/CP9/CP10 the MARTY split is BSM-only.
     };
     return values;
 }

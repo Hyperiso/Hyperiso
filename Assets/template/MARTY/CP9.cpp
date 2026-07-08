@@ -2,7 +2,7 @@
 #include <string>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-split-regprop-photon-component-v15
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-split-regprop-top-only-v17
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -32,6 +32,30 @@ bool hyperiso_marty_is_scalar_particle(const mty::Particle& particle) {
 
 bool hyperiso_marty_is_photon_linker_particle(const mty::Particle& particle) {
     return hyperiso_marty_is_photon_name(std::string(particle->getName()));
+}
+
+bool hyperiso_marty_is_light_up_name(std::string const& name) {
+    // For primed semileptonic charged-Higgs coefficients the SuperIso THDM
+    // matching is already written as the GIM-subtracted top contribution.
+    // MARTY's raw 4-fermion computation keeps u/c charged-Higgs penguins and
+    // boxes separately; after factoring V_tb V_ts^* these pieces carry CKM
+    // phases and do not correspond to the short-distance THDM C'_9 matching
+    // convention.  Veto only light up-type loop fermions; do not veto external
+    // leptons ("mu") or BSM particles such as H+.
+    return name == "u" || name == "c"
+        || name.find("u_L") != std::string::npos
+        || name.find("u_R") != std::string::npos
+        || name.find("c_L") != std::string::npos
+        || name.find("c_R") != std::string::npos;
+}
+
+bool hyperiso_marty_has_light_up_loop(mty::FeynmanDiagram const& diag) {
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Loop)) {
+        if (hyperiso_marty_is_light_up_name(std::string(particle->getName()))) {
+            return true;
+        }
+    }
+    return false;
 }
 
 bool hyperiso_marty_is_forbidden_c9_linker_particle(const mty::Particle& particle) {
@@ -142,6 +166,9 @@ int calculate_CP9mu(Model &model, gauge::Type gauge) {
     // The numeric wrapper writes CP9 = CP9_non-photon + CP9_A.
     opts.addFilter([](mty::FeynmanDiagram const& diag) {
         return hyperiso_marty_accept_c9_linker(diag);
+    });
+    opts.addFilter([](mty::FeynmanDiagram const& diag) {
+        return !hyperiso_marty_has_light_up_loop(diag);
     });
     opts.setFermionOrder({1, 0, 2, 3});
     opts.setWilsonOperatorCoefficient(factorOperator);
