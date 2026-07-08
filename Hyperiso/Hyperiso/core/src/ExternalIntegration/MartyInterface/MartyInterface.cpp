@@ -182,7 +182,7 @@ std::optional<std::string> expected_semileptonic_template_abi_for(const std::str
         return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};
     }
     if (wilson == "CP10") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-photon-component-v16"};
+        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-linker-components-v18"};
     }
 
     static const std::unordered_set<std::string> scalar_bqll_wilsons = {
@@ -251,7 +251,7 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                 has_expected_filter_mode = sm_like_filter;
                 found_unexpected_sm_like_filter = !sm_like_filter;
             }
-            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v21") != std::string::npos) {
+            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v23") != std::string::npos) {
                 has_expected_bsm_split_mode = bsm_split_generation;
             }
             if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {

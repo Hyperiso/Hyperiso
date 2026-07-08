@@ -50,19 +50,43 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\tauto hyperiso_regprop_it = param.realParams.find(\"reg_prop\");\n";
         outputFile << "\tbool hyperiso_has_regprop = hyperiso_regprop_it != param.realParams.end() && hyperiso_regprop_it->second != nullptr;\n";
         const bool read_split_sm_components = should_read_marty_split_sm_components(this->wilson);
+        const bool expose_linker_components = (this->wilson == "CP10");
         outputFile << "\tdouble hyperiso_regprop_saved = 1e-6;\n";
         outputFile << "\tif (hyperiso_has_regprop) {\n";
         outputFile << "\t\thyperiso_regprop_saved = static_cast<double>(*hyperiso_regprop_it->second);\n";
         outputFile << "\t}\n";
+
         outputFile << "\tif (hyperiso_has_regprop) {\n";
         outputFile << "\t\t*hyperiso_regprop_it->second = 1e-6;\n";
         outputFile << "\t}\n";
-        outputFile << "\tauto hyperiso_bsm_non_photon = " + wilson + "(param);\n";
+        if (expose_linker_components) {
+            // Use the full non-photon branch for the physical value.  The
+            // VECTOR / SCALAR calls are diagnostics: they help identify where
+            // CP10 comes from without risking double counting or losing boxes.
+            outputFile << "\tauto hyperiso_bsm_non_photon = " + wilson + "(param);\n";
+            outputFile << "\tauto hyperiso_bsm_vector = " + wilson + "_VECTOR(param);\n";
+            outputFile << "\tauto hyperiso_bsm_scalar = " + wilson + "_SCALAR(param);\n";
+        } else {
+            outputFile << "\tauto hyperiso_bsm_non_photon = " + wilson + "(param);\n";
+            outputFile << "\tauto hyperiso_bsm_vector = hyperiso_bsm_non_photon;\n";
+            outputFile << "\tauto hyperiso_bsm_scalar = 0.0 * hyperiso_bsm_non_photon;\n";
+        }
         if (read_split_sm_components) {
-            outputFile << "\tauto hyperiso_sm_non_photon = " + wilson + "_SM(param);\n";
+            if (expose_linker_components) {
+                outputFile << "\tauto hyperiso_sm_non_photon = " + wilson + "_SM(param);\n";
+                outputFile << "\tauto hyperiso_sm_vector = " + wilson + "_SM_VECTOR(param);\n";
+                outputFile << "\tauto hyperiso_sm_scalar = " + wilson + "_SM_SCALAR(param);\n";
+            } else {
+                outputFile << "\tauto hyperiso_sm_non_photon = " + wilson + "_SM(param);\n";
+                outputFile << "\tauto hyperiso_sm_vector = hyperiso_sm_non_photon;\n";
+                outputFile << "\tauto hyperiso_sm_scalar = 0.0 * hyperiso_sm_non_photon;\n";
+            }
         } else {
             outputFile << "\tauto hyperiso_sm_non_photon = 0.0 * hyperiso_bsm_non_photon;\n";
+            outputFile << "\tauto hyperiso_sm_vector = 0.0 * hyperiso_bsm_vector;\n";
+            outputFile << "\tauto hyperiso_sm_scalar = 0.0 * hyperiso_bsm_scalar;\n";
         }
+
         outputFile << "\tif (hyperiso_has_regprop) {\n";
         outputFile << "\t\t*hyperiso_regprop_it->second = 1.0;\n";
         outputFile << "\t}\n";
@@ -72,6 +96,7 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
         } else {
             outputFile << "\tauto hyperiso_sm_photon = 0.0 * hyperiso_bsm_photon;\n";
         }
+
         outputFile << "\tif (hyperiso_has_regprop) {\n";
         outputFile << "\t\t*hyperiso_regprop_it->second = hyperiso_regprop_saved;\n";
         outputFile << "\t}\n";
@@ -86,6 +111,12 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_A\", hyperiso_bsm_photon, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_NONPHOTON\", hyperiso_sm_non_photon, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_A\", hyperiso_sm_photon, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_VECTOR\", hyperiso_bsm_vector, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SCALAR\", hyperiso_bsm_scalar, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_VECTOR\", hyperiso_sm_vector, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_SCALAR\", hyperiso_sm_scalar, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_VECTOR\", hyperiso_sm_vector + hyperiso_bsm_vector, Q_match, path);\n";
+        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_SCALAR\", hyperiso_sm_scalar + hyperiso_bsm_scalar, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_COMPONENT\", hyperiso_sm_split, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_COMPONENT\", hyperiso_total_split, Q_match, path);\n";
     } else {

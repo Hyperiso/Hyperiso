@@ -2,7 +2,7 @@
 #include <string>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-photon-component-v16
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-linker-components-v18
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -12,7 +12,9 @@ namespace {
 
 enum class HyperisoMartyC9LinkerSelection {
     NonPhotonVector,
-    PhotonOnly
+    PhotonOnly,
+    ScalarOnly,
+    VectorOnly
 };
 
 HyperisoMartyC9LinkerSelection hyperiso_marty_c9_linker_selection =
@@ -35,21 +37,25 @@ bool hyperiso_marty_is_photon_linker_particle(const mty::Particle& particle) {
 }
 
 bool hyperiso_marty_is_forbidden_cp10_linker_particle(const mty::Particle& particle) {
-    // In the split-reg_prop policy, raw photon linkers are evaluated in a
-    // separate *_A function.  The main CP10 function keeps only the non-photon
-    // vector part, which is evaluated numerically with reg_prop = 1e-6.
-    if (hyperiso_marty_is_photon_linker_particle(particle)) {
-        return true;
-    }
+    // CP10 is different from C9/CP9: the finite charged-Higgs primed-C10
+    // term contains the non-photon penguin completion. In Feynman gauge MARTY
+    // can represent part of that completion through scalar / Goldstone linkers,
+    // so the CP10 non-photon branch must keep them. Only the raw photon linker
+    // is split out and evaluated with the dedicated reg_prop.
+    return hyperiso_marty_is_photon_linker_particle(particle);
+}
 
-    // Scalar / Goldstone linkers should not be projected onto vector/axial
-    // semileptonic coefficients.  They belong to scalar operators or to a
-    // separate gauge/EFT treatment, not to CP10.
-    if (hyperiso_marty_is_scalar_particle(particle)) {
-        return true;
-    }
+bool hyperiso_marty_is_scalar_linker_particle(const mty::Particle& particle) {
+    return !hyperiso_marty_is_photon_linker_particle(particle)
+        && hyperiso_marty_is_scalar_particle(particle);
+}
 
-    return false;
+bool hyperiso_marty_is_vector_non_photon_linker_particle(const mty::Particle& particle) {
+    // External fermions b/s/mu are also present when MARTY applies filters,
+    // so "not scalar" is not enough here.  A vector linker must really be a
+    // spin-1 boson, and not the photon branch already split into *_A.
+    return !hyperiso_marty_is_photon_linker_particle(particle)
+        && particle->getSpinDimension() == 3;
 }
 
 template <typename Predicate>
@@ -82,12 +88,28 @@ bool hyperiso_marty_has_forbidden_cp10_linker(mty::FeynmanDiagram const& diag) {
     });
 }
 
+bool hyperiso_marty_has_scalar_linker(mty::FeynmanDiagram const& diag) {
+    return hyperiso_marty_has_linker_matching(diag, [](const mty::Particle& particle) {
+        return hyperiso_marty_is_scalar_linker_particle(particle);
+    });
+}
+
+bool hyperiso_marty_has_vector_non_photon_linker(mty::FeynmanDiagram const& diag) {
+    return hyperiso_marty_has_linker_matching(diag, [](const mty::Particle& particle) {
+        return hyperiso_marty_is_vector_non_photon_linker_particle(particle);
+    });
+}
+
 bool hyperiso_marty_accept_c9_linker(mty::FeynmanDiagram const& diag) {
     switch (hyperiso_marty_c9_linker_selection) {
         case HyperisoMartyC9LinkerSelection::NonPhotonVector:
             return !hyperiso_marty_has_forbidden_cp10_linker(diag);
         case HyperisoMartyC9LinkerSelection::PhotonOnly:
             return hyperiso_marty_has_photon_linker(diag);
+        case HyperisoMartyC9LinkerSelection::ScalarOnly:
+            return hyperiso_marty_has_scalar_linker(diag);
+        case HyperisoMartyC9LinkerSelection::VectorOnly:
+            return hyperiso_marty_has_vector_non_photon_linker(diag);
     }
     return !hyperiso_marty_has_forbidden_cp10_linker(diag);
 }
