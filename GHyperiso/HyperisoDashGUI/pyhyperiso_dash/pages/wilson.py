@@ -4,7 +4,7 @@ from dash import dcc, html
 
 from pyhyperiso_dash import services as svc
 from pyhyperiso_dash.components import card, data_table, dropdown, enum_options, field, graph, num_input, page_title, small_note, status_box, text_input
-from pyhyperiso.core.Common.GeneralEnum import ContributionType, ParameterType, QCDOrder, WCoeff, WGroup, WilsonBasis
+from pyhyperiso.core.Common.GeneralEnum import ContributionType, ParameterType, QCDOrder, WilsonBasis
 
 METHOD_OPTIONS = [
     {"label": "M — matching at fixed QCD order", "value": "M"},
@@ -46,7 +46,7 @@ def layout():
                                 "Build Wilson pipeline",
                                 "WilsonBuildConfig",
                                 children=html.Div([
-                                    field("Groups", dropdown("wilson-groups", enum_options(WGroup), value=["B"], multi=True)),
+                                    field("Groups", dropdown("wilson-groups", svc.wilson_group_options(), value=["BCoefficients"], multi=True)),
                                     html.Div(className="form-grid-3", children=[
                                         field("Matching scale μW", num_input("wilson-matching-scale", 81.0)),
                                         field("Hadronic scale μh", num_input("wilson-hadronic-scale", 2.0)),
@@ -68,8 +68,8 @@ def layout():
                                         field("Scalar component", dropdown("wilson-component", SCALAR_COMPONENT_OPTIONS, value="real")),
                                     ]),
                                     html.Div(className="form-grid-2", children=[
-                                        field("Group", dropdown("wilson-request-group", enum_options(WGroup), value="B")),
-                                        field("Coefficient", dropdown("wilson-request-coeff", svc.wilson_coeff_options_for_group("B"), value="C7")),
+                                        field("Group", dropdown("wilson-request-group", svc.wilson_group_options(), value="BCoefficients")),
+                                        field("Coefficient", dropdown("wilson-request-coeff", svc.wilson_coeff_options_for_group("BCoefficients"), value="C7")),
                                     ]),
                                     html.Div(className="form-grid-3", children=[
                                         field("Order", dropdown("wilson-request-order", enum_options(QCDOrder), value="NNLO")),

@@ -73,6 +73,20 @@ For local use, run a single Dash process. If deploying through a production serv
 
 The dashboard focuses on the chi-square / Monte-Carlo covariance workflow for interactive use. More advanced likelihood profiling and backend choices should be exposed through the Python API first and added to the GUI only once the behavior is stable.
 
+The GUI maps covariance and nuisance-pruning settings to
+`StatisticConfig.advanced`, while common Monte-Carlo settings remain on the
+top-level config. All C++ terminal diagnostics are disabled in the Dash path.
+An indeterminate progress bar is displayed while uncertainty and fit callbacks
+are running; exact accepted-draw progress will require a future callback/event
+API from the C++ Monte-Carlo engine.
+
+## Wilson identifiers
+
+Wilson group and coefficient selectors are populated through the core mapper
+API and requests are passed as dynamic string identifiers. This avoids coupling
+the GUI to a potentially incomplete legacy Python enum when new built-in groups
+or coefficients are added in C++.
+
 ## Parameter scans
 
 Scan callbacks must always restore modified parameters after calculation. The current service layer follows the pattern:

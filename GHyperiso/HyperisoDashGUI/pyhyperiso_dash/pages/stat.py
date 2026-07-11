@@ -128,7 +128,11 @@ def layout():
                 ])),
                 card("Experiments and MC", "χ² backend only", html.Div([
                     field("Experiments", text_input("stat-experiments", "", placeholder="comma-separated; empty = all")),
-                    field("MC draws", num_input("stat-mc-draws", 100)),
+                    html.Div(className="form-grid-3", children=[
+                        field("MC draws", num_input("stat-mc-draws", 100)),
+                        field("MC threads", num_input("stat-mc-threads", 1)),
+                        field("MC seed", num_input("stat-mc-seed", 123456)),
+                    ]),
                     html.Div(id="stat-advanced-options-wrap", style={"display": "none"}, children=[
                         html.Div(className="form-grid-2", children=[
                             field("Skew threshold", num_input("stat-skew-threshold", 0.2)),
@@ -145,6 +149,15 @@ def layout():
                 card("Uncertainty", "GaussianSummary", html.Div([
                     field("Uncertainty display", dropdown("stat-uncertainty-mode", [{"label": "symmetric", "value": "sym"}, {"label": "asymmetric", "value": "asym"}], value="sym")),
                     html.Button("Compute uncertainties", id="stat-uncertainty-btn", n_clicks=0),
+                    html.Div(
+                        id="stat-uncertainty-progress-wrap",
+                        className="task-progress-wrap",
+                        style={"display": "none"},
+                        children=[
+                            html.Progress(className="task-progress", max=100),
+                            html.Span("Monte-Carlo / uncertainty computation in progress…"),
+                        ],
+                    ),
                     status_box("stat-uncertainty-status", "No uncertainty computation yet."),
                 ])),
                 card("Fit and contour", "max 10 p_specs; 2D enables contour scan", html.Div([
@@ -159,6 +172,15 @@ def layout():
                     ]),
                     field("Contour", dcc.Checklist(id="stat-do-contour", options=[{"label": "run 2D likelihood scan when exactly two p_specs are provided", "value": "contour"}], value=["contour"], className="checklist")),
                     html.Button("Run fit / contour", id="stat-fit-btn", n_clicks=0),
+                    html.Div(
+                        id="stat-fit-progress-wrap",
+                        className="task-progress-wrap",
+                        style={"display": "none"},
+                        children=[
+                            html.Progress(className="task-progress", max=100),
+                            html.Span("Fit / contour computation in progress…"),
+                        ],
+                    ),
                     status_box("stat-fit-status", "No fit yet."),
                 ])),
             ]),

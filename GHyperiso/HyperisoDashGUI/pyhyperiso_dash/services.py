@@ -52,11 +52,9 @@ from pyhyperiso.core.Common.GeneralEnum import (
     Observables,
     ParameterType,
     QCDOrder,
-    WCoeff,
-    WGroup,
     WilsonBasis,
 )
-from pyhyperiso.core.Common.Mapper import DecayMapper, ObservableMapper, WCoefMapper
+from pyhyperiso.core.Common.Mapper import DecayMapper, GroupMapper, ObservableMapper, WCoefMapper
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Core.BlockProvider import BlockLogger
@@ -870,20 +868,89 @@ def prune_dependency(action: str, scope: str, param_type_name: str, block_name: 
 
 # ---------- Wilson ----------
 
+# The current core resolves Wilson groups/coefficients through dynamic symbol
+# ids.  Keep GUI values as strings instead of coercing them back to the legacy
+# Python enums, whose surface may lag behind the C++ enum after a core update.
+_WILSON_GROUP_ALIASES: dict[str, tuple[str, ...]] = {
+    "B": ("B", "BCoefficients"),
+    "BPrime": ("BPrime", "BPrimeCoefficients"),
+    "BScalar": ("BScalar", "BScalarCoefficients"),
+    "CC_bc": ("CC_bc", "BcChargedCurrentCoefficients"),
+    "CC_bu": ("CC_bu", "BuChargedCurrentCoefficients"),
+    "CC_cs": ("CC_cs", "DsChargedCurrentCoefficients"),
+    "CC_cd": ("CC_cd", "DdChargedCurrentCoefficiens"),
+    "CC_su": ("CC_su", "KuChargedCurrentCoefficients"),
+    "CC_du": ("CC_du", "PIuChargedCurrentCoefficients"),
+    "MESON_MIXING": ("MESON_MIXING", "MesonMixing"),
+    "K": ("K",),
+}
+
 _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
     "B": [f"C{i}" for i in range(1, 11)],
-    "BPrime": [*(f"CP{i}" for i in range(1, 11)), "CPQ1_E", "CPQ1_MU", "CPQ1_TA", "CPQ2_E", "CPQ2_MU", "CPQ2_TA"],
+    "BPrime": [
+        *(f"CP{i}" for i in range(1, 11)),
+        "CPQ1_E", "CPQ1_MU", "CPQ1_TA", "CPQ2_E", "CPQ2_MU", "CPQ2_TA",
+    ],
     "BScalar": ["CQ1_E", "CQ1_MU", "CQ1_TA", "CQ2_E", "CQ2_MU", "CQ2_TA"],
     "CC_bc": ["C_V1_bc", "C_V2_bc", "C_S1_bc", "C_S2_bc", "C_T_bc"],
+    "CC_bu": ["C_V1_bu", "C_V2_bu", "C_S1_bu", "C_S2_bu", "C_T_bu"],
+    "CC_cs": ["C_V1_cs", "C_V2_cs", "C_S1_cs", "C_S2_cs", "C_T_cs"],
+    "CC_cd": ["C_V1_cd", "C_V2_cd", "C_S1_cd", "C_S2_cd", "C_T_cd"],
+    "CC_su": ["C_V1_su", "C_V2_su", "C_S1_su", "C_S2_su", "C_T_su"],
+    "CC_du": ["C_V1_du", "C_V2_du", "C_S1_du", "C_S2_du", "C_T_du"],
+    "MESON_MIXING": [
+        "C_BD_1", "CT_BD_1", "C_BD_2", "CT_BD_2", "C_BD_3", "CT_BD_3", "C_BD_4", "C_BD_5",
+        "C_BS_1", "CT_BS_1", "C_BS_2", "CT_BS_2", "C_BS_3", "CT_BS_3", "C_BS_4", "C_BS_5",
+        "C_SD_1", "CT_SD_1", "C_SD_2", "CT_SD_2", "C_SD_3", "CT_SD_3", "C_SD_4", "C_SD_5",
+        "C_CU_1", "CT_CU_1", "C_CU_2", "CT_CU_2", "C_CU_3", "CT_CU_3", "C_CU_4", "C_CU_5",
+    ],
+    "K": ["CK9", "CPK9", "CK10", "CPK10", "CKQ1", "CKQ2", "CPKQ1", "CPKQ2", "CK_L"],
 }
+
+
+def _mapper_strings(mapper: Any) -> list[str]:
+    """Return canonical mapper strings without depending on enum completeness."""
+    raw = mapper.get_str()
+    values = raw.values() if isinstance(raw, Mapping) else raw
+    return list(dict.fromkeys(str(value) for value in values))
+
+
+def _wilson_group_key(group_name: str | None) -> str | None:
+    value = str(group_name or "")
+    folded = value.casefold()
+    for key, aliases in _WILSON_GROUP_ALIASES.items():
+        if any(folded == alias.casefold() for alias in aliases):
+            return key
+    return None
+
+
+def wilson_group_options() -> list[dict[str, str]]:
+    """Return all builtin groups advertised by the current core mapper."""
+    try:
+        canonical_names = _mapper_strings(GroupMapper())
+    except Exception:
+        canonical_names = [aliases[-1] for aliases in _WILSON_GROUP_ALIASES.values()]
+
+    label_by_canonical = {
+        aliases[-1]: key for key, aliases in _WILSON_GROUP_ALIASES.items()
+    }
+    options = []
+    for canonical in canonical_names:
+        short = label_by_canonical.get(canonical, canonical)
+        label = short if short == canonical else f"{short} — {canonical}"
+        options.append({"label": label, "value": canonical})
+    return options
 
 
 def wilson_coeff_options_for_group(group_name: str | None) -> list[dict[str, str]]:
     """Return coefficient options compatible with the selected Wilson group."""
-    names = _WILSON_GROUP_COEFFS.get(str(group_name or ""))
+    names = _WILSON_GROUP_COEFFS.get(_wilson_group_key(group_name) or "")
+    try:
+        valid = set(_mapper_strings(WCoefMapper()))
+    except Exception:
+        valid = {name for group_names in _WILSON_GROUP_COEFFS.values() for name in group_names}
     if not names:
-        names = [coef.name for coef in WCoeff]
-    valid = {coef.name for coef in WCoeff}
+        names = sorted(valid)
     return [lx.wilson_option(name) for name in names if name in valid]
 
 
@@ -892,7 +959,7 @@ def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: f
     if not groups:
         raise ValueError("Select at least one Wilson group")
     cfg = WilsonBuildConfig(
-        groups={enum_by_name(WGroup, g) for g in groups},
+        groups={str(g) for g in groups},
         matching_scale=float(matching_scale),
         hadronic_scale=float(hadronic_scale),
         order=enum_by_name(QCDOrder, order_name),
@@ -926,26 +993,14 @@ def query_wilson(method: str, group: str, coeff: str, order: str, contribution: 
     if RUNTIME.wilson is None:
         raise RuntimeError("WilsonInterface is not built yet")
     req = WilsonRequest(
-        group=enum_by_name(WGroup, group),
-        coefficient=enum_by_name(WCoeff, coeff),
+        group=str(group),
+        coefficient=str(coeff),
         order=enum_by_name(QCDOrder, order),
         contribution=enum_by_name(ContributionType, contribution),
         wilson_basis=enum_by_name(WilsonBasis, basis),
     )
     wi = RUNTIME.wilson
-    raw_wi = getattr(wi, "_cpp_obj", None)
-    if raw_wi is not None:
-        if method == "M":
-            value = raw_wi.get_M(req.group.value, req.coefficient.value, req.order.value, req.contribution.value)
-        elif method == "FM":
-            value = raw_wi.get_FM(req.group.value, req.coefficient.value, req.order.value, req.contribution.value)
-        elif method == "R":
-            value = raw_wi.get_R(req.group.value, req.coefficient.value, req.order.value, req.contribution.value, req.wilson_basis.value)
-        elif method == "FR":
-            value = raw_wi.get_FR(req.group.value, req.coefficient.value, req.order.value, req.contribution.value, req.wilson_basis.value)
-        else:
-            raise ValueError(f"Unknown Wilson method {method}")
-    elif method == "M":
+    if method == "M":
         value = wi.get_M(req)
     elif method == "FM":
         value = wi.get_FM(req)
@@ -1640,16 +1695,43 @@ def smooth_observable_bins(obs_name: str, order_name: str, add_deps: bool, low: 
 
 # ---------- Statistics ----------
 
-def make_stat_config(mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any) -> StatisticConfig:
+def make_stat_config(
+    mc_draws: Any,
+    mc_threads: Any,
+    mc_seed: Any,
+    skew_threshold: Any,
+    ridge_rel: Any,
+    ridge_abs: Any,
+    nuisance_pruning: bool,
+    nuisance_contexts: Any,
+    nuisance_seed: Any,
+) -> StatisticConfig:
+    def supplied(value: Any, default: Any) -> Any:
+        return default if value is None or value == "" else value
+
     cfg = StatisticConfig()
-    cfg.likelihood_mode = StatisticLikelihoodMode.CHI2_MC_COVARIANCE
-    cfg.MC_draws = int(mc_draws or 100)
-    cfg.skew_abs_threshold = float(skew_threshold or 0.2)
-    cfg.chi2_covariance_ridge_rel = float(ridge_rel or 1e-8)
-    cfg.chi2_covariance_ridge_abs = float(ridge_abs or 1e-12)
-    cfg.nuisance_sensitivity_pruning = bool(nuisance_pruning)
-    cfg.nuisance_sensitivity_contexts = int(nuisance_contexts or 2)
-    cfg.nuisance_sensitivity_seed = int(nuisance_seed or 12345)
+    cfg.MC_draws = max(1, int(supplied(mc_draws, 100)))
+    cfg.MC_threads = max(1, int(supplied(mc_threads, 1)))
+    cfg.MC_seed = int(supplied(mc_seed, 123456))
+    cfg.skew_abs_threshold = float(supplied(skew_threshold, 0.2))
+
+    # A GUI should never emit terminal diagnostics.  Progress is represented by
+    # the Dash progress element instead of the C++ stdout reporters.
+    cfg.print_mc_progress = False
+    cfg.print_chi2_pipeline_progress = False
+    cfg.print_mc_config = False
+    cfg.print_fit_summary = False
+    cfg.print_scan_summary = False
+    cfg.print_cache_summary = False
+    cfg.print_debug = False
+
+    advanced = cfg.advanced
+    advanced.likelihood_mode = StatisticLikelihoodMode.CHI2_MC_COVARIANCE
+    advanced.chi2_covariance_ridge_rel = float(supplied(ridge_rel, 1e-8))
+    advanced.chi2_covariance_ridge_abs = float(supplied(ridge_abs, 1e-12))
+    advanced.nuisance_sensitivity_pruning = bool(nuisance_pruning)
+    advanced.nuisance_sensitivity_contexts = int(supplied(nuisance_contexts, 2))
+    advanced.nuisance_sensitivity_seed = int(supplied(nuisance_seed, 12345))
     # Dynamic attributes consumed by the existing StatisticInterface wrapper.
     cfg.p_specs = []
     cfg.selected_experiments = None
@@ -1733,7 +1815,7 @@ def configure_stat_observables(
     return rows
 
 
-def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None) -> StatisticInterface:
+def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, mc_threads: Any, mc_seed: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None) -> StatisticInterface:
     if configured_rows:
         rows = [dict(row) for row in configured_rows]
         with RUNTIME.lock:
@@ -1749,11 +1831,15 @@ def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names
         )
     if RUNTIME.observable is None:
         raise RuntimeError("Shared ObservableInterface is not available")
-    cfg = make_stat_config(mc_draws, skew_threshold, ridge_rel, ridge_abs, nuisance_pruning, nuisance_contexts, nuisance_seed)
+    cfg = make_stat_config(mc_draws, mc_threads, mc_seed, skew_threshold, ridge_rel, ridge_abs, nuisance_pruning, nuisance_contexts, nuisance_seed)
     cfg.p_specs = list(p_specs or [])
     exps = split_csv(experiments)
     cfg.selected_experiments = exps or None
     stat_int = StatisticInterface(cfg, observable_interface=RUNTIME.observable)
+    if exps:
+        stat_int.select_experiments(exps)
+    else:
+        stat_int.select_experiments_all()
     return stat_int
 
 

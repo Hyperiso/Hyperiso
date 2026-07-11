@@ -51,6 +51,8 @@ def _stat_kwargs(
     smooth_step,
     experiments,
     mc_draws,
+    mc_threads,
+    mc_seed,
     skew,
     ridge_rel,
     ridge_abs,
@@ -72,6 +74,8 @@ def _stat_kwargs(
         smooth_step=smooth_step,
         experiments=experiments,
         mc_draws=mc_draws,
+        mc_threads=mc_threads,
+        mc_seed=mc_seed,
         skew_threshold=skew,
         ridge_rel=ridge_rel,
         ridge_abs=ridge_abs,
@@ -768,6 +772,8 @@ def register_callbacks(app):
         State("stat-obs-smooth-step", "value"),
         State("stat-experiments", "value"),
         State("stat-mc-draws", "value"),
+        State("stat-mc-threads", "value"),
+        State("stat-mc-seed", "value"),
         State("stat-skew-threshold", "value"),
         State("stat-ridge-rel", "value"),
         State("stat-ridge-abs", "value"),
@@ -777,11 +783,15 @@ def register_callbacks(app):
         State("stat-uncertainty-mode", "value"),
         State("stat-observable-table", "data"),
         prevent_initial_call=True,
+        running=[
+            (Output("stat-uncertainty-btn", "disabled"), True, False),
+            (Output("stat-uncertainty-progress-wrap", "style"), {"display": "grid"}, {"display": "none"}),
+        ],
     )
-    def stat_uncertainty(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
+    def stat_uncertainty(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
         try:
             bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
             if configured_rows:
                 kwargs["configured_rows"] = configured_rows
             rows = svc.compute_uncertainty_rows(**kwargs)
@@ -810,6 +820,8 @@ def register_callbacks(app):
         State("stat-obs-smooth-step", "value"),
         State("stat-experiments", "value"),
         State("stat-mc-draws", "value"),
+        State("stat-mc-threads", "value"),
+        State("stat-mc-seed", "value"),
         State("stat-skew-threshold", "value"),
         State("stat-ridge-rel", "value"),
         State("stat-ridge-abs", "value"),
@@ -824,15 +836,19 @@ def register_callbacks(app):
         State("stat-nx", "value"),
         State("stat-ny", "value"),
         prevent_initial_call=True,
+        running=[
+            (Output("stat-fit-btn", "disabled"), True, False),
+            (Output("stat-fit-progress-wrap", "style"), {"display": "grid"}, {"display": "none"}),
+        ],
     )
-    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
+    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
         try:
             bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
             if mc_draws and int(mc_draws) > 200:
                 warning = "Warning: MC_draws > 200 may be slow. "
             else:
                 warning = ""
-            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
             if configured_rows:
                 kwargs["configured_rows"] = configured_rows
             result = svc.run_fit_and_scan(kwargs, p_rows_in or [], "contour" in (do_contour or []), xhw, yhw, nx, ny)
