@@ -482,9 +482,12 @@ void init_likelihood_and_profiling(py::module_& m) {
 void init_fit_and_contours(py::module_& m) {
     py::enum_<ProfilingMethod>(m, "ProfilingMethod")
         .value("SLICE", ProfilingMethod::SLICE)
+        .value("FREE_PROJECTION", ProfilingMethod::FREE_PROJECTION)
+        .value("PRIOR_CONSTRAINED_PROJECTION", ProfilingMethod::PRIOR_CONSTRAINED_PROJECTION)
         .export_values();
 
     py::enum_<ContourAlgorithm>(m, "ContourAlgorithm")
+        .value("AMS", ContourAlgorithm::AMS)
         .value("MINUIT", ContourAlgorithm::MINUIT)
         .export_values();
 
@@ -517,11 +520,19 @@ void init_fit_and_contours(py::module_& m) {
         // on_progress n'est volontairement pas exposé ici : sa signature dépend
         // de ContourObserver.h. Ajoute un binding dédié si tu veux un callback Python.
 
-    // Enregistrement minimal pour que StatisticInterface.compute_confidence_contour()
-    // puisse retourner un objet Contour. Ajoute ici les .def_readwrite(...) si ton
-    // struct Contour expose des champs publics.
     py::class_<Contour>(m, "Contour")
-        .def("__repr__", [](const Contour&) { return std::string("<Contour>"); });
+        .def_property_readonly("paths", [](const Contour& contour) {
+            return std::vector<Path>(contour.paths.begin(), contour.paths.end());
+        })
+        .def_readonly("level", &Contour::level)
+        .def_readonly("success", &Contour::success)
+        .def("__repr__", [](const Contour& contour) {
+            std::ostringstream os;
+            os << "<Contour success=" << (contour.success ? "true" : "false")
+               << " level=" << contour.level
+               << " paths=" << contour.paths.size() << ">";
+            return os.str();
+        });
 }
 
 void init_statistic_data_structures(py::module_& m) {

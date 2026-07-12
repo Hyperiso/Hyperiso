@@ -71,7 +71,18 @@ For local use, run a single Dash process. If deploying through a production serv
 
 ## Statistical mode
 
-The dashboard focuses on the chi-square / Monte-Carlo covariance workflow for interactive use. More advanced likelihood profiling and backend choices should be exposed through the Python API first and added to the GUI only once the behavior is stable.
+The dashboard is intentionally locked to
+`StatisticLikelihoodMode.CHI2_MC_COVARIANCE`. The profiled-nuisance likelihood
+is not selectable from the GUI.
+
+Fit parameters are listed in an editable table with one lower and upper contour
+bound per parameter. Any two fitted parameters can be selected as the displayed
+axes. When more than two parameters are fitted, the GUI exposes the core
+`ProfilingMethod` choices (`SLICE`, `FREE_PROJECTION`, and
+`PRIOR_CONSTRAINED_PROJECTION`) together with `ContourAlgorithm`, optional
+fallback extraction, profiler mode, confidence levels, and one common contour
+resolution. The plotted geometry comes directly from `ContourEngine.paths`, not
+from a separate rectangular likelihood scan.
 
 The GUI maps covariance and nuisance-pruning settings to
 `StatisticConfig.advanced`, while common Monte-Carlo settings remain on the

@@ -74,7 +74,13 @@ from pyhyperiso.core.Core.QCDProvider import QCDProvider
 from pyhyperiso.core.Core.QEDProvider import QEDProvider
 from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig, StatisticLikelihoodMode
-from pyhyperiso.core.Statistic.StatisticInterface import StatisticInterface
+from pyhyperiso.core.Statistic.StatisticInterface import (
+    StatisticInterface,
+    ContourOptions,
+    ContourAlgorithm,
+    ProfilingMethod,
+    ProfilerMode,
+)
 from pyhyperiso.core.PhysicalModel.WilsonInterface import WilsonInterface
 
 
@@ -154,6 +160,45 @@ def param_to_latex_label(pid: ParamId) -> str:
 
 def parameter_display_label(block: str | None, code: Any, raw: str | None = None, param_type_name: str | None = None) -> str:
     return lx.parameter_label(block, code, raw, param_type_name)
+
+
+def p_spec_row_key(row: Mapping[str, Any]) -> str:
+    """Return a stable GUI key for one fit-parameter row."""
+    return "|".join((str(row.get("type", "")), str(row.get("block", "")), str(row.get("code", ""))))
+
+
+def suggested_parameter_bounds(param_type_name: str, block: str, code: Any) -> tuple[float, float, float]:
+    """Return current value and editable default contour bounds for a parameter.
+
+    The preferred width is four combined standard deviations.  Parameters with
+    no stored uncertainty receive a scale-aware fallback so the table remains
+    useful for BSM coefficients initialized at zero.
+    """
+    require_initialized()
+    ptype = enum_by_name(ParameterType, param_type_name)
+    pid = make_param_id(param_type_name, block, code)
+    provider = ParameterProvider(ptype)
+    center = scalar_to_float(_raw_provider_value_by_pid(provider, pid, DataType.VALUE), "real")
+    try:
+        sigma = abs(scalar_to_float(_raw_provider_value_by_pid(provider, pid, DataType.STD_COMBINED), "real"))
+    except Exception:
+        sigma = 0.0
+    if not (sigma > 0.0):
+        sigma = 0.0
+    fallback = 0.25 * max(abs(center), 1.0)
+    half_width = max(4.0 * sigma, fallback, 1e-6)
+    return center, center - half_width, center + half_width
+
+
+def p_spec_axis_options(rows: Sequence[dict] | None) -> list[dict[str, str]]:
+    """Build contour-axis dropdown options from current fit-parameter rows."""
+    out: list[dict[str, str]] = []
+    for row in rows or []:
+        key = p_spec_row_key(row)
+        if not key.strip("|"):
+            continue
+        out.append({"label": str(row.get("parameter") or key), "value": key})
+    return out
 
 
 def observable_display_label(obs_name: str | None) -> str:
@@ -1871,8 +1916,9 @@ def compute_uncertainty_rows(**kwargs) -> list[dict]:
     return rows
 
 
-def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
-    out: list[ParamId] = []
+def p_spec_rows_and_ids(rows: Sequence[dict] | None) -> list[tuple[dict, ParamId]]:
+    """Return validated fit-parameter rows paired with their ``ParamId``."""
+    out: list[tuple[dict, ParamId]] = []
     for row in rows or []:
         if len(out) >= 10:
             break
@@ -1880,8 +1926,12 @@ def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
             continue
         ptype, block, code = row.get("type"), row.get("block"), row.get("code")
         if ptype and block and code not in (None, ""):
-            out.append(make_param_id(ptype, block, code))
+            out.append((row, make_param_id(ptype, block, code)))
     return out
+
+
+def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
+    return [pid for _, pid in p_spec_rows_and_ids(rows)]
 
 
 def fit_result_rows(fit) -> tuple[list[dict], list[dict], list[dict]]:
@@ -1903,43 +1953,162 @@ def fit_result_rows(fit) -> tuple[list[dict], list[dict], list[dict]]:
     return p_rows, eta_rows, corr_rows
 
 
-def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour: bool, x_half_width: Any, y_half_width: Any, nx: Any, ny: Any) -> dict:
+def _enum_member(enum_cls, name: str, fallback: str):
+    key = str(name or fallback).upper()
+    try:
+        return enum_cls[key]
+    except KeyError as exc:
+        valid = ", ".join(item.name for item in enum_cls)
+        raise ValueError(f"Unknown {enum_cls.__name__} '{name}'. Valid values: {valid}") from exc
+
+
+def _row_bounds(row: Mapping[str, Any]) -> tuple[float, float]:
+    low = float(row.get("lower_bound"))
+    high = float(row.get("upper_bound"))
+    if not low < high:
+        raise ValueError(f"Invalid bounds for {row.get('parameter')}: lower bound must be smaller than upper bound.")
+    return low, high
+
+
+def run_fit_and_contours(
+    stat_kwargs: dict,
+    p_spec_rows: Sequence[dict],
+    do_contour: bool,
+    x_key: str | None,
+    y_key: str | None,
+    confidence_levels: Sequence[Any] | None,
+    profiling_method: str | None,
+    contour_algorithm: str | None,
+    fallback_algorithm: str | None,
+    profiler_mode: str | None,
+    resolution: Any,
+) -> dict:
+    """Run the χ² fit and optional core confidence contours.
+
+    Bounds are read from the two selected rows in the fit-parameter table.  For
+    fits with more than two parameters, ``ProfilingMethod`` determines how the
+    hidden fit coordinates are reduced to the displayed plane.
+    """
     require_initialized()
-    p_specs = p_specs_from_rows(p_spec_rows)
+    rows = list(p_spec_rows or [])
+    row_pid_pairs = p_spec_rows_and_ids(rows)
+    p_specs = [pid for _, pid in row_pid_pairs]
     if not p_specs:
-        raise ValueError("Add at least one p_spec row")
+        raise ValueError("Add at least one fit parameter.")
+
+    row_by_key = {p_spec_row_key(row): row for row, _ in row_pid_pairs}
+    pid_by_key = {p_spec_row_key(row): pid for row, pid in row_pid_pairs}
+
     stat_kwargs = dict(stat_kwargs)
     stat_kwargs["p_specs"] = p_specs
     with RUNTIME.lock:
         RUNTIME.stat = build_stat_interface(**stat_kwargs)
         fit = RUNTIME.stat.compute_MLE(p_specs)
         p_rows, eta_rows, corr_rows = fit_result_rows(fit)
-        points = []
-        if do_contour and len(p_specs) == 2:
-            # CHI2_MC_COVARIANCE creates a zero-nuisance likelihood inside
-            # compute_MLE(). Calling prepare_likelihood_for_scan() here would
-            # rebuild a profiled-nuisance scan context, so fit.eta_hat from the
-            # chi2 fit would be incomplete and C++ would raise
-            # "Missing manual nuisance value...". Reuse the likelihood prepared
-            # by compute_MLE() and only set the two best-fit coordinates.
-            RUNTIME.stat.set_manual_scan_point(fit.p_hat, {})
-            grid = RUNTIME.stat.scan_likelihood_around_current_point(
-                p_specs[0],
-                p_specs[1],
-                float(x_half_width or 1.0),
-                float(y_half_width or 1.0),
-                int(nx or 25),
-                int(ny or 25),
+
+        contour_paths: list[dict] = []
+        contour_errors: list[str] = []
+        axis_labels = ("p₁", "p₂")
+        best_fit_point = None
+        bounds = None
+
+        if do_contour:
+            if len(p_specs) < 2:
+                raise ValueError("A confidence contour requires at least two fit parameters.")
+            if not x_key or not y_key or x_key not in pid_by_key or y_key not in pid_by_key:
+                raise ValueError("Choose two valid contour-axis parameters.")
+            if x_key == y_key:
+                raise ValueError("The X and Y contour axes must be different parameters.")
+            if not fit.fit_ok:
+                raise RuntimeError("The χ² fit did not converge; no contour can be computed.")
+
+            x_pid = pid_by_key[x_key]
+            y_pid = pid_by_key[y_key]
+            x_row = row_by_key[x_key]
+            y_row = row_by_key[y_key]
+            x_low, x_high = _row_bounds(x_row)
+            y_low, y_high = _row_bounds(y_row)
+            bounds = [x_low, x_high, y_low, y_high]
+            axis_labels = (str(x_row.get("parameter") or x_key), str(y_row.get("parameter") or y_key))
+
+            x_hat = scalar_to_float(fit.p_hat[x_pid], "real")
+            y_hat = scalar_to_float(fit.p_hat[y_pid], "real")
+            if not (x_low <= x_hat <= x_high):
+                raise ValueError(f"The X best fit ({x_hat:.6g}) lies outside its bounds [{x_low:.6g}, {x_high:.6g}].")
+            if not (y_low <= y_hat <= y_high):
+                raise ValueError(f"The Y best fit ({y_hat:.6g}) lies outside its bounds [{y_low:.6g}, {y_high:.6g}].")
+            best_fit_point = {"x": x_hat, "y": y_hat}
+
+            method = ProfilingMethod.SLICE if len(p_specs) == 2 else _enum_member(ProfilingMethod, profiling_method or "SLICE", "SLICE")
+            primary = _enum_member(ContourAlgorithm, contour_algorithm or "MINUIT", "MINUIT")
+            fallback = None
+            fallback_name = str(fallback_algorithm or "NONE").upper()
+            if fallback_name != "NONE" and fallback_name != primary.name:
+                fallback = _enum_member(ContourAlgorithm, fallback_name, "AMS")
+            backend = _enum_member(ProfilerMode, profiler_mode or "LAPLACE_NUISANCE", "LAPLACE_NUISANCE")
+            contour_options = ContourOptions(
+                profiling_method=method,
+                profile_backend=backend,
+                primary_contour_method=primary,
+                fallback_contour_method=fallback,
+                resolution=max(8, min(500, int(resolution or 60))),
             )
-            points = [{"x": scalar_to_float(p.x, "real"), "y": scalar_to_float(p.y, "real"), "nll": scalar_to_float(p.nll, "real"), "delta_nll": scalar_to_float(p.delta_nll, "real")} for p in grid.points]
+
+            levels = sorted({float(z) for z in (confidence_levels or [1.0]) if float(z) > 0.0})
+            if not levels:
+                raise ValueError("Select at least one positive confidence level.")
+            for z in levels:
+                try:
+                    contour = RUNTIME.stat.compute_confidence_contour(
+                        x_pid, y_pid, z, bounds, contour_options
+                    )
+                    for path_id, path in enumerate(contour.paths):
+                        if len(path) < 2:
+                            continue
+                        contour_paths.append({
+                            "sigma": z,
+                            "level": contour.level,
+                            "path_id": path_id,
+                            "success": contour.success,
+                            "points": [{"x": x, "y": y} for x, y in path],
+                        })
+                    if not contour.success:
+                        contour_errors.append(f"{z:g}σ contour returned success=false")
+                    elif not contour.paths:
+                        contour_errors.append(f"{z:g}σ contour returned no path")
+                except Exception as exc:
+                    contour_errors.append(f"{z:g}σ: {type(exc).__name__}: {exc}")
+
     return {
         "fit_ok": bool(fit.fit_ok),
         "ell_hat": scalar_to_float(fit.ell_hat, "real"),
         "p_rows": p_rows,
         "eta_rows": eta_rows,
         "corr_rows": corr_rows,
-        "scan_points": points,
+        "contour_paths": contour_paths,
+        "contour_errors": contour_errors,
+        "axis_labels": axis_labels,
+        "best_fit_point": best_fit_point,
+        "bounds": bounds,
     }
+
+
+# Backward-compatible service name for external callers of the Dash helper.
+def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour: bool, x_half_width: Any, y_half_width: Any, nx: Any, ny: Any) -> dict:
+    """Deprecated compatibility wrapper using table bounds and core contours."""
+    rows = list(p_spec_rows or [])
+    options = p_spec_axis_options(rows)
+    x_key = options[0]["value"] if len(options) > 0 else None
+    y_key = options[1]["value"] if len(options) > 1 else None
+    for row, half_width in zip(rows[:2], (x_half_width, y_half_width)):
+        center = float(row.get("initial", 0.0) or 0.0)
+        width = abs(float(half_width or 1.0))
+        row.setdefault("lower_bound", center - width)
+        row.setdefault("upper_bound", center + width)
+    return run_fit_and_contours(
+        stat_kwargs, rows, do_contour, x_key, y_key, [1.0, 2.0],
+        "SLICE", "AMS", "NONE", "MINUIT", max(int(nx or 25), int(ny or 25)),
+    )
 
 
 # ---------- QCD / QED running ----------

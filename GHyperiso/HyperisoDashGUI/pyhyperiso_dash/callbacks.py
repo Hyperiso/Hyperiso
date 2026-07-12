@@ -12,7 +12,7 @@ from pyhyperiso_dash.figures import (
     correlation_heatmap,
     empty_fig,
     heatmap_2d,
-    likelihood_contour,
+    confidence_contour_paths,
     series_1d,
     uncertainty_fig,
 )
@@ -747,11 +747,83 @@ def register_callbacks(app):
             return rows[:10], []
         if not (ptype and block and code not in (None, "")):
             return rows[:10], []
-        row = {"parameter": svc.parameter_display_label(block, code, f"{ptype}:{block}:{code}", ptype), "type": ptype, "block": block, "code": str(code)}
+        try:
+            initial, lower, upper = svc.suggested_parameter_bounds(ptype, block, code)
+        except Exception:
+            initial, lower, upper = 0.0, -1.0, 1.0
+        row = {
+            "parameter": svc.parameter_display_label(block, code, f"{ptype}:{block}:{code}", ptype),
+            "type": ptype,
+            "block": block,
+            "code": str(code),
+            "initial": initial,
+            "lower_bound": lower,
+            "upper_bound": upper,
+        }
         key = (row["type"], row["block"], row["code"])
         if key not in {(r.get("type"), r.get("block"), str(r.get("code"))) for r in rows}:
             rows.append(row)
         return rows[:10], []
+
+    @app.callback(
+        Output("stat-contour-x", "options"),
+        Output("stat-contour-x", "value"),
+        Output("stat-contour-y", "options"),
+        Output("stat-contour-y", "value"),
+        Output("stat-profiling-method", "disabled"),
+        Output("stat-profiling-method", "value"),
+        Output("stat-contour-controls", "style"),
+        Output("stat-contour-method-note", "children"),
+        Input("stat-p-specs-table", "data"),
+        Input("stat-do-contour", "value"),
+        State("stat-contour-x", "value"),
+        State("stat-contour-y", "value"),
+        State("stat-profiling-method", "value"),
+        prevent_initial_call=False,
+    )
+    def update_stat_contour_controls(rows, do_contour, current_x, current_y, current_method):
+        options = svc.p_spec_axis_options(rows)
+        valid = [item["value"] for item in options]
+        x_value = current_x if current_x in valid else (valid[0] if valid else None)
+        y_candidates = [value for value in valid if value != x_value]
+        y_value = current_y if current_y in y_candidates else (y_candidates[0] if y_candidates else None)
+        n_params = len(options)
+        method_disabled = n_params <= 2
+        method_value = "SLICE" if method_disabled else (current_method or "FREE_PROJECTION")
+        style = {} if "contour" in (do_contour or []) else {"display": "none"}
+        if n_params < 2:
+            note = "Add at least two fit parameters to enable a contour."
+        elif n_params == 2:
+            note = "Exactly two fit parameters: the contour is already 2D, so ProfilingMethod is fixed to SLICE."
+        else:
+            note = f"{n_params} fit parameters: choose how the {n_params - 2} hidden parameter(s) are reduced to the selected 2D plane."
+        return options, x_value, options, y_value, method_disabled, method_value, style, note
+
+    @app.callback(
+        Output("stat-contour-fallback", "options"),
+        Output("stat-contour-fallback", "value"),
+        Input("stat-contour-algorithm", "value"),
+        State("stat-contour-fallback", "value"),
+        prevent_initial_call=False,
+    )
+    def update_contour_fallback_options(primary, current):
+        labels = {
+            "MINUIT": "Minuit contour",
+            "AMS": "Adaptive marching squares (AMS)",
+        }
+        options = [{"label": "No fallback", "value": "NONE"}]
+        options.extend(
+            {"label": labels.get(item.name, item.name), "value": item.name}
+            for item in svc.ContourAlgorithm
+            if item.name != primary
+        )
+        valid = {item["value"] for item in options}
+        if current in valid:
+            value = current
+        else:
+            alternatives = [item["value"] for item in options if item["value"] != "NONE"]
+            value = alternatives[0] if alternatives else "NONE"
+        return options, value
 
     @app.callback(
         Output("stat-uncertainty-table", "data"),
@@ -801,7 +873,6 @@ def register_callbacks(app):
 
     @app.callback(
         Output("stat-fit-table", "data"),
-        Output("stat-eta-table", "data"),
         Output("stat-corr-fig", "figure"),
         Output("stat-contour-fig", "figure"),
         Output("stat-fit-status", "children"),
@@ -831,33 +902,70 @@ def register_callbacks(app):
         State("stat-p-specs-table", "data"),
         State("stat-observable-table", "data"),
         State("stat-do-contour", "value"),
-        State("stat-x-half-width", "value"),
-        State("stat-y-half-width", "value"),
-        State("stat-nx", "value"),
-        State("stat-ny", "value"),
+        State("stat-contour-x", "value"),
+        State("stat-contour-y", "value"),
+        State("stat-contour-levels", "value"),
+        State("stat-profiling-method", "value"),
+        State("stat-contour-algorithm", "value"),
+        State("stat-contour-fallback", "value"),
+        State("stat-profiler-mode", "value"),
+        State("stat-contour-resolution", "value"),
         prevent_initial_call=True,
         running=[
             (Output("stat-fit-btn", "disabled"), True, False),
             (Output("stat-fit-progress-wrap", "style"), {"display": "grid"}, {"display": "none"}),
         ],
     )
-    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, xhw, yhw, nx, ny):
+    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, x_key, y_key, levels, profiling_method, contour_algorithm, fallback_algorithm, profiler_mode, resolution):
         try:
             bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-            if mc_draws and int(mc_draws) > 200:
-                warning = "Warning: MC_draws > 200 may be slow. "
-            else:
-                warning = ""
+            warning = "Warning: MC_draws > 200 may be slow. " if mc_draws and int(mc_draws) > 200 else ""
             kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
             if configured_rows:
                 kwargs["configured_rows"] = configured_rows
-            result = svc.run_fit_and_scan(kwargs, p_rows_in or [], "contour" in (do_contour or []), xhw, yhw, nx, ny)
+            contour_enabled = "contour" in (do_contour or [])
+            result = svc.run_fit_and_contours(
+                kwargs,
+                p_rows_in or [],
+                contour_enabled,
+                x_key,
+                y_key,
+                levels,
+                profiling_method,
+                contour_algorithm,
+                fallback_algorithm,
+                profiler_mode,
+                resolution,
+            )
             corr_fig = correlation_heatmap(result["corr_rows"], "Fit-parameter correlations")
-            contour_fig = likelihood_contour(result["scan_points"], [2.30, 6.18, 11.83], "2D ΔNLL contour") if result["scan_points"] else empty_fig("No 2D contour: provide exactly two p_specs and enable contour")
-            status = f"{warning}Fit done. fit_ok={result['fit_ok']}, ell_hat={result['ell_hat']:.6g}. p={len(result['p_rows'])}, nuisances={len(result['eta_rows'])}."
-            return result["p_rows"], result["eta_rows"], corr_fig, contour_fig, status
+            if result["contour_paths"]:
+                x_label, y_label = result["axis_labels"]
+                contour_fig = confidence_contour_paths(
+                    result["contour_paths"],
+                    "2D confidence contours",
+                    x_label,
+                    y_label,
+                    result["best_fit_point"],
+                    result["bounds"],
+                )
+            elif contour_enabled:
+                contour_fig = empty_fig("Contour computation returned no usable path")
+            else:
+                contour_fig = empty_fig("Contour disabled")
+            contour_status = ""
+            if result["contour_paths"]:
+                levels_done = sorted({float(row["sigma"]) for row in result["contour_paths"]})
+                contour_status = f" Contours: {', '.join(f'{z:g}σ' for z in levels_done)}."
+            if result["contour_errors"]:
+                contour_status += " Contour warnings: " + " | ".join(result["contour_errors"])
+            status = (
+                f"{warning}χ² fit done. fit_ok={result['fit_ok']}, "
+                f"ell_hat={result['ell_hat']:.6g}, parameters={len(result['p_rows'])}."
+                f"{contour_status}"
+            )
+            return result["p_rows"], corr_fig, contour_fig, status
         except Exception as exc:
-            return [], [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"), _err("Fit/contour failed.", exc)
+            return [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"), _err("χ² fit/contour failed.", exc)
 
     # ---------- QCD ----------
     @app.callback(

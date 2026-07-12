@@ -23,15 +23,19 @@ from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig
 
 
 class ProfilingMethod(Enum):
-    """Strategy used to profile a two-dimensional likelihood contour.
+    """Strategy used to reduce a fit with more than two parameters to 2D.
 
     Attributes:
-        SLICE: Fix the two requested fit parameters and profile nuisance
-            parameters only. This is the standard contour mode exposed by the
-            current Python binding.
+        SLICE: Vary the selected axes while keeping the other fit parameters at
+            their best-fit values.
+        FREE_PROJECTION: Profile all non-displayed fit parameters freely.
+        PRIOR_CONSTRAINED_PROJECTION: Profile non-displayed fit parameters with
+            Gaussian constraints derived from the global fit.
     """
 
     SLICE = st.ProfilingMethod.SLICE
+    FREE_PROJECTION = st.ProfilingMethod.FREE_PROJECTION
+    PRIOR_CONSTRAINED_PROJECTION = st.ProfilingMethod.PRIOR_CONSTRAINED_PROJECTION
 
     def to_cpp(self):
         """Convert to the bound C++ ``ProfilingMethod`` enum."""
@@ -39,12 +43,9 @@ class ProfilingMethod(Enum):
 
 
 class ContourAlgorithm(Enum):
-    """Contour extraction algorithm exposed by the Python binding.
+    """Algorithm used to extract the requested confidence contour."""
 
-    Attributes:
-        MINUIT: Use the Minuit contour backend.
-    """
-
+    AMS = st.ContourAlgorithm.AMS
     MINUIT = st.ContourAlgorithm.MINUIT
 
     def to_cpp(self):
@@ -52,21 +53,20 @@ class ContourAlgorithm(Enum):
         return self.value
 
 
-class ProfileBackend(Enum):
-    """Backend used to evaluate profiled likelihood points.
-
-    Attributes:
-        MINUIT: Profile free parameters with Minuit.
-        LAPLACE_NUISANCE: Use the fast Laplace nuisance profiler when possible,
-            falling back to Minuit in unsupported cases on the C++ side.
-    """
+class ProfilerMode(Enum):
+    """Backend used while profiling hidden fit or nuisance parameters."""
 
     MINUIT = st.ProfileBackend.MINUIT
     LAPLACE_NUISANCE = st.ProfileBackend.LAPLACE_NUISANCE
 
     def to_cpp(self):
-        """Convert to the bound C++ ``ProfileBackend`` enum."""
+        """Convert to the C++ contour ``ProfileBackend`` enum."""
         return self.value
+
+
+# Historical public name kept for source compatibility.  ``ProfilerMode`` is
+# the terminology used by the contour engine and by the GUI.
+ProfileBackend = ProfilerMode
 
 
 def _require(value, typ, name: str):
@@ -116,9 +116,9 @@ def _cpp_profiling_method(value: ProfilingMethod):
     return _require(value, ProfilingMethod, "profiling_method").to_cpp()
 
 
-def _cpp_profile_backend(value: ProfileBackend):
+def _cpp_profile_backend(value: ProfilerMode):
     """Convert a Python profile backend to C++."""
-    return _require(value, ProfileBackend, "profile_backend").to_cpp()
+    return _require(value, ProfilerMode, "profile_backend").to_cpp()
 
 
 def _cpp_contour_algorithm(value: ContourAlgorithm):
@@ -254,11 +254,11 @@ class ContourOptions:
         resolution: Resolution parameter passed to the contour extractor.
 
     Examples:
-        >>> opts = ContourOptions(profile_backend=ProfileBackend.LAPLACE_NUISANCE, resolution=60)
+        >>> opts = ContourOptions(profile_backend=ProfilerMode.LAPLACE_NUISANCE, resolution=60)
     """
 
     profiling_method: ProfilingMethod = ProfilingMethod.SLICE
-    profile_backend: ProfileBackend = ProfileBackend.LAPLACE_NUISANCE
+    profile_backend: ProfilerMode = ProfilerMode.LAPLACE_NUISANCE
     primary_contour_method: ContourAlgorithm = ContourAlgorithm.MINUIT
     fallback_contour_method: Optional[ContourAlgorithm] = None
     resolution: int = 40
@@ -268,7 +268,7 @@ class ContourOptions:
         """Create Python contour options from C++ options."""
         return cls(
             profiling_method=ProfilingMethod(cpp_obj.profiling_method),
-            profile_backend=ProfileBackend(cpp_obj.profile_backend),
+            profile_backend=ProfilerMode(cpp_obj.profile_backend),
             primary_contour_method=ContourAlgorithm(cpp_obj.primary_contour_method),
             fallback_contour_method=None if cpp_obj.fallback_contour_method is None else ContourAlgorithm(cpp_obj.fallback_contour_method),
             resolution=int(cpp_obj.resolution),
@@ -286,32 +286,43 @@ class ContourOptions:
 
 
 class Contour:
-    """Opaque wrapper around a C++ confidence contour.
+    """Python view of a C++ confidence contour.
 
-    Args:
-        cpp_obj: Bound C++ ``Contour`` object. The current Python binding keeps
-            contour internals opaque; downstream plotting helpers can unwrap it
-            with :meth:`_to_cpp` when needed.
+    The bound object exposes one or more disconnected paths.  Each path is a
+    sequence of ``(x, y)`` points in the plane of the two displayed fit
+    parameters.
     """
 
     __slots__ = ("_cpp_obj",)
 
     def __init__(self, cpp_obj) -> None:
-        """Store the bound C++ contour object."""
         self._cpp_obj = cpp_obj
 
     @classmethod
     def from_cpp(cls, cpp_obj) -> "Contour":
-        """Wrap a bound C++ contour object."""
         return cls(cpp_obj)
+
+    @property
+    def paths(self) -> List[List[tuple[float, float]]]:
+        return [
+            [(float(point[0]), float(point[1])) for point in path]
+            for path in self._cpp_obj.paths
+        ]
+
+    @property
+    def level(self) -> float:
+        return float(self._cpp_obj.level)
+
+    @property
+    def success(self) -> bool:
+        return bool(self._cpp_obj.success)
 
     def _to_cpp(self):
         """Return the underlying C++ contour object."""
         return self._cpp_obj
 
     def __repr__(self) -> str:
-        """Return a compact representation for logs and notebooks."""
-        return "Contour(<opaque>)"
+        return f"Contour(success={self.success}, level={self.level:.6g}, paths={len(self.paths)})"
 
 
 @dataclass(frozen=True)
@@ -548,7 +559,7 @@ class StatisticInterface:
                 ``ContourOptions()``.
 
         Returns:
-            Opaque ``Contour`` wrapper.
+            ``Contour`` wrapper exposing ``paths``, ``level`` and ``success``.
 
         Raises:
             ValueError: If ``bounds`` does not contain exactly four values.
@@ -675,6 +686,7 @@ __all__ = [
     "ContourOptions",
     "ProfilingMethod",
     "ContourAlgorithm",
+    "ProfilerMode",
     "ProfileBackend",
     "MLFitOptions",
     "LikelihoodScanPoint",
