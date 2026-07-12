@@ -77,8 +77,33 @@ def num_input(id: str, value: float | int | None = None, placeholder: str = "", 
     return dcc.Input(id=id, value=value, placeholder=placeholder, type="number", debounce=debounce, style={"width": "100%"})
 
 
-def dropdown(id: str | dict, options: Sequence[dict], value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False, clearable: bool = True):
-    return dcc.Dropdown(id=id, options=list(options), value=value, multi=multi, placeholder=placeholder, clearable=clearable, disabled=disabled)
+def dropdown(id: str | dict, options: Sequence[dict] | None, value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False, clearable: bool = True):
+    """Create a Dropdown with stable JSON values for Dash/React-Select.
+
+    In particular, a multi dropdown must never receive ``None``/``undefined``:
+    older Dash React-Select bundles may call array helpers during the initial
+    virtualized render.  Normalizing to an empty list keeps initial page loads
+    deterministic across Dash 2.x releases.
+    """
+    normalized_options = list(options or [])
+    if multi:
+        if value is None:
+            normalized_value = []
+        elif isinstance(value, (list, tuple, set)):
+            normalized_value = list(value)
+        else:
+            normalized_value = [value]
+    else:
+        normalized_value = value
+    return dcc.Dropdown(
+        id=id,
+        options=normalized_options,
+        value=normalized_value,
+        multi=multi,
+        placeholder=placeholder,
+        clearable=clearable,
+        disabled=disabled,
+    )
 
 
 def enum_options(enum_cls: type, include: Iterable[str] | None = None, exclude: Iterable[str] | None = None) -> list[dict[str, str]]:
@@ -106,6 +131,7 @@ def data_table(
     editable: bool = False,
     row_selectable: str | bool | None = None,
     row_deletable: bool | None = None,
+    hidden_columns: Sequence[str] | None = None,
 ):
     table_kwargs = {}
     if row_selectable:
@@ -134,6 +160,7 @@ def data_table(
         style_as_list_view=True,
         markdown_options={"html": True},
         style_table={"overflowX": "auto"},
+        hidden_columns=list(hidden_columns or []),
         **table_kwargs,
     )
 

@@ -230,16 +230,58 @@ static std::vector<std::map<ParamId, double>> make_sensitivity_contexts(
     return contexts;
 }
 
-fit_app::ParameterDefinition make_fit_param_def(const ParamId& pid, double value, double sigma_hint) {
+double fit_parameter_offset(const StatisticConfig& config, const ParamId& pid) {
+    const auto it = config.fit_parameter_offsets.find(pid);
+    return it == config.fit_parameter_offsets.end() ? 0.0 : it->second;
+}
+
+std::vector<double> fit_coordinates_from_model_values(
+    const StatisticConfig& config,
+    const std::vector<ParamId>& p_ids,
+    std::vector<double> model_values)
+{
+    for (std::size_t i = 0; i < p_ids.size() && i < model_values.size(); ++i) {
+        model_values[i] += fit_parameter_offset(config, p_ids[i]);
+    }
+    return model_values;
+}
+
+std::vector<double> model_values_from_fit_coordinates(
+    const StatisticConfig& config,
+    const std::vector<ParamId>& p_ids,
+    const std::vector<double>& fit_values)
+{
+    std::vector<double> model_values = fit_values;
+    for (std::size_t i = 0; i < p_ids.size() && i < model_values.size(); ++i) {
+        model_values[i] -= fit_parameter_offset(config, p_ids[i]);
+    }
+    return model_values;
+}
+
+fit_app::ParameterDefinition make_fit_param_def(
+    const ParamId& pid,
+    double value,
+    double sigma_hint,
+    const StatisticConfig& config)
+{
     fit_app::ParameterDefinition out;
     out.name = param_name(pid);
     out.value = value;
     out.step_hint = (std::isfinite(sigma_hint) && sigma_hint > 0.0)
         ? sigma_hint
-        : std::max(1e-3, 0.01 * std::abs(value));
+        : std::max(1e-3, 0.01 * std::max(1.0, std::abs(value)));
+
+    const auto configured_bounds = config.fit_parameter_bounds.find(pid);
+    if (configured_bounds != config.fit_parameter_bounds.end()) {
+        const auto [low, high] = configured_bounds->second;
+        if (!std::isfinite(low) || !std::isfinite(high) || !(low < high)) {
+            throw std::invalid_argument("Invalid explicit fit bounds for " + param_name(pid));
+        }
+        out.limits = configured_bounds->second;
+        return out;
+    }
 
     const std::string& nm = out.name;
-
     if (nm.find("FCONST") != std::string::npos) {
         out.limits = std::make_pair(0.05, 0.35);
     }
@@ -492,6 +534,7 @@ MCConfig make_mc_config_from_config(const StatisticConfig& config, bool for_chi2
     cfg.print_progress = config.print_mc_progress;
     cfg.progress_probe_draws = config.mc_progress_probe_draws;
     cfg.progress_update_every = config.mc_progress_update_every;
+    cfg.progress_monitor = config.progress_monitor;
     cfg.write_samples_csv = config.write_mc_samples_csv;
     cfg.samples_csv_path = config.mc_samples_csv_path;
     return cfg;
@@ -527,7 +570,7 @@ StatisticManager::StatisticManager(StatisticConfig config,
 }
 
 std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuisance_marginal_distributions() {
-    unsigned int seed = 123456u;
+    unsigned int seed = config.MC_seed;
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
     marginals.reserve(cache.eta_specs_real.size());
@@ -559,7 +602,7 @@ std::vector<std::unique_ptr<IMarginalDistribution>> StatisticManager::build_nuis
 }
 
 std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution() {
-    unsigned int seed = 123456u;
+    unsigned int seed = config.MC_seed;
 
     if (config.print_mc_config || config.print_debug) {
         std::cout << "[MC CONFIG] Nuisance distribution: "
@@ -587,7 +630,9 @@ std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution
 }
 
 std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution() {
-    unsigned int seed = std::random_device{}();
+    // Keep the experimental-data stream reproducible but decorrelated from the
+    // nuisance stream initialized with MC_seed.
+    unsigned int seed = config.MC_seed ^ 0x9E3779B9u;
     std::map<ExperimentObs, MarginalType> exp_data_marginals;
 
     for (auto& [oid, v] : cache.exp_obs) {
@@ -654,6 +699,9 @@ std::map<BinnedObservableId, GaussianSummary> StatisticManager::compute_uncertai
 }
 
 MCResult StatisticManager::compute_uncertainties_and_sampling() {
+    if (this->config.progress_monitor) {
+        this->config.progress_monitor->reset("preparing", "Preparing Monte-Carlo uncertainty propagation");
+    }
     update_cache();
     auto rvg = build_nuisance_distribution();
     std::vector<ParamId> nuisance_ids = unzip(cache.eta_specs_real).ids;
@@ -666,6 +714,9 @@ MCResult StatisticManager::compute_uncertainties_and_sampling() {
 }
 
 FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_specs) {
+    if (this->config.progress_monitor) {
+        this->config.progress_monitor->reset("preparing", "Preparing chi-square fit");
+    }
     update_cache(p_specs);
 
     if (cache.p_specs.empty()) {
@@ -683,7 +734,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     }
 
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-    const std::vector<double> p0 = unzipped_fit_params.vals;
+    const std::vector<double> p0 = fit_coordinates_from_model_values(
+        config, p_ids, unzipped_fit_params.vals
+    );
 
     const std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
     const std::vector<double> eta0 = unzipped_nuisances.vals;
@@ -706,7 +759,10 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         StatisticStageProgressReporter chi2_progress(
             show_chi2_progress,
             "CHI2 workflow",
-            5
+            7,
+            std::cout,
+            this->config.progress_monitor,
+            "chi2_pipeline"
         );
         chi2_progress.start(
             "Starting chi-square workflow: MC covariance, experimental covariance, likelihood construction, then maximum-likelihood fit. The MC bar estimates only the MC part; later steps are reported separately."
@@ -754,6 +810,10 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             }
         }
 
+        chi2_progress.step(
+            3,
+            "Experimental uncertainties ready; assembling the total covariance matrix."
+        );
         const RealMatrix covariance_exp = experimental_covariance_matrix(
             obs_ids,
             this->cache.SigmaObs,
@@ -774,14 +834,18 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         //         }
         //     }
 
+        chi2_progress.step(
+            4,
+            "Total covariance assembled; inverting the regularized covariance matrix."
+        );
         RealMatrix covariance_total_inv = inverse_covariance_with_ridge(
             covariance_total,
             this->config.advanced.chi2_covariance_ridge_rel,
             this->config.advanced.chi2_covariance_ridge_abs
         );
         chi2_progress.step(
-            3,
-            "Total covariance ready; preparing the chi-square likelihood."
+            5,
+            "Covariance inverse ready; constructing the chi-square likelihood."
         );
 
         if (config.print_fit_summary || config.print_debug) {
@@ -795,7 +859,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
 
         for (std::size_t i = 0; i < p_ids.size(); ++i) {
             double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
-            ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+            ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma, config));
         }
 
         // auto model_fn = [this, obs_ids, p_ids](
@@ -827,8 +891,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             // Important : en mode chi2 zéro nuisance, on ne veut pas laisser
             // les nuisances dans l'état du dernier tirage MC.
             // On force explicitement les nuisances au point central eta0.
+            const auto model_p = model_values_from_fit_coordinates(this->config, p_ids, p_vec);
             auto pred_map = this->obs_int->predict_optimized(
-                zip(p_ids, p_vec),
+                zip(p_ids, model_p),
                 eta0_map
             );
 
@@ -843,8 +908,8 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         );
 
         chi2_progress.step(
-            4,
-            "Likelihood ready; running the maximum-likelihood fit. ETA is not reliable for this backend-dependent step."
+            6,
+            "Likelihood ready; running the maximum-likelihood fit. This backend-dependent step has no reliable ETA."
         );
 
         MLFitOptions fitopt = make_mlfit_options_from_config(config);
@@ -879,7 +944,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     ctx->fp_defs.reserve(p_ids.size());
     for (std::size_t i = 0; i < p_ids.size(); ++i) {
         double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
-        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma, config));
     }
 
     ctx->nuis_defs.reserve(eta_ids.size());
@@ -894,8 +959,9 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         const std::vector<double>& p_vec,
         const std::vector<double>& eta_vec) -> std::vector<double>
     {
+        const auto model_p = model_values_from_fit_coordinates(this->config, p_ids, p_vec);
         auto pred_map = this->obs_int->predict_optimized(
-            zip(p_ids, p_vec),
+            zip(p_ids, model_p),
             zip(eta_ids, eta_vec)
         );
 
@@ -1549,7 +1615,9 @@ void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
 
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-    const std::vector<double> p0     = unzipped_fit_params.vals;
+    const std::vector<double> p0 = fit_coordinates_from_model_values(
+        config, p_ids, unzipped_fit_params.vals
+    );
 
     const std::vector<ParamId> eta_ids = unzipped_nuisances.ids;
     const std::vector<double> eta0     = unzipped_nuisances.vals;
@@ -1565,7 +1633,7 @@ void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p
     ctx->fp_defs.reserve(p_ids.size());
     for (std::size_t i = 0; i < p_ids.size(); ++i) {
         double sigma = std::abs(pspp->get_param(p_ids[i])->get_combined_std().real());
-        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma));
+        ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma, config));
     }
 
     ctx->nuis_defs.reserve(eta_ids.size());
@@ -1580,8 +1648,9 @@ void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p
         const std::vector<double>& p_vec,
         const std::vector<double>& eta_vec) -> std::vector<double>
     {
+        const auto model_p = model_values_from_fit_coordinates(this->config, p_ids, p_vec);
         auto pred_map = this->obs_int->predict_optimized(
-            zip(p_ids, p_vec),
+            zip(p_ids, model_p),
             zip(eta_ids, eta_vec)
         );
 

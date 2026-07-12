@@ -514,6 +514,20 @@ class WCoefMapper:
         coef_id = WCoefMapper.id_of(coef)
         return tuple(_CppWCoefMapper.flha_base(coef_id._to_cpp()))
 
+    @staticmethod
+    def flha_full(coef, order: QCDOrder, contribution: ContributionType) -> LhaID:
+        """Return the full FLHA identifier for a Wilson coefficient term."""
+        if not isinstance(order, QCDOrder):
+            raise TypeError("order must be a QCDOrder")
+        if not isinstance(contribution, ContributionType):
+            raise TypeError("contribution must be a ContributionType")
+        if isinstance(coef, WCoeff):
+            cpp_id = _CppWCoefMapper.flha_full(coef.value, order.value, contribution.value)
+        else:
+            coef_id = WCoefMapper.id_of(coef)
+            cpp_id = _CppWCoefMapper.flha_full(coef_id._to_cpp(), order.value, contribution.value)
+        return LhaID(cpp_id)
+
     def get_str(self):
         """Return the C++ mapper's primary string table."""
         return _CppWCoefMapper.get_str()

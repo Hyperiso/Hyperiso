@@ -4,12 +4,14 @@
 #include <vector>
 #include <random>
 #include <string>
+#include <memory>
 
 #include "INuisanceSampler.h"
 #include "ports/IModel.h"
 #include "Statistics.h"
 #include "GaussianApprox.h"
 #include "Indexing.h"
+#include "StatisticProgress.h"
 
 /**
  * @file MCEngine.h
@@ -64,6 +66,9 @@ struct MCConfig {
 
     /** Accepted-draw stride between progress updates. */
     std::size_t progress_update_every = 1;
+
+    /** Optional frontend monitor receiving thread-safe progress snapshots. */
+    std::shared_ptr<StatisticProgressMonitor> progress_monitor {};
 
     /** Whether accepted observable samples should be written to CSV. */
     bool write_samples_csv = false;

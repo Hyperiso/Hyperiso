@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import base64
 import threading
+import time
+import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
@@ -52,6 +54,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
     Observables,
     ParameterType,
     QCDOrder,
+    ScaleType,
     WilsonBasis,
 )
 from pyhyperiso.core.Common.Mapper import DecayMapper, GroupMapper, ObservableMapper, WCoefMapper
@@ -73,7 +76,9 @@ from pyhyperiso.core.Core.ParameterSetter import ParameterSetter
 from pyhyperiso.core.Core.QCDProvider import QCDProvider
 from pyhyperiso.core.Core.QEDProvider import QEDProvider
 from pyhyperiso.core.Statistic.Copula import CopulaKind
-from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig, StatisticLikelihoodMode
+from pyhyperiso.core.Statistic.StatisticConfig import (
+    StatisticConfig, StatisticLikelihoodMode, StatisticProgressMonitor,
+)
 from pyhyperiso.core.Statistic.StatisticInterface import (
     StatisticInterface,
     ContourOptions,
@@ -134,6 +139,25 @@ RUNTIME = RuntimeState()
 DATA_DIR = Path(__file__).resolve().parent / "data"
 UPLOAD_DIR = DATA_DIR / "uploaded_lha"
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+@dataclass
+class StatisticJob:
+    """One same-process statistic task with a C++ progress monitor."""
+
+    job_id: str
+    kind: str
+    monitor: StatisticProgressMonitor
+    created_at: float = field(default_factory=time.monotonic)
+    done: bool = False
+    result: Any = None
+    error: str | None = None
+    thread: threading.Thread | None = None
+    lock: threading.RLock = field(default_factory=threading.RLock)
+
+
+_STATISTIC_JOBS: dict[str, StatisticJob] = {}
+_STATISTIC_JOBS_LOCK = threading.RLock()
 
 
 # ---------- General helpers ----------
@@ -301,6 +325,15 @@ def allowed_parameter_type_names() -> list[str]:
 def parameter_type_options() -> list[dict[str, str]]:
     """Return Dash dropdown options for model-safe ParameterType values."""
     return [{"label": pt.name, "value": pt.name} for pt in allowed_parameter_types()]
+
+
+def stat_parameter_type_options() -> list[dict[str, str]]:
+    """Generic fit-parameter namespaces; Wilson coefficients use Wilson Scan."""
+    return [
+        {"label": pt.name, "value": pt.name}
+        for pt in allowed_parameter_types()
+        if pt.name != "WILSON"
+    ]
 
 
 def default_parameter_type_name(preferred: str = "SM") -> str:
@@ -934,9 +967,10 @@ _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
     "B": [f"C{i}" for i in range(1, 11)],
     "BPrime": [
         *(f"CP{i}" for i in range(1, 11)),
+        "CPQ1", "CPQ2",
         "CPQ1_E", "CPQ1_MU", "CPQ1_TA", "CPQ2_E", "CPQ2_MU", "CPQ2_TA",
     ],
-    "BScalar": ["CQ1_E", "CQ1_MU", "CQ1_TA", "CQ2_E", "CQ2_MU", "CQ2_TA"],
+    "BScalar": ["CQ1", "CQ2", "CQ1_E", "CQ1_MU", "CQ1_TA", "CQ2_E", "CQ2_MU", "CQ2_TA"],
     "CC_bc": ["C_V1_bc", "C_V2_bc", "C_S1_bc", "C_S2_bc", "C_T_bc"],
     "CC_bu": ["C_V1_bu", "C_V2_bu", "C_S1_bu", "C_S2_bu", "C_T_bu"],
     "CC_cs": ["C_V1_cs", "C_V2_cs", "C_S1_cs", "C_S2_cs", "C_T_cs"],
@@ -1031,6 +1065,191 @@ def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: f
             "hadronic_scale": float(hadronic_scale),
         }
     return {"action": action, "groups": list(groups), "order": order_name, "matching_scale": matching_scale, "hadronic_scale": hadronic_scale}
+
+
+def wilson_scan_coefficient_options() -> list[dict]:
+    """All Wilson coefficients supported by the current core, with LaTeX labels."""
+    try:
+        valid = set(_mapper_strings(WCoefMapper()))
+    except Exception:
+        valid = {name for names in _WILSON_GROUP_COEFFS.values() for name in names}
+    ordered: list[str] = []
+    for names in _WILSON_GROUP_COEFFS.values():
+        for name in names:
+            if name in valid and name not in ordered:
+                ordered.append(name)
+    ordered.extend(sorted(valid.difference(ordered)))
+    # Keep this large multi-select text-only. Dash 2.x ships an old
+    # react-virtualized-select memoizer that can throw ``undefined.join`` when
+    # component labels are used in a virtualized multi dropdown.
+    return [
+        {
+            "label": f"{lx.compact_math_text(lx.wilson_latex(name), name)}  —  {name}",
+            "value": name,
+            "title": f"{lx.compact_math_text(lx.wilson_latex(name), name)} ({name})",
+            "search": f"{name} {lx.text_latex(lx.wilson_latex(name), '')}",
+        }
+        for name in ordered
+    ]
+
+
+def _wilson_group_for_coefficient(coefficient: str) -> str:
+    for key, names in _WILSON_GROUP_COEFFS.items():
+        if coefficient in names:
+            return _WILSON_GROUP_ALIASES[key][-1]
+    raise ValueError(f"No Wilson group is known for coefficient '{coefficient}'.")
+
+
+def wilson_scan_setup(
+    coefficients: Sequence[str] | None,
+    scan_mode: str | None,
+    matching_scale: Any,
+    hadronic_scale: Any,
+    order_name: str | None,
+) -> dict:
+    """Normalize the high-level Wilson Scan controls."""
+    selected = list(dict.fromkeys(str(c) for c in (coefficients or []) if c))
+    if len(selected) > 10:
+        raise ValueError("Wilson Scan supports at most 10 fitted coefficients.")
+    normalized_mode = str(scan_mode or "DELTA").upper()
+    if normalized_mode not in {"DELTA", "FULL"}:
+        raise ValueError("Wilson Scan convention must be DELTA or FULL.")
+    matching = float(matching_scale if matching_scale not in (None, "") else 160.0)
+    hadronic = float(hadronic_scale if hadronic_scale not in (None, "") else 4.8)
+    if matching <= 0.0 or hadronic <= 0.0:
+        raise ValueError("Wilson matching and hadronic scales must be strictly positive.")
+    normalized_order = str(order_name or "NNLO").upper()
+    valid_orders = {item.name for item in QCDOrder}
+    if normalized_order not in valid_orders:
+        raise ValueError(f"Unknown Wilson evolution order '{normalized_order}'.")
+    return {
+        "coefficients": selected,
+        "scan_mode": normalized_mode,
+        "matching_scale": matching,
+        "hadronic_scale": hadronic,
+        "order_name": normalized_order,
+    }
+
+
+def ensure_wilson_scan_ready(setup: Mapping[str, Any], monitor: StatisticProgressMonitor | None = None) -> dict:
+    """Build every Wilson group required by a scan before any stat operation."""
+    coefficients = list(setup.get("coefficients") or [])
+    if not coefficients:
+        raise ValueError("Select at least one Wilson coefficient for Wilson Scan.")
+    groups = sorted({_wilson_group_for_coefficient(name) for name in coefficients})
+    matching = float(setup.get("matching_scale", 160.0))
+    hadronic = float(setup.get("hadronic_scale", 4.8))
+    order_name = str(setup.get("order_name", "NNLO")).upper()
+    if monitor is not None:
+        monitor.set_progress("wilson_build", "Building the required Wilson groups", 0.02)
+
+    with RUNTIME.lock:
+        status = dict(RUNTIME.wilson_status or {})
+        existing = set(str(g) for g in status.get("groups", []))
+        same_config = (
+            RUNTIME.wilson is not None
+            and str(status.get("order", "")).upper() == order_name
+            and abs(float(status.get("matching_scale", matching)) - matching) < 1e-12
+            and abs(float(status.get("hadronic_scale", hadronic)) - hadronic) < 1e-12
+        )
+        missing = [group for group in groups if group not in existing]
+        if RUNTIME.wilson is None:
+            result = build_wilson(groups, matching, hadronic, order_name, add=False)
+        elif same_config and missing:
+            result = build_wilson(missing, matching, hadronic, order_name, add=True)
+        elif same_config:
+            result = {"action": "reuse", "groups": groups, "order": order_name}
+        else:
+            # Preserve already selected groups when changing scales/order, while
+            # guaranteeing all scan coefficients exist before statistics starts.
+            result = build_wilson(sorted(existing.union(groups)), matching, hadronic, order_name, add=False)
+
+    if monitor is not None:
+        monitor.set_progress("wilson_build", f"Wilson groups ready: {', '.join(groups)}", 0.05)
+    return result
+
+
+def wilson_scan_parameter_rows(setup: Mapping[str, Any]) -> list[dict]:
+    """Translate user-facing Wilson choices into internal statistic ParamIds."""
+    ensure_wilson_scan_ready(setup)
+    scan_mode = str(setup.get("scan_mode", "DELTA")).upper()
+    if scan_mode not in {"DELTA", "FULL"}:
+        raise ValueError("Wilson Scan mode must be DELTA or FULL.")
+    rows: list[dict] = []
+    internal_targets: dict[tuple[str, str], str] = {}
+    for coefficient in list(setup.get("coefficients") or [])[:10]:
+        coefficient = str(coefficient)
+        group = _wilson_group_for_coefficient(coefficient)
+        final_block = GroupMapper.block_name(group, ScaleType.HADRONIC, WilsonBasis.STANDARD)
+        bsm_block = final_block + "__BSM_INTERMEDIATE"
+        bsm_code = WCoefMapper.flha_full(coefficient, QCDOrder.LO, ContributionType.BSM).to_string()
+        target_key = (bsm_block, bsm_code)
+        previous = internal_targets.get(target_key)
+        if previous is not None:
+            raise ValueError(
+                f"Wilson coefficients '{previous}' and '{coefficient}' resolve to the same "
+                "internal FLHA parameter. Select only one of these aliases."
+            )
+        internal_targets[target_key] = coefficient
+
+        # The dependency graph is driven from the BSM intermediate block.  Even
+        # for a full-C scan, fitting the final TOTAL block directly would let an
+        # upstream SM refresh overwrite the trial value.  The statistic core
+        # therefore receives the stable BSM ParamId plus an affine offset so its
+        # minimizer coordinate is the physical full coefficient C = C_SM + ΔC.
+        try:
+            bsm_initial, bsm_lower, bsm_upper = suggested_parameter_bounds(
+                "WILSON", bsm_block, bsm_code
+            )
+        except Exception:
+            bsm_initial, bsm_lower, bsm_upper = 0.0, -2.0, 2.0
+
+        fit_offset = 0.0
+        if scan_mode == "FULL":
+            total_code = WCoefMapper.flha_full(
+                coefficient, QCDOrder.LO, ContributionType.TOTAL
+            ).to_string()
+            try:
+                total_initial, total_lower, total_upper = suggested_parameter_bounds(
+                    "WILSON", final_block, total_code
+                )
+            except Exception:
+                total_initial = float(bsm_initial)
+                total_lower, total_upper = total_initial - 2.0, total_initial + 2.0
+            fit_offset = float(total_initial) - float(bsm_initial)
+            initial, lower, upper = total_initial, total_lower, total_upper
+            contribution = ContributionType.TOTAL
+        else:
+            initial, lower, upper = bsm_initial, bsm_lower, bsm_upper
+            half_width = max(2.0, abs(float(initial)) + 1.0)
+            lower, upper = float(initial) - half_width, float(initial) + half_width
+            contribution = ContributionType.BSM
+
+        label = lx.wilson_request_table_latex(
+            "R" if scan_mode == "DELTA" else "FM",
+            coefficient,
+            "LO",
+            contribution.name,
+        )
+        rows.append({
+            "parameter": label,
+            "source": "Wilson ΔC" if scan_mode == "DELTA" else "Wilson full C",
+            # Internal model target stays the BSM intermediate parameter.
+            "type": "WILSON",
+            "block": bsm_block,
+            "code": bsm_code,
+            "initial": float(initial),
+            "lower_bound": float(lower),
+            "upper_bound": float(upper),
+            "fit_offset": float(fit_offset),
+            "wilson_coefficient": coefficient,
+            "wilson_group": group,
+            "wilson_scan_mode": scan_mode,
+            "wilson_matching_scale": float(setup.get("matching_scale", 160.0)),
+            "wilson_hadronic_scale": float(setup.get("hadronic_scale", 4.8)),
+            "wilson_order": str(setup.get("order_name", "NNLO")).upper(),
+        })
+    return rows
 
 
 def query_wilson(method: str, group: str, coeff: str, order: str, contribution: str, basis: str = "STANDARD", component: str = "real") -> dict:
@@ -1750,6 +1969,7 @@ def make_stat_config(
     nuisance_pruning: bool,
     nuisance_contexts: Any,
     nuisance_seed: Any,
+    progress_monitor: StatisticProgressMonitor | None = None,
 ) -> StatisticConfig:
     def supplied(value: Any, default: Any) -> Any:
         return default if value is None or value == "" else value
@@ -1777,6 +1997,7 @@ def make_stat_config(
     advanced.nuisance_sensitivity_pruning = bool(nuisance_pruning)
     advanced.nuisance_sensitivity_contexts = int(supplied(nuisance_contexts, 2))
     advanced.nuisance_sensitivity_seed = int(supplied(nuisance_seed, 12345))
+    cfg.progress_monitor = progress_monitor
     # Dynamic attributes consumed by the existing StatisticInterface wrapper.
     cfg.p_specs = []
     cfg.selected_experiments = None
@@ -1860,7 +2081,7 @@ def configure_stat_observables(
     return rows
 
 
-def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, mc_threads: Any, mc_seed: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None) -> StatisticInterface:
+def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, mc_threads: Any, mc_seed: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None, progress_monitor: StatisticProgressMonitor | None = None, fit_parameter_bounds: Mapping[ParamId, tuple[float, float]] | None = None, fit_parameter_offsets: Mapping[ParamId, float] | None = None) -> StatisticInterface:
     if configured_rows:
         rows = [dict(row) for row in configured_rows]
         with RUNTIME.lock:
@@ -1876,8 +2097,13 @@ def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names
         )
     if RUNTIME.observable is None:
         raise RuntimeError("Shared ObservableInterface is not available")
-    cfg = make_stat_config(mc_draws, mc_threads, mc_seed, skew_threshold, ridge_rel, ridge_abs, nuisance_pruning, nuisance_contexts, nuisance_seed)
+    cfg = make_stat_config(
+        mc_draws, mc_threads, mc_seed, skew_threshold, ridge_rel, ridge_abs,
+        nuisance_pruning, nuisance_contexts, nuisance_seed, progress_monitor,
+    )
     cfg.p_specs = list(p_specs or [])
+    cfg.fit_parameter_bounds = dict(fit_parameter_bounds or {})
+    cfg.fit_parameter_offsets = dict(fit_parameter_offsets or {})
     exps = split_csv(experiments)
     cfg.selected_experiments = exps or None
     stat_int = StatisticInterface(cfg, observable_interface=RUNTIME.observable)
@@ -1934,22 +2160,45 @@ def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
     return [pid for _, pid in p_spec_rows_and_ids(rows)]
 
 
-def fit_result_rows(fit) -> tuple[list[dict], list[dict], list[dict]]:
+def fit_result_rows(fit, display_rows: Sequence[dict] | None = None) -> tuple[list[dict], list[dict], list[dict]]:
+    """Format fit output while preserving high-level Wilson Scan labels."""
+    display_by_key = {p_spec_row_key(row): row for row in (display_rows or [])}
+
+    def display(pid: ParamId) -> tuple[str, str]:
+        raw = param_to_label(pid)
+        key = "|".join((pid.type.name if pid.type else "", str(pid.block), pid.code.to_string()))
+        row = display_by_key.get(key, {})
+        label = str(row.get("parameter") or lx.parameter_table_label(
+            str(pid.block), pid.code.to_string(), raw, pid.type.name if pid.type else None
+        ))
+        return label, raw
+
     p_rows = []
     for p, v in fit.p_hat.items():
-        raw = param_to_label(p)
-        label = lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None)
-        p_rows.append({"parameter": label, "raw_parameter": raw, "best_fit": scalar_to_float(v, "real"), "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real") if fit.p_hat_std else None})
+        label, raw = display(p)
+        p_rows.append({
+            "parameter": label,
+            "raw_parameter": raw,
+            "best_fit": scalar_to_float(v, "real"),
+            "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real") if fit.p_hat_std else None,
+        })
     eta_rows = []
     for p, v in fit.eta_hat.items():
         raw = param_to_label(p)
-        eta_rows.append({"nuisance": lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None), "raw_nuisance": raw, "value": scalar_to_float(v, "real")})
+        eta_rows.append({
+            "nuisance": lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None),
+            "raw_nuisance": raw,
+            "value": scalar_to_float(v, "real"),
+        })
     corr_rows = []
     for p1, inner in fit.p_correlations.items():
+        label1, raw1 = display(p1)
         for p2, corr in inner.items():
-            raw1 = param_to_label(p1)
-            raw2 = param_to_label(p2)
-            corr_rows.append({"x": lx.parameter_table_label(str(p1.block), p1.code.to_string(), raw1, p1.type.name if p1.type else None), "y": lx.parameter_table_label(str(p2.block), p2.code.to_string(), raw2, p2.type.name if p2.type else None), "raw_x": raw1, "raw_y": raw2, "corr": scalar_to_float(corr, "real")})
+            label2, raw2 = display(p2)
+            corr_rows.append({
+                "x": label1, "y": label2, "raw_x": raw1, "raw_y": raw2,
+                "corr": scalar_to_float(corr, "real"),
+            })
     return p_rows, eta_rows, corr_rows
 
 
@@ -1982,6 +2231,8 @@ def run_fit_and_contours(
     fallback_algorithm: str | None,
     profiler_mode: str | None,
     resolution: Any,
+    progress_monitor: StatisticProgressMonitor | None = None,
+    wilson_setup: Mapping[str, Any] | None = None,
 ) -> dict:
     """Run the χ² fit and optional core confidence contours.
 
@@ -1990,6 +2241,8 @@ def run_fit_and_contours(
     hidden fit coordinates are reduced to the displayed plane.
     """
     require_initialized()
+    if wilson_setup is not None:
+        ensure_wilson_scan_ready(wilson_setup, progress_monitor)
     rows = list(p_spec_rows or [])
     row_pid_pairs = p_spec_rows_and_ids(rows)
     p_specs = [pid for _, pid in row_pid_pairs]
@@ -2001,10 +2254,19 @@ def run_fit_and_contours(
 
     stat_kwargs = dict(stat_kwargs)
     stat_kwargs["p_specs"] = p_specs
+    stat_kwargs["progress_monitor"] = progress_monitor
+    stat_kwargs["fit_parameter_bounds"] = {
+        pid: _row_bounds(row) for row, pid in row_pid_pairs
+    }
+    stat_kwargs["fit_parameter_offsets"] = {
+        pid: float(row.get("fit_offset", 0.0) or 0.0)
+        for row, pid in row_pid_pairs
+        if float(row.get("fit_offset", 0.0) or 0.0) != 0.0
+    }
     with RUNTIME.lock:
         RUNTIME.stat = build_stat_interface(**stat_kwargs)
         fit = RUNTIME.stat.compute_MLE(p_specs)
-        p_rows, eta_rows, corr_rows = fit_result_rows(fit)
+        p_rows, eta_rows, corr_rows = fit_result_rows(fit, rows)
 
         contour_paths: list[dict] = []
         contour_errors: list[str] = []
@@ -2057,7 +2319,15 @@ def run_fit_and_contours(
             levels = sorted({float(z) for z in (confidence_levels or [1.0]) if float(z) > 0.0})
             if not levels:
                 raise ValueError("Select at least one positive confidence level.")
-            for z in levels:
+            if progress_monitor is not None:
+                progress_monitor.set_progress("contours", "Computing confidence contours", 0.0, total=len(levels))
+            for level_index, z in enumerate(levels):
+                if progress_monitor is not None:
+                    progress_monitor.set_progress(
+                        "contours", f"Computing the {z:g}σ contour",
+                        level_index / max(1, len(levels)),
+                        completed=level_index, total=len(levels),
+                    )
                 try:
                     contour = RUNTIME.stat.compute_confidence_contour(
                         x_pid, y_pid, z, bounds, contour_options
@@ -2079,6 +2349,9 @@ def run_fit_and_contours(
                 except Exception as exc:
                     contour_errors.append(f"{z:g}σ: {type(exc).__name__}: {exc}")
 
+    if progress_monitor is not None:
+        progress_monitor.set_progress("complete", "Statistic workflow complete", 1.0, finished=True)
+
     return {
         "fit_ok": bool(fit.fit_ok),
         "ell_hat": scalar_to_float(fit.ell_hat, "real"),
@@ -2090,6 +2363,161 @@ def run_fit_and_contours(
         "axis_labels": axis_labels,
         "best_fit_point": best_fit_point,
         "bounds": bounds,
+    }
+
+
+def _prune_statistic_jobs(max_age_seconds: float = 3600.0) -> None:
+    now = time.monotonic()
+    with _STATISTIC_JOBS_LOCK:
+        stale = [
+            job_id for job_id, job in _STATISTIC_JOBS.items()
+            if job.done and now - job.created_at > max_age_seconds
+        ]
+        for job_id in stale:
+            _STATISTIC_JOBS.pop(job_id, None)
+
+
+def _start_statistic_job(kind: str, target) -> str:
+    _prune_statistic_jobs()
+    job_id = uuid.uuid4().hex
+    monitor = StatisticProgressMonitor()
+    monitor.reset("queued", "Statistic task queued")
+    job = StatisticJob(job_id=job_id, kind=kind, monitor=monitor)
+
+    def runner() -> None:
+        try:
+            result = target(monitor)
+            with job.lock:
+                job.result = result
+                job.done = True
+        except Exception as exc:
+            monitor.set_progress("failed", f"{type(exc).__name__}: {exc}", 1.0, finished=True)
+            with job.lock:
+                job.error = f"{type(exc).__name__}: {exc}"
+                job.done = True
+
+    thread = threading.Thread(target=runner, name=f"hyperiso-{kind}-{job_id[:8]}", daemon=True)
+    job.thread = thread
+    with _STATISTIC_JOBS_LOCK:
+        _STATISTIC_JOBS[job_id] = job
+    thread.start()
+    return job_id
+
+
+def start_uncertainty_job(
+    stat_kwargs: Mapping[str, Any],
+    wilson_setup: Mapping[str, Any] | None = None,
+) -> str:
+    """Start uncertainty propagation in the same process as the Hyperiso singleton."""
+    kwargs = dict(stat_kwargs)
+
+    def target(monitor: StatisticProgressMonitor):
+        if wilson_setup is not None:
+            ensure_wilson_scan_ready(wilson_setup, monitor)
+        kwargs["progress_monitor"] = monitor
+        rows = compute_uncertainty_rows(**kwargs)
+        monitor.set_progress("complete", "Uncertainty propagation complete", 1.0, finished=True)
+        return rows
+
+    return _start_statistic_job("uncertainty", target)
+
+
+def start_fit_job(
+    stat_kwargs: Mapping[str, Any],
+    p_spec_rows: Sequence[dict],
+    do_contour: bool,
+    x_key: str | None,
+    y_key: str | None,
+    confidence_levels: Sequence[Any] | None,
+    profiling_method: str | None,
+    contour_algorithm: str | None,
+    fallback_algorithm: str | None,
+    profiler_mode: str | None,
+    resolution: Any,
+    wilson_setup: Mapping[str, Any] | None = None,
+) -> str:
+    """Start a χ² fit/contour task with live C++ progress snapshots."""
+    kwargs = dict(stat_kwargs)
+    rows = [dict(row) for row in (p_spec_rows or [])]
+
+    def target(monitor: StatisticProgressMonitor):
+        return run_fit_and_contours(
+            kwargs, rows, do_contour, x_key, y_key, confidence_levels,
+            profiling_method, contour_algorithm, fallback_algorithm,
+            profiler_mode, resolution, progress_monitor=monitor,
+            wilson_setup=wilson_setup,
+        )
+
+    return _start_statistic_job("fit", target)
+
+
+def _statistic_job_percent(kind: str, phase: str, fraction: float, done: bool) -> float:
+    frac = max(0.0, min(1.0, float(fraction)))
+    if done or phase == "complete":
+        return 100.0
+    if phase == "failed":
+        return 100.0
+    if phase in {"queued", "preparing", "wilson_build"}:
+        return min(5.0, max(1.0, frac * 100.0))
+    if phase == "monte_carlo":
+        return 5.0 + (90.0 if kind == "uncertainty" else 70.0) * frac
+    if phase == "chi2_pipeline":
+        # Continue from the completed fit-MC segment instead of jumping back to
+        # the beginning when the covariance/likelihood pipeline starts.
+        return 75.0 + 20.0 * frac
+    if phase == "contours":
+        return 95.0 + 5.0 * frac
+    return min(99.0, max(1.0, frac * 100.0))
+
+
+def _duration_label(seconds: float) -> str:
+    if seconds < 0.0:
+        return ""
+    seconds_i = max(0, int(round(seconds)))
+    if seconds_i < 60:
+        return f"{seconds_i}s"
+    minutes, sec = divmod(seconds_i, 60)
+    if minutes < 60:
+        return f"{minutes}m {sec:02d}s"
+    hours, minutes = divmod(minutes, 60)
+    return f"{hours}h {minutes:02d}m"
+
+
+def poll_statistic_job(job_id: str | None) -> dict:
+    """Return the latest progress snapshot and final result, when available."""
+    if not job_id:
+        raise ValueError("Missing statistic job id")
+    with _STATISTIC_JOBS_LOCK:
+        job = _STATISTIC_JOBS.get(str(job_id))
+    if job is None:
+        raise KeyError("Statistic job is no longer available")
+    snapshot = job.monitor.snapshot()
+    with job.lock:
+        done = bool(job.done)
+        result = job.result if done else None
+        error = job.error
+    percent = _statistic_job_percent(job.kind, snapshot.phase, snapshot.fraction, done)
+    meta_parts = []
+    if snapshot.total > 0:
+        meta_parts.append(f"{snapshot.completed}/{snapshot.total}")
+    if snapshot.elapsed_seconds > 0:
+        meta_parts.append(f"elapsed {_duration_label(snapshot.elapsed_seconds)}")
+    if snapshot.eta_seconds >= 0 and not done:
+        meta_parts.append(f"ETA {_duration_label(snapshot.eta_seconds)}")
+    if snapshot.attempts > 0 and snapshot.attempts != snapshot.completed:
+        meta_parts.append(f"attempts {snapshot.attempts}")
+    if snapshot.failures > 0:
+        meta_parts.append(f"rejected {snapshot.failures}")
+    return {
+        "job_id": job.job_id,
+        "kind": job.kind,
+        "done": done,
+        "error": error,
+        "result": result,
+        "phase": snapshot.phase,
+        "message": snapshot.message or "Statistic computation in progress",
+        "percent": round(percent, 2),
+        "meta": " · ".join(meta_parts),
     }
 
 

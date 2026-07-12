@@ -55,9 +55,17 @@ UNC_COLUMNS = [
 ]
 PSPEC_COLUMNS = [
     {"name": "Parameter", "id": "parameter", "editable": False},
+    {"name": "Source", "id": "source", "editable": False},
     {"name": "type", "id": "type", "editable": False},
     {"name": "block", "id": "block", "editable": False},
     {"name": "code", "id": "code", "editable": False},
+    {"name": "fit offset", "id": "fit_offset", "type": "numeric", "editable": False},
+    {"name": "Wilson coefficient", "id": "wilson_coefficient", "editable": False},
+    {"name": "Wilson group", "id": "wilson_group", "editable": False},
+    {"name": "Wilson scan mode", "id": "wilson_scan_mode", "editable": False},
+    {"name": "Wilson matching scale", "id": "wilson_matching_scale", "type": "numeric", "editable": False},
+    {"name": "Wilson hadronic scale", "id": "wilson_hadronic_scale", "type": "numeric", "editable": False},
+    {"name": "Wilson order", "id": "wilson_order", "editable": False},
     {"name": "initial", "id": "initial", "type": "numeric", "editable": False},
     {"name": "lower bound", "id": "lower_bound", "type": "numeric", "editable": True},
     {"name": "upper bound", "id": "upper_bound", "type": "numeric", "editable": True},
@@ -100,6 +108,29 @@ CONTOUR_LEVEL_OPTIONS = [
 ]
 
 
+def task_progress(component_id: str, message: str):
+    """Determinate progress banner fed by the C++ monitor through polling."""
+    base = component_id.removesuffix("-progress-wrap")
+    return html.Div([
+        dcc.Store(id=f"{base}-job", storage_type="memory"),
+        dcc.Interval(id=f"{base}-progress-poll", interval=350, disabled=True, n_intervals=0),
+        html.Div(
+            id=component_id,
+            className="task-progress-wrap",
+            style={"display": "none"},
+            role="status",
+            **{"aria-live": "polite", "aria-busy": "true"},
+            children=[
+                html.Progress(id=f"{base}-progress-bar", value="0", max="100", className="task-progress-native"),
+                html.Div(className="task-progress-copy", children=[
+                    html.Span(message, id=f"{base}-progress-message", className="task-progress-message"),
+                    html.Span("", id=f"{base}-progress-meta", className="task-progress-meta"),
+                ]),
+            ],
+        ),
+    ])
+
+
 
 def observable_selection(prefix: str):
     return html.Div([
@@ -133,13 +164,64 @@ def bin_controls(prefix: str):
 
 def pspec_controls():
     return html.Div([
-        html.Div(className="form-grid-3", children=[
-            field("ParameterType", dropdown("stat-pspec-type", svc.parameter_type_options(), value=svc.default_parameter_type_name("FLAVOR"))),
-            field("Block", dropdown("stat-pspec-block", [], value=None, placeholder="Choose a block...")),
-            field("Code", dropdown("stat-pspec-code", [], value=None, placeholder="Choose a code...")),
+        field(
+            "Fit parameter mode",
+            dcc.RadioItems(
+                id="stat-fit-parameter-mode",
+                options=[
+                    {"label": "Standard parameters", "value": "STANDARD"},
+                    {"label": "Wilson Scan", "value": "WILSON"},
+                ],
+                value="STANDARD",
+                className="checklist",
+            ),
+        ),
+        html.Div(id="stat-standard-pspec-panel", children=[
+            html.Div(className="form-grid-3", children=[
+                field("ParameterType", dropdown("stat-pspec-type", svc.stat_parameter_type_options(), value=svc.default_parameter_type_name("FLAVOR"))),
+                field("Block", dropdown("stat-pspec-block", [], value=None, placeholder="Choose a block...")),
+                field("Code", dropdown("stat-pspec-code", [], value=None, placeholder="Choose a code...")),
+            ]),
+            html.Button("Add fit parameter", id="stat-add-pspec-btn", n_clicks=0),
         ]),
-        html.Button("Add fit parameter", id="stat-add-pspec-btn", n_clicks=0),
+        html.Div(id="stat-wilson-scan-panel", style={"display": "none"}, children=[
+            small_note(
+                "Select physical coefficients directly. The GUI builds every required Wilson group first, then converts the selection internally to the ParamId expected by the statistic core.",
+                tone="info",
+            ),
+            field(
+                "Wilson coefficients",
+                dropdown(
+                    "stat-wilson-scan-coefficients",
+                    svc.wilson_scan_coefficient_options(),
+                    value=["C9", "C10"],
+                    multi=True,
+                    placeholder="Choose up to 10 coefficients...",
+                    clearable=False,
+                ),
+            ),
+            field(
+                "Scan convention",
+                dcc.RadioItems(
+                    id="stat-wilson-scan-kind",
+                    options=[
+                        {"label": "ΔC — BSM contribution only", "value": "DELTA"},
+                        {"label": "Full C — total coefficient", "value": "FULL"},
+                    ],
+                    value="DELTA",
+                    className="checklist",
+                ),
+            ),
+            html.Div(className="form-grid-3", children=[
+                field("Matching scale [GeV]", num_input("stat-wilson-scan-matching-scale", 160.0)),
+                field("Hadronic scale [GeV]", num_input("stat-wilson-scan-hadronic-scale", 4.8)),
+                field("Wilson evolution order", dropdown("stat-wilson-scan-order", enum_options(QCDOrder), value="NNLO", clearable=False)),
+            ]),
+            html.Button("Use selected Wilson coefficients", id="stat-apply-wilson-pspec-btn", n_clicks=0),
+            status_box("stat-wilson-scan-status", "Wilson Scan is not configured yet."),
+        ]),
     ])
+
 
 
 def expert_controls():
@@ -233,33 +315,31 @@ def layout():
                 card("Uncertainty", "GaussianSummary", html.Div([
                     field("Uncertainty display", dropdown("stat-uncertainty-mode", [{"label": "symmetric", "value": "sym"}, {"label": "asymmetric", "value": "asym"}], value="sym")),
                     html.Button("Compute uncertainties", id="stat-uncertainty-btn", n_clicks=0),
-                    html.Div(
-                        id="stat-uncertainty-progress-wrap",
-                        className="task-progress-wrap",
-                        style={"display": "none"},
-                        children=[
-                            html.Progress(className="task-progress", max=100),
-                            html.Span("Monte-Carlo / uncertainty computation in progress…"),
-                        ],
+                    task_progress(
+                        "stat-uncertainty-progress-wrap",
+                        "Monte-Carlo / uncertainty computation in progress…",
                     ),
                     status_box("stat-uncertainty-status", "No uncertainty computation yet."),
                 ])),
                 card("Fit and confidence contour", "up to 10 fit parameters; select any pair for the 2D contour", html.Div([
                     pspec_controls(),
-                    data_table("stat-p-specs-table", PSPEC_COLUMNS, data=[], page_size=10, editable=True, row_selectable="multi", row_deletable=False),
+                    data_table(
+                        "stat-p-specs-table", PSPEC_COLUMNS, data=[], page_size=10,
+                        editable=True, row_selectable="multi", row_deletable=False,
+                        hidden_columns=[
+                            "type", "block", "code", "fit_offset", "wilson_coefficient",
+                            "wilson_group", "wilson_scan_mode", "wilson_matching_scale",
+                            "wilson_hadronic_scale", "wilson_order",
+                        ],
+                    ),
                     html.Div(className="inline-actions", children=[
                         html.Button("Remove selected fit parameters", id="stat-remove-pspec-btn", n_clicks=0),
                     ]),
                     contour_controls(),
                     html.Button("Run χ² fit / contour", id="stat-fit-btn", n_clicks=0),
-                    html.Div(
-                        id="stat-fit-progress-wrap",
-                        className="task-progress-wrap",
-                        style={"display": "none"},
-                        children=[
-                            html.Progress(className="task-progress", max=100),
-                            html.Span("χ² fit / confidence-contour computation in progress…"),
-                        ],
+                    task_progress(
+                        "stat-fit-progress-wrap",
+                        "χ² fit / confidence-contour computation in progress…",
                     ),
                     status_box("stat-fit-status", "No fit yet."),
                 ])),

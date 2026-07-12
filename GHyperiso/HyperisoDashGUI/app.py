@@ -85,7 +85,7 @@ def make_app() -> Dash:
             ),
             html.Main(
                 className="content",
-                children=[dcc.Loading(id="page-loading", type="circle", children=html.Div(id="page-content"))],
+                children=[html.Div(id="page-content", className="page-content")],
             ),
         ],
     )

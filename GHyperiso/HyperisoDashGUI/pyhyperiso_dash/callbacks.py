@@ -26,6 +26,20 @@ def _ok(prefix: str, data) -> str:
     return f"{prefix}\n{data}"
 
 
+def _progress_value(value) -> str:
+    """Clamp a native HTML progress value and serialize it as a string.
+
+    Dash's generated ``html.Progress`` prop metadata declares ``value`` as a
+    string in several supported releases, even though browsers accept numeric
+    attributes. Returning a string avoids client-side prop validation errors.
+    """
+    try:
+        number = max(0.0, min(100.0, float(value)))
+    except (TypeError, ValueError):
+        number = 0.0
+    return f"{number:.3f}".rstrip("0").rstrip(".") or "0"
+
+
 def _runtime_metrics():
     s = svc.runtime_summary()
     return [
@@ -727,32 +741,77 @@ def register_callbacks(app):
             return no_update, [], _err("Statistic observable removal failed.", exc)
 
     @app.callback(
+        Output("stat-standard-pspec-panel", "style"),
+        Output("stat-wilson-scan-panel", "style"),
+        Input("stat-fit-parameter-mode", "value"),
+        prevent_initial_call=False,
+    )
+    def toggle_stat_fit_parameter_mode(mode):
+        if str(mode or "STANDARD").upper() == "WILSON":
+            return {"display": "none"}, {}
+        return {}, {"display": "none"}
+
+    @app.callback(
         Output("stat-p-specs-table", "data"),
         Output("stat-p-specs-table", "selected_rows"),
+        Output("stat-wilson-scan-status", "children"),
         Input("stat-add-pspec-btn", "n_clicks"),
         Input("stat-remove-pspec-btn", "n_clicks"),
+        Input("stat-apply-wilson-pspec-btn", "n_clicks"),
+        State("stat-fit-parameter-mode", "value"),
         State("stat-pspec-type", "value"),
         State("stat-pspec-block", "value"),
         State("stat-pspec-code", "value"),
+        State("stat-wilson-scan-coefficients", "value"),
+        State("stat-wilson-scan-kind", "value"),
+        State("stat-wilson-scan-matching-scale", "value"),
+        State("stat-wilson-scan-hadronic-scale", "value"),
+        State("stat-wilson-scan-order", "value"),
         State("stat-p-specs-table", "data"),
         State("stat-p-specs-table", "selected_rows"),
         prevent_initial_call=True,
     )
-    def edit_pspec_rows(_add, _remove, ptype, block, code, rows, selected_rows):
+    def edit_pspec_rows(
+        _add, _remove, _apply_wilson, fit_mode, ptype, block, code,
+        coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order,
+        rows, selected_rows,
+    ):
         rows = list(rows or [])
         triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
         if triggered == "stat-remove-pspec-btn":
             remove = set(selected_rows or [])
             rows = [row for i, row in enumerate(rows) if i not in remove]
-            return rows[:10], []
+            return rows[:10], [], no_update
+
+        if triggered == "stat-apply-wilson-pspec-btn":
+            try:
+                setup = svc.wilson_scan_setup(
+                    coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order
+                )
+                rows = svc.wilson_scan_parameter_rows(setup)
+                groups = sorted({row.get("wilson_group") for row in rows})
+                convention = "ΔC (BSM only)" if setup["scan_mode"] == "DELTA" else "full C (total)"
+                status = (
+                    f"Wilson Scan configured: {len(rows)} coefficient(s), {convention}. "
+                    f"Required groups ready: {', '.join(groups)}."
+                )
+                return rows, [], status
+            except Exception as exc:
+                return rows[:10], [], _err("Wilson Scan configuration failed.", exc)
+
+        if str(fit_mode or "STANDARD").upper() != "STANDARD":
+            return rows[:10], [], "Use ‘Use selected Wilson coefficients’ to configure a Wilson Scan."
         if not (ptype and block and code not in (None, "")):
-            return rows[:10], []
+            return rows[:10], [], no_update
         try:
             initial, lower, upper = svc.suggested_parameter_bounds(ptype, block, code)
         except Exception:
             initial, lower, upper = 0.0, -1.0, 1.0
+        # Standard mode and Wilson mode are intentionally mutually exclusive.
+        rows = [row for row in rows if str(row.get("type")) != "WILSON"]
         row = {
             "parameter": svc.parameter_display_label(block, code, f"{ptype}:{block}:{code}", ptype),
+            "source": "Standard parameter",
             "type": ptype,
             "block": block,
             "code": str(code),
@@ -763,7 +822,7 @@ def register_callbacks(app):
         key = (row["type"], row["block"], row["code"])
         if key not in {(r.get("type"), r.get("block"), str(r.get("code"))) for r in rows}:
             rows.append(row)
-        return rows[:10], []
+        return rows[:10], [], no_update
 
     @app.callback(
         Output("stat-contour-x", "options"),
@@ -829,7 +888,16 @@ def register_callbacks(app):
         Output("stat-uncertainty-table", "data"),
         Output("stat-uncertainty-fig", "figure"),
         Output("stat-uncertainty-status", "children"),
+        Output("stat-uncertainty-job", "data"),
+        Output("stat-uncertainty-progress-poll", "disabled"),
+        Output("stat-uncertainty-btn", "disabled"),
+        Output("stat-uncertainty-progress-wrap", "style"),
+        Output("stat-uncertainty-progress-bar", "value"),
+        Output("stat-uncertainty-progress-message", "children"),
+        Output("stat-uncertainty-progress-meta", "children"),
         Input("stat-uncertainty-btn", "n_clicks"),
+        Input("stat-uncertainty-progress-poll", "n_intervals"),
+        State("stat-uncertainty-job", "data"),
         State("stat-obs-mode", "value"),
         State("stat-obs-obs", "value"),
         State("stat-obs-decays", "value"),
@@ -854,29 +922,89 @@ def register_callbacks(app):
         State("stat-nuisance-seed", "value"),
         State("stat-uncertainty-mode", "value"),
         State("stat-observable-table", "data"),
+        State("stat-fit-parameter-mode", "value"),
+        State("stat-wilson-scan-coefficients", "value"),
+        State("stat-wilson-scan-kind", "value"),
+        State("stat-wilson-scan-matching-scale", "value"),
+        State("stat-wilson-scan-hadronic-scale", "value"),
+        State("stat-wilson-scan-order", "value"),
         prevent_initial_call=True,
-        running=[
-            (Output("stat-uncertainty-btn", "disabled"), True, False),
-            (Output("stat-uncertainty-progress-wrap", "style"), {"display": "grid"}, {"display": "none"}),
-        ],
     )
-    def stat_uncertainty(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, uncertainty_mode, configured_rows):
+    def stat_uncertainty(
+        _clicks, _ticks, job_data, mode, obs, decays, order, deps, use_bin,
+        bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments,
+        mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune,
+        contexts, seed, uncertainty_mode, configured_rows, fit_mode,
+        coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order,
+    ):
+        triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
+        if triggered == "stat-uncertainty-btn":
+            try:
+                bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
+                kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+                if configured_rows:
+                    kwargs["configured_rows"] = configured_rows
+                wilson_setup = None
+                if str(fit_mode or "STANDARD").upper() == "WILSON":
+                    wilson_setup = svc.wilson_scan_setup(coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order)
+                job_id = svc.start_uncertainty_job(kwargs, wilson_setup)
+                return (
+                    no_update, no_update, "Uncertainty computation started.",
+                    {"job_id": job_id}, False, True, {"display": "grid"}, _progress_value(0),
+                    "Preparing the statistic workflow…", "",
+                )
+            except Exception as exc:
+                return (
+                    [], empty_fig("Uncertainty failed"), _err("Uncertainty computation failed.", exc),
+                    no_update, True, False, {"display": "grid"}, _progress_value(100),
+                    "Uncertainty computation failed", str(exc),
+                )
+
+        job_id = (job_data or {}).get("job_id")
+        if not job_id:
+            raise PreventUpdate
         try:
-            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
-            if configured_rows:
-                kwargs["configured_rows"] = configured_rows
-            rows = svc.compute_uncertainty_rows(**kwargs)
-            return rows, uncertainty_fig(rows, asymmetric=(uncertainty_mode == "asym")), f"Computed uncertainties for {len(rows)} observable/bin entries."
+            state = svc.poll_statistic_job(job_id)
         except Exception as exc:
-            return [], empty_fig("Uncertainty failed"), _err("Uncertainty computation failed.", exc)
+            return (
+                no_update, no_update, _err("Progress polling failed.", exc),
+                job_data, True, False, {"display": "grid"}, _progress_value(100),
+                "Progress polling failed", str(exc),
+            )
+        if not state["done"]:
+            return (
+                no_update, no_update, no_update, job_data, False, True,
+                {"display": "grid"}, _progress_value(state["percent"]), state["message"], state["meta"],
+            )
+        if state["error"]:
+            return (
+                [], empty_fig("Uncertainty failed"), f"Uncertainty computation failed.\nERROR: {state['error']}",
+                job_data, True, False, {"display": "grid"}, _progress_value(100),
+                "Uncertainty computation failed", state["error"],
+            )
+        rows = state["result"] or []
+        return (
+            rows, uncertainty_fig(rows, asymmetric=(uncertainty_mode == "asym")),
+            f"Computed uncertainties for {len(rows)} observable/bin entries.",
+            job_data, True, False, {"display": "grid"}, _progress_value(100),
+            "Uncertainty propagation complete", state["meta"],
+        )
 
     @app.callback(
         Output("stat-fit-table", "data"),
         Output("stat-corr-fig", "figure"),
         Output("stat-contour-fig", "figure"),
         Output("stat-fit-status", "children"),
+        Output("stat-fit-job", "data"),
+        Output("stat-fit-progress-poll", "disabled"),
+        Output("stat-fit-btn", "disabled"),
+        Output("stat-fit-progress-wrap", "style"),
+        Output("stat-fit-progress-bar", "value"),
+        Output("stat-fit-progress-message", "children"),
+        Output("stat-fit-progress-meta", "children"),
         Input("stat-fit-btn", "n_clicks"),
+        Input("stat-fit-progress-poll", "n_intervals"),
+        State("stat-fit-job", "data"),
         State("stat-obs-mode", "value"),
         State("stat-obs-obs", "value"),
         State("stat-obs-decays", "value"),
@@ -910,62 +1038,123 @@ def register_callbacks(app):
         State("stat-contour-fallback", "value"),
         State("stat-profiler-mode", "value"),
         State("stat-contour-resolution", "value"),
+        State("stat-fit-parameter-mode", "value"),
+        State("stat-wilson-scan-coefficients", "value"),
+        State("stat-wilson-scan-kind", "value"),
+        State("stat-wilson-scan-matching-scale", "value"),
+        State("stat-wilson-scan-hadronic-scale", "value"),
+        State("stat-wilson-scan-order", "value"),
         prevent_initial_call=True,
-        running=[
-            (Output("stat-fit-btn", "disabled"), True, False),
-            (Output("stat-fit-progress-wrap", "style"), {"display": "grid"}, {"display": "none"}),
-        ],
     )
-    def stat_fit(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed, p_rows_in, configured_rows, do_contour, x_key, y_key, levels, profiling_method, contour_algorithm, fallback_algorithm, profiler_mode, resolution):
-        try:
-            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-            warning = "Warning: MC_draws > 200 may be slow. " if mc_draws and int(mc_draws) > 200 else ""
-            kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
-            if configured_rows:
-                kwargs["configured_rows"] = configured_rows
-            contour_enabled = "contour" in (do_contour or [])
-            result = svc.run_fit_and_contours(
-                kwargs,
-                p_rows_in or [],
-                contour_enabled,
-                x_key,
-                y_key,
-                levels,
-                profiling_method,
-                contour_algorithm,
-                fallback_algorithm,
-                profiler_mode,
-                resolution,
-            )
-            corr_fig = correlation_heatmap(result["corr_rows"], "Fit-parameter correlations")
-            if result["contour_paths"]:
-                x_label, y_label = result["axis_labels"]
-                contour_fig = confidence_contour_paths(
-                    result["contour_paths"],
-                    "2D confidence contours",
-                    x_label,
-                    y_label,
-                    result["best_fit_point"],
-                    result["bounds"],
+    def stat_fit(
+        _clicks, _ticks, job_data, mode, obs, decays, order, deps, use_bin,
+        bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments,
+        mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune,
+        contexts, seed, p_rows_in, configured_rows, do_contour, x_key, y_key,
+        levels, profiling_method, contour_algorithm, fallback_algorithm,
+        profiler_mode, resolution, fit_mode, coefficients, scan_kind,
+        matching_scale, hadronic_scale, wilson_order,
+    ):
+        triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
+        if triggered == "stat-fit-btn":
+            try:
+                bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
+                kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+                if configured_rows:
+                    kwargs["configured_rows"] = configured_rows
+                wilson_setup = None
+                if str(fit_mode or "STANDARD").upper() == "WILSON":
+                    wilson_setup = svc.wilson_scan_setup(coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order)
+                    selected = list(wilson_setup["coefficients"])
+                    table_selected = [str(row.get("wilson_coefficient")) for row in (p_rows_in or []) if row.get("wilson_coefficient")]
+                    wilson_rows = [row for row in (p_rows_in or []) if row.get("wilson_coefficient")]
+                    table_mode = {str(row.get("wilson_scan_mode")) for row in wilson_rows}
+                    table_matching = {float(row.get("wilson_matching_scale")) for row in wilson_rows}
+                    table_hadronic = {float(row.get("wilson_hadronic_scale")) for row in wilson_rows}
+                    table_order = {str(row.get("wilson_order", "")).upper() for row in wilson_rows}
+                    setup_changed = (
+                        table_selected != selected
+                        or table_mode != {wilson_setup["scan_mode"]}
+                        or table_matching != {float(wilson_setup["matching_scale"])}
+                        or table_hadronic != {float(wilson_setup["hadronic_scale"])}
+                        or table_order != {str(wilson_setup["order_name"]).upper()}
+                    )
+                    if setup_changed:
+                        raise ValueError(
+                            "Wilson Scan controls changed. Click ‘Use selected Wilson coefficients’ "
+                            "before running the fit."
+                        )
+                contour_enabled = "contour" in (do_contour or [])
+                job_id = svc.start_fit_job(
+                    kwargs, p_rows_in or [], contour_enabled, x_key, y_key, levels,
+                    profiling_method, contour_algorithm, fallback_algorithm,
+                    profiler_mode, resolution, wilson_setup,
                 )
-            elif contour_enabled:
-                contour_fig = empty_fig("Contour computation returned no usable path")
-            else:
-                contour_fig = empty_fig("Contour disabled")
-            contour_status = ""
-            if result["contour_paths"]:
-                levels_done = sorted({float(row["sigma"]) for row in result["contour_paths"]})
-                contour_status = f" Contours: {', '.join(f'{z:g}σ' for z in levels_done)}."
-            if result["contour_errors"]:
-                contour_status += " Contour warnings: " + " | ".join(result["contour_errors"])
-            status = (
-                f"{warning}χ² fit done. fit_ok={result['fit_ok']}, "
-                f"ell_hat={result['ell_hat']:.6g}, parameters={len(result['p_rows'])}."
-                f"{contour_status}"
-            )
-            return result["p_rows"], corr_fig, contour_fig, status
+                return (
+                    no_update, no_update, no_update, "χ² fit started.",
+                    {"job_id": job_id}, False, True, {"display": "grid"}, _progress_value(0),
+                    "Preparing Wilson groups and statistic workflow…" if wilson_setup else "Preparing the χ² fit…",
+                    "",
+                )
+            except Exception as exc:
+                return (
+                    [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"),
+                    _err("χ² fit/contour failed.", exc), no_update, True, False,
+                    {"display": "grid"}, _progress_value(100), "χ² fit failed", str(exc),
+                )
+
+        job_id = (job_data or {}).get("job_id")
+        if not job_id:
+            raise PreventUpdate
+        try:
+            state = svc.poll_statistic_job(job_id)
         except Exception as exc:
-            return [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"), _err("χ² fit/contour failed.", exc)
+            return (
+                no_update, no_update, no_update, _err("Progress polling failed.", exc),
+                job_data, True, False, {"display": "grid"}, _progress_value(100),
+                "Progress polling failed", str(exc),
+            )
+        if not state["done"]:
+            return (
+                no_update, no_update, no_update, no_update, job_data, False, True,
+                {"display": "grid"}, _progress_value(state["percent"]), state["message"], state["meta"],
+            )
+        if state["error"]:
+            return (
+                [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"),
+                f"χ² fit/contour failed.\nERROR: {state['error']}", job_data, True, False,
+                {"display": "grid"}, _progress_value(100), "χ² fit failed", state["error"],
+            )
+
+        result = state["result"]
+        corr_fig = correlation_heatmap(result["corr_rows"], "Fit-parameter correlations")
+        contour_enabled = "contour" in (do_contour or [])
+        if result["contour_paths"]:
+            x_label, y_label = result["axis_labels"]
+            contour_fig = confidence_contour_paths(
+                result["contour_paths"], "2D confidence contours", x_label, y_label,
+                result["best_fit_point"], result["bounds"],
+            )
+        elif contour_enabled:
+            contour_fig = empty_fig("Contour computation returned no usable path")
+        else:
+            contour_fig = empty_fig("Contour disabled")
+        contour_status = ""
+        if result["contour_paths"]:
+            levels_done = sorted({float(row["sigma"]) for row in result["contour_paths"]})
+            contour_status = f" Contours: {', '.join(f'{z:g}σ' for z in levels_done)}."
+        if result["contour_errors"]:
+            contour_status += " Contour warnings: " + " | ".join(result["contour_errors"])
+        warning = "Warning: MC_draws > 200 may be slow. " if mc_draws and int(mc_draws) > 200 else ""
+        status = (
+            f"{warning}χ² fit done. fit_ok={result['fit_ok']}, "
+            f"ell_hat={result['ell_hat']:.6g}, parameters={len(result['p_rows'])}."
+            f"{contour_status}"
+        )
+        return (
+            result["p_rows"], corr_fig, contour_fig, status, job_data, True, False,
+            {"display": "grid"}, _progress_value(100), "χ² fit / contours complete", state["meta"],
+        )
 
     # ---------- QCD ----------
     @app.callback(

@@ -9,13 +9,72 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Dict
+from typing import Dict, Optional, Tuple
 
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.ExperimentObs import ExperimentObs
 from pyhyperiso.core.Statistic.MarginalConfig import MarginalKind
+
+
+@dataclass(frozen=True)
+class StatisticProgressSnapshot:
+    """Immutable progress snapshot produced by the C++ statistic pipeline."""
+
+    phase: str = "idle"
+    message: str = ""
+    completed: int = 0
+    total: int = 0
+    attempts: int = 0
+    failures: int = 0
+    fraction: float = 0.0
+    elapsed_seconds: float = 0.0
+    eta_seconds: float = -1.0
+    finished: bool = False
+    sequence: int = 0
+
+
+class StatisticProgressMonitor:
+    """Thread-safe bridge exposing C++ progress to Python frontends."""
+
+    def __init__(self):
+        self._cpp_obj = st.StatisticProgressMonitor()
+
+    def reset(self, phase: str = "preparing", message: str = "Preparing statistic workflow") -> None:
+        self._cpp_obj.reset(str(phase), str(message))
+
+    def set_progress(
+        self,
+        phase: str,
+        message: str,
+        fraction: float,
+        *,
+        completed: int = 0,
+        total: int = 0,
+        eta_seconds: float = -1.0,
+        finished: bool = False,
+    ) -> None:
+        self._cpp_obj.set_progress(
+            str(phase), str(message), float(fraction), int(completed), int(total),
+            float(eta_seconds), bool(finished)
+        )
+
+    def snapshot(self) -> StatisticProgressSnapshot:
+        event = self._cpp_obj.snapshot()
+        return StatisticProgressSnapshot(
+            phase=str(event.phase),
+            message=str(event.message),
+            completed=int(event.completed),
+            total=int(event.total),
+            attempts=int(event.attempts),
+            failures=int(event.failures),
+            fraction=float(event.fraction),
+            elapsed_seconds=float(event.elapsed_seconds),
+            eta_seconds=float(event.eta_seconds),
+            finished=bool(event.finished),
+            sequence=int(event.sequence),
+        )
 
 
 class StatisticLikelihoodMode(Enum):
@@ -265,6 +324,9 @@ class StatisticConfig:
     mc_progress_probe_draws: int = 5
     mc_progress_update_every: int = 1
 
+    progress_monitor: Optional[StatisticProgressMonitor] = None
+    fit_parameter_bounds: Dict[ParamId, Tuple[float, float]] = field(default_factory=dict)
+    fit_parameter_offsets: Dict[ParamId, float] = field(default_factory=dict)
     advanced: AdvancedStatisticConfig = field(default_factory=AdvancedStatisticConfig)
 
     def to_cpp(self):
@@ -285,11 +347,24 @@ class StatisticConfig:
         cpp.mc_samples_csv_path = str(self.mc_samples_csv_path)
         cpp.mc_progress_probe_draws = int(self.mc_progress_probe_draws)
         cpp.mc_progress_update_every = int(self.mc_progress_update_every)
+        if self.progress_monitor is not None:
+            cpp.progress_monitor = self.progress_monitor._cpp_obj
+        cpp.fit_parameter_bounds = {
+            _cpp_param_id(pid): (float(bounds[0]), float(bounds[1]))
+            for pid, bounds in self.fit_parameter_bounds.items()
+        }
+        cpp.fit_parameter_offsets = {
+            _cpp_param_id(pid): float(offset)
+            for pid, offset in self.fit_parameter_offsets.items()
+        }
         cpp.advanced = self.advanced.to_cpp()
         return cpp
 
 
-__all__ = ["StatisticConfig", "AdvancedStatisticConfig", "StatisticLikelihoodMode"]
+__all__ = [
+    "StatisticConfig", "AdvancedStatisticConfig", "StatisticLikelihoodMode",
+    "StatisticProgressMonitor", "StatisticProgressSnapshot",
+]
 
 if __name__ == "__main__":
     cfg = StatisticConfig()

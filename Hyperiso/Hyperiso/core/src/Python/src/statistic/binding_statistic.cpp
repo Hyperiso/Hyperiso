@@ -634,6 +634,49 @@ options that are useful for expert workflows but too specialized for the basic
         .def_readwrite("nuisance_sensitivity_seed", &AdvancedStatisticConfig::nuisance_sensitivity_seed)
         .def_readwrite("nuisance_sensitivity_keep_on_failure", &AdvancedStatisticConfig::nuisance_sensitivity_keep_on_failure);
 
+
+    py::class_<StatisticProgressEvent>(m, "StatisticProgressEvent")
+        .def(py::init<>())
+        .def_readwrite("phase", &StatisticProgressEvent::phase)
+        .def_readwrite("message", &StatisticProgressEvent::message)
+        .def_readwrite("completed", &StatisticProgressEvent::completed)
+        .def_readwrite("total", &StatisticProgressEvent::total)
+        .def_readwrite("attempts", &StatisticProgressEvent::attempts)
+        .def_readwrite("failures", &StatisticProgressEvent::failures)
+        .def_readwrite("fraction", &StatisticProgressEvent::fraction)
+        .def_readwrite("elapsed_seconds", &StatisticProgressEvent::elapsed_seconds)
+        .def_readwrite("eta_seconds", &StatisticProgressEvent::eta_seconds)
+        .def_readwrite("finished", &StatisticProgressEvent::finished)
+        .def_readwrite("sequence", &StatisticProgressEvent::sequence);
+
+    py::class_<StatisticProgressMonitor, std::shared_ptr<StatisticProgressMonitor>>(m, "StatisticProgressMonitor")
+        .def(py::init<>())
+        .def("reset", &StatisticProgressMonitor::reset,
+             py::arg("phase") = "preparing",
+             py::arg("message") = "Preparing statistic workflow")
+        .def("snapshot", &StatisticProgressMonitor::snapshot)
+        .def("set_progress", [](StatisticProgressMonitor& monitor,
+                                const std::string& phase,
+                                const std::string& message,
+                                double fraction,
+                                std::size_t completed,
+                                std::size_t total,
+                                double eta_seconds,
+                                bool finished) {
+            StatisticProgressEvent event;
+            event.phase = phase;
+            event.message = message;
+            event.fraction = fraction;
+            event.completed = completed;
+            event.total = total;
+            event.eta_seconds = eta_seconds;
+            event.finished = finished;
+            monitor.update(std::move(event));
+        },
+        py::arg("phase"), py::arg("message"), py::arg("fraction"),
+        py::arg("completed") = 0, py::arg("total") = 0,
+        py::arg("eta_seconds") = -1.0, py::arg("finished") = false);
+
     py::class_<StatisticConfig>(m, "StatisticConfig", R"pbdoc(
 Basic statistical configuration.
 
@@ -656,6 +699,9 @@ and output options.  Expert knobs live under ``advanced``.
         .def_readwrite("mc_samples_csv_path", &StatisticConfig::mc_samples_csv_path)
         .def_readwrite("mc_progress_probe_draws", &StatisticConfig::mc_progress_probe_draws)
         .def_readwrite("mc_progress_update_every", &StatisticConfig::mc_progress_update_every)
+        .def_readwrite("progress_monitor", &StatisticConfig::progress_monitor)
+        .def_readwrite("fit_parameter_bounds", &StatisticConfig::fit_parameter_bounds)
+        .def_readwrite("fit_parameter_offsets", &StatisticConfig::fit_parameter_offsets)
         .def_readwrite("advanced", &StatisticConfig::advanced);
 
 
@@ -695,16 +741,20 @@ void init_statistic_interface(py::module_& m) {
         .def("select_experiments_all", &StatisticInterface::select_experiments_all)
         .def("has_experiment_selection", &StatisticInterface::has_experiment_selection)
         .def("selected_experiments", &StatisticInterface::selected_experiments)
-        .def("compute_uncertainties", &StatisticInterface::compute_uncertainties)
-        .def("compute_uncertainties_and_sampling", &StatisticInterface::compute_uncertainties_and_sampling)
-        .def("compute_MLE", &StatisticInterface::compute_MLE, py::arg("p_specs"))
+        .def("compute_uncertainties", &StatisticInterface::compute_uncertainties,
+             py::call_guard<py::gil_scoped_release>())
+        .def("compute_uncertainties_and_sampling", &StatisticInterface::compute_uncertainties_and_sampling,
+             py::call_guard<py::gil_scoped_release>())
+        .def("compute_MLE", &StatisticInterface::compute_MLE, py::arg("p_specs"),
+             py::call_guard<py::gil_scoped_release>())
         .def("compute_confidence_contour",
              &StatisticInterface::compute_confidence_contour,
              py::arg("p1"),
              py::arg("p2"),
              py::arg("z"),
              py::arg("bounds"),
-             py::arg("options") = ContourOptions{})
+             py::arg("options") = ContourOptions{},
+             py::call_guard<py::gil_scoped_release>())
         .def("reload_nuisance_specs", &StatisticInterface::reload_nuisance_specs)
         .def("set_nuisance_user_file", &StatisticInterface::set_nuisance_user_file,
              py::arg("user_yaml_path"))

@@ -87,9 +87,13 @@ from a separate rectangular likelihood scan.
 The GUI maps covariance and nuisance-pruning settings to
 `StatisticConfig.advanced`, while common Monte-Carlo settings remain on the
 top-level config. All C++ terminal diagnostics are disabled in the Dash path.
-An indeterminate progress bar is displayed while uncertainty and fit callbacks
-are running; exact accepted-draw progress will require a future callback/event
-API from the C++ Monte-Carlo engine.
+A non-blocking animated progress banner remains visible inside the Statistics
+page while uncertainty and fit callbacks are running. The former page-wide Dash
+spinner was removed because it hid the complete interface during long jobs.
+Exact accepted-draw progress will still require a future callback/event API from
+the C++ Monte-Carlo engine. Dynamic dropdown labels expose their complete text
+through hover tooltips, and responsive grid/overflow constraints prevent cards,
+tables, and selectors from overlapping at narrow or intermediate window sizes.
 
 ## Wilson identifiers
 

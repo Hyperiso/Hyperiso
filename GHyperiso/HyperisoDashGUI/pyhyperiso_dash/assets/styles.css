@@ -1012,3 +1012,242 @@ button:disabled{
   opacity: 0.65;
   transform: none;
 }
+
+/* ---------- Layout hardening + non-blocking task progress ---------- */
+*, *::before, *::after{
+  box-sizing: border-box;
+}
+html, body, #react-entry-point, #_dash-app{
+  width: 100%;
+  min-width: 0;
+  min-height: 100%;
+}
+body{
+  overflow-x: hidden;
+}
+.app-shell{
+  display: grid;
+  grid-template-columns: clamp(270px, 22vw, 380px) minmax(0, 1fr);
+  width: 100%;
+  min-width: 0;
+  min-height: 100vh;
+  height: 100vh;
+}
+.sidebar{
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+}
+.content{
+  min-width: 0;
+  width: 100%;
+  height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+.page-content,
+.page-grid,
+.page-grid > *,
+.grid,
+.grid > *,
+.card,
+.card > *,
+.form-grid-2 > *,
+.form-grid-3 > *,
+.form-grid-4 > *,
+.inline-actions > *,
+.kv-grid > *{
+  min-width: 0;
+}
+.page-grid{
+  grid-template-columns: minmax(360px, 440px) minmax(0, 1fr);
+}
+.form-grid-2{
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.form-grid-3{
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.form-grid-4{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.kv-grid{
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.Select,
+.Select-control,
+.Select__control,
+.dash-dropdown{
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.Select-value,
+.Select-value-label,
+.Select__single-value,
+.Select__multi-value__label{
+  min-width: 0 !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap !important;
+}
+.Select-value-label > *,
+.Select__single-value > *{
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+.Select-menu-outer,
+.Select__menu{
+  z-index: 1100 !important;
+  max-width: min(720px, calc(100vw - 24px)) !important;
+}
+.card-title{
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.card-title h2,
+.card-title span{
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.dash-table-container{
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
+.task-progress-wrap{
+  position: relative;
+  grid-template-columns: minmax(120px, 1fr) minmax(0, auto);
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+  gap: 12px;
+  margin: 12px 0 2px;
+  padding: 10px 12px;
+  border: 1px solid rgba(96,165,250,0.35);
+  border-radius: 14px;
+  background: rgba(15,23,42,0.94);
+  box-shadow: 0 10px 28px rgba(0,0,0,0.24);
+  color: rgba(226,232,240,0.90);
+  font-size: 12px;
+}
+.task-progress-track{
+  position: relative;
+  width: 100%;
+  min-width: 120px;
+  height: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(148,163,184,0.28);
+  border-radius: 999px;
+  background: rgba(2,6,23,0.78);
+}
+.task-progress-indicator{
+  position: absolute;
+  inset-block: 0;
+  left: -38%;
+  width: 38%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, rgba(96,165,250,0.30), rgba(96,165,250,0.95), rgba(167,139,250,0.72));
+  animation: hyperiso-task-progress 1.15s ease-in-out infinite;
+}
+.task-progress-message{
+  min-width: 0;
+  max-width: 38rem;
+  overflow-wrap: anywhere;
+}
+@keyframes hyperiso-task-progress{
+  0%{ transform: translateX(0); }
+  100%{ transform: translateX(365%); }
+}
+@media (prefers-reduced-motion: reduce){
+  .task-progress-indicator{
+    animation-duration: 2.4s;
+  }
+}
+
+@media (max-width: 1450px){
+  .page-grid{
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 1100px){
+  .form-grid-4{
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 900px){
+  .app-shell{
+    display: block;
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+  }
+  .sidebar{
+    position: relative;
+    width: 100%;
+    height: auto;
+    max-height: none;
+  }
+  .content{
+    width: 100%;
+    height: auto;
+    min-height: 0;
+    overflow: visible;
+  }
+  .form-grid-2,
+  .form-grid-3,
+  .form-grid-4,
+  .kv-grid,
+  .inline-actions{
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .task-progress-wrap{
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* Determinate statistic progress fed by the C++ progress monitor. */
+.task-progress-native{
+  width: 100%;
+  min-width: 140px;
+  height: 12px;
+  border: 0;
+  border-radius: 999px;
+  overflow: hidden;
+  appearance: none;
+  -webkit-appearance: none;
+  accent-color: var(--accent);
+  background: rgba(2,6,23,0.78);
+}
+.task-progress-native::-webkit-progress-bar{
+  background: rgba(2,6,23,0.78);
+  border: 1px solid rgba(148,163,184,0.28);
+  border-radius: 999px;
+}
+.task-progress-native::-webkit-progress-value{
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(96,165,250,0.72), rgba(167,139,250,0.92));
+  transition: width 180ms ease-out;
+}
+.task-progress-native::-moz-progress-bar{
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(96,165,250,0.72), rgba(167,139,250,0.92));
+  transition: width 180ms ease-out;
+}
+.task-progress-copy{
+  display: grid;
+  min-width: 0;
+  gap: 2px;
+}
+.task-progress-meta{
+  color: rgba(148,163,184,0.92);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+@media (max-width: 900px){
+  .task-progress-meta{ white-space: normal; }
+}

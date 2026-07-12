@@ -10,6 +10,7 @@
 #include <numeric>
 #include <set>
 #include <random>
+#include <map>
 
 #include "Include.h"
 #include "IModel.h"
@@ -129,6 +130,11 @@ struct StatisticConfig {
     std::string mc_samples_csv_path = "obs_samples.csv"; ///< Output CSV path used when @ref write_mc_samples_csv is true.
     std::size_t mc_progress_probe_draws = 5;    ///< Number of first accepted draws used to stabilize the first ETA.
     std::size_t mc_progress_update_every = 1;   ///< Accepted-draw stride between progress updates.
+
+    std::shared_ptr<StatisticProgressMonitor> progress_monitor {}; ///< Optional thread-safe progress sink for GUI/notebook frontends.
+
+    std::map<ParamId, std::pair<double, double>> fit_parameter_bounds {}; ///< Optional explicit minimizer bounds keyed by fit ParamId.
+    std::map<ParamId, double> fit_parameter_offsets {}; ///< Optional affine display offsets: model value = fitted value - offset.
 
     AdvancedStatisticConfig advanced {};        ///< Advanced fit/pruning/covariance configuration.
 };

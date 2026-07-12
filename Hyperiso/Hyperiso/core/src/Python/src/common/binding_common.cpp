@@ -993,7 +993,13 @@ void init_common(py::module &m) {
             py::arg("coef"))
         .def_static("flha_base",
             py::overload_cast<const WCoefId&>(&WCoefMapper::flha_base),
-            py::arg("id"));
+            py::arg("id"))
+        .def_static("flha_full",
+            py::overload_cast<WCoef, QCDOrder, ContributionType>(&WCoefMapper::flha_full),
+            py::arg("coef"), py::arg("order"), py::arg("type"))
+        .def_static("flha_full",
+            py::overload_cast<const WCoefId&, QCDOrder, ContributionType>(&WCoefMapper::flha_full),
+            py::arg("id"), py::arg("order"), py::arg("type"));
 
 
 

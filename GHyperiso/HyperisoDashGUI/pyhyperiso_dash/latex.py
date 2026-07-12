@@ -42,6 +42,58 @@ def text_latex(label: str | None, fallback: str = "") -> str:
     return _strip_math(label) or str(fallback or "")
 
 
+_SUBSCRIPT_TRANSLATION = str.maketrans({
+    "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
+    "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
+    "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
+    "a": "ₐ", "e": "ₑ", "h": "ₕ", "i": "ᵢ", "j": "ⱼ",
+    "k": "ₖ", "l": "ₗ", "m": "ₘ", "n": "ₙ", "o": "ₒ",
+    "p": "ₚ", "r": "ᵣ", "s": "ₛ", "t": "ₜ", "u": "ᵤ",
+    "v": "ᵥ", "x": "ₓ", "S": "ₛ", "P": "ₚ", "L": "ₗ",
+    "T": "ₜ", "V": "ᵥ",
+})
+
+_SUPERSCRIPT_TRANSLATION = str.maketrans({
+    "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
+    "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
+    "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾",
+    "a": "ᵃ", "b": "ᵇ", "c": "ᶜ", "d": "ᵈ", "e": "ᵉ",
+    "f": "ᶠ", "g": "ᵍ", "h": "ʰ", "i": "ⁱ", "j": "ʲ",
+    "k": "ᵏ", "l": "ˡ", "m": "ᵐ", "n": "ⁿ", "o": "ᵒ",
+    "p": "ᵖ", "r": "ʳ", "s": "ˢ", "t": "ᵗ", "u": "ᵘ",
+    "v": "ᵛ", "w": "ʷ", "x": "ˣ", "y": "ʸ", "z": "ᶻ",
+    "B": "ᴮ", "D": "ᴰ", "K": "ᴷ", "P": "ᴾ", "S": "ˢ",
+    "T": "ᵀ", "V": "ⱽ",
+})
+
+
+def compact_math_text(label: str | None, fallback: str = "") -> str:
+    """Return a compact Unicode rendering of the simple Wilson LaTeX map.
+
+    This deliberately returns a plain string rather than a Dash component.
+    Large multi-select Dropdowns use react-virtualized-select; component labels
+    can make its legacy memoizer hit ``undefined.join`` on initial rendering.
+    The Wilson map only needs subscripts, superscripts, primes and a tilde, all
+    of which have a stable text representation here.
+    """
+    text = _strip_math(label) or str(fallback or "")
+    text = text.replace(r"\tilde{C}", "C̃").replace(r"\prime", "′")
+
+    import re
+
+    def sub(match):
+        return match.group(1).replace("_", "").translate(_SUBSCRIPT_TRANSLATION)
+
+    def sup(match):
+        return match.group(1).replace("_", "").translate(_SUPERSCRIPT_TRANSLATION)
+
+    # The supplied Wilson map uses flat {...} groups, so these substitutions
+    # are sufficient and avoid embedding React/MathJax nodes in the selector.
+    text = re.sub(r"_\{([^{}]*)\}", sub, text)
+    text = re.sub(r"\^\{([^{}]*)\}", sup, text)
+    return text.replace("{", "").replace("}", "")
+
+
 def dropdown_label(latex: str | None, raw: str, *, include_raw: bool = True):
     """Return a dropdown label with rendered MathJax and a raw code.
 
@@ -393,7 +445,9 @@ def wilson_table_label(coeff_name: str | None) -> str:
 def wilson_option(coeff_name: str) -> dict:
     latex = wilson_latex(coeff_name)
     return {
-        "label": dropdown_label(latex, coeff_name),
+        # Static sub/sup nodes keep the physics notation readable without
+        # letting MathJax mutate React-Select's clickable option tree.
+        "label": parameter_dropdown_label(latex, coeff_name, coeff_name),
         "value": coeff_name,
         "title": coeff_name,
         "search": f"{coeff_name} {text_latex(latex, '')}",

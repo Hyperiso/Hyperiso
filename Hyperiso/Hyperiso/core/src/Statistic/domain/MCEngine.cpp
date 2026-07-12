@@ -218,7 +218,12 @@ MCRealization MonteCarloEngine::sample_predictions_serial(const std::map<ParamId
         cfg_.print_progress,
         cfg_.draws,
         cfg_.progress_probe_draws,
-        cfg_.progress_update_every
+        cfg_.progress_update_every,
+        std::cout,
+        "Monte-Carlo",
+        "accepted",
+        cfg_.progress_monitor,
+        "monte_carlo"
     );
 
     model_->prepare_for_prediction();
@@ -249,7 +254,7 @@ MCRealization MonteCarloEngine::sample_predictions_serial(const std::map<ParamId
             out.emplace_back(std::move(value));
             accepted_samples.emplace_back(std::move(s));
             ++accepted;
-            progress.accepted(accepted);
+            progress.accepted(accepted, attempts, failures);
 
         } catch (const std::exception& e) {
             ++failures;
@@ -357,7 +362,12 @@ MCRealization MonteCarloEngine::sample_predictions_parallel(const std::map<Param
         cfg_.print_progress,
         cfg_.draws,
         cfg_.progress_probe_draws,
-        cfg_.progress_update_every
+        cfg_.progress_update_every,
+        std::cout,
+        "Monte-Carlo",
+        "accepted",
+        cfg_.progress_monitor,
+        "monte_carlo"
     );
 
     auto set_exception_once = [&](std::exception_ptr eptr) {
@@ -430,7 +440,7 @@ MCRealization MonteCarloEngine::sample_predictions_parallel(const std::map<Param
                             accepted_total.fetch_add(1, std::memory_order_acq_rel) + 1;
                         {
                             std::lock_guard<std::mutex> lock(progress_mutex);
-                            progress.accepted(accepted_now);
+                            progress.accepted(accepted_now, attempts_total.load(), failures_total.load());
                         }
                     } catch (const std::exception& e) {
                         ++local.failures;

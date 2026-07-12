@@ -167,8 +167,8 @@ void init_wilson_interface(py::module &m) {
 
     py::class_<WilsonInterface, std::shared_ptr<WilsonInterface>>(m, "WilsonInterface")
         .def(py::init<>())
-        .def("build", &WilsonInterface::build, py::arg("wilson_config"))
-        .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("config"))
+        .def("build", &WilsonInterface::build, py::arg("wilson_config"), py::call_guard<py::gil_scoped_release>())
+        .def("add_wilson_group", &WilsonInterface::addWilsonGroup, py::arg("config"), py::call_guard<py::gil_scoped_release>())
         .def("add_custom_group", &WilsonInterface::add_custom_group,
              py::arg("config"), py::return_value_policy::reference_internal,
              R"pbdoc(Add a lambda-backed custom Wilson group.)pbdoc")
