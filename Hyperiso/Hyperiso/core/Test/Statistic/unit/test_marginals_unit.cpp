@@ -2,6 +2,8 @@
 #include "GaussianMarginal.h"
 #include "FlatMarginal.h"
 #include "MarginalFactory.h"
+#include "MarginalConfigFactory.h"
+#include "NuisanceSpec.h"
 
 #include <cassert>
 #include <cmath>
@@ -114,6 +116,23 @@ int main() {
         assert(approx(dist->mean(), 0.0, 1e-12));
         assert(approx(dist->std(), 1.0, 1e-12));
         assert(dist->logpdf(-std::sqrt(3.0)) == -1e100);
+    }
+
+
+    {
+        const ParamId runtime_pid{ParameterType::DECAY, BlockName{"B_Xs"}, LhaID{7}};
+        const ParamId config_pid{BlockName{"B_Xs"}, LhaID{7}};
+        const NuisanceSpec spec{config_pid, {0.9, 4.0}, MarginalType::FLAT};
+
+        MarginalConfig cfg = MarginalConfigFactory{}.create(
+            runtime_pid,
+            MarginalType::FLAT,
+            spec
+        );
+        const auto& flat_cfg = std::get<FlatMarginalCfg>(cfg);
+
+        assert(approx(flat_cfg.a, 0.9, 1e-12));
+        assert(approx(flat_cfg.b, 4.0, 1e-12));
     }
 
     std::cout << "\nAll marginal UNIT tests passed!\n";

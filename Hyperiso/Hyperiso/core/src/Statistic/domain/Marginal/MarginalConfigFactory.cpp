@@ -1,5 +1,8 @@
 #include "MarginalConfigFactory.h"
 
+#include <cmath>
+#include <stdexcept>
+
 MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal) {
     double mu, sigma;
 
@@ -23,6 +26,29 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
     default:
         throw std::invalid_argument("Unknown marginal type");
     }
+}
+
+
+MarginalConfig MarginalConfigFactory::create(ParamId pid,
+                                             MarginalType marginal,
+                                             const NuisanceSpec& spec) {
+    if (spec.param_id.block != pid.block || spec.param_id.code != pid.code) {
+        throw std::invalid_argument(
+            "MarginalConfigFactory: nuisance specification does not match parameter block/code"
+        );
+    }
+
+    if (marginal == MarginalType::FLAT) {
+        const auto [lower, upper] = spec.bounds;
+        if (!std::isfinite(lower) || !std::isfinite(upper) || !(lower < upper)) {
+            throw std::invalid_argument(
+                "MarginalConfigFactory: flat nuisance bounds must be finite and strictly ordered"
+            );
+        }
+        return FlatMarginalCfg{lower, upper};
+    }
+
+    return create(pid, marginal);
 }
 
 MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,

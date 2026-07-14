@@ -11,6 +11,7 @@
 #include "SplitGaussianMarginal.h"
 #include "LikelihoodMarginal.h"
 #include "ExperimentObs.h"
+#include "NuisanceSpec.h"
 
 /**
  * @file MarginalConfigFactory.h
@@ -89,6 +90,24 @@ public:
      * @throws std::invalid_argument if the marginal type is unknown.
      */
     MarginalConfig create(ParamId pid, MarginalType marginal);
+
+    /**
+     * @brief Builds a parameter marginal while honoring an explicit nuisance specification.
+     *
+     * For a flat nuisance, the configured support is taken directly from
+     * @p spec.bounds instead of being reconstructed from the parameter standard
+     * deviation. Other marginal families retain the standard parameter-derived
+     * configuration.
+     *
+     * @param pid Parameter identifier.
+     * @param marginal Effective marginal family after default/user resolution.
+     * @param spec Effective nuisance specification associated with @p pid.
+     * @return A marginal configuration compatible with @ref MarginalFactory.
+     *
+     * @throws std::invalid_argument if the specification block/code does not match @p pid,
+     *         or if flat bounds are non-finite or not strictly ordered.
+     */
+    MarginalConfig create(ParamId pid, MarginalType marginal, const NuisanceSpec& spec);
 
     /**
      * @brief Builds a vector of marginal configurations from a binned observable identifier.

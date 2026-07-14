@@ -1172,11 +1172,21 @@ void StatisticManager::invalidate_fit_state() {
 }
 
 const NuisanceSpec* StatisticManager::find_nuisance_spec(const ParamId& pid) const {
-    auto it = merged_nuisance_specs_.find(pid);
-    if (it == merged_nuisance_specs_.end()) {
-        return nullptr;
+    if (const auto it = merged_nuisance_specs_.find(pid);
+        it != merged_nuisance_specs_.end()) {
+        return &it->second;
     }
-    return &it->second;
+
+    // JSON/YAML nuisance entries identify parameters by block/code only.
+    // Runtime dependency ids are usually typed, so retry with the canonical
+    // untyped key used by NuisanceReader.
+    const ParamId untyped_pid{pid.block, pid.code};
+    if (const auto it = merged_nuisance_specs_.find(untyped_pid);
+        it != merged_nuisance_specs_.end()) {
+        return &it->second;
+    }
+
+    return nullptr;
 }
 
 MarginalType StatisticManager::resolve_nuisance_marginal_type(const ParamId& pid) const {
@@ -1230,23 +1240,12 @@ fit_app::ParameterDefinition StatisticManager::make_nuisance_parameter_definitio
 MarginalConfig StatisticManager::make_nuisance_marginal_config(const ParamId& pid,
                                                                MarginalType mt) const
 {
-    // if (const auto* spec = find_nuisance_spec(pid)) {
-    //     return MarginalConfigFactory().create(pid, mt, *spec);
-    // }
+    if (const auto* spec = find_nuisance_spec(pid)) {
+        return MarginalConfigFactory().create(pid, mt, *spec);
+    }
+
     return MarginalConfigFactory().create(pid, mt);
 }
-
-// MarginalConfig StatisticManager::make_nuisance_marginal_config(const ParamId& pid,
-//                                                                MarginalType mt) const
-// {
-//     if (const auto* spec = find_nuisance_spec(pid)) {
-//         NuisanceSpec effective_spec = *spec;
-//         effective_spec.marginal = mt; // respecte aussi les overrides éventuels
-//         return MarginalConfigFactory().create(pid, mt, effective_spec);
-//     }
-
-//     return MarginalConfigFactory().create(pid, mt);
-// }
 
 std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
 

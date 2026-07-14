@@ -8,7 +8,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyhyperiso"                 # Nom du package PyPI (pip install pyhyperiso)
-version = "0.1.0"
+version = "1.0.0"
 description = "Hyperiso Python binding (C++ backend via pybind11)"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -17,6 +17,11 @@ authors = [
   { name = "Niels Fardeau" },
 ]
 license = { text = "MIT" }
+
+dependencies = [
+  "numpy>=1.23",
+  "matplotlib>=3.6",
+]
 
 classifiers = [
   "Programming Language :: Python :: 3",
@@ -30,9 +35,23 @@ classifiers = [
   "Topic :: Scientific/Engineering",
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest>=8",
+]
+dev = [
+  "build>=1.2",
+  "twine>=5",
+  "ruff>=0.9",
+  "pre-commit>=3",
+]
+
 [project.urls]
-Homepage = "https://github.com/Hyperiso/Hyperiso"
-Source   = "https://github.com/Hyperiso/Hyperiso"
+Homepage      = "https://github.com/Hyperiso/Hyperiso"
+Source        = "https://github.com/Hyperiso/Hyperiso"
+Documentation = "https://github.com/Hyperiso/Hyperiso/tree/main/docs"
+Issues        = "https://github.com/Hyperiso/Hyperiso/issues"
+Changelog     = "https://github.com/Hyperiso/Hyperiso/blob/main/CHANGELOG.md"
 
 # ----------------------------
 # scikit-build-core (CMake + wheel)
@@ -42,6 +61,25 @@ minimum-version = "0.10"
 
 # Paquet Python à inclure dans le wheel (dossier pyhyperiso/)
 wheel.packages = ["pyhyperiso"]
+wheel.license-files = ["LICENSE"]
+wheel.exclude = [
+  "pyhyperiso/test/**",
+  "pyhyperiso/example/**",
+  "pyhyperiso/requirements.txt",
+]
+
+# Les tests et exemples restent dans le depot Git/CPC, mais ne sont pas
+# necessaires pour reconstruire le paquet Python depuis le sdist.
+sdist.exclude = [
+  "core/Test/**",
+  "examples_cpp/**",
+  "examples_python/**",
+  "pyhyperiso/test/**",
+  "pyhyperiso/example/**",
+  "**/*.bak",
+  "**/*.zip",
+  "**/* copy.cpp",
+]
 
 # Pour voir les commandes CMake/Ninja
 build.verbose = true
@@ -52,11 +90,10 @@ build.verbose = true
 source-dir = "core/src/Python"
 
 # Type de build par défaut
-build-type = "Debug"
+build-type = "Release"
 
 # Options CMake (via des "dotted keys")
 define.CMAKE_INTERPROCEDURAL_OPTIMIZATION = "OFF"
-define.CMAKE_CXX_FLAGS_RELEASE = "-O0"
 
 # ----------------------------
 # cibuildwheel : wheels Linux multi-Python
@@ -78,3 +115,8 @@ skip = "*"
 
 [tool.cibuildwheel.windows]
 skip = "*"
+
+
+[tool.pytest.ini_options]
+testpaths = ["pyhyperiso/test"]
+addopts = "-ra"
