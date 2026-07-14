@@ -1,5 +1,5 @@
 import pytest
-from pyhyperiso.core.Math.matrix import SparseMatrix
+from pyhyperiso.core.Math.SparseMatrix import SparseMatrix
 from contextlib import redirect_stdout
 import io
 

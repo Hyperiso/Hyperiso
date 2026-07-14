@@ -3,7 +3,7 @@ Python wrapper for C++ bindings generated using Pybind11.
 Each function corresponds to a mathematical or numerical utility available in the C++ backend.
 """
 from pyhyperiso.phyperiso.pyhyperiso import math as mb
-from pyhyperiso.core.Math.scalar import Scalar
+from pyhyperiso.core.Math.Scalar import Scalar
 # Math functions
 
 def Li2(x: float) -> float:

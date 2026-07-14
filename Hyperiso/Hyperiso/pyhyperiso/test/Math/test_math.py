@@ -1,6 +1,6 @@
 import pytest
-from pyhyperiso.core.Math.math import *
-from pyhyperiso.core.Math.scalar import Scalar
+from pyhyperiso.core.Math.Math import *
+from pyhyperiso.core.Math.Scalar import Scalar
 import math
 import cmath
 

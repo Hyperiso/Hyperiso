@@ -8,7 +8,7 @@ from pyhyperiso.core.Common.Configs import (
 from pyhyperiso.core.Common.GeneralEnum import (
     WGroup, WCoeff, QCDOrder, ContributionType, ScaleType, MassType
 )
-from pyhyperiso.core.Common.Mapper import GroupMapper
+from pyhyperiso.core.Common.Mapper import GroupMapper, WCoefMapper
 
 def test_wilson_build_config_to_cpp():
     config = WilsonBuildConfig(
@@ -33,12 +33,13 @@ def test_wilson_request_to_cpp():
         order=QCDOrder.LO,
         contribution=ContributionType.BSM,
         scale_type=ScaleType.MATCHING,
-        sum_qcd_orders=True
+        sum_qcd_orders=True,
     )
 
     cpp_request = request.to_cpp()
-    assert cpp_request.group == WGroup.B.value
-    assert cpp_request.coefficient == WCoeff.C9.value
+
+    assert cpp_request.group == GroupMapper.id_of(WGroup.B).to_cpp()
+    assert cpp_request.coefficient == WCoefMapper.id_of(WCoeff.C9).to_cpp()
     assert cpp_request.order == QCDOrder.LO.value
     assert cpp_request.contribution == ContributionType.BSM.value
     assert cpp_request.scale_type == ScaleType.MATCHING.value

@@ -1,5 +1,5 @@
 import pytest
-from pyhyperiso.core.Math.scalar import Scalar, sqrt, exp, sin, pow_scalar
+from pyhyperiso.core.Math.Scalar import Scalar, sqrt, exp, sin, pow_scalar
 
 
 def test_scalar_creation():

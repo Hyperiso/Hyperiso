@@ -2,11 +2,11 @@ import pytest
 from pathlib import Path
 
 from pyhyperiso.core.Common.GeneralEnum import Model
-from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, PyHyperisoConfig
+from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 
 
 def test_py_config_default_to_cpp():
-    cfg = PyHyperisoConfig()
+    cfg = HyperisoConfig()
     cpp_cfg = cfg.to_cpp()
 
     assert isinstance(cpp_cfg.flags, dict)
@@ -20,7 +20,7 @@ def test_py_config_default_to_cpp():
 
 
 def test_py_config_custom_values():
-    cfg = PyHyperisoConfig(
+    cfg = HyperisoConfig(
         flags={
             ExternalFlag.IS_LHA_SPECTRUM: True,
             ExternalFlag.HAS_WILSON_INPUT: False,
