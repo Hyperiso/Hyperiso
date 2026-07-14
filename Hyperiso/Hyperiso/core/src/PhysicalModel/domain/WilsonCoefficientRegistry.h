@@ -30,8 +30,11 @@
  * -------------------------------------------------------------
  * When `create(ctx, c)` is called:
  * 1) Try exact match (c, ctx.model, ctx.backend).
- * 2) If backend is Marty: fallback to Builtin for the same model (Marty -> Builtin).
- * 3) If model is not SM: fallback to SM for the same backend (model -> SM).
+ * 2) For a non-SM model using the MARTY backend, route supported SM/BSM
+ *    requests through the registered SM/MARTY factory while preserving the
+ *    original build context.  The factory then instantiates the target model.
+ * 3) Otherwise, if backend is Marty, fallback to Builtin for the same model.
+ * 4) If model is not SM, fallback to SM for the same backend.
  *
  * If none match, an exception is thrown.
  *
@@ -93,6 +96,7 @@ public:
      *
      * The function attempts to find a registered factory using the fallback strategy:
      * - exact match (c, ctx.model, ctx.backend),
+     * - non-SM MARTY requests through the SM/MARTY factory with the original context,
      * - Marty -> Builtin fallback for the same model,
      * - model -> SM fallback for the same backend.
      *

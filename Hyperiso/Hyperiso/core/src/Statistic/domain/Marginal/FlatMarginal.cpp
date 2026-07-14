@@ -20,11 +20,16 @@ std::vector<double> FlatMarginal::rvs(std::size_t n) {
 }
 
 double FlatMarginal::logpdf(double x) {
-    return (x >= a && x <= b) ? std::log(gsl_ran_flat_pdf(x, a, b)) : -std::numeric_limits<double>::infinity();
+    // Use an explicit closed-support convention instead of inheriting GSL's
+    // half-open endpoint convention.  Endpoints have measure zero, but keeping
+    // the convention explicit makes logpdf/f_df_ddf internally consistent.
+    return (x >= a && x <= b)
+        ? -std::log(b - a)
+        : -std::numeric_limits<double>::infinity();
 }
 
 PDFDiff FlatMarginal::f_df_ddf(double x) {
-    const double pdf = (x >= a && x <= b) ? gsl_ran_flat_pdf(x, a, b) : 0.0;
+    const double pdf = (x >= a && x <= b) ? 1.0 / (b - a) : 0.0;
     return {pdf, 0.0, 0.0};
 }
 

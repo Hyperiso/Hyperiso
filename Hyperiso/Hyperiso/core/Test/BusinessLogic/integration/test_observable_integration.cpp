@@ -146,6 +146,7 @@ public:
     std::shared_ptr<SpyObsWilsonProxy> proxy = std::make_shared<SpyObsWilsonProxy>();
     void build(std::shared_ptr<AbstractConfig>) override {}
     void add_custom_group(const CustomWilsonGroupConfig&) override {}
+    void add_matching_patch(const WilsonMatchingPatch&) override {}
     std::shared_ptr<IObsWilsonProxy> get_proxy() override { return proxy; }
 };
 

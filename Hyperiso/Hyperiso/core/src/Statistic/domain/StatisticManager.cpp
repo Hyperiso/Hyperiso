@@ -554,6 +554,7 @@ StatisticManager::StatisticManager(StatisticConfig config,
     : obs_int(std::move(obs_int)),
       pscp(std::move(pscp)),
       pspp(std::move(pspp)),
+      marginal_config_factory_(this->pspp),
       sp(std::move(sp)),
       dp(std::move(dp)),
       nuisance_reader_(std::move(nuisance_reader)),
@@ -652,7 +653,7 @@ std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution
     std::vector<std::unique_ptr<IMarginalDistribution>> marginals;
 
     for (auto& [oid, mt] : exp_data_marginals) {
-        MarginalConfig cfg = MarginalConfigFactory().create(oid, mt);
+        MarginalConfig cfg = marginal_config_factory_.create(oid, mt);
         auto m_ptr = MarginalFactory::create(mt, cfg, seed);
         marginals.emplace_back(std::move(m_ptr));
     }
@@ -1241,10 +1242,10 @@ MarginalConfig StatisticManager::make_nuisance_marginal_config(const ParamId& pi
                                                                MarginalType mt) const
 {
     if (const auto* spec = find_nuisance_spec(pid)) {
-        return MarginalConfigFactory().create(pid, mt, *spec);
+        return marginal_config_factory_.create(pid, mt, *spec);
     }
 
-    return MarginalConfigFactory().create(pid, mt);
+    return marginal_config_factory_.create(pid, mt);
 }
 
 std::map<ParamId, double> StatisticManager::get_all_obss_deps() {

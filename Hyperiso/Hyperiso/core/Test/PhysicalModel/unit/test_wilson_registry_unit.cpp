@@ -6,6 +6,7 @@
 #include "Wilson.h"  
 #include "BWilson.h"
 #include "KWilson.h"  
+#include "MartyWilson.h"
 #include "BWilsonSUSY.h"
 
 #include "stubs.hpp"
@@ -76,10 +77,10 @@ int main() {
             GroupMapper::to_id(WGroup::B)
         );
 
-        auto c1_susy = reg.create(ctx, WCoef::C1);
-        assert(c1_susy && "C1(SUSY, Marty) should fall back to SUSY/Builtin");
-        auto asC1_susy = dynamic_cast<C1_susy*>(c1_susy.get());
-        assert(asC1_susy && "C1(SUSY, Marty) should still give C1_susy");
+        auto c1_marty = reg.create(ctx, WCoef::C1);
+        assert(c1_marty && "C1(SUSY, Marty, BSM) should be creatable through MARTY");
+        auto as_marty = dynamic_cast<MartyWilson*>(c1_marty.get());
+        assert(as_marty && "A BSM MARTY request should use the MARTY coefficient factory");
     }
 
     {

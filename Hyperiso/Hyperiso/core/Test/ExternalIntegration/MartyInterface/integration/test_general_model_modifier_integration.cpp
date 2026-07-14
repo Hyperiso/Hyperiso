@@ -62,7 +62,7 @@ int main() {
 
     {
         fs::path out = root / "gen_thdm.cpp";
-        GeneralModelModifier mod("none", "THDM", thdm_hdr.string());
+        GeneralModelModifier mod("none", "THDM", thdm_hdr.string(), 2);
         {
             std::ofstream ofs(out);
             for (auto line : input) {

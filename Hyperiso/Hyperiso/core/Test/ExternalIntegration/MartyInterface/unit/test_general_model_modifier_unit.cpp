@@ -2,6 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <sstream>
+#include <stdexcept>
 #include <iostream>
 #include "GeneralModelModifier.h"
 
@@ -31,10 +32,21 @@ int main() {
     );
 
     {
-        GeneralModelModifier mod(/*wilson*/"none", /*model*/"THDM", thdm_hdr.string());
+        GeneralModelModifier mod(/*wilson*/"none", /*model*/"THDM", thdm_hdr.string(), 2);
         std::string line = "SM_Model sm;";
         mod.modifyLine(line);
         assert(line.find("THDM_Model<2> sm;") != std::string::npos);
+    }
+
+    {
+        bool threw = false;
+        try {
+            GeneralModelModifier mod("none", "THDM", thdm_hdr.string());
+            (void)mod;
+        } catch (const std::runtime_error&) {
+            threw = true;
+        }
+        assert(threw && "Templated MARTY models require an explicit template index");
     }
 
     {

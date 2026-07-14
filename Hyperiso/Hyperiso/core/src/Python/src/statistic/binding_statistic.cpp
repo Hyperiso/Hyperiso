@@ -23,6 +23,7 @@
 #include "LikelihoodMarginal.h"
 #include "MarginalFactory.h"
 #include "MarginalConfigFactory.h"
+#include "StatParameterProxy.h"
 
 #include "CopulaType.h"
 #include "ICopula.h"
@@ -239,7 +240,11 @@ void init_marginals(py::module_& m) {
 
 void init_marginal_config_factory(py::module_& m) {
     py::class_<MarginalConfigFactory>(m, "MarginalConfigFactory")
-        .def(py::init<>())
+        .def(py::init([]() {
+            return MarginalConfigFactory(
+                std::make_shared<StatParameterProxy>()
+            );
+        }))
         .def(
             "create",
             py::overload_cast<ParamId, MarginalType>(&MarginalConfigFactory::create),

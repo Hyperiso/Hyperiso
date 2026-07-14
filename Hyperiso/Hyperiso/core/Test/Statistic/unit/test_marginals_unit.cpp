@@ -11,6 +11,9 @@
 #include <vector>
 #include <memory>
 #include <algorithm>
+#include <map>
+#include <stdexcept>
+#include <string>
 
 static bool approx(double a, double b, double eps = 1e-9) {
     return std::fabs(a - b) <= eps;
@@ -34,6 +37,61 @@ static bool all_in_range(const Vector& v, double lo, double hi) {
     }
     return true;
 }
+
+class StubStatParameterProxy final : public IStatParameterProxy {
+public:
+    mutable std::size_t scalar_reads {0};
+
+    std::shared_ptr<Parameter> get_param(const ParamId&) const override {
+        throw std::runtime_error("Unexpected get_param(ParamId) call");
+    }
+
+    std::shared_ptr<Parameter> get_param(
+        const std::string&,
+        const LhaID&
+    ) const override {
+        throw std::runtime_error("Unexpected get_param(block, id) call");
+    }
+
+    scalar_t operator()(const ParamId&, DataType data_type) const override {
+        ++scalar_reads;
+        if (data_type == DataType::VALUE) {
+            return scalar_t{2.0};
+        }
+        if (data_type == DataType::STD_COMBINED) {
+            return scalar_t{0.75};
+        }
+        throw std::runtime_error("Unexpected parameter data type");
+    }
+
+    std::map<ExperimentObs, double> operator()(
+        const ObservableId&,
+        DataType
+    ) const override {
+        throw std::runtime_error("Unexpected observable proxy call");
+    }
+
+    std::map<ExperimentObs, double> operator()(
+        const BinnedObservableId&,
+        DataType
+    ) const override {
+        throw std::runtime_error("Unexpected binned-observable proxy call");
+    }
+
+    scalar_t operator()(
+        const std::string&,
+        const LhaID&,
+        DataType
+    ) const override {
+        throw std::runtime_error("Unexpected block proxy call");
+    }
+
+    std::map<ExperimentObs, std::shared_ptr<Parameter>> get_obs_param(
+        const BinnedObservableId&
+    ) const override {
+        throw std::runtime_error("Unexpected get_obs_param call");
+    }
+};
 
 int main() {
     std::cout << "== Running UNIT tests for Marginals ==\n";
@@ -72,10 +130,11 @@ int main() {
         assert(approx(f.mean(), 1.0));
         assert(approx(f.std(), 6.0 / std::sqrt(12.0), 1e-12));
 
-        assert(approx(f.logpdf(0.0), std::log(1.0 / 6.0), 1e-12));
-        assert(f.logpdf(-2.0) == -1e100);
-        assert(f.logpdf(4.0) == -1e100);
-        assert(f.logpdf(100.0) == -1e100);
+        const double flat_logpdf = std::log(1.0 / 6.0);
+        assert(approx(f.logpdf(0.0), flat_logpdf, 1e-12));
+        assert(approx(f.logpdf(-2.0), flat_logpdf, 1e-12));
+        assert(approx(f.logpdf(4.0), flat_logpdf, 1e-12));
+        assert(std::isinf(f.logpdf(100.0)) && f.logpdf(100.0) < 0.0);
 
         assert(approx(f.cdf(-2.0), 0.0, 1e-12));
         assert(approx(f.cdf(4.0), 1.0, 1e-12));
@@ -115,24 +174,54 @@ int main() {
         assert(dist != nullptr);
         assert(approx(dist->mean(), 0.0, 1e-12));
         assert(approx(dist->std(), 1.0, 1e-12));
-        assert(dist->logpdf(-std::sqrt(3.0)) == -1e100);
+        assert(approx(
+            dist->logpdf(-std::sqrt(3.0)),
+            -std::log(2.0 * std::sqrt(3.0)),
+            1e-12
+        ));
     }
 
 
     {
+        auto parameter_proxy = std::make_shared<StubStatParameterProxy>();
+        MarginalConfigFactory config_factory(parameter_proxy);
+
         const ParamId runtime_pid{ParameterType::DECAY, BlockName{"B_Xs"}, LhaID{7}};
+
+        MarginalConfig gaussian_cfg = config_factory.create(
+            runtime_pid,
+            MarginalType::GAUSSIAN
+        );
+        const auto& gaussian = std::get<GaussianMarginalCfg>(gaussian_cfg);
+        assert(approx(gaussian.mu, 2.0, 1e-12));
+        assert(approx(gaussian.sigma, 0.75, 1e-12));
+        assert(parameter_proxy->scalar_reads == 2);
+
         const ParamId config_pid{BlockName{"B_Xs"}, LhaID{7}};
         const NuisanceSpec spec{config_pid, {0.9, 4.0}, MarginalType::FLAT};
 
-        MarginalConfig cfg = MarginalConfigFactory{}.create(
+        const std::size_t reads_before_explicit_bounds =
+            parameter_proxy->scalar_reads;
+        MarginalConfig flat_cfg_variant = config_factory.create(
             runtime_pid,
             MarginalType::FLAT,
             spec
         );
-        const auto& flat_cfg = std::get<FlatMarginalCfg>(cfg);
+        const auto& flat_cfg = std::get<FlatMarginalCfg>(flat_cfg_variant);
 
         assert(approx(flat_cfg.a, 0.9, 1e-12));
         assert(approx(flat_cfg.b, 4.0, 1e-12));
+        assert(parameter_proxy->scalar_reads == reads_before_explicit_bounds);
+    }
+
+    {
+        bool threw = false;
+        try {
+            MarginalConfigFactory invalid_factory(nullptr);
+        } catch (const std::invalid_argument&) {
+            threw = true;
+        }
+        assert(threw && "MarginalConfigFactory must reject a null parameter port");
     }
 
     std::cout << "\nAll marginal UNIT tests passed!\n";

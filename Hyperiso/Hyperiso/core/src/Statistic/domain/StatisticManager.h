@@ -480,6 +480,7 @@ private:
     std::shared_ptr<IModel> obs_int;                       ///< Model interface used for observable predictions.
     std::shared_ptr<IStatCorrelationProxy> pscp;           ///< Proxy providing correlation information.
     std::shared_ptr<IStatParameterProxy> pspp;             ///< Proxy providing parameter values and uncertainties.
+    MarginalConfigFactory marginal_config_factory_;        ///< Factory configured with the same parameter port.
     std::shared_ptr<IStatSourcesProxy> sp;                 ///< Proxy resolving source/dependency relationships.
     std::shared_ptr<IStatDependencyPruner> dp;             ///< Dependency pruner used to detach fit parameters.
     std::shared_ptr<INuisanceReader> nuisance_reader_;     ///< Reader for default/user nuisance specifications.

@@ -2,19 +2,33 @@
 
 #include <cmath>
 #include <stdexcept>
+#include <utility>
 
-MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal) {
+MarginalConfigFactory::MarginalConfigFactory(
+    std::shared_ptr<IStatParameterProxy> parameter_proxy
+)
+    : parameter_proxy_(std::move(parameter_proxy))
+{
+    if (!parameter_proxy_) {
+        throw std::invalid_argument(
+            "MarginalConfigFactory: parameter_proxy is null"
+        );
+    }
+}
+
+
+MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal) const {
     double mu, sigma;
 
     switch (marginal) {
     case MarginalType::GAUSSIAN:
-        mu = p(pid, DataType::VALUE);
-        sigma = p(pid, DataType::STD_COMBINED);
+        mu = (*parameter_proxy_)(pid, DataType::VALUE);
+        sigma = (*parameter_proxy_)(pid, DataType::STD_COMBINED);
         return GaussianMarginalCfg {mu, sigma};
         break;
     case MarginalType::FLAT:
-        mu = p(pid, DataType::VALUE);
-        sigma = p(pid, DataType::STD_COMBINED);
+        mu = (*parameter_proxy_)(pid, DataType::VALUE);
+        sigma = (*parameter_proxy_)(pid, DataType::STD_COMBINED);
         return FlatMarginalCfg {mu - sigma * std::sqrt(3), mu + sigma * std::sqrt(3)};
         break;
     case MarginalType::HALF_GAUSSIAN:
@@ -31,7 +45,7 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
 
 MarginalConfig MarginalConfigFactory::create(ParamId pid,
                                              MarginalType marginal,
-                                             const NuisanceSpec& spec) {
+                                             const NuisanceSpec& spec) const {
     if (spec.param_id.block != pid.block || spec.param_id.code != pid.code) {
         throw std::invalid_argument(
             "MarginalConfigFactory: nuisance specification does not match parameter block/code"
@@ -52,8 +66,9 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid,
 }
 
 MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
-                                             MarginalType marginal) {
-    std::map<ExperimentObs, double> sigma = p(oid.obs, DataType::STD_COMBINED);;
+                                             MarginalType marginal) const {
+    std::map<ExperimentObs, double> sigma =
+        (*parameter_proxy_)(oid.obs, DataType::STD_COMBINED);
     MarginalConfig out;
     switch (marginal) {
     case MarginalType::GAUSSIAN:

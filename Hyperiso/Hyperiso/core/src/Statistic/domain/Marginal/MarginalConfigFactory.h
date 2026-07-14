@@ -1,11 +1,12 @@
 #ifndef MARGINALCONFIGFACTORY_H
 #define MARGINALCONFIGFACTORY_H
 
+#include <memory>
 #include <variant>
 
 #include "Include.h"
 #include "MarginalType.h"
-#include "StatParameterProxy.h"
+#include "IStatParameterProxy.h"
 #include "GaussianMarginal.h"
 #include "FlatMarginal.h"
 #include "SplitGaussianMarginal.h"
@@ -31,7 +32,8 @@
  *
  * Typical workflow:
  * @code
- *   MarginalConfigFactory cfg_factory;
+ *   auto parameter_proxy = std::make_shared<MyStatParameterProxy>();
+ *   MarginalConfigFactory cfg_factory(parameter_proxy);
  *   MarginalConfig cfg = cfg_factory.create(pid, MarginalType::GAUSSIAN);
  * @endcode
  *
@@ -72,9 +74,21 @@ using MarginalConfig = std::variant<FlatMarginalCfg, GaussianMarginalCfg, SplitG
 class MarginalConfigFactory {
 public:
     /**
+     * @brief Constructs the factory with its parameter-access port.
+     *
+     * The concrete adapter is selected by the composition root (typically
+     * @ref StatisticInterface) and forwarded by @ref StatisticManager. The
+     * factory therefore remains independent of parameter-storage infrastructure.
+     *
+     * @param parameter_proxy Read-only statistical parameter port.
+     * @throws std::invalid_argument if @p parameter_proxy is null.
+     */
+    explicit MarginalConfigFactory(std::shared_ptr<IStatParameterProxy> parameter_proxy);
+
+    /**
      * @brief Builds a marginal configuration from a parameter identifier.
      *
-     * The parameter is queried through an internal @ref StatParameterProxy.
+     * The parameter is queried through the injected @ref IStatParameterProxy port.
      *
      * Current behavior:
      * - @ref MarginalType::GAUSSIAN returns @ref GaussianMarginalCfg{mu, sigma}
@@ -89,7 +103,7 @@ public:
      * @throws std::runtime_error for currently unsupported marginals.
      * @throws std::invalid_argument if the marginal type is unknown.
      */
-    MarginalConfig create(ParamId pid, MarginalType marginal);
+    MarginalConfig create(ParamId pid, MarginalType marginal) const;
 
     /**
      * @brief Builds a parameter marginal while honoring an explicit nuisance specification.
@@ -107,7 +121,7 @@ public:
      * @throws std::invalid_argument if the specification block/code does not match @p pid,
      *         or if flat bounds are non-finite or not strictly ordered.
      */
-    MarginalConfig create(ParamId pid, MarginalType marginal, const NuisanceSpec& spec);
+    MarginalConfig create(ParamId pid, MarginalType marginal, const NuisanceSpec& spec) const;
 
     /**
      * @brief Builds a vector of marginal configurations from a binned observable identifier.
@@ -126,11 +140,11 @@ public:
      * @throws std::runtime_error for currently unsupported marginals.
      * @throws std::invalid_argument if the marginal type is unknown.
      */
-    MarginalConfig create(ExperimentObs pid, MarginalType marginal);
+    MarginalConfig create(ExperimentObs pid, MarginalType marginal) const;
 
 private:
-    /// Statistical parameter proxy used to fetch central values and uncertainties.
-    const StatParameterProxy p {};
+    /// Injected read-only port used to fetch central values and uncertainties.
+    std::shared_ptr<IStatParameterProxy> parameter_proxy_;
 };
 
 #endif // MARGINALCONFIGFACTORY_H
