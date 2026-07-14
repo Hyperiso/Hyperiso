@@ -106,9 +106,14 @@ def _experiment_float_map_from_cpp(cpp_map) -> Dict[ExperimentObs, float]:
     return {ExperimentObs.from_cpp(k): float(v) for k, v in dict(cpp_map).items()}
 
 
-def _experiment_nested_float_map_from_cpp(cpp_map) -> Dict[ExperimentObs, Dict[ExperimentObs, float]]:
+def _experiment_nested_float_map_from_cpp(
+    cpp_map,
+) -> Dict[ExperimentObs, Dict[ExperimentObs, float]]:
     """Convert a nested experimental-observable correlation map to Python."""
-    return {ExperimentObs.from_cpp(k): _experiment_float_map_from_cpp(v) for k, v in dict(cpp_map).items()}
+    return {
+        ExperimentObs.from_cpp(k): _experiment_float_map_from_cpp(v)
+        for k, v in dict(cpp_map).items()
+    }
 
 
 def _cpp_profiling_method(value: ProfilingMethod):
@@ -166,7 +171,9 @@ class FitResultWithMaps:
         cpp.p_hat = _param_float_map_to_cpp(self.p_hat)
         cpp.eta_hat = _param_float_map_to_cpp(self.eta_hat)
         cpp.p_hat_std = _param_float_map_to_cpp(self.p_hat_std)
-        cpp.p_correlations = {_cpp_param_id(k): _param_float_map_to_cpp(v) for k, v in self.p_correlations.items()}
+        cpp.p_correlations = {
+            _cpp_param_id(k): _param_float_map_to_cpp(v) for k, v in self.p_correlations.items()
+        }
         cpp.ell_hat = float(self.ell_hat)
         return cpp
 
@@ -270,7 +277,9 @@ class ContourOptions:
             profiling_method=ProfilingMethod(cpp_obj.profiling_method),
             profile_backend=ProfilerMode(cpp_obj.profile_backend),
             primary_contour_method=ContourAlgorithm(cpp_obj.primary_contour_method),
-            fallback_contour_method=None if cpp_obj.fallback_contour_method is None else ContourAlgorithm(cpp_obj.fallback_contour_method),
+            fallback_contour_method=None
+            if cpp_obj.fallback_contour_method is None
+            else ContourAlgorithm(cpp_obj.fallback_contour_method),
             resolution=int(cpp_obj.resolution),
         )
 
@@ -280,7 +289,11 @@ class ContourOptions:
         cpp.profiling_method = _cpp_profiling_method(self.profiling_method)
         cpp.profile_backend = _cpp_profile_backend(self.profile_backend)
         cpp.primary_contour_method = _cpp_contour_algorithm(self.primary_contour_method)
-        cpp.fallback_contour_method = None if self.fallback_contour_method is None else _cpp_contour_algorithm(self.fallback_contour_method)
+        cpp.fallback_contour_method = (
+            None
+            if self.fallback_contour_method is None
+            else _cpp_contour_algorithm(self.fallback_contour_method)
+        )
         cpp.resolution = int(self.resolution)
         return cpp
 
@@ -305,8 +318,7 @@ class Contour:
     @property
     def paths(self) -> List[List[tuple[float, float]]]:
         return [
-            [(float(point[0]), float(point[1])) for point in path]
-            for path in self._cpp_obj.paths
+            [(float(point[0]), float(point[1])) for point in path] for path in self._cpp_obj.paths
         ]
 
     @property
@@ -344,7 +356,12 @@ class LikelihoodScanPoint:
     @classmethod
     def from_cpp(cls, cpp_obj) -> "LikelihoodScanPoint":
         """Create a Python scan point from a bound C++ scan point."""
-        return cls(x=float(cpp_obj.x), y=float(cpp_obj.y), nll=float(cpp_obj.nll), delta_nll=float(cpp_obj.delta_nll))
+        return cls(
+            x=float(cpp_obj.x),
+            y=float(cpp_obj.y),
+            nll=float(cpp_obj.nll),
+            delta_nll=float(cpp_obj.delta_nll),
+        )
 
     def to_cpp(self):
         """Convert this scan point to C++."""
@@ -510,7 +527,10 @@ class StatisticInterface:
         Returns:
             Mapping from observable id to Gaussian or split-Gaussian summary.
         """
-        return {BinnedObservableId.from_cpp(k): GaussianSummary.from_cpp(v) for k, v in self._cpp.compute_uncertainties().items()}
+        return {
+            BinnedObservableId.from_cpp(k): GaussianSummary.from_cpp(v)
+            for k, v in self._cpp.compute_uncertainties().items()
+        }
 
     def compute_uncertainties_and_sampling(self) -> MCResult:
         """Run Monte-Carlo uncertainty propagation and keep raw samples.
@@ -536,7 +556,9 @@ class StatisticInterface:
                 likelihood evaluation or minimization.
         """
         p_specs = self.config.p_specs if p_specs is None else p_specs
-        return FitResultWithMaps.from_cpp(self._cpp.compute_MLE([_cpp_param_id(p) for p in p_specs]))
+        return FitResultWithMaps.from_cpp(
+            self._cpp.compute_MLE([_cpp_param_id(p) for p in p_specs])
+        )
 
     def compute_confidence_contour(
         self,
@@ -567,8 +589,14 @@ class StatisticInterface:
                 been computed before requesting the contour.
         """
         if len(bounds) != 4:
-            raise ValueError("bounds doit contenir exactement 4 valeurs : [xmin, xmax, ymin, ymax].")
-        cpp_options = ContourOptions().to_cpp() if options is None else _require(options, ContourOptions, "options").to_cpp()
+            raise ValueError(
+                "bounds doit contenir exactement 4 valeurs : [xmin, xmax, ymin, ymax]."
+            )
+        cpp_options = (
+            ContourOptions().to_cpp()
+            if options is None
+            else _require(options, ContourOptions, "options").to_cpp()
+        )
         return Contour.from_cpp(
             self._cpp.compute_confidence_contour(
                 _cpp_param_id(p1),
@@ -589,14 +617,18 @@ class StatisticInterface:
         p_specs = self.config.p_specs if p_specs is None else p_specs
         self._cpp.prepare_likelihood_for_scan([_cpp_param_id(p) for p in p_specs])
 
-    def set_manual_scan_point(self, p_hat: Mapping[ParamId, float], eta_hat: Mapping[ParamId, float]) -> None:
+    def set_manual_scan_point(
+        self, p_hat: Mapping[ParamId, float], eta_hat: Mapping[ParamId, float]
+    ) -> None:
         """Override the scan reference point manually.
 
         Args:
             p_hat: Fit-parameter values used as scan center/reference.
             eta_hat: Nuisance values used as scan reference.
         """
-        self._cpp.set_manual_scan_point(_param_float_map_to_cpp(p_hat), _param_float_map_to_cpp(eta_hat))
+        self._cpp.set_manual_scan_point(
+            _param_float_map_to_cpp(p_hat), _param_float_map_to_cpp(eta_hat)
+        )
 
     def scan_likelihood_around_current_point(
         self,
@@ -638,7 +670,9 @@ class StatisticInterface:
             path: Output CSV path.
             grid: Scan grid returned by :meth:`scan_likelihood_around_current_point`.
         """
-        self._cpp.save_likelihood_scan_csv(str(path), _require(grid, LikelihoodScanGrid, "grid").to_cpp())
+        self._cpp.save_likelihood_scan_csv(
+            str(path), _require(grid, LikelihoodScanGrid, "grid").to_cpp()
+        )
 
     def get_all_obss_deps(self) -> Dict[ParamId, float]:
         """Return all selected observable dependencies after nuisance pruning."""
@@ -692,46 +726,3 @@ __all__ = [
     "LikelihoodScanPoint",
     "LikelihoodScanGrid",
 ]
-
-
-if __name__ == "__main__":
-    
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model, Observables, QCDOrder, ParameterType
-    from pyhyperiso.core.Common.ParamId import ParamId
-    from pathlib import Path
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: False,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY: True
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-    
-    hyp = HyperisoMaster()
-    lha_file_path = "/home/theo/hyperiso/Assets/lha/si_input.flha" 
-    
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    obs = {Observables.BR_BS_MUMU : QCDOrder.LO, Observables.BR_BS_MUMU_UNTAG : QCDOrder.LO, Observables.BR_BD_MUMU : QCDOrder.LO}
-
-    from pyhyperiso.core.BusinessLogic.ObservableInterface import ObservableInterface
-    
-    obs_int = ObservableInterface()
-    
-    obs_int.add_observables(obs, True)
-    
-    config_stat = StatisticConfig()
-    config_stat.p_specs = [ParamId(ParameterType.DECAY, "B_ll", 1)]
-
-    si = StatisticInterface(config_stat, observable_interface=obs_int)
-    fit = si.compute_MLE()
-
-    print(fit.fit_ok)
-    print(fit.p_hat)
-    print(fit.p_hat_std)

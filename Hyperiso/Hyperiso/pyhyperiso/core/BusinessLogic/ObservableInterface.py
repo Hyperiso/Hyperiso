@@ -21,15 +21,24 @@ from __future__ import annotations
 
 from typing import Dict, List, Mapping, Sequence, Set, Tuple
 
-from pyhyperiso.phyperiso.pyhyperiso.observable import ObservableInterface as _CppObservableInterface
+from pyhyperiso.phyperiso.pyhyperiso.observable import (
+    ObservableInterface as _CppObservableInterface,
+)
 from pyhyperiso.core.BusinessLogic.ObservableValue import ObservableValue
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
-from pyhyperiso.core.Common.GeneralEnum import Decays, Observables, ParameterType, QCDOrder, UncertaintyType
+from pyhyperiso.core.Common.GeneralEnum import (
+    Decays,
+    Observables,
+    ParameterType,
+    QCDOrder,
+    UncertaintyType,
+)
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.SymbolId import ObservableId
 from pyhyperiso.core.BusinessLogic.DecayConfig import DecayConfig
 from pyhyperiso.core.BusinessLogic.LambdaDecay import LambdaDecayConfig
+
 
 def _require(value, typ, name: str):
     if not isinstance(value, typ):
@@ -83,7 +92,9 @@ def _single_lha_code(code: LhaID) -> int:
     _require(code, LhaID, "pid.code")
     parts = code.get_parts()
     if len(parts) != 1:
-        raise ValueError("set_param/get_param via ObservableInterface exige un LhaID à une seule entrée.")
+        raise ValueError(
+            "set_param/get_param via ObservableInterface exige un LhaID à une seule entrée."
+        )
     return int(parts[0])
 
 
@@ -124,7 +135,9 @@ class ObservableInterface:
         """Create a new observable interface backed by a fresh C++ manager."""
         self._cpp_obj = _CppObservableInterface()
 
-    def add_lambda_decay(self, config: LambdaDecayConfig, add_observables: bool = True) -> "ObservableInterface":
+    def add_lambda_decay(
+        self, config: LambdaDecayConfig, add_observables: bool = True
+    ) -> "ObservableInterface":
         """Register a lambda-backed custom decay and its observables.
 
         Args:
@@ -180,7 +193,9 @@ class ObservableInterface:
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observable(_cpp_observable_enum(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies))
+        self._cpp_obj.add_observable(
+            _cpp_observable_enum(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies)
+        )
         return self
 
     def add_observable_id(
@@ -200,7 +215,9 @@ class ObservableInterface:
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observable(_cpp_observable_id(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies))
+        self._cpp_obj.add_observable(
+            _cpp_observable_id(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies)
+        )
         return self
 
     def add_binned_observable(
@@ -221,7 +238,9 @@ class ObservableInterface:
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observable(_cpp_binned_observable_id(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies))
+        self._cpp_obj.add_observable(
+            _cpp_binned_observable_id(obs), _cpp_qcd_order(qcd_order), bool(add_dependencies)
+        )
         return self
 
     def add_observables(
@@ -352,7 +371,9 @@ class ObservableInterface:
         self._cpp_obj.add_observable_parameter(_cpp_observable_id(obs), _cpp_param_id(pid))
         return self
 
-    def add_observable_parameters(self, obs: Observables, pids: Set[ParamId]) -> "ObservableInterface":
+    def add_observable_parameters(
+        self, obs: Observables, pids: Set[ParamId]
+    ) -> "ObservableInterface":
         """Add several dependencies to an enum observable.
 
         Args:
@@ -362,10 +383,14 @@ class ObservableInterface:
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observable_parameters(_cpp_observable_enum(obs), {_cpp_param_id(p) for p in pids})
+        self._cpp_obj.add_observable_parameters(
+            _cpp_observable_enum(obs), {_cpp_param_id(p) for p in pids}
+        )
         return self
 
-    def add_observable_id_parameters(self, obs: ObservableId, pids: Set[ParamId]) -> "ObservableInterface":
+    def add_observable_id_parameters(
+        self, obs: ObservableId, pids: Set[ParamId]
+    ) -> "ObservableInterface":
         """Add several dependencies to an id-based observable.
 
         Args:
@@ -375,7 +400,9 @@ class ObservableInterface:
         Returns:
             ``self`` to support fluent chaining.
         """
-        self._cpp_obj.add_observable_parameters(_cpp_observable_id(obs), {_cpp_param_id(p) for p in pids})
+        self._cpp_obj.add_observable_parameters(
+            _cpp_observable_id(obs), {_cpp_param_id(p) for p in pids}
+        )
         return self
 
     def remove_observable(self, obs: Observables) -> "ObservableInterface":
@@ -436,7 +463,10 @@ class ObservableInterface:
             List of observable values. Unbinned observables usually return a
             single entry. Binned observables return one entry per bin.
         """
-        return [ObservableValue.from_cpp(v) for v in self._cpp_obj.compute_observable(_cpp_observable_enum(obs))]
+        return [
+            ObservableValue.from_cpp(v)
+            for v in self._cpp_obj.compute_observable(_cpp_observable_enum(obs))
+        ]
 
     def compute_observable_id(self, obs: ObservableId) -> List[ObservableValue]:
         """Compute the theory prediction for one id-based observable.
@@ -448,7 +478,10 @@ class ObservableInterface:
             List of observable values. Binned observables can contain multiple
             entries with non-null ``ObservableValue.bin``.
         """
-        return [ObservableValue.from_cpp(v) for v in self._cpp_obj.compute_observable(_cpp_observable_id(obs))]
+        return [
+            ObservableValue.from_cpp(v)
+            for v in self._cpp_obj.compute_observable(_cpp_observable_id(obs))
+        ]
 
     def compute_binned_observable(self, obs: BinnedObservableId) -> ObservableValue:
         """Compute one observable at one explicit q² bin.
@@ -459,7 +492,9 @@ class ObservableInterface:
         Returns:
             The C++ ``ObservableValue`` for the requested bin.
         """
-        return ObservableValue.from_cpp(self._cpp_obj.compute_observable(_cpp_binned_observable_id(obs)))
+        return ObservableValue.from_cpp(
+            self._cpp_obj.compute_observable(_cpp_binned_observable_id(obs))
+        )
 
     def compute_observable_central(self, obs: Observables) -> float:
         """Compute a scalar central value for an unbinned enum observable.
@@ -479,7 +514,9 @@ class ObservableInterface:
         if not vals:
             raise RuntimeError("compute_observable a renvoyé une liste vide.")
         if len(vals) != 1:
-            raise RuntimeError("Observable binné : utilisez compute_observable() pour récupérer toutes les bins.")
+            raise RuntimeError(
+                "Observable binné : utilisez compute_observable() pour récupérer toutes les bins."
+            )
         return vals[0].value
 
     def compute_observable_id_central(self, obs: ObservableId) -> float:
@@ -500,7 +537,9 @@ class ObservableInterface:
         if not vals:
             raise RuntimeError("compute_observable_id a renvoyé une liste vide.")
         if len(vals) != 1:
-            raise RuntimeError("Observable binné : utilisez compute_observable_id() pour récupérer toutes les bins.")
+            raise RuntimeError(
+                "Observable binné : utilisez compute_observable_id() pour récupérer toutes les bins."
+            )
         return vals[0].value
 
     def compute_all(self) -> Dict[ObservableId, List[ObservableValue]]:
@@ -557,7 +596,11 @@ class ObservableInterface:
         Returns:
             Requested experimental uncertainty.
         """
-        return float(self._cpp_obj.get_exp_uncertainty(_cpp_observable_enum(obs), _cpp_uncertainty_type(u_type)))
+        return float(
+            self._cpp_obj.get_exp_uncertainty(
+                _cpp_observable_enum(obs), _cpp_uncertainty_type(u_type)
+            )
+        )
 
     def get_exp_uncertainty_id(
         self,
@@ -574,7 +617,11 @@ class ObservableInterface:
         Returns:
             Requested experimental uncertainty.
         """
-        return float(self._cpp_obj.get_exp_uncertainty(_cpp_observable_id(obs), _cpp_uncertainty_type(u_type)))
+        return float(
+            self._cpp_obj.get_exp_uncertainty(
+                _cpp_observable_id(obs), _cpp_uncertainty_type(u_type)
+            )
+        )
 
     def get_exp_uncertainty_binned(
         self,
@@ -582,7 +629,11 @@ class ObservableInterface:
         u_type: UncertaintyType = UncertaintyType.COMBINED,
     ) -> float:
         """Return an experimental uncertainty for one binned observable."""
-        return float(self._cpp_obj.get_exp_uncertainty(_cpp_binned_observable_id(obs), _cpp_uncertainty_type(u_type)))
+        return float(
+            self._cpp_obj.get_exp_uncertainty(
+                _cpp_binned_observable_id(obs), _cpp_uncertainty_type(u_type)
+            )
+        )
 
     def get_current_observables(self) -> List[BinnedObservableId]:
         """Return the currently registered observable/bin identifiers.
@@ -603,7 +654,9 @@ class ObservableInterface:
             Set of parameter identifiers allowed as dependencies for this
             observable.
         """
-        return {_param_from_cpp(x) for x in self._cpp_obj.get_all_ops_deps(_cpp_observable_enum(obs))}
+        return {
+            _param_from_cpp(x) for x in self._cpp_obj.get_all_ops_deps(_cpp_observable_enum(obs))
+        }
 
     def get_all_ops_deps_id(self, obs: ObservableId) -> Set[ParamId]:
         """Return all known parameter dependencies for an id-based observable.
@@ -635,7 +688,6 @@ class ObservableInterface:
         self._cpp_obj.set_decay_config(_cpp_decay(decay), config.to_cpp())
         return self
 
-
     def set_param(self, pid: ParamId, value: float) -> None:
         """Set one model parameter in the C++ parameter store.
 
@@ -657,7 +709,9 @@ class ObservableInterface:
         if pid.type is None:
             raise ValueError("pid.type doit être défini pour set_param().")
         _require(pid.type, ParameterType, "pid.type")
-        self._cpp_obj.set_param(str(pid.block), _single_lha_code(pid.code), float(value), pid.type.value)
+        self._cpp_obj.set_param(
+            str(pid.block), _single_lha_code(pid.code), float(value), pid.type.value
+        )
 
     def get_param(self, pid: ParamId):
         """Read one model parameter from the C++ parameter store.
@@ -745,83 +799,3 @@ class ObservableInterface:
 
 
 __all__ = ["ObservableInterface"]
-
-    
-if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model
-    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY: True,
-            # ExternalFlag.USE_MARTY: False
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/si_input.flha" 
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-
-    from pyhyperiso.core.BusinessLogic.DecayConfig import BKstarllConfig
-    
-    kstar_conf = BKstarllConfig()
-    
-    interface = ObservableInterface()
-    interface.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.BR_BD_MUMU, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.BR_B0__D_TAU_NU, QCDOrder.NNLO, True)
-    interface.add_observable(Observables.BR_B__KSTAR_GAMMA, QCDOrder.NNLO, True)
-    interface.set_decay_config(Decays.B__Kstar_l_l, kstar_conf)
-    print(interface.compute_observable(Observables.BR_B_XS_GAMMA))  # Scalar(...)
-    print(interface.compute_observable(Observables.BR_BS_MUMU))  # Scalar(...)
-    print(interface.compute_all())
-    
-    test_values = []
-    
-    from pyhyperiso.core.Core.ParameterSetter import ParameterSetter, ParamId
-    py_set = ParameterSetter()
-    for i in range(50, 90, 10):
-        py_set.mutate(ParamId(ParameterType.SM, "MASS", 24), i)
-        print("aah : ", ParameterProvider().get_by_pid(ParamId(ParameterType.SM, "MASS", 24)))
-        # interface.enable_obs()
-        print("aah : ", ParameterProvider().get_by_pid(ParamId(ParameterType.SM, "MASS", 24)))
-        test_values.append(interface.compute_observable(Observables.BR_B_XS_GAMMA)[0].value)
-    
-    import matplotlib
-    matplotlib.use("TkAgg")
-    import matplotlib.pyplot as plt
-    
-    plt.scatter(range(50, 90, 10), test_values)
-    
-    plt.show()
-    # test_values = []
-    # from pyhyperiso.core.Core.ParameterSetter import PyParameterSetter, ParamId, ParameterType
-    # py_set = PyParameterSetter()
-    # for i in range(1, 81):
-    #     py_set.mutate(ParamId(ParameterType.WILSON, "B_SCALE", 1), i)
-    #     test_values.append(interface.get_R(WilsonRequest(WGroup.B, WCoeff.C9, QCDOrder.LO, ContributionType.TOTAL)))
-    
-    # import matplotlib
-    # matplotlib.use("TkAgg")
-    # import matplotlib.pyplot as plt
-    
-    # plt.scatter(range(1, 81), test_values)
-    
-    # plt.show()

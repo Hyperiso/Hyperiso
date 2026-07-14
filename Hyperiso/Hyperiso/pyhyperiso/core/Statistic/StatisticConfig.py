@@ -41,7 +41,9 @@ class StatisticProgressMonitor:
     def __init__(self):
         self._cpp_obj = st.StatisticProgressMonitor()
 
-    def reset(self, phase: str = "preparing", message: str = "Preparing statistic workflow") -> None:
+    def reset(
+        self, phase: str = "preparing", message: str = "Preparing statistic workflow"
+    ) -> None:
         self._cpp_obj.reset(str(phase), str(message))
 
     def set_progress(
@@ -56,8 +58,13 @@ class StatisticProgressMonitor:
         finished: bool = False,
     ) -> None:
         self._cpp_obj.set_progress(
-            str(phase), str(message), float(fraction), int(completed), int(total),
-            float(eta_seconds), bool(finished)
+            str(phase),
+            str(message),
+            float(fraction),
+            int(completed),
+            int(total),
+            float(eta_seconds),
+            bool(finished),
         )
 
     def snapshot(self) -> StatisticProgressSnapshot:
@@ -115,9 +122,7 @@ def _require(value, typ, name: str):
         TypeError: If ``value`` is not an instance of ``typ``.
     """
     if not isinstance(value, typ):
-        raise TypeError(
-            f"{name} must be {typ.__name__}, got {type(value).__name__}."
-        )
+        raise TypeError(f"{name} must be {typ.__name__}, got {type(value).__name__}.")
     return value
 
 
@@ -354,21 +359,16 @@ class StatisticConfig:
             for pid, bounds in self.fit_parameter_bounds.items()
         }
         cpp.fit_parameter_offsets = {
-            _cpp_param_id(pid): float(offset)
-            for pid, offset in self.fit_parameter_offsets.items()
+            _cpp_param_id(pid): float(offset) for pid, offset in self.fit_parameter_offsets.items()
         }
         cpp.advanced = self.advanced.to_cpp()
         return cpp
 
 
 __all__ = [
-    "StatisticConfig", "AdvancedStatisticConfig", "StatisticLikelihoodMode",
-    "StatisticProgressMonitor", "StatisticProgressSnapshot",
+    "StatisticConfig",
+    "AdvancedStatisticConfig",
+    "StatisticLikelihoodMode",
+    "StatisticProgressMonitor",
+    "StatisticProgressSnapshot",
 ]
-
-if __name__ == "__main__":
-    cfg = StatisticConfig()
-    print(cfg)
-
-    cpp_cfg = cfg.to_cpp()
-    print(cpp_cfg)

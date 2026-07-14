@@ -1,7 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso import common
-from pyhyperiso.core.Common.GeneralEnum import ParameterType
-from dataclasses import dataclass, field
-from typing import Optional, List, Union, Set
+from typing import List, Union
+
 
 class LhaID:
     """Python wrapper around the C++ ``LhaID`` identifier.
@@ -22,7 +21,7 @@ class LhaID:
         - Converting to ``int`` keeps **only the first part** (potentially losing
           information for multi-part IDs), mirroring the C++ behavior.
     """
-    
+
     def __init__(self, *args: Union[int, str, List[int], common.LhaID]):
         """Create a ``LhaID`` from common Python representations.
 
@@ -83,7 +82,7 @@ class LhaID:
             common.LhaID: The wrapped pybind11 C++ instance.
         """
         return self._cpp_obj
-    
+
     def to_string(self):
         """Return the canonical underscore-joined string representation.
 
@@ -142,16 +141,3 @@ class LhaID:
             int: Hash based on the identifier parts.
         """
         return hash(tuple(self.get_parts()))
-    
-if __name__ == "__main__":
-
-    print("\n🔢 Testing LhaID...")
-    lid1 = LhaID(32)
-    lid2 = LhaID("1_2_3")
-    lid3 = LhaID([4, 5, 6])
-
-    print(f"lid1 = {lid1}, int: {int(lid1)}, parts: {lid1.get_parts()}")
-    print(f"lid2 = {lid2}, parts: {lid2.get_parts()}")
-    print(f"lid3 = {lid3}, parts: {lid3.get_parts()}")
-    print("✅ lid2 == LhaID('1_2_3'):", lid2 == LhaID("1_2_3"))
-

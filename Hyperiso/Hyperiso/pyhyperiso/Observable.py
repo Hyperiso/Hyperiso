@@ -24,6 +24,6 @@ from pyhyperiso.core.BusinessLogic.DecayConfig import (
     BV_FF_Src,
     BVFFSource,
     BXsllConfig,
-    BXsllLepton
+    BXsllLepton,
 )
 from pyhyperiso.core.BusinessLogic.LambdaDecay import LambdaDecayConfig, LambdaObservableConfig

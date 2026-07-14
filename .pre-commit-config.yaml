@@ -1,39 +1,46 @@
 repos:
-  - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v5.0.0
+  - repo: local
     hooks:
-      - id: trailing-whitespace
-      - id: end-of-file-fixer
-      - id: check-yaml
-      - id: check-json
-      - id: check-toml
-      - id: check-merge-conflict
-      - id: check-added-large-files
-        args: ['--maxkb=1000']
-      - id: mixed-line-ending
-        args: ['--fix=lf']
+      - id: ruff-check
+        name: Ruff lint
+        entry: ruff check
+        language: system
+        types: [python]
+        pass_filenames: false
+        args:
+          - Hyperiso/Hyperiso/pyhyperiso
+          - GHyperiso/HyperisoDashGUI
+          - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
 
-  - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.8.6
-    hooks:
-      - id: ruff
-        args: ['--fix']
       - id: ruff-format
+        name: Ruff format
+        entry: ruff format --check
+        language: system
+        types: [python]
+        pass_filenames: false
+        args:
+          - Hyperiso/Hyperiso/pyhyperiso
+          - GHyperiso/HyperisoDashGUI
+          - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
 
-  - repo: https://github.com/codespell-project/codespell
-    rev: v2.3.0
-    hooks:
-      - id: codespell
-        args: ['--ignore-words-list=nd,te,fo']
+      - id: metadata
+        name: Validate JSON, TOML and YAML
+        entry: python tools/validate_metadata.py
+        language: system
+        pass_filenames: false
 
-  - repo: https://github.com/pre-commit/mirrors-clang-format
-    rev: v19.1.2
-    hooks:
-      - id: clang-format
-        types_or: [c++, c]
+      - id: versions
+        name: Check release version consistency
+        entry: python tools/check_version_consistency.py
+        language: system
+        pass_filenames: false
 
-  - repo: https://github.com/cheshirekow/cmake-format-precommit
-    rev: v0.6.13
-    hooks:
-      - id: cmake-format
-      - id: cmake-lint
+      - id: frozen-references
+        name: Validate frozen reproducibility references
+        entry: >-
+          python reproducibility/scripts/check_expected_outputs.py
+          --manifest reproducibility/manifest.json
+          --outputs reproducibility/expected_outputs
+          --expected reproducibility/expected_outputs
+        language: system
+        pass_filenames: false

@@ -6,12 +6,11 @@ import time
 import uuid
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Mapping, Sequence
 
 from pyhyperiso_dash import latex as lx
 from pyhyperiso_dash.domain import (
     as_float,
-    as_int,
     bins_from_step,
     code_to_display,
     enum_by_name,
@@ -28,12 +27,30 @@ from pyhyperiso.core.BusinessLogic.ObservableInterface import ObservableInterfac
 try:
     from pyhyperiso.core.BusinessLogic.DecayConfig import (
         DecayConfig,
-        BDlnuConfig, BDstarlnuConfig, BKllConfig, BKstarllConfig,
-        BKstarGammaConfig, BsPhiConfig, BXsllConfig, KllDecayConfig, LbLllConfig,
-        BDlnuBCharge, BDstarlnuBCharge, BKllBCharge, BKllLepton,
-        BKstarllPowerCorrectionsImpl, BKstarllBCharge, BKstarllLepton,
-        BKstarGammaBCharge, BsPhiLepton, BXsllLepton, LbLllLepton,
-        BFFType, BPFFSource, BVFFSource, LbLFFSource,
+        BDlnuConfig,
+        BDstarlnuConfig,
+        BKllConfig,
+        BKstarllConfig,
+        BKstarGammaConfig,
+        BsPhiConfig,
+        BXsllConfig,
+        KllDecayConfig,
+        LbLllConfig,
+        BDlnuBCharge,
+        BDstarlnuBCharge,
+        BKllBCharge,
+        BKllLepton,
+        BKstarllPowerCorrectionsImpl,
+        BKstarllBCharge,
+        BKstarllLepton,
+        BKstarGammaBCharge,
+        BsPhiLepton,
+        BXsllLepton,
+        LbLllLepton,
+        BFFType,
+        BPFFSource,
+        BVFFSource,
+        LbLFFSource,
     )
 except Exception:  # optional on older pyhyperiso builds
     DecayConfig = None
@@ -44,7 +61,12 @@ except Exception:  # optional on older pyhyperiso builds
     BKstarGammaBCharge = BsPhiLepton = BXsllLepton = LbLllLepton = None
     BFFType = BPFFSource = BVFFSource = LbLFFSource = None
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
-from pyhyperiso.core.Common.Configs import AlphasConfig, MassConfig, WilsonBuildConfig, WilsonRequest
+from pyhyperiso.core.Common.Configs import (
+    AlphasConfig,
+    MassConfig,
+    WilsonBuildConfig,
+    WilsonRequest,
+)
 from pyhyperiso.core.Common.GeneralEnum import (
     ContributionType,
     DataType,
@@ -57,12 +79,20 @@ from pyhyperiso.core.Common.GeneralEnum import (
     ScaleType,
     WilsonBasis,
 )
-from pyhyperiso.core.Common.Mapper import DecayMapper, GroupMapper, ObservableMapper, WCoefMapper
+from pyhyperiso.core.Common.Mapper import (
+    DecayMapper,
+    GroupMapper,
+    ObservableMapper,
+    WCoefMapper,
+)
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Core.BlockProvider import BlockLogger
+
 try:
-    from pyhyperiso.core.Core.DependantBlockInfoProvider import DependantBlockInfoProvider
+    from pyhyperiso.core.Core.DependantBlockInfoProvider import (
+        DependantBlockInfoProvider,
+    )
 except Exception:  # optional on older pyhyperiso builds
     DependantBlockInfoProvider = None
 try:
@@ -75,9 +105,10 @@ from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
 from pyhyperiso.core.Core.ParameterSetter import ParameterSetter
 from pyhyperiso.core.Core.QCDProvider import QCDProvider
 from pyhyperiso.core.Core.QEDProvider import QEDProvider
-from pyhyperiso.core.Statistic.Copula import CopulaKind
 from pyhyperiso.core.Statistic.StatisticConfig import (
-    StatisticConfig, StatisticLikelihoodMode, StatisticProgressMonitor,
+    StatisticConfig,
+    StatisticLikelihoodMode,
+    StatisticProgressMonitor,
 )
 from pyhyperiso.core.Statistic.StatisticInterface import (
     StatisticInterface,
@@ -94,7 +125,10 @@ from pyhyperiso.core.PhysicalModel.WilsonInterface import WilsonInterface
 # so fits fail with ``TypeError: unhashable type: 'ParamId'`` unless the GUI
 # provides a stable value hash.  Keep the hash local and deterministic.
 def _param_id_hash(pid: ParamId) -> int:
-    return hash((pid.type.name if pid.type else None, str(pid.block), pid.code.to_string()))
+    return hash(
+        (pid.type.name if pid.type else None, str(pid.block), pid.code.to_string())
+    )
+
 
 try:
     if getattr(ParamId, "__hash__", None) is None:
@@ -162,9 +196,12 @@ _STATISTIC_JOBS_LOCK = threading.RLock()
 
 # ---------- General helpers ----------
 
+
 def require_initialized() -> None:
     if not RUNTIME.initialized or RUNTIME.hyp is None:
-        raise RuntimeError("Hyperiso is not initialized. Go to Core and initialize an LHA file first.")
+        raise RuntimeError(
+            "Hyperiso is not initialized. Go to Core and initialize an LHA file first."
+        )
 
 
 def make_param_id(param_type_name: str, block: str, code: Any) -> ParamId:
@@ -179,19 +216,30 @@ def param_to_label(pid: ParamId) -> str:
 
 def param_to_latex_label(pid: ParamId) -> str:
     ptype = pid.type.name if pid.type else None
-    return lx.parameter_table_label(str(pid.block), pid.code.to_string(), param_to_label(pid), ptype)
+    return lx.parameter_table_label(
+        str(pid.block), pid.code.to_string(), param_to_label(pid), ptype
+    )
 
 
-def parameter_display_label(block: str | None, code: Any, raw: str | None = None, param_type_name: str | None = None) -> str:
+def parameter_display_label(
+    block: str | None,
+    code: Any,
+    raw: str | None = None,
+    param_type_name: str | None = None,
+) -> str:
     return lx.parameter_label(block, code, raw, param_type_name)
 
 
 def p_spec_row_key(row: Mapping[str, Any]) -> str:
     """Return a stable GUI key for one fit-parameter row."""
-    return "|".join((str(row.get("type", "")), str(row.get("block", "")), str(row.get("code", ""))))
+    return "|".join(
+        (str(row.get("type", "")), str(row.get("block", "")), str(row.get("code", "")))
+    )
 
 
-def suggested_parameter_bounds(param_type_name: str, block: str, code: Any) -> tuple[float, float, float]:
+def suggested_parameter_bounds(
+    param_type_name: str, block: str, code: Any
+) -> tuple[float, float, float]:
     """Return current value and editable default contour bounds for a parameter.
 
     The preferred width is four combined standard deviations.  Parameters with
@@ -202,9 +250,15 @@ def suggested_parameter_bounds(param_type_name: str, block: str, code: Any) -> t
     ptype = enum_by_name(ParameterType, param_type_name)
     pid = make_param_id(param_type_name, block, code)
     provider = ParameterProvider(ptype)
-    center = scalar_to_float(_raw_provider_value_by_pid(provider, pid, DataType.VALUE), "real")
+    center = scalar_to_float(
+        _raw_provider_value_by_pid(provider, pid, DataType.VALUE), "real"
+    )
     try:
-        sigma = abs(scalar_to_float(_raw_provider_value_by_pid(provider, pid, DataType.STD_COMBINED), "real"))
+        sigma = abs(
+            scalar_to_float(
+                _raw_provider_value_by_pid(provider, pid, DataType.STD_COMBINED), "real"
+            )
+        )
     except Exception:
         sigma = 0.0
     if not (sigma > 0.0):
@@ -229,7 +283,9 @@ def observable_display_label(obs_name: str | None) -> str:
     return lx.observable_label(obs_name)
 
 
-def wilson_request_display_label(method: str, coeff: str, order: str, contribution: str) -> str:
+def wilson_request_display_label(
+    method: str, coeff: str, order: str, contribution: str
+) -> str:
     return lx.wilson_request_latex(method, coeff, order, contribution)
 
 
@@ -240,7 +296,9 @@ def _cpp_lhaid(code: Any):
     return LhaID(code)._cpp_obj
 
 
-def _raw_provider_value_by_pid(provider: ParameterProvider, pid: ParamId, dtype: DataType = DataType.VALUE):
+def _raw_provider_value_by_pid(
+    provider: ParameterProvider, pid: ParamId, dtype: DataType = DataType.VALUE
+):
     """Read a parameter through the raw pybind provider without Python float().
 
     The public ``ParameterProvider`` wrapper currently casts the returned C++
@@ -251,7 +309,9 @@ def _raw_provider_value_by_pid(provider: ParameterProvider, pid: ParamId, dtype:
     return provider._cpp_obj(pid._cpp_obj, dtype.value)
 
 
-def _raw_provider_value_by_block(provider: ParameterProvider, block: str, code: Any, dtype: DataType = DataType.VALUE):
+def _raw_provider_value_by_block(
+    provider: ParameterProvider, block: str, code: Any, dtype: DataType = DataType.VALUE
+):
     """Read a block entry through the raw pybind provider without Python float()."""
     return provider._cpp_obj(str(block), _cpp_lhaid(code), dtype.value)
 
@@ -303,7 +363,11 @@ def parameter_type_is_allowed(param_type_name: str | ParameterType) -> bool:
     namespace can terminate the process before Python can catch an exception, so
     every service entry point must filter it before crossing the pybind layer.
     """
-    name = param_type_name.name if isinstance(param_type_name, ParameterType) else str(param_type_name)
+    name = (
+        param_type_name.name
+        if isinstance(param_type_name, ParameterType)
+        else str(param_type_name)
+    )
     model = active_model_name()
 
     if model == "SM" and name in _MODEL_DEPENDENT_PARAMETER_TYPES:
@@ -349,7 +413,9 @@ def decay_options() -> list[dict]:
     return [lx.decay_option(dec.name) for dec in Decays]
 
 
-def observable_options_for_decays(decay_names: Sequence[str] | None = None) -> list[dict]:
+def observable_options_for_decays(
+    decay_names: Sequence[str] | None = None,
+) -> list[dict]:
     """Return observable dropdown options, optionally filtered by decay."""
     names: list[str] = []
     mapper = DecayMapper()
@@ -365,7 +431,9 @@ def observable_options_for_decays(decay_names: Sequence[str] | None = None) -> l
     return [lx.observable_option(name) for name in dict.fromkeys(names)]
 
 
-def observable_is_in_decay(obs_name: str | None, decay_names: Sequence[str] | None) -> bool:
+def observable_is_in_decay(
+    obs_name: str | None, decay_names: Sequence[str] | None
+) -> bool:
     if not obs_name or not decay_names:
         return True
     valid = {opt["value"] for opt in observable_options_for_decays(decay_names)}
@@ -381,6 +449,7 @@ def _enum_choice_options(enum_cls: Any) -> list[dict[str, str]]:
 
 _DECAY_CONFIG_SPECS: dict[str, dict[str, Any]] = {}
 
+
 def _build_decay_config_specs() -> dict[str, dict[str, Any]]:
     """Build lazy decay-config metadata from the available wrapper classes."""
     if _DECAY_CONFIG_SPECS:
@@ -392,42 +461,150 @@ def _build_decay_config_specs() -> dict[str, dict[str, Any]]:
         if cls is not None:
             _DECAY_CONFIG_SPECS[decay] = {"class": cls, "fields": fields}
 
-    add("B__D_l_nu", BDlnuConfig, [("charge", "B charge", "enum", BDlnuBCharge, "B-meson charge convention")])
-    add("B__Dstar_l_nu", BDstarlnuConfig, [("charge", "B charge", "enum", BDstarlnuBCharge, "B-meson charge convention")])
-    add("B__K_l_l", BKllConfig, [
-        ("ff_src", "Form-factor source", "enum", BPFFSource, "B → K form-factor source"),
-        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
-        ("charge", "B charge", "enum", BKllBCharge, "B-meson charge convention"),
-        ("gen", "Lepton", "enum", BKllLepton, "Lepton generation"),
-        ("n_threads", "Threads", "int", None, "Requested worker threads"),
-    ])
-    add("B__Kstar_l_l", BKstarllConfig, [
-        ("ff_src", "Form-factor source", "enum", BVFFSource, "B → K* form-factor source"),
-        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
-        ("power_corr_impl", "Power corrections", "enum", BKstarllPowerCorrectionsImpl, "Non-factorisable power-correction prescription"),
-        ("charge", "B charge", "enum", BKstarllBCharge, "B-meson charge convention"),
-        ("gen", "Lepton", "enum", BKstarllLepton, "Lepton generation"),
-        ("n_threads", "Threads", "int", None, "Requested worker threads"),
-    ])
-    add("B__Kstar_gamma", BKstarGammaConfig, [
-        ("ff_src", "Form-factor source", "enum", BVFFSource, "B → K* form-factor source"),
-        ("charge", "B charge", "enum", BKstarGammaBCharge, "B-meson charge convention"),
-    ])
-    add("Bs__phi_l_l", BsPhiConfig, [
-        ("ff_src", "Form-factor source", "enum", BVFFSource, "Bs → φ form-factor source"),
-        ("ff_type", "Form-factor type", "enum", BFFType, "Full or soft form-factor treatment"),
-        ("gen", "Lepton", "enum", BsPhiLepton, "Lepton generation"),
-        ("n_threads", "Threads", "int", None, "Requested worker threads"),
-    ])
-    add("B__Xs_l_l", BXsllConfig, [("gen", "Lepton", "enum", BXsllLepton, "Lepton generation")])
-    add("K__l_l", KllDecayConfig, [
-        ("N_L_sign", "N_L sign", "int", None, "Long-distance sign convention"),
-        ("gen", "Lepton generation", "int", None, "C++ integer lepton-generation convention"),
-    ])
-    add("Lambda_b__Lambda_l_l", LbLllConfig, [
-        ("ff_src", "Form-factor source", "enum", LbLFFSource, "Λb → Λ form-factor source"),
-        ("gen", "Lepton", "enum", LbLllLepton, "Lepton generation"),
-    ])
+    add(
+        "B__D_l_nu",
+        BDlnuConfig,
+        [("charge", "B charge", "enum", BDlnuBCharge, "B-meson charge convention")],
+    )
+    add(
+        "B__Dstar_l_nu",
+        BDstarlnuConfig,
+        [("charge", "B charge", "enum", BDstarlnuBCharge, "B-meson charge convention")],
+    )
+    add(
+        "B__K_l_l",
+        BKllConfig,
+        [
+            (
+                "ff_src",
+                "Form-factor source",
+                "enum",
+                BPFFSource,
+                "B → K form-factor source",
+            ),
+            (
+                "ff_type",
+                "Form-factor type",
+                "enum",
+                BFFType,
+                "Full or soft form-factor treatment",
+            ),
+            ("charge", "B charge", "enum", BKllBCharge, "B-meson charge convention"),
+            ("gen", "Lepton", "enum", BKllLepton, "Lepton generation"),
+            ("n_threads", "Threads", "int", None, "Requested worker threads"),
+        ],
+    )
+    add(
+        "B__Kstar_l_l",
+        BKstarllConfig,
+        [
+            (
+                "ff_src",
+                "Form-factor source",
+                "enum",
+                BVFFSource,
+                "B → K* form-factor source",
+            ),
+            (
+                "ff_type",
+                "Form-factor type",
+                "enum",
+                BFFType,
+                "Full or soft form-factor treatment",
+            ),
+            (
+                "power_corr_impl",
+                "Power corrections",
+                "enum",
+                BKstarllPowerCorrectionsImpl,
+                "Non-factorisable power-correction prescription",
+            ),
+            (
+                "charge",
+                "B charge",
+                "enum",
+                BKstarllBCharge,
+                "B-meson charge convention",
+            ),
+            ("gen", "Lepton", "enum", BKstarllLepton, "Lepton generation"),
+            ("n_threads", "Threads", "int", None, "Requested worker threads"),
+        ],
+    )
+    add(
+        "B__Kstar_gamma",
+        BKstarGammaConfig,
+        [
+            (
+                "ff_src",
+                "Form-factor source",
+                "enum",
+                BVFFSource,
+                "B → K* form-factor source",
+            ),
+            (
+                "charge",
+                "B charge",
+                "enum",
+                BKstarGammaBCharge,
+                "B-meson charge convention",
+            ),
+        ],
+    )
+    add(
+        "Bs__phi_l_l",
+        BsPhiConfig,
+        [
+            (
+                "ff_src",
+                "Form-factor source",
+                "enum",
+                BVFFSource,
+                "Bs → φ form-factor source",
+            ),
+            (
+                "ff_type",
+                "Form-factor type",
+                "enum",
+                BFFType,
+                "Full or soft form-factor treatment",
+            ),
+            ("gen", "Lepton", "enum", BsPhiLepton, "Lepton generation"),
+            ("n_threads", "Threads", "int", None, "Requested worker threads"),
+        ],
+    )
+    add(
+        "B__Xs_l_l",
+        BXsllConfig,
+        [("gen", "Lepton", "enum", BXsllLepton, "Lepton generation")],
+    )
+    add(
+        "K__l_l",
+        KllDecayConfig,
+        [
+            ("N_L_sign", "N_L sign", "int", None, "Long-distance sign convention"),
+            (
+                "gen",
+                "Lepton generation",
+                "int",
+                None,
+                "C++ integer lepton-generation convention",
+            ),
+        ],
+    )
+    add(
+        "Lambda_b__Lambda_l_l",
+        LbLllConfig,
+        [
+            (
+                "ff_src",
+                "Form-factor source",
+                "enum",
+                LbLFFSource,
+                "Λb → Λ form-factor source",
+            ),
+            ("gen", "Lepton", "enum", LbLllLepton, "Lepton generation"),
+        ],
+    )
     return _DECAY_CONFIG_SPECS
 
 
@@ -443,34 +620,42 @@ def decay_config_field_specs(decay_name: str | None) -> list[dict[str, Any]]:
         value = getattr(cfg, name)
         if kind == "enum":
             current = value.name if hasattr(value, "name") else str(value)
-            out.append({
-                "name": name,
-                "label": label,
-                "kind": kind,
-                "value": current,
-                "options": _enum_choice_options(enum_cls),
-                "help": help_text,
-            })
+            out.append(
+                {
+                    "name": name,
+                    "label": label,
+                    "kind": kind,
+                    "value": current,
+                    "options": _enum_choice_options(enum_cls),
+                    "help": help_text,
+                }
+            )
         else:
-            out.append({
-                "name": name,
-                "label": label,
-                "kind": kind,
-                "value": int(value),
-                "options": [],
-                "help": help_text,
-            })
+            out.append(
+                {
+                    "name": name,
+                    "label": label,
+                    "kind": kind,
+                    "value": int(value),
+                    "options": [],
+                    "help": help_text,
+                }
+            )
     return out
 
 
-def apply_decay_config(decay_name: str | None, values: Mapping[str, Any]) -> dict[str, Any]:
+def apply_decay_config(
+    decay_name: str | None, values: Mapping[str, Any]
+) -> dict[str, Any]:
     """Apply a typed decay configuration to the shared ObservableInterface."""
     require_initialized()
     decay_name = str(decay_name or "")
     specs = _build_decay_config_specs()
     entry = specs.get(decay_name)
     if not entry:
-        raise ValueError(f"Decay {decay_name or '—'} has no configurable options exposed by the current binding.")
+        raise ValueError(
+            f"Decay {decay_name or '—'} has no configurable options exposed by the current binding."
+        )
     kwargs: dict[str, Any] = {}
     for name, _label, kind, enum_cls, _help in entry["fields"]:
         raw = values.get(name)
@@ -490,11 +675,16 @@ def apply_decay_config(decay_name: str | None, values: Mapping[str, Any]) -> dic
         # The statistic manager caches observables/nuisances; invalidate it so
         # the next uncertainty/fit sees the new decay configuration.
         RUNTIME.stat = None
-        RUNTIME.decay_configs[decay_name] = {"class": type(cfg).__name__, "values": dict(values)}
+        RUNTIME.decay_configs[decay_name] = {
+            "class": type(cfg).__name__,
+            "values": dict(values),
+        }
     return {"decay": decay_name, "config": type(cfg).__name__, "values": dict(values)}
 
 
-def resolve_parameter_type(param_type_name: str, *, strict: bool = True) -> ParameterType | None:
+def resolve_parameter_type(
+    param_type_name: str, *, strict: bool = True
+) -> ParameterType | None:
     """Convert a dropdown value to a model-safe ``ParameterType``.
 
     Args:
@@ -525,7 +715,13 @@ def resolve_parameter_type(param_type_name: str, *, strict: bool = True) -> Para
 
 # ---------- Core ----------
 
-def make_hyperiso_config(flag_names: Sequence[str], model_name: str, marty_name: str | None, marty_path: str | None) -> HyperisoConfig:
+
+def make_hyperiso_config(
+    flag_names: Sequence[str],
+    model_name: str,
+    marty_name: str | None,
+    marty_path: str | None,
+) -> HyperisoConfig:
     selected = set(flag_names or [])
     flags = {
         ExternalFlag.IS_LHA_SPECTRUM: "IS_LHA_SPECTRUM" in selected,
@@ -539,11 +735,19 @@ def make_hyperiso_config(flag_names: Sequence[str], model_name: str, marty_name:
         flags=flags,
         model=model,
         mty_model_name=(marty_name or None) if model is Model.MARTY else None,
-        mty_model_path=Path(marty_path).expanduser() if model is Model.MARTY and marty_path else None,
+        mty_model_path=Path(marty_path).expanduser()
+        if model is Model.MARTY and marty_path
+        else None,
     )
 
 
-def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name: str, marty_name: str | None, marty_path: str | None) -> dict:
+def init_or_switch_hyperiso(
+    lha_path: str,
+    flag_names: Sequence[str],
+    model_name: str,
+    marty_name: str | None,
+    marty_path: str | None,
+) -> dict:
     if not lha_path:
         raise ValueError("Missing LHA path")
     cfg = make_hyperiso_config(flag_names, model_name, marty_name, marty_path)
@@ -560,8 +764,14 @@ def init_or_switch_hyperiso(lha_path: str, flag_names: Sequence[str], model_name
         RUNTIME.lha_path = str(lha_path)
         RUNTIME.initialized = True
         RUNTIME.block_logger = BlockLogger()
-        RUNTIME.dependency_info = DependantBlockInfoProvider() if DependantBlockInfoProvider is not None else None
-        RUNTIME.dependency_pruner = DependencyPruner() if DependencyPruner is not None else None
+        RUNTIME.dependency_info = (
+            DependantBlockInfoProvider()
+            if DependantBlockInfoProvider is not None
+            else None
+        )
+        RUNTIME.dependency_pruner = (
+            DependencyPruner() if DependencyPruner is not None else None
+        )
         # Cached interfaces are tied to the old parameter store. Rebuild after switch.
         RUNTIME.wilson = None
         RUNTIME.last_wilson_config = None
@@ -608,7 +818,10 @@ def runtime_summary() -> dict:
         "wilson_status": dict(RUNTIME.wilson_status or {}),
         "observable_built": bool(RUNTIME.observable_registered_keys),
         "observable_count": len(RUNTIME.observable_registered_keys),
-        "stat_observable_count": len(RUNTIME.stat_observable_registered_keys or RUNTIME.observable_registered_keys),
+        "stat_observable_count": len(
+            RUNTIME.stat_observable_registered_keys
+            or RUNTIME.observable_registered_keys
+        ),
         "stat_built": RUNTIME.stat is not None,
     }
 
@@ -643,7 +856,9 @@ def stat_observable_status_text() -> str:
     """
     if not RUNTIME.initialized:
         return "Initialize Hyperiso on the Core page first."
-    n = len(RUNTIME.stat_observable_registered_keys or RUNTIME.observable_registered_keys)
+    n = len(
+        RUNTIME.stat_observable_registered_keys or RUNTIME.observable_registered_keys
+    )
     if not n:
         return "Statistic workflow will reuse the main ObservableInterface; no observable has been added yet."
     return f"Statistic workflow ready with {n} observable/bin entries on the shared ObservableInterface."
@@ -668,7 +883,9 @@ def current_stat_observable_rows() -> list[dict]:
     """
     if RUNTIME.last_stat_observable_selection:
         return list(RUNTIME.last_stat_observable_selection)
-    return [dict(row, registered=True) for row in (RUNTIME.last_observable_selection or [])]
+    return [
+        dict(row, registered=True) for row in (RUNTIME.last_observable_selection or [])
+    ]
 
 
 def block_inventory_rows() -> list[dict]:
@@ -680,7 +897,13 @@ def block_inventory_rows() -> list[dict]:
             blocks = sorted(str(x) for x in logger.get_all_blocks(pt))
         except Exception:
             blocks = []
-        rows.append({"parameter_type": pt.name, "n_blocks": len(blocks), "blocks": ", ".join(blocks[:15]) + ("…" if len(blocks) > 15 else "")})
+        rows.append(
+            {
+                "parameter_type": pt.name,
+                "n_blocks": len(blocks),
+                "blocks": ", ".join(blocks[:15]) + ("…" if len(blocks) > 15 else ""),
+            }
+        )
     return rows
 
 
@@ -689,7 +912,9 @@ def block_name_options(param_type_name: str) -> list[dict]:
     pt = resolve_parameter_type(param_type_name, strict=False)
     if pt is None:
         return []
-    blocks = sorted(str(x) for x in (RUNTIME.block_logger or BlockLogger()).get_all_blocks(pt))
+    blocks = sorted(
+        str(x) for x in (RUNTIME.block_logger or BlockLogger()).get_all_blocks(pt)
+    )
     return [{"label": b, "value": b} for b in blocks]
 
 
@@ -732,11 +957,18 @@ def block_code_options(param_type_name: str, block_name: str | None) -> list[dic
     out: list[dict] = []
     for code in sorted(codes, key=_code_sort_key):
         try:
-            option = lx.parameter_option(str(block_name), code, pt.name if pt else param_type_name)
+            option = lx.parameter_option(
+                str(block_name), code, pt.name if pt else param_type_name
+            )
         except Exception:
             # Never let a display-label problem make the dropdown look empty.
             raw = f"{block_name}:{code}"
-            option = {"label": str(code), "value": str(code), "title": raw, "search": raw}
+            option = {
+                "label": str(code),
+                "value": str(code),
+                "title": raw,
+                "search": raw,
+            }
         option.setdefault("value", str(code))
         option.setdefault("title", f"{block_name}:{code}")
         option.setdefault("search", f"{block_name}:{code}")
@@ -744,12 +976,18 @@ def block_code_options(param_type_name: str, block_name: str | None) -> list[dic
     return out
 
 
-def parameter_picker_options(param_type_name: str | None, block_name: str | None = None) -> tuple[list[dict], str | None, list[dict], str | None]:
+def parameter_picker_options(
+    param_type_name: str | None, block_name: str | None = None
+) -> tuple[list[dict], str | None, list[dict], str | None]:
     """Return block/code options plus safe current values for cascaded pickers."""
     ptype = param_type_name or default_parameter_type_name("SM")
     block_opts = block_name_options(ptype)
     block_values = {opt["value"] for opt in block_opts}
-    block_value = block_name if block_name in block_values else (block_opts[0]["value"] if block_opts else None)
+    block_value = (
+        block_name
+        if block_name in block_values
+        else (block_opts[0]["value"] if block_opts else None)
+    )
     code_opts = block_code_options(ptype, block_value) if block_value else []
     code_value = code_opts[0]["value"] if code_opts else None
     return block_opts, block_value, code_opts, code_value
@@ -771,8 +1009,15 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
         code_s = code_to_display(code)
         row = {
             "code": code_s,
-            "name": lx.parameter_label(block_name, code_s, f"{block_name}:{code_s}", pt.name if pt else param_type_name),
-            "dependent_block": is_dependent_block(pt.name if pt else param_type_name, block_name),
+            "name": lx.parameter_label(
+                block_name,
+                code_s,
+                f"{block_name}:{code_s}",
+                pt.name if pt else param_type_name,
+            ),
+            "dependent_block": is_dependent_block(
+                pt.name if pt else param_type_name, block_name
+            ),
             "value": scalar_to_float(value),
         }
         for dtype, col in [
@@ -781,7 +1026,10 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
             (DataType.STD_COMBINED, "combined_std"),
         ]:
             try:
-                row[col] = scalar_to_float(_raw_provider_value_by_block(provider, block_name, code, dtype), "real")
+                row[col] = scalar_to_float(
+                    _raw_provider_value_by_block(provider, block_name, code, dtype),
+                    "real",
+                )
             except Exception:
                 row[col] = None
         # Metadata such as scale/bin can be obtained through get_parameter when available.
@@ -798,13 +1046,15 @@ def block_table_rows(param_type_name: str, block_name: str) -> list[dict]:
     return rows
 
 
-
 # ---------- Block dependencies ----------
+
 
 def _dependency_info_provider():
     require_initialized()
     if DependantBlockInfoProvider is None:
-        raise RuntimeError("DependantBlockInfoProvider is not available in this pyhyperiso build.")
+        raise RuntimeError(
+            "DependantBlockInfoProvider is not available in this pyhyperiso build."
+        )
     if RUNTIME.dependency_info is None:
         RUNTIME.dependency_info = DependantBlockInfoProvider()
     return RUNTIME.dependency_info
@@ -813,7 +1063,9 @@ def _dependency_info_provider():
 def _dependency_pruner():
     require_initialized()
     if DependencyPruner is None:
-        raise RuntimeError("DependencyPruner is not available in this pyhyperiso build.")
+        raise RuntimeError(
+            "DependencyPruner is not available in this pyhyperiso build."
+        )
     if RUNTIME.dependency_pruner is None:
         RUNTIME.dependency_pruner = DependencyPruner()
     return RUNTIME.dependency_pruner
@@ -902,7 +1154,13 @@ def block_dependency_data(param_type_name: str, block_name: str | None) -> dict:
     }
 
 
-def prune_dependency(action: str, scope: str, param_type_name: str, block_name: str | None, code: Any | None = None) -> dict:
+def prune_dependency(
+    action: str,
+    scope: str,
+    param_type_name: str,
+    block_name: str | None,
+    code: Any | None = None,
+) -> dict:
     """Detach or reattach a block/parameter dependency and return fresh graph data."""
     require_initialized()
     if not block_name:
@@ -939,10 +1197,18 @@ def prune_dependency(action: str, scope: str, param_type_name: str, block_name: 
 
     # Some providers cache C++ handles internally; recreate the info provider so
     # the next graph reflects the current dependency state.
-    RUNTIME.dependency_info = DependantBlockInfoProvider() if DependantBlockInfoProvider is not None else None
+    RUNTIME.dependency_info = (
+        DependantBlockInfoProvider() if DependantBlockInfoProvider is not None else None
+    )
     data = block_dependency_data(pt.name, block)
-    data["last_action"] = {"action": action, "scope": scope, "block": block, "code": str(code) if code not in (None, "") else None}
+    data["last_action"] = {
+        "action": action,
+        "scope": scope,
+        "block": block,
+        "code": str(code) if code not in (None, "") else None,
+    }
     return data
+
 
 # ---------- Wilson ----------
 
@@ -967,8 +1233,14 @@ _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
     "B": [f"C{i}" for i in range(1, 11)],
     "BPrime": [
         *(f"CP{i}" for i in range(1, 11)),
-        "CPQ1", "CPQ2",
-        "CPQ1_E", "CPQ1_MU", "CPQ1_TA", "CPQ2_E", "CPQ2_MU", "CPQ2_TA",
+        "CPQ1",
+        "CPQ2",
+        "CPQ1_E",
+        "CPQ1_MU",
+        "CPQ1_TA",
+        "CPQ2_E",
+        "CPQ2_MU",
+        "CPQ2_TA",
     ],
     "BScalar": ["CQ1", "CQ2", "CQ1_E", "CQ1_MU", "CQ1_TA", "CQ2_E", "CQ2_MU", "CQ2_TA"],
     "CC_bc": ["C_V1_bc", "C_V2_bc", "C_S1_bc", "C_S2_bc", "C_T_bc"],
@@ -978,10 +1250,38 @@ _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
     "CC_su": ["C_V1_su", "C_V2_su", "C_S1_su", "C_S2_su", "C_T_su"],
     "CC_du": ["C_V1_du", "C_V2_du", "C_S1_du", "C_S2_du", "C_T_du"],
     "MESON_MIXING": [
-        "C_BD_1", "CT_BD_1", "C_BD_2", "CT_BD_2", "C_BD_3", "CT_BD_3", "C_BD_4", "C_BD_5",
-        "C_BS_1", "CT_BS_1", "C_BS_2", "CT_BS_2", "C_BS_3", "CT_BS_3", "C_BS_4", "C_BS_5",
-        "C_SD_1", "CT_SD_1", "C_SD_2", "CT_SD_2", "C_SD_3", "CT_SD_3", "C_SD_4", "C_SD_5",
-        "C_CU_1", "CT_CU_1", "C_CU_2", "CT_CU_2", "C_CU_3", "CT_CU_3", "C_CU_4", "C_CU_5",
+        "C_BD_1",
+        "CT_BD_1",
+        "C_BD_2",
+        "CT_BD_2",
+        "C_BD_3",
+        "CT_BD_3",
+        "C_BD_4",
+        "C_BD_5",
+        "C_BS_1",
+        "CT_BS_1",
+        "C_BS_2",
+        "CT_BS_2",
+        "C_BS_3",
+        "CT_BS_3",
+        "C_BS_4",
+        "C_BS_5",
+        "C_SD_1",
+        "CT_SD_1",
+        "C_SD_2",
+        "CT_SD_2",
+        "C_SD_3",
+        "CT_SD_3",
+        "C_SD_4",
+        "C_SD_5",
+        "C_CU_1",
+        "CT_CU_1",
+        "C_CU_2",
+        "CT_CU_2",
+        "C_CU_3",
+        "CT_CU_3",
+        "C_CU_4",
+        "C_CU_5",
     ],
     "K": ["CK9", "CPK9", "CK10", "CPK10", "CKQ1", "CKQ2", "CPKQ1", "CPKQ2", "CK_L"],
 }
@@ -1027,13 +1327,23 @@ def wilson_coeff_options_for_group(group_name: str | None) -> list[dict[str, str
     try:
         valid = set(_mapper_strings(WCoefMapper()))
     except Exception:
-        valid = {name for group_names in _WILSON_GROUP_COEFFS.values() for name in group_names}
+        valid = {
+            name
+            for group_names in _WILSON_GROUP_COEFFS.values()
+            for name in group_names
+        }
     if not names:
         names = sorted(valid)
     return [lx.wilson_option(name) for name in names if name in valid]
 
 
-def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: float, order_name: str, add: bool = False) -> dict:
+def build_wilson(
+    groups: Sequence[str],
+    matching_scale: float,
+    hadronic_scale: float,
+    order_name: str,
+    add: bool = False,
+) -> dict:
     require_initialized()
     if not groups:
         raise ValueError("Select at least one Wilson group")
@@ -1052,7 +1362,11 @@ def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: f
             RUNTIME.wilson.add_wilson_group(cfg)
             action = "add_wilson_group"
         RUNTIME.last_wilson_config = cfg
-        existing = set(RUNTIME.wilson_status.get("groups", [])) if RUNTIME.wilson_status else set()
+        existing = (
+            set(RUNTIME.wilson_status.get("groups", []))
+            if RUNTIME.wilson_status
+            else set()
+        )
         if add:
             existing.update(str(g) for g in groups)
         else:
@@ -1064,7 +1378,13 @@ def build_wilson(groups: Sequence[str], matching_scale: float, hadronic_scale: f
             "matching_scale": float(matching_scale),
             "hadronic_scale": float(hadronic_scale),
         }
-    return {"action": action, "groups": list(groups), "order": order_name, "matching_scale": matching_scale, "hadronic_scale": hadronic_scale}
+    return {
+        "action": action,
+        "groups": list(groups),
+        "order": order_name,
+        "matching_scale": matching_scale,
+        "hadronic_scale": hadronic_scale,
+    }
 
 
 def wilson_scan_coefficient_options() -> list[dict]:
@@ -1117,7 +1437,9 @@ def wilson_scan_setup(
     matching = float(matching_scale if matching_scale not in (None, "") else 160.0)
     hadronic = float(hadronic_scale if hadronic_scale not in (None, "") else 4.8)
     if matching <= 0.0 or hadronic <= 0.0:
-        raise ValueError("Wilson matching and hadronic scales must be strictly positive.")
+        raise ValueError(
+            "Wilson matching and hadronic scales must be strictly positive."
+        )
     normalized_order = str(order_name or "NNLO").upper()
     valid_orders = {item.name for item in QCDOrder}
     if normalized_order not in valid_orders:
@@ -1131,7 +1453,9 @@ def wilson_scan_setup(
     }
 
 
-def ensure_wilson_scan_ready(setup: Mapping[str, Any], monitor: StatisticProgressMonitor | None = None) -> dict:
+def ensure_wilson_scan_ready(
+    setup: Mapping[str, Any], monitor: StatisticProgressMonitor | None = None
+) -> dict:
     """Build every Wilson group required by a scan before any stat operation."""
     coefficients = list(setup.get("coefficients") or [])
     if not coefficients:
@@ -1141,7 +1465,9 @@ def ensure_wilson_scan_ready(setup: Mapping[str, Any], monitor: StatisticProgres
     hadronic = float(setup.get("hadronic_scale", 4.8))
     order_name = str(setup.get("order_name", "NNLO")).upper()
     if monitor is not None:
-        monitor.set_progress("wilson_build", "Building the required Wilson groups", 0.02)
+        monitor.set_progress(
+            "wilson_build", "Building the required Wilson groups", 0.02
+        )
 
     with RUNTIME.lock:
         status = dict(RUNTIME.wilson_status or {})
@@ -1162,10 +1488,18 @@ def ensure_wilson_scan_ready(setup: Mapping[str, Any], monitor: StatisticProgres
         else:
             # Preserve already selected groups when changing scales/order, while
             # guaranteeing all scan coefficients exist before statistics starts.
-            result = build_wilson(sorted(existing.union(groups)), matching, hadronic, order_name, add=False)
+            result = build_wilson(
+                sorted(existing.union(groups)),
+                matching,
+                hadronic,
+                order_name,
+                add=False,
+            )
 
     if monitor is not None:
-        monitor.set_progress("wilson_build", f"Wilson groups ready: {', '.join(groups)}", 0.05)
+        monitor.set_progress(
+            "wilson_build", f"Wilson groups ready: {', '.join(groups)}", 0.05
+        )
     return result
 
 
@@ -1180,9 +1514,13 @@ def wilson_scan_parameter_rows(setup: Mapping[str, Any]) -> list[dict]:
     for coefficient in list(setup.get("coefficients") or [])[:10]:
         coefficient = str(coefficient)
         group = _wilson_group_for_coefficient(coefficient)
-        final_block = GroupMapper.block_name(group, ScaleType.HADRONIC, WilsonBasis.STANDARD)
+        final_block = GroupMapper.block_name(
+            group, ScaleType.HADRONIC, WilsonBasis.STANDARD
+        )
         bsm_block = final_block + "__BSM_INTERMEDIATE"
-        bsm_code = WCoefMapper.flha_full(coefficient, QCDOrder.LO, ContributionType.BSM).to_string()
+        bsm_code = WCoefMapper.flha_full(
+            coefficient, QCDOrder.LO, ContributionType.BSM
+        ).to_string()
         target_key = (bsm_block, bsm_code)
         previous = internal_targets.get(target_key)
         if previous is not None:
@@ -1231,28 +1569,38 @@ def wilson_scan_parameter_rows(setup: Mapping[str, Any]) -> list[dict]:
             "LO",
             contribution.name,
         )
-        rows.append({
-            "parameter": label,
-            "source": "Wilson ΔC" if scan_mode == "DELTA" else "Wilson full C",
-            # Internal model target stays the BSM intermediate parameter.
-            "type": "WILSON",
-            "block": bsm_block,
-            "code": bsm_code,
-            "initial": float(initial),
-            "lower_bound": float(lower),
-            "upper_bound": float(upper),
-            "fit_offset": float(fit_offset),
-            "wilson_coefficient": coefficient,
-            "wilson_group": group,
-            "wilson_scan_mode": scan_mode,
-            "wilson_matching_scale": float(setup.get("matching_scale", 160.0)),
-            "wilson_hadronic_scale": float(setup.get("hadronic_scale", 4.8)),
-            "wilson_order": str(setup.get("order_name", "NNLO")).upper(),
-        })
+        rows.append(
+            {
+                "parameter": label,
+                "source": "Wilson ΔC" if scan_mode == "DELTA" else "Wilson full C",
+                # Internal model target stays the BSM intermediate parameter.
+                "type": "WILSON",
+                "block": bsm_block,
+                "code": bsm_code,
+                "initial": float(initial),
+                "lower_bound": float(lower),
+                "upper_bound": float(upper),
+                "fit_offset": float(fit_offset),
+                "wilson_coefficient": coefficient,
+                "wilson_group": group,
+                "wilson_scan_mode": scan_mode,
+                "wilson_matching_scale": float(setup.get("matching_scale", 160.0)),
+                "wilson_hadronic_scale": float(setup.get("hadronic_scale", 4.8)),
+                "wilson_order": str(setup.get("order_name", "NNLO")).upper(),
+            }
+        )
     return rows
 
 
-def query_wilson(method: str, group: str, coeff: str, order: str, contribution: str, basis: str = "STANDARD", component: str = "real") -> dict:
+def query_wilson(
+    method: str,
+    group: str,
+    coeff: str,
+    order: str,
+    contribution: str,
+    basis: str = "STANDARD",
+    component: str = "real",
+) -> dict:
     require_initialized()
     if RUNTIME.wilson is None:
         raise RuntimeError("WilsonInterface is not built yet")
@@ -1278,7 +1626,9 @@ def query_wilson(method: str, group: str, coeff: str, order: str, contribution: 
         "method": method,
         "group": group,
         "coefficient": coeff,
-        "coefficient_latex": lx.wilson_request_table_latex(method, coeff, order, contribution),
+        "coefficient_latex": lx.wilson_request_table_latex(
+            method, coeff, order, contribution
+        ),
         "order": order,
         "contribution": contribution,
         "basis": basis,
@@ -1288,24 +1638,60 @@ def query_wilson(method: str, group: str, coeff: str, order: str, contribution: 
     }
 
 
-def evaluate_wilson_float(method: str, group: str, coeff: str, order: str, contribution: str, basis: str, component: str = "real") -> float:
-    return scalar_to_float(query_wilson(method, group, coeff, order, contribution, basis, component)["value"], "real")
+def evaluate_wilson_float(
+    method: str,
+    group: str,
+    coeff: str,
+    order: str,
+    contribution: str,
+    basis: str,
+    component: str = "real",
+) -> float:
+    return scalar_to_float(
+        query_wilson(method, group, coeff, order, contribution, basis, component)[
+            "value"
+        ],
+        "real",
+    )
 
 
-def _mutate_param_temporarily(pid: ParamId, value: float, restore_values: dict[str, float], setter: ParameterSetter) -> None:
+def _mutate_param_temporarily(
+    pid: ParamId,
+    value: float,
+    restore_values: dict[str, float],
+    setter: ParameterSetter,
+) -> None:
     label = param_to_label(pid)
     if label not in restore_values:
         restore_values[label] = safe_provider_value(pid)
     setter.mutate(pid, value)
 
 
-def _restore_params(pairs: Sequence[tuple[ParamId, str]], restore_values: Mapping[str, float], setter: ParameterSetter) -> None:
+def _restore_params(
+    pairs: Sequence[tuple[ParamId, str]],
+    restore_values: Mapping[str, float],
+    setter: ParameterSetter,
+) -> None:
     for pid, label in pairs:
         if label in restore_values:
             setter.mutate(pid, restore_values[label])
 
 
-def wilson_scan_1d(method: str, group: str, coeff: str, order: str, contribution: str, basis: str, component: str, ptype: str, block: str, code: Any, x_min: float, x_max: float, n_points: int) -> tuple[list[float], list[float]]:
+def wilson_scan_1d(
+    method: str,
+    group: str,
+    coeff: str,
+    order: str,
+    contribution: str,
+    basis: str,
+    component: str,
+    ptype: str,
+    block: str,
+    code: Any,
+    x_min: float,
+    x_max: float,
+    n_points: int,
+) -> tuple[list[float], list[float]]:
     require_initialized()
     pid = make_param_id(ptype, block, code)
     xs = linspace(x_min, x_max, n_points)
@@ -1317,13 +1703,33 @@ def wilson_scan_1d(method: str, group: str, coeff: str, order: str, contribution
         try:
             for x in xs:
                 _mutate_param_temporarily(pid, float(x), restore, setter)
-                ys.append(evaluate_wilson_float(method, group, coeff, order, contribution, basis, component))
+                ys.append(
+                    evaluate_wilson_float(
+                        method, group, coeff, order, contribution, basis, component
+                    )
+                )
         finally:
             _restore_params([(pid, label)], restore, setter)
     return xs, ys
 
 
-def wilson_scan_2d(method: str, group: str, coeff: str, order: str, contribution: str, basis: str, component: str, p1: tuple, p2: tuple, x_min: float, x_max: float, nx: int, y_min: float, y_max: float, ny: int) -> tuple[list[float], list[float], list[list[float]]]:
+def wilson_scan_2d(
+    method: str,
+    group: str,
+    coeff: str,
+    order: str,
+    contribution: str,
+    basis: str,
+    component: str,
+    p1: tuple,
+    p2: tuple,
+    x_min: float,
+    x_max: float,
+    nx: int,
+    y_min: float,
+    y_max: float,
+    ny: int,
+) -> tuple[list[float], list[float], list[list[float]]]:
     require_initialized()
     pid1 = make_param_id(*p1)
     pid2 = make_param_id(*p2)
@@ -1340,7 +1746,11 @@ def wilson_scan_2d(method: str, group: str, coeff: str, order: str, contribution
                 _mutate_param_temporarily(pid2, float(y), restore, setter)
                 for x in xs:
                     _mutate_param_temporarily(pid1, float(x), restore, setter)
-                    row.append(evaluate_wilson_float(method, group, coeff, order, contribution, basis, component))
+                    row.append(
+                        evaluate_wilson_float(
+                            method, group, coeff, order, contribution, basis, component
+                        )
+                    )
                 z.append(row)
         finally:
             _restore_params(labels, restore, setter)
@@ -1349,7 +1759,10 @@ def wilson_scan_2d(method: str, group: str, coeff: str, order: str, contribution
 
 # ---------- Observables ----------
 
-def observable_names_from_selection(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None) -> list[str]:
+
+def observable_names_from_selection(
+    mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None
+) -> list[str]:
     names: list[str] = []
     if mode == "decay":
         mapper = DecayMapper()
@@ -1362,7 +1775,9 @@ def observable_names_from_selection(mode: str, obs_names: Sequence[str] | None, 
     return list(dict.fromkeys(names))
 
 
-def make_binned_id(obs_name: str, low: float | None, high: float | None) -> BinnedObservableId:
+def make_binned_id(
+    obs_name: str, low: float | None, high: float | None
+) -> BinnedObservableId:
     obs = enum_by_name(Observables, obs_name)
     oid = ObservableMapper.to_id(obs)
     if low is None or high is None:
@@ -1403,29 +1818,35 @@ def _observable_requested_rows(
     for obs_name in selected:
         if bins:
             for low, high in bins:
-                rows.append({
+                rows.append(
+                    {
+                        "observable": obs_name,
+                        "bin_low": float(low),
+                        "bin_high": float(high),
+                        "order": str(order_name),
+                        "dependencies": bool(add_dependencies),
+                    }
+                )
+        elif bin_low is not None and bin_high is not None:
+            rows.append(
+                {
                     "observable": obs_name,
-                    "bin_low": float(low),
-                    "bin_high": float(high),
+                    "bin_low": float(bin_low),
+                    "bin_high": float(bin_high),
                     "order": str(order_name),
                     "dependencies": bool(add_dependencies),
-                })
-        elif bin_low is not None and bin_high is not None:
-            rows.append({
-                "observable": obs_name,
-                "bin_low": float(bin_low),
-                "bin_high": float(bin_high),
-                "order": str(order_name),
-                "dependencies": bool(add_dependencies),
-            })
+                }
+            )
         else:
-            rows.append({
-                "observable": obs_name,
-                "bin_low": None,
-                "bin_high": None,
-                "order": str(order_name),
-                "dependencies": bool(add_dependencies),
-            })
+            rows.append(
+                {
+                    "observable": obs_name,
+                    "bin_low": None,
+                    "bin_high": None,
+                    "order": str(order_name),
+                    "dependencies": bool(add_dependencies),
+                }
+            )
 
     # Deduplicate while preserving order. This also prevents duplicate bins from
     # being sent to C++ when a decay-level selection resolves to repeated obs ids.
@@ -1464,10 +1885,16 @@ def _observable_signature(rows: Sequence[dict]) -> tuple:
 
 def _registry_signature(keys: set[tuple]) -> tuple:
     """Return a deterministic, sortable signature for registry keys."""
-    return tuple(sorted(
-        (str(k[0]), "" if k[1] is None else f"{float(k[1]):.17g}", "" if k[2] is None else f"{float(k[2]):.17g}")
-        for k in keys
-    ))
+    return tuple(
+        sorted(
+            (
+                str(k[0]),
+                "" if k[1] is None else f"{float(k[1]):.17g}",
+                "" if k[2] is None else f"{float(k[2]):.17g}",
+            )
+            for k in keys
+        )
+    )
 
 
 def _observable_add_key(row: Mapping[str, Any]) -> tuple:
@@ -1501,7 +1928,11 @@ def _decay_bin_key(row: Mapping[str, Any]) -> tuple | None:
     high = row.get("bin_high")
     if low is None or high is None:
         return None
-    return (_decay_name_for_observable(str(row.get("observable"))), float(low), float(high))
+    return (
+        _decay_name_for_observable(str(row.get("observable"))),
+        float(low),
+        float(high),
+    )
 
 
 def _add_observable_rows_once(
@@ -1612,7 +2043,9 @@ def build_observables(
         low = _normalize_optional_float(bin_low)
         high = _normalize_optional_float(bin_high)
         if low is None or high is None:
-            raise ValueError("Both bin low and bin high are required when binning is enabled")
+            raise ValueError(
+                "Both bin low and bin high are required when binning is enabled"
+            )
 
     rows = _observable_requested_rows(
         mode,
@@ -1628,17 +2061,21 @@ def build_observables(
     with RUNTIME.lock:
         if RUNTIME.observable is None:
             RUNTIME.observable = ObservableInterface()
-        info = _add_observable_rows_once(
+        _add_observable_rows_once(
             RUNTIME.observable,
             rows,
             RUNTIME.observable_registered_keys,
             RUNTIME.observable_registered_decay_bins,
         )
         RUNTIME.last_observable_selection = list(rows)
-        RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+        RUNTIME.observable_signature = _registry_signature(
+            RUNTIME.observable_registered_keys
+        )
 
     for row in rows:
-        row["registered"] = _observable_add_key(row) in RUNTIME.observable_registered_keys
+        row["registered"] = (
+            _observable_add_key(row) in RUNTIME.observable_registered_keys
+        )
     return rows
 
 
@@ -1675,19 +2112,19 @@ def _observable_rows_for_target(
             if abs(low - float(bin_low)) > 1e-12 or abs(high - float(bin_high)) > 1e-12:
                 continue
         raw_obs = str(getattr(value, "id", obs_name))
-        rows.append({
-            "observable_id": raw_obs,
-            "observable_label": lx.observable_table_label(obs_name),
-            "raw_observable": obs_name,
-            "bin_low": low,
-            "bin_high": high,
-            "value": scalar_to_float(getattr(value, "value"), "real"),
-        })
+        rows.append(
+            {
+                "observable_id": raw_obs,
+                "observable_label": lx.observable_table_label(obs_name),
+                "raw_observable": obs_name,
+                "bin_low": low,
+                "bin_high": high,
+                "value": scalar_to_float(getattr(value, "value"), "real"),
+            }
+        )
 
     if bin_low is not None and bin_high is not None and not rows:
-        available = [
-            _bin_tuple_from_cpp_value(v) for v in values
-        ]
+        available = [_bin_tuple_from_cpp_value(v) for v in values]
         raise RuntimeError(
             f"Observable {obs_name} did not return requested bin "
             f"[{bin_low}, {bin_high}]. Available bins: {available}"
@@ -1695,7 +2132,9 @@ def _observable_rows_for_target(
     return rows
 
 
-def _observable_rows_for_selection(oi: ObservableInterface, rows: Sequence[dict]) -> list[dict]:
+def _observable_rows_for_selection(
+    oi: ObservableInterface, rows: Sequence[dict]
+) -> list[dict]:
     """Compute configured rows one target at a time.
 
     This avoids relying on ``compute_all`` for interactive scans/computes, and
@@ -1731,14 +2170,16 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
                 if value.bin is not None:
                     low, high = value.bin
                 raw_obs = str(value.id)
-                rows.append({
-                    "observable_id": raw_obs,
-                    "observable_label": lx.observable_table_label(raw_obs),
-                    "raw_observable": raw_obs,
-                    "bin_low": low,
-                    "bin_high": high,
-                    "value": scalar_to_float(value.value, "real"),
-                })
+                rows.append(
+                    {
+                        "observable_id": raw_obs,
+                        "observable_label": lx.observable_table_label(raw_obs),
+                        "raw_observable": raw_obs,
+                        "bin_low": low,
+                        "bin_high": high,
+                        "value": scalar_to_float(value.value, "real"),
+                    }
+                )
         return rows
 
     result = raw.compute_all()
@@ -1750,14 +2191,16 @@ def _observable_rows_from_cpp_compute_all(oi: ObservableInterface) -> list[dict]
             if b is not None:
                 low, high = float(b[0]), float(b[1])
             raw_obs = str(getattr(value, "id", _oid))
-            rows.append({
-                "observable_id": raw_obs,
-                "observable_label": lx.observable_table_label(raw_obs),
-                "raw_observable": raw_obs,
-                "bin_low": low,
-                "bin_high": high,
-                "value": scalar_to_float(getattr(value, "value"), "real"),
-            })
+            rows.append(
+                {
+                    "observable_id": raw_obs,
+                    "observable_label": lx.observable_table_label(raw_obs),
+                    "raw_observable": raw_obs,
+                    "bin_low": low,
+                    "bin_high": high,
+                    "value": scalar_to_float(getattr(value, "value"), "real"),
+                }
+            )
     return rows
 
 
@@ -1787,14 +2230,20 @@ def _rebuild_shared_observable_interface(rows: Sequence[dict]) -> None:
             RUNTIME.observable_registered_keys,
             RUNTIME.observable_registered_decay_bins,
         )
-    RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    RUNTIME.observable_signature = _registry_signature(
+        RUNTIME.observable_registered_keys
+    )
     # Keep legacy aliases pointing to the shared registry.
     RUNTIME.scan_observable = RUNTIME.observable
     RUNTIME.stat_observable = RUNTIME.observable
     RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
-    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.scan_observable_registered_decay_bins = (
+        RUNTIME.observable_registered_decay_bins
+    )
     RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
-    RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.stat_observable_registered_decay_bins = (
+        RUNTIME.observable_registered_decay_bins
+    )
     RUNTIME.stat = None
 
 
@@ -1811,10 +2260,14 @@ def remove_observable_rows(indices: Sequence[int] | None) -> list[dict]:
     remove = {int(i) for i in indices}
     with RUNTIME.lock:
         RUNTIME.last_observable_selection = [
-            dict(row) for i, row in enumerate(RUNTIME.last_observable_selection) if i not in remove
+            dict(row)
+            for i, row in enumerate(RUNTIME.last_observable_selection)
+            if i not in remove
         ]
         # Statistic rows may still be present; preserve them when rebuilding.
-        union_rows = _rows_union(RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection)
+        union_rows = _rows_union(
+            RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection
+        )
         _rebuild_shared_observable_interface(union_rows)
     return list(RUNTIME.last_observable_selection)
 
@@ -1827,9 +2280,13 @@ def remove_stat_observable_rows(indices: Sequence[int] | None) -> list[dict]:
     remove = {int(i) for i in indices}
     with RUNTIME.lock:
         RUNTIME.last_stat_observable_selection = [
-            dict(row) for i, row in enumerate(RUNTIME.last_stat_observable_selection) if i not in remove
+            dict(row)
+            for i, row in enumerate(RUNTIME.last_stat_observable_selection)
+            if i not in remove
         ]
-        union_rows = _rows_union(RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection)
+        union_rows = _rows_union(
+            RUNTIME.last_observable_selection, RUNTIME.last_stat_observable_selection
+        )
         _rebuild_shared_observable_interface(union_rows)
     return list(RUNTIME.last_stat_observable_selection)
 
@@ -1839,7 +2296,9 @@ def compute_current_observables() -> list[dict]:
     if RUNTIME.observable is None or not RUNTIME.last_observable_selection:
         raise RuntimeError("ObservableInterface has no configured observables yet")
     with RUNTIME.lock:
-        return _observable_rows_for_selection(RUNTIME.observable, RUNTIME.last_observable_selection)
+        return _observable_rows_for_selection(
+            RUNTIME.observable, RUNTIME.last_observable_selection
+        )
 
 
 def _refresh_observable_interface(oi: ObservableInterface) -> None:
@@ -1854,7 +2313,12 @@ def _refresh_observable_interface(oi: ObservableInterface) -> None:
     return None
 
 
-def _compute_observable_float_from_interface(oi: ObservableInterface, obs_name: str, bin_low: float | None, bin_high: float | None) -> float:
+def _compute_observable_float_from_interface(
+    oi: ObservableInterface,
+    obs_name: str,
+    bin_low: float | None,
+    bin_high: float | None,
+) -> float:
     """Compute one target value from an already configured observable interface."""
     rows = _observable_rows_for_target(oi, obs_name, bin_low, bin_high)
     if not rows:
@@ -1887,21 +2351,45 @@ def _get_cached_scan_observable_interface(
     )
     oi = _ensure_rows_on_shared_observable_interface(rows)
     RUNTIME.scan_observable = oi
-    RUNTIME.scan_observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    RUNTIME.scan_observable_signature = _registry_signature(
+        RUNTIME.observable_registered_keys
+    )
     # Keep aliases for UI/debug only; they are no longer independent registries.
     RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
-    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.scan_observable_registered_decay_bins = (
+        RUNTIME.observable_registered_decay_bins
+    )
     return oi
 
 
-def evaluate_observable_float(obs_name: str, order_name: str, add_deps: bool, bin_low: float | None, bin_high: float | None) -> float:
+def evaluate_observable_float(
+    obs_name: str,
+    order_name: str,
+    add_deps: bool,
+    bin_low: float | None,
+    bin_high: float | None,
+) -> float:
     require_initialized()
     with RUNTIME.lock:
-        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, bin_low, bin_high)
+        oi = _get_cached_scan_observable_interface(
+            obs_name, order_name, add_deps, bin_low, bin_high
+        )
         return _compute_observable_float_from_interface(oi, obs_name, bin_low, bin_high)
 
 
-def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: Any, bin_high: Any, ptype: str, block: str, code: Any, x_min: float, x_max: float, n_points: int) -> tuple[list[float], list[float]]:
+def observable_scan_1d(
+    obs_name: str,
+    order_name: str,
+    add_deps: bool,
+    bin_low: Any,
+    bin_high: Any,
+    ptype: str,
+    block: str,
+    code: Any,
+    x_min: float,
+    x_max: float,
+    n_points: int,
+) -> tuple[list[float], list[float]]:
     require_initialized()
     pid = make_param_id(ptype, block, code)
     low = as_float(bin_low, None)
@@ -1912,17 +2400,35 @@ def observable_scan_1d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
     restore: dict[str, float] = {}
     label = param_to_label(pid)
     with RUNTIME.lock:
-        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, low, high)
+        oi = _get_cached_scan_observable_interface(
+            obs_name, order_name, add_deps, low, high
+        )
         try:
             for x in xs:
                 _mutate_param_temporarily(pid, float(x), restore, setter)
-                ys.append(_compute_observable_float_from_interface(oi, obs_name, low, high))
+                ys.append(
+                    _compute_observable_float_from_interface(oi, obs_name, low, high)
+                )
         finally:
             _restore_params([(pid, label)], restore, setter)
     return xs, ys
 
 
-def observable_scan_2d(obs_name: str, order_name: str, add_deps: bool, bin_low: Any, bin_high: Any, p1: tuple, p2: tuple, x_min: float, x_max: float, nx: int, y_min: float, y_max: float, ny: int) -> tuple[list[float], list[float], list[list[float]]]:
+def observable_scan_2d(
+    obs_name: str,
+    order_name: str,
+    add_deps: bool,
+    bin_low: Any,
+    bin_high: Any,
+    p1: tuple,
+    p2: tuple,
+    x_min: float,
+    x_max: float,
+    nx: int,
+    y_min: float,
+    y_max: float,
+    ny: int,
+) -> tuple[list[float], list[float], list[list[float]]]:
     require_initialized()
     pid1 = make_param_id(*p1)
     pid2 = make_param_id(*p2)
@@ -1935,29 +2441,45 @@ def observable_scan_2d(obs_name: str, order_name: str, add_deps: bool, bin_low: 
     restore: dict[str, float] = {}
     labels = [(pid1, param_to_label(pid1)), (pid2, param_to_label(pid2))]
     with RUNTIME.lock:
-        oi = _get_cached_scan_observable_interface(obs_name, order_name, add_deps, low, high)
+        oi = _get_cached_scan_observable_interface(
+            obs_name, order_name, add_deps, low, high
+        )
         try:
             for y in ys:
                 row: list[float] = []
                 _mutate_param_temporarily(pid2, float(y), restore, setter)
                 for x in xs:
                     _mutate_param_temporarily(pid1, float(x), restore, setter)
-                    row.append(_compute_observable_float_from_interface(oi, obs_name, low, high))
+                    row.append(
+                        _compute_observable_float_from_interface(
+                            oi, obs_name, low, high
+                        )
+                    )
                 z.append(row)
         finally:
             _restore_params(labels, restore, setter)
     return xs, ys, z
 
 
-def smooth_observable_bins(obs_name: str, order_name: str, add_deps: bool, low: Any, high: Any, step: Any) -> list[dict]:
+def smooth_observable_bins(
+    obs_name: str, order_name: str, add_deps: bool, low: Any, high: Any, step: Any
+) -> list[dict]:
     rows = []
     for blo, bhi in bins_from_step(low, high, step):
         val = evaluate_observable_float(obs_name, order_name, add_deps, blo, bhi)
-        rows.append({"bin_low": blo, "bin_high": bhi, "bin_center": 0.5 * (blo + bhi), "value": val})
+        rows.append(
+            {
+                "bin_low": blo,
+                "bin_high": bhi,
+                "bin_center": 0.5 * (blo + bhi),
+                "value": val,
+            }
+        )
     return rows
 
 
 # ---------- Statistics ----------
+
 
 def make_stat_config(
     mc_draws: Any,
@@ -2024,10 +2546,14 @@ def _stat_rows_from_kwargs(
     elif bin_strategy == "single":
         low = as_float(bin_low, None)
         high = as_float(bin_high, None)
-    return _observable_requested_rows(mode, obs_names, decay_names, order_name, add_deps, low, high, bins)
+    return _observable_requested_rows(
+        mode, obs_names, decay_names, order_name, add_deps, low, high, bins
+    )
 
 
-def _ensure_rows_on_shared_observable_interface(rows: Sequence[dict]) -> ObservableInterface:
+def _ensure_rows_on_shared_observable_interface(
+    rows: Sequence[dict],
+) -> ObservableInterface:
     """Add rows once to the single process-wide ObservableInterface.
 
     All observable consumers -- direct compute, scans and statistics -- must use
@@ -2044,13 +2570,19 @@ def _ensure_rows_on_shared_observable_interface(rows: Sequence[dict]) -> Observa
         RUNTIME.observable_registered_keys,
         RUNTIME.observable_registered_decay_bins,
     )
-    RUNTIME.observable_signature = _registry_signature(RUNTIME.observable_registered_keys)
+    RUNTIME.observable_signature = _registry_signature(
+        RUNTIME.observable_registered_keys
+    )
     RUNTIME.scan_observable = RUNTIME.observable
     RUNTIME.stat_observable = RUNTIME.observable
     RUNTIME.scan_observable_registered_keys = RUNTIME.observable_registered_keys
-    RUNTIME.scan_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.scan_observable_registered_decay_bins = (
+        RUNTIME.observable_registered_decay_bins
+    )
     RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
-    RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+    RUNTIME.stat_observable_registered_decay_bins = (
+        RUNTIME.observable_registered_decay_bins
+    )
     return RUNTIME.observable
 
 
@@ -2069,37 +2601,94 @@ def configure_stat_observables(
 ) -> list[dict]:
     """Add statistic observables once to the persistent stat ObservableInterface."""
     rows = _stat_rows_from_kwargs(
-        mode, obs_names, decay_names, order_name, add_deps,
-        bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
+        mode,
+        obs_names,
+        decay_names,
+        order_name,
+        add_deps,
+        bin_strategy,
+        bin_low,
+        bin_high,
+        smooth_min,
+        smooth_max,
+        smooth_step,
     )
     with RUNTIME.lock:
         oi = _ensure_rows_on_shared_observable_interface(rows)
         RUNTIME.stat_observable = oi
         RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
-        RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+        RUNTIME.stat_observable_registered_decay_bins = (
+            RUNTIME.observable_registered_decay_bins
+        )
         RUNTIME.last_stat_observable_selection = list(rows)
     return rows
 
 
-def build_stat_interface(mode: str, obs_names: Sequence[str] | None, decay_names: Sequence[str] | None, order_name: str, add_deps: bool, bin_strategy: str, bin_low: Any, bin_high: Any, smooth_min: Any, smooth_max: Any, smooth_step: Any, experiments: str | None, mc_draws: Any, mc_threads: Any, mc_seed: Any, skew_threshold: Any, ridge_rel: Any, ridge_abs: Any, nuisance_pruning: bool, nuisance_contexts: Any, nuisance_seed: Any, p_specs: Sequence[ParamId] | None = None, configured_rows: Sequence[dict] | None = None, progress_monitor: StatisticProgressMonitor | None = None, fit_parameter_bounds: Mapping[ParamId, tuple[float, float]] | None = None, fit_parameter_offsets: Mapping[ParamId, float] | None = None) -> StatisticInterface:
+def build_stat_interface(
+    mode: str,
+    obs_names: Sequence[str] | None,
+    decay_names: Sequence[str] | None,
+    order_name: str,
+    add_deps: bool,
+    bin_strategy: str,
+    bin_low: Any,
+    bin_high: Any,
+    smooth_min: Any,
+    smooth_max: Any,
+    smooth_step: Any,
+    experiments: str | None,
+    mc_draws: Any,
+    mc_threads: Any,
+    mc_seed: Any,
+    skew_threshold: Any,
+    ridge_rel: Any,
+    ridge_abs: Any,
+    nuisance_pruning: bool,
+    nuisance_contexts: Any,
+    nuisance_seed: Any,
+    p_specs: Sequence[ParamId] | None = None,
+    configured_rows: Sequence[dict] | None = None,
+    progress_monitor: StatisticProgressMonitor | None = None,
+    fit_parameter_bounds: Mapping[ParamId, tuple[float, float]] | None = None,
+    fit_parameter_offsets: Mapping[ParamId, float] | None = None,
+) -> StatisticInterface:
     if configured_rows:
         rows = [dict(row) for row in configured_rows]
         with RUNTIME.lock:
             oi = _ensure_rows_on_shared_observable_interface(rows)
             RUNTIME.stat_observable = oi
             RUNTIME.stat_observable_registered_keys = RUNTIME.observable_registered_keys
-            RUNTIME.stat_observable_registered_decay_bins = RUNTIME.observable_registered_decay_bins
+            RUNTIME.stat_observable_registered_decay_bins = (
+                RUNTIME.observable_registered_decay_bins
+            )
             RUNTIME.last_stat_observable_selection = list(rows)
     else:
         rows = configure_stat_observables(
-            mode, obs_names, decay_names, order_name, add_deps,
-            bin_strategy, bin_low, bin_high, smooth_min, smooth_max, smooth_step,
+            mode,
+            obs_names,
+            decay_names,
+            order_name,
+            add_deps,
+            bin_strategy,
+            bin_low,
+            bin_high,
+            smooth_min,
+            smooth_max,
+            smooth_step,
         )
     if RUNTIME.observable is None:
         raise RuntimeError("Shared ObservableInterface is not available")
     cfg = make_stat_config(
-        mc_draws, mc_threads, mc_seed, skew_threshold, ridge_rel, ridge_abs,
-        nuisance_pruning, nuisance_contexts, nuisance_seed, progress_monitor,
+        mc_draws,
+        mc_threads,
+        mc_seed,
+        skew_threshold,
+        ridge_rel,
+        ridge_abs,
+        nuisance_pruning,
+        nuisance_contexts,
+        nuisance_seed,
+        progress_monitor,
     )
     cfg.p_specs = list(p_specs or [])
     cfg.fit_parameter_bounds = dict(fit_parameter_bounds or {})
@@ -2127,9 +2716,15 @@ def compute_uncertainty_rows(**kwargs) -> list[dict]:
             "observable_label": lx.observable_table_label(str(bid.s)),
             "raw_observable": str(bid.s),
             "bin_low": None if float(low) == 0.0 and float(high) == 0.0 else float(low),
-            "bin_high": None if float(low) == 0.0 and float(high) == 0.0 else float(high),
-            "bin_center": None if float(low) == 0.0 and float(high) == 0.0 else 0.5 * (float(low) + float(high)),
-            "central": scalar_to_float(summary.mu if summary.symmetric else summary.mode, "real"),
+            "bin_high": None
+            if float(low) == 0.0 and float(high) == 0.0
+            else float(high),
+            "bin_center": None
+            if float(low) == 0.0 and float(high) == 0.0
+            else 0.5 * (float(low) + float(high)),
+            "central": scalar_to_float(
+                summary.mu if summary.symmetric else summary.mode, "real"
+            ),
             "mu": scalar_to_float(summary.mu, "real"),
             "mode": scalar_to_float(summary.mode, "real"),
             "sigma": scalar_to_float(summary.sigma, "real"),
@@ -2160,45 +2755,71 @@ def p_specs_from_rows(rows: Sequence[dict]) -> list[ParamId]:
     return [pid for _, pid in p_spec_rows_and_ids(rows)]
 
 
-def fit_result_rows(fit, display_rows: Sequence[dict] | None = None) -> tuple[list[dict], list[dict], list[dict]]:
+def fit_result_rows(
+    fit, display_rows: Sequence[dict] | None = None
+) -> tuple[list[dict], list[dict], list[dict]]:
     """Format fit output while preserving high-level Wilson Scan labels."""
     display_by_key = {p_spec_row_key(row): row for row in (display_rows or [])}
 
     def display(pid: ParamId) -> tuple[str, str]:
         raw = param_to_label(pid)
-        key = "|".join((pid.type.name if pid.type else "", str(pid.block), pid.code.to_string()))
+        key = "|".join(
+            (pid.type.name if pid.type else "", str(pid.block), pid.code.to_string())
+        )
         row = display_by_key.get(key, {})
-        label = str(row.get("parameter") or lx.parameter_table_label(
-            str(pid.block), pid.code.to_string(), raw, pid.type.name if pid.type else None
-        ))
+        label = str(
+            row.get("parameter")
+            or lx.parameter_table_label(
+                str(pid.block),
+                pid.code.to_string(),
+                raw,
+                pid.type.name if pid.type else None,
+            )
+        )
         return label, raw
 
     p_rows = []
     for p, v in fit.p_hat.items():
         label, raw = display(p)
-        p_rows.append({
-            "parameter": label,
-            "raw_parameter": raw,
-            "best_fit": scalar_to_float(v, "real"),
-            "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real") if fit.p_hat_std else None,
-        })
+        p_rows.append(
+            {
+                "parameter": label,
+                "raw_parameter": raw,
+                "best_fit": scalar_to_float(v, "real"),
+                "std": scalar_to_float(fit.p_hat_std.get(p, float("nan")), "real")
+                if fit.p_hat_std
+                else None,
+            }
+        )
     eta_rows = []
     for p, v in fit.eta_hat.items():
         raw = param_to_label(p)
-        eta_rows.append({
-            "nuisance": lx.parameter_table_label(str(p.block), p.code.to_string(), raw, p.type.name if p.type else None),
-            "raw_nuisance": raw,
-            "value": scalar_to_float(v, "real"),
-        })
+        eta_rows.append(
+            {
+                "nuisance": lx.parameter_table_label(
+                    str(p.block),
+                    p.code.to_string(),
+                    raw,
+                    p.type.name if p.type else None,
+                ),
+                "raw_nuisance": raw,
+                "value": scalar_to_float(v, "real"),
+            }
+        )
     corr_rows = []
     for p1, inner in fit.p_correlations.items():
         label1, raw1 = display(p1)
         for p2, corr in inner.items():
             label2, raw2 = display(p2)
-            corr_rows.append({
-                "x": label1, "y": label2, "raw_x": raw1, "raw_y": raw2,
-                "corr": scalar_to_float(corr, "real"),
-            })
+            corr_rows.append(
+                {
+                    "x": label1,
+                    "y": label2,
+                    "raw_x": raw1,
+                    "raw_y": raw2,
+                    "corr": scalar_to_float(corr, "real"),
+                }
+            )
     return p_rows, eta_rows, corr_rows
 
 
@@ -2208,14 +2829,18 @@ def _enum_member(enum_cls, name: str, fallback: str):
         return enum_cls[key]
     except KeyError as exc:
         valid = ", ".join(item.name for item in enum_cls)
-        raise ValueError(f"Unknown {enum_cls.__name__} '{name}'. Valid values: {valid}") from exc
+        raise ValueError(
+            f"Unknown {enum_cls.__name__} '{name}'. Valid values: {valid}"
+        ) from exc
 
 
 def _row_bounds(row: Mapping[str, Any]) -> tuple[float, float]:
     low = float(row.get("lower_bound"))
     high = float(row.get("upper_bound"))
     if not low < high:
-        raise ValueError(f"Invalid bounds for {row.get('parameter')}: lower bound must be smaller than upper bound.")
+        raise ValueError(
+            f"Invalid bounds for {row.get('parameter')}: lower bound must be smaller than upper bound."
+        )
     return low, high
 
 
@@ -2276,13 +2901,24 @@ def run_fit_and_contours(
 
         if do_contour:
             if len(p_specs) < 2:
-                raise ValueError("A confidence contour requires at least two fit parameters.")
-            if not x_key or not y_key or x_key not in pid_by_key or y_key not in pid_by_key:
+                raise ValueError(
+                    "A confidence contour requires at least two fit parameters."
+                )
+            if (
+                not x_key
+                or not y_key
+                or x_key not in pid_by_key
+                or y_key not in pid_by_key
+            ):
                 raise ValueError("Choose two valid contour-axis parameters.")
             if x_key == y_key:
-                raise ValueError("The X and Y contour axes must be different parameters.")
+                raise ValueError(
+                    "The X and Y contour axes must be different parameters."
+                )
             if not fit.fit_ok:
-                raise RuntimeError("The χ² fit did not converge; no contour can be computed.")
+                raise RuntimeError(
+                    "The χ² fit did not converge; no contour can be computed."
+                )
 
             x_pid = pid_by_key[x_key]
             y_pid = pid_by_key[y_key]
@@ -2291,23 +2927,38 @@ def run_fit_and_contours(
             x_low, x_high = _row_bounds(x_row)
             y_low, y_high = _row_bounds(y_row)
             bounds = [x_low, x_high, y_low, y_high]
-            axis_labels = (str(x_row.get("parameter") or x_key), str(y_row.get("parameter") or y_key))
+            axis_labels = (
+                str(x_row.get("parameter") or x_key),
+                str(y_row.get("parameter") or y_key),
+            )
 
             x_hat = scalar_to_float(fit.p_hat[x_pid], "real")
             y_hat = scalar_to_float(fit.p_hat[y_pid], "real")
             if not (x_low <= x_hat <= x_high):
-                raise ValueError(f"The X best fit ({x_hat:.6g}) lies outside its bounds [{x_low:.6g}, {x_high:.6g}].")
+                raise ValueError(
+                    f"The X best fit ({x_hat:.6g}) lies outside its bounds [{x_low:.6g}, {x_high:.6g}]."
+                )
             if not (y_low <= y_hat <= y_high):
-                raise ValueError(f"The Y best fit ({y_hat:.6g}) lies outside its bounds [{y_low:.6g}, {y_high:.6g}].")
+                raise ValueError(
+                    f"The Y best fit ({y_hat:.6g}) lies outside its bounds [{y_low:.6g}, {y_high:.6g}]."
+                )
             best_fit_point = {"x": x_hat, "y": y_hat}
 
-            method = ProfilingMethod.SLICE if len(p_specs) == 2 else _enum_member(ProfilingMethod, profiling_method or "SLICE", "SLICE")
-            primary = _enum_member(ContourAlgorithm, contour_algorithm or "MINUIT", "MINUIT")
+            method = (
+                ProfilingMethod.SLICE
+                if len(p_specs) == 2
+                else _enum_member(ProfilingMethod, profiling_method or "SLICE", "SLICE")
+            )
+            primary = _enum_member(
+                ContourAlgorithm, contour_algorithm or "MINUIT", "MINUIT"
+            )
             fallback = None
             fallback_name = str(fallback_algorithm or "NONE").upper()
             if fallback_name != "NONE" and fallback_name != primary.name:
                 fallback = _enum_member(ContourAlgorithm, fallback_name, "AMS")
-            backend = _enum_member(ProfilerMode, profiler_mode or "LAPLACE_NUISANCE", "LAPLACE_NUISANCE")
+            backend = _enum_member(
+                ProfilerMode, profiler_mode or "LAPLACE_NUISANCE", "LAPLACE_NUISANCE"
+            )
             contour_options = ContourOptions(
                 profiling_method=method,
                 profile_backend=backend,
@@ -2316,17 +2967,23 @@ def run_fit_and_contours(
                 resolution=max(8, min(500, int(resolution or 60))),
             )
 
-            levels = sorted({float(z) for z in (confidence_levels or [1.0]) if float(z) > 0.0})
+            levels = sorted(
+                {float(z) for z in (confidence_levels or [1.0]) if float(z) > 0.0}
+            )
             if not levels:
                 raise ValueError("Select at least one positive confidence level.")
             if progress_monitor is not None:
-                progress_monitor.set_progress("contours", "Computing confidence contours", 0.0, total=len(levels))
+                progress_monitor.set_progress(
+                    "contours", "Computing confidence contours", 0.0, total=len(levels)
+                )
             for level_index, z in enumerate(levels):
                 if progress_monitor is not None:
                     progress_monitor.set_progress(
-                        "contours", f"Computing the {z:g}σ contour",
+                        "contours",
+                        f"Computing the {z:g}σ contour",
                         level_index / max(1, len(levels)),
-                        completed=level_index, total=len(levels),
+                        completed=level_index,
+                        total=len(levels),
                     )
                 try:
                     contour = RUNTIME.stat.compute_confidence_contour(
@@ -2335,13 +2992,15 @@ def run_fit_and_contours(
                     for path_id, path in enumerate(contour.paths):
                         if len(path) < 2:
                             continue
-                        contour_paths.append({
-                            "sigma": z,
-                            "level": contour.level,
-                            "path_id": path_id,
-                            "success": contour.success,
-                            "points": [{"x": x, "y": y} for x, y in path],
-                        })
+                        contour_paths.append(
+                            {
+                                "sigma": z,
+                                "level": contour.level,
+                                "path_id": path_id,
+                                "success": contour.success,
+                                "points": [{"x": x, "y": y} for x, y in path],
+                            }
+                        )
                     if not contour.success:
                         contour_errors.append(f"{z:g}σ contour returned success=false")
                     elif not contour.paths:
@@ -2350,7 +3009,9 @@ def run_fit_and_contours(
                     contour_errors.append(f"{z:g}σ: {type(exc).__name__}: {exc}")
 
     if progress_monitor is not None:
-        progress_monitor.set_progress("complete", "Statistic workflow complete", 1.0, finished=True)
+        progress_monitor.set_progress(
+            "complete", "Statistic workflow complete", 1.0, finished=True
+        )
 
     return {
         "fit_ok": bool(fit.fit_ok),
@@ -2370,7 +3031,8 @@ def _prune_statistic_jobs(max_age_seconds: float = 3600.0) -> None:
     now = time.monotonic()
     with _STATISTIC_JOBS_LOCK:
         stale = [
-            job_id for job_id, job in _STATISTIC_JOBS.items()
+            job_id
+            for job_id, job in _STATISTIC_JOBS.items()
             if job.done and now - job.created_at > max_age_seconds
         ]
         for job_id in stale:
@@ -2391,12 +3053,16 @@ def _start_statistic_job(kind: str, target) -> str:
                 job.result = result
                 job.done = True
         except Exception as exc:
-            monitor.set_progress("failed", f"{type(exc).__name__}: {exc}", 1.0, finished=True)
+            monitor.set_progress(
+                "failed", f"{type(exc).__name__}: {exc}", 1.0, finished=True
+            )
             with job.lock:
                 job.error = f"{type(exc).__name__}: {exc}"
                 job.done = True
 
-    thread = threading.Thread(target=runner, name=f"hyperiso-{kind}-{job_id[:8]}", daemon=True)
+    thread = threading.Thread(
+        target=runner, name=f"hyperiso-{kind}-{job_id[:8]}", daemon=True
+    )
     job.thread = thread
     with _STATISTIC_JOBS_LOCK:
         _STATISTIC_JOBS[job_id] = job
@@ -2416,7 +3082,9 @@ def start_uncertainty_job(
             ensure_wilson_scan_ready(wilson_setup, monitor)
         kwargs["progress_monitor"] = monitor
         rows = compute_uncertainty_rows(**kwargs)
-        monitor.set_progress("complete", "Uncertainty propagation complete", 1.0, finished=True)
+        monitor.set_progress(
+            "complete", "Uncertainty propagation complete", 1.0, finished=True
+        )
         return rows
 
     return _start_statistic_job("uncertainty", target)
@@ -2442,9 +3110,18 @@ def start_fit_job(
 
     def target(monitor: StatisticProgressMonitor):
         return run_fit_and_contours(
-            kwargs, rows, do_contour, x_key, y_key, confidence_levels,
-            profiling_method, contour_algorithm, fallback_algorithm,
-            profiler_mode, resolution, progress_monitor=monitor,
+            kwargs,
+            rows,
+            do_contour,
+            x_key,
+            y_key,
+            confidence_levels,
+            profiling_method,
+            contour_algorithm,
+            fallback_algorithm,
+            profiler_mode,
+            resolution,
+            progress_monitor=monitor,
             wilson_setup=wilson_setup,
         )
 
@@ -2522,7 +3199,15 @@ def poll_statistic_job(job_id: str | None) -> dict:
 
 
 # Backward-compatible service name for external callers of the Dash helper.
-def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour: bool, x_half_width: Any, y_half_width: Any, nx: Any, ny: Any) -> dict:
+def run_fit_and_scan(
+    stat_kwargs: dict,
+    p_spec_rows: Sequence[dict],
+    do_contour: bool,
+    x_half_width: Any,
+    y_half_width: Any,
+    nx: Any,
+    ny: Any,
+) -> dict:
     """Deprecated compatibility wrapper using table bounds and core contours."""
     rows = list(p_spec_rows or [])
     options = p_spec_axis_options(rows)
@@ -2534,8 +3219,17 @@ def run_fit_and_scan(stat_kwargs: dict, p_spec_rows: Sequence[dict], do_contour:
         row.setdefault("lower_bound", center - width)
         row.setdefault("upper_bound", center + width)
     return run_fit_and_contours(
-        stat_kwargs, rows, do_contour, x_key, y_key, [1.0, 2.0],
-        "SLICE", "AMS", "NONE", "MINUIT", max(int(nx or 25), int(ny or 25)),
+        stat_kwargs,
+        rows,
+        do_contour,
+        x_key,
+        y_key,
+        [1.0, 2.0],
+        "SLICE",
+        "AMS",
+        "NONE",
+        "MINUIT",
+        max(int(nx or 25), int(ny or 25)),
     )
 
 
@@ -2556,7 +3250,10 @@ _PARTICLE_LABELS = {
 
 def mass_particle_options() -> list[dict[str, str | int]]:
     """Return common PDG ids for the QCD mass calculator."""
-    return [{"label": f"{name} ({pid})", "value": pid} for pid, name in _PARTICLE_LABELS.items()]
+    return [
+        {"label": f"{name} ({pid})", "value": pid}
+        for pid, name in _PARTICLE_LABELS.items()
+    ]
 
 
 def mass_type_options() -> list[dict[str, str]]:
@@ -2580,11 +3277,13 @@ def qcd_constants_rows(kind: str = "all") -> list[dict]:
     kind = str(kind or "all").lower()
     rows = []
     if kind in {"all", "color"}:
-        rows.extend([
-            {"quantity": "N_c", "index": "", "value": consts.Nc},
-            {"quantity": "C_F", "index": "", "value": consts.C_F},
-            {"quantity": "C_A", "index": "", "value": consts.C_A},
-        ])
+        rows.extend(
+            [
+                {"quantity": "N_c", "index": "", "value": consts.Nc},
+                {"quantity": "C_F", "index": "", "value": consts.C_F},
+                {"quantity": "C_A", "index": "", "value": consts.C_A},
+            ]
+        )
     if kind in {"all", "beta"}:
         try:
             for i, value in enumerate(list(consts.beta)):
@@ -2603,7 +3302,9 @@ def qcd_constants_rows(kind: str = "all") -> list[dict]:
 def qcd_alphas(scale: float, mb_type: str = "POLE", mt_type: str = "POLE") -> float:
     """Compute alpha_s at one scale."""
     qcd = _qcd_provider()
-    value = qcd.get_alphas(AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type)))
+    value = qcd.get_alphas(
+        AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type))
+    )
     return scalar_to_float(value, "real")
 
 
@@ -2611,48 +3312,107 @@ def qcd_alphaem(scale: float, mb_type: str = "POLE", mt_type: str = "POLE") -> f
     """Compute alpha_em at one scale through QEDProvider."""
     require_initialized()
     qed = QEDProvider()
-    value = qed.get_alpha_em(AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type)))
+    value = qed.get_alpha_em(
+        AlphasConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type))
+    )
     return scalar_to_float(value, "real")
 
 
-def qcd_mass(scale: float, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE") -> float:
+def qcd_mass(
+    scale: float, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE"
+) -> float:
     """Compute the running mass for one PDG id and scale."""
     qcd = _qcd_provider()
-    cfg = MassConfig(float(scale), _mass_type(mb_type), _mass_type(mt_type), int(pdg_id))
+    cfg = MassConfig(
+        float(scale), _mass_type(mb_type), _mass_type(mt_type), int(pdg_id)
+    )
     value = qcd.get_qcd_masses(cfg)
     return scalar_to_float(value, "real")
 
 
-def qcd_scan_alphas(scale_min: float, scale_max: float, n_points: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+def qcd_scan_alphas(
+    scale_min: float,
+    scale_max: float,
+    n_points: int,
+    mb_type: str = "POLE",
+    mt_type: str = "POLE",
+) -> tuple[list[float], list[float]]:
     """Compute alpha_s on a scale grid."""
     xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
     ys = [qcd_alphas(x, mb_type, mt_type) for x in xs]
     return xs, ys
 
 
-def qcd_scan_alphaem(scale_min: float, scale_max: float, n_points: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+def qcd_scan_alphaem(
+    scale_min: float,
+    scale_max: float,
+    n_points: int,
+    mb_type: str = "POLE",
+    mt_type: str = "POLE",
+) -> tuple[list[float], list[float]]:
     """Compute alpha_em on a scale grid."""
     xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
     ys = [qcd_alphaem(x, mb_type, mt_type) for x in xs]
     return xs, ys
 
 
-def qcd_scan_mass(scale_min: float, scale_max: float, n_points: int, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE") -> tuple[list[float], list[float]]:
+def qcd_scan_mass(
+    scale_min: float,
+    scale_max: float,
+    n_points: int,
+    pdg_id: int,
+    mb_type: str = "POLE",
+    mt_type: str = "POLE",
+) -> tuple[list[float], list[float]]:
     """Compute a running mass on a scale grid."""
     xs = linspace(float(scale_min), float(scale_max), int(n_points or 1))
     ys = [qcd_mass(x, int(pdg_id), mb_type, mt_type) for x in xs]
     return xs, ys
 
 
-def qcd_single_result_rows(scale: float, pdg_id: int, mb_type: str = "POLE", mt_type: str = "POLE", include_qed: bool = False) -> list[dict]:
+def qcd_single_result_rows(
+    scale: float,
+    pdg_id: int,
+    mb_type: str = "POLE",
+    mt_type: str = "POLE",
+    include_qed: bool = False,
+) -> list[dict]:
     """Return a compact table containing alpha_s and one running mass."""
     rows = [
-        {"quantity": r"$\alpha_s(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_alphas(scale, mb_type, mt_type)},
-        {"quantity": r"$m(\mu)$", "scale": float(scale), "pdg_id": int(pdg_id), "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_mass(scale, int(pdg_id), mb_type, mt_type)},
+        {
+            "quantity": r"$\alpha_s(\mu)$",
+            "scale": float(scale),
+            "pdg_id": "",
+            "scheme": f"m_b={mb_type}, m_t={mt_type}",
+            "value": qcd_alphas(scale, mb_type, mt_type),
+        },
+        {
+            "quantity": r"$m(\mu)$",
+            "scale": float(scale),
+            "pdg_id": int(pdg_id),
+            "scheme": f"m_b={mb_type}, m_t={mt_type}",
+            "value": qcd_mass(scale, int(pdg_id), mb_type, mt_type),
+        },
     ]
     if include_qed:
         try:
-            rows.append({"quantity": r"$\alpha_{\rm em}(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": f"m_b={mb_type}, m_t={mt_type}", "value": qcd_alphaem(scale, mb_type, mt_type)})
+            rows.append(
+                {
+                    "quantity": r"$\alpha_{\rm em}(\mu)$",
+                    "scale": float(scale),
+                    "pdg_id": "",
+                    "scheme": f"m_b={mb_type}, m_t={mt_type}",
+                    "value": qcd_alphaem(scale, mb_type, mt_type),
+                }
+            )
         except Exception as exc:
-            rows.append({"quantity": r"$\alpha_{\rm em}(\mu)$", "scale": float(scale), "pdg_id": "", "scheme": "unavailable", "value": str(exc)})
+            rows.append(
+                {
+                    "quantity": r"$\alpha_{\rm em}(\mu)$",
+                    "scale": float(scale),
+                    "pdg_id": "",
+                    "scheme": "unavailable",
+                    "value": str(exc),
+                }
+            )
     return rows

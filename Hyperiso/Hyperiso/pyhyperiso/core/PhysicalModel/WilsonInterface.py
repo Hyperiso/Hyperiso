@@ -31,7 +31,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
     ParameterType,
 )
 from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Common.SymbolId import WGroupId, WCoefId
+from pyhyperiso.core.Common.SymbolId import WCoefId
 from pyhyperiso.core.Math.Scalar import Scalar
 
 
@@ -74,7 +74,9 @@ class ParamSrcView:
 
     def get_val(self, pid: ParamId) -> Scalar:
         """Return a parameter value as a ``Scalar`` wrapper."""
-        return Scalar.from_cpp(self._cpp_obj.get_val(pid.to_cpp() if isinstance(pid, ParamId) else pid))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_val(pid.to_cpp() if isinstance(pid, ParamId) else pid)
+        )
 
     def size(self) -> int:
         """Return the number of parameters in this view."""
@@ -131,6 +133,7 @@ class CustomWilsonCoefficientConfig:
             compute: Callable ``compute(src) -> float | complex``.
             contribution: SM/BSM component represented by this lambda.
         """
+
         def wrapped_compute(src):
             return _to_cpp_scalar(compute(ParamSrcView(src)))
 
@@ -174,7 +177,9 @@ class CustomWilsonGroupConfig:
         self._cpp_obj.contribution = _cpp_contribution(contribution)
         self._cpp_obj.display_name = display_name
 
-    def add_coefficient(self, coefficient: CustomWilsonCoefficientConfig) -> "CustomWilsonGroupConfig":
+    def add_coefficient(
+        self, coefficient: CustomWilsonCoefficientConfig
+    ) -> "CustomWilsonGroupConfig":
         """Append a coefficient config to this group."""
         if isinstance(coefficient, CustomWilsonCoefficientConfig):
             coefficient = coefficient.to_cpp()
@@ -198,6 +203,7 @@ class CustomWilsonGroupConfig:
             (k.value if isinstance(k, ParameterType) else k): list(v)
             for k, v in dict(sources).items()
         }
+
         def wrapped_running(matching, block_src):
             py_matching = {
                 QCDOrder(o): {WCoefId(str(k)): Scalar.from_cpp(v) for k, v in vals.items()}
@@ -209,7 +215,9 @@ class CustomWilsonGroupConfig:
                 for k, v in dict(result).items()
             }
 
-        self._cpp_obj.set_running(_cpp_basis(basis), _cpp_order(order), cpp_sources, wrapped_running)
+        self._cpp_obj.set_running(
+            _cpp_basis(basis), _cpp_order(order), cpp_sources, wrapped_running
+        )
         return self
 
     @property
@@ -256,7 +264,9 @@ class WilsonInterface:
         """Set the hadronic running scale ``mu_h``."""
         self._cpp_obj.set_hadronic_scale(mu_h)
 
-    def _req(self, req_or_group, coeff=None, order=None, contribution=None, basis=None) -> WilsonRequest:
+    def _req(
+        self, req_or_group, coeff=None, order=None, contribution=None, basis=None
+    ) -> WilsonRequest:
         if isinstance(req_or_group, WilsonRequest):
             return req_or_group
         return WilsonRequest(
@@ -270,58 +280,103 @@ class WilsonInterface:
     def get_M(self, req_or_group, coeff=None, order=None, contribution=None) -> Scalar:
         """Return one matching coefficient at the requested QCD order."""
         req = self._req(req_or_group, coeff, order, contribution)
-        return Scalar.from_cpp(self._cpp_obj.get_M(
-            _cpp_group_id(req.group), _cpp_coef_id(req.coefficient),
-            _cpp_order(req.order), _cpp_contribution(req.contribution),
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_M(
+                _cpp_group_id(req.group),
+                _cpp_coef_id(req.coefficient),
+                _cpp_order(req.order),
+                _cpp_contribution(req.contribution),
+            )
+        )
 
     def get_FM(self, req_or_group, coeff=None, order=None, contribution=None) -> Scalar:
         """Return one full matching coefficient summed up to ``order``."""
         req = self._req(req_or_group, coeff, order, contribution)
-        return Scalar.from_cpp(self._cpp_obj.get_FM(
-            _cpp_group_id(req.group), _cpp_coef_id(req.coefficient),
-            _cpp_order(req.order), _cpp_contribution(req.contribution),
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_FM(
+                _cpp_group_id(req.group),
+                _cpp_coef_id(req.coefficient),
+                _cpp_order(req.order),
+                _cpp_contribution(req.contribution),
+            )
+        )
 
-    def get_R(self, req_or_group, coeff=None, order=None, contribution=None, basis=WilsonBasis.STANDARD) -> Scalar:
+    def get_R(
+        self, req_or_group, coeff=None, order=None, contribution=None, basis=WilsonBasis.STANDARD
+    ) -> Scalar:
         """Return one running coefficient at the requested QCD order."""
         req = self._req(req_or_group, coeff, order, contribution, basis)
-        return Scalar.from_cpp(self._cpp_obj.get_R(
-            _cpp_group_id(req.group), _cpp_coef_id(req.coefficient),
-            _cpp_order(req.order), _cpp_contribution(req.contribution), _cpp_basis(req.wilson_basis),
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_R(
+                _cpp_group_id(req.group),
+                _cpp_coef_id(req.coefficient),
+                _cpp_order(req.order),
+                _cpp_contribution(req.contribution),
+                _cpp_basis(req.wilson_basis),
+            )
+        )
 
-    def get_FR(self, req_or_group, coeff=None, order=None, contribution=None, basis=WilsonBasis.STANDARD) -> Scalar:
+    def get_FR(
+        self, req_or_group, coeff=None, order=None, contribution=None, basis=WilsonBasis.STANDARD
+    ) -> Scalar:
         """Return one full running coefficient summed up to ``order``."""
         req = self._req(req_or_group, coeff, order, contribution, basis)
-        return Scalar.from_cpp(self._cpp_obj.get_FR(
-            _cpp_group_id(req.group), _cpp_coef_id(req.coefficient),
-            _cpp_order(req.order), _cpp_contribution(req.contribution), _cpp_basis(req.wilson_basis),
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_FR(
+                _cpp_group_id(req.group),
+                _cpp_coef_id(req.coefficient),
+                _cpp_order(req.order),
+                _cpp_contribution(req.contribution),
+                _cpp_basis(req.wilson_basis),
+            )
+        )
 
-    def get_sep_order_matching(self, group: WilsonGroupLike, coeff: WilsonCoefLike, contribution: ContributionType) -> Dict[QCDOrder, Scalar]:
+    def get_sep_order_matching(
+        self, group: WilsonGroupLike, coeff: WilsonCoefLike, contribution: ContributionType
+    ) -> Dict[QCDOrder, Scalar]:
         """Return matching coefficients separated by QCD order."""
         cpp_map = self._cpp_obj.get_sep_order_matching_coefficient(
             _cpp_group_id(group), _cpp_coef_id(coeff), _cpp_contribution(contribution)
         )
         return {QCDOrder(order): Scalar.from_cpp(val) for order, val in cpp_map.items()}
 
-    def get_sep_order_running(self, group: WilsonGroupLike, coeff: WilsonCoefLike, contribution: ContributionType, basis: WilsonBasis = WilsonBasis.STANDARD) -> Dict[QCDOrder, Scalar]:
+    def get_sep_order_running(
+        self,
+        group: WilsonGroupLike,
+        coeff: WilsonCoefLike,
+        contribution: ContributionType,
+        basis: WilsonBasis = WilsonBasis.STANDARD,
+    ) -> Dict[QCDOrder, Scalar]:
         """Return running coefficients separated by QCD order."""
         cpp_map = self._cpp_obj.get_sep_order_run_coefficient(
-            _cpp_group_id(group), _cpp_coef_id(coeff), _cpp_contribution(contribution), _cpp_basis(basis)
+            _cpp_group_id(group),
+            _cpp_coef_id(coeff),
+            _cpp_contribution(contribution),
+            _cpp_basis(basis),
         )
         return {QCDOrder(order): Scalar.from_cpp(val) for order, val in cpp_map.items()}
 
     # Builtin-group map helpers remain enum-only because the C++ return key is WCoeff.
-    def get_all_matching(self, group: WGroup, order: QCDOrder, contribution: ContributionType) -> Dict[WCoeff, Scalar]:
+    def get_all_matching(
+        self, group: WGroup, order: QCDOrder, contribution: ContributionType
+    ) -> Dict[WCoeff, Scalar]:
         """Return all builtin matching coefficients in one static group."""
-        cpp_map = self._cpp_obj.get_all_matching_coefficient(group.value, order.value, contribution.value)
+        cpp_map = self._cpp_obj.get_all_matching_coefficient(
+            group.value, order.value, contribution.value
+        )
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
-    def get_all_running(self, group: WGroup, order: QCDOrder, contribution: ContributionType, basis: WilsonBasis = WilsonBasis.STANDARD) -> Dict[WCoeff, Scalar]:
+    def get_all_running(
+        self,
+        group: WGroup,
+        order: QCDOrder,
+        contribution: ContributionType,
+        basis: WilsonBasis = WilsonBasis.STANDARD,
+    ) -> Dict[WCoeff, Scalar]:
         """Return all builtin running coefficients in one static group."""
-        cpp_map = self._cpp_obj.get_all_run_coefficient(group.value, order.value, contribution.value, basis.value)
+        cpp_map = self._cpp_obj.get_all_run_coefficient(
+            group.value, order.value, contribution.value, basis.value
+        )
         return {WCoeff(k): Scalar.from_cpp(v) for k, v in cpp_map.items()}
 
 

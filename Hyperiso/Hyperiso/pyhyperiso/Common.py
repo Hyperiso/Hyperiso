@@ -1,4 +1,3 @@
-
 from pyhyperiso.core.Common.GeneralEnum import (
     ContributionType,
     Decays,
@@ -30,5 +29,5 @@ from pyhyperiso.core.Common.Mapper import (
     ScaleTypeMapper,
     WilsonBasisMapper,
     ParameterTypeMapper,
-    ContributionTypeMapper
+    ContributionTypeMapper,
 )

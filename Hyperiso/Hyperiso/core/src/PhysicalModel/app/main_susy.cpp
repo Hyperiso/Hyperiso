@@ -4,15 +4,15 @@
 #include "Parameters.h"
 #include "WilsonInterface.h"
 
-int main() {
+int main(int argc, char** argv) {
     auto hyp = HyperisoMaster();
     HyperisoConfig config_hyp;
     // config_hyp.flags[ExternalFlag::USE_MARTY] = false;
     config_hyp.model = Model::SUSY;
     config_hyp.mty_model_name = "ZPrime";
-    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h";
+    config_hyp.mty_model_path = argc > 2 ? argv[2] : "Assets/input_files/marty_model/ZPrime.h";
 
-    hyp.init("/home/theo/hyperiso/Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha", config_hyp); // Initialize program manager with LHA file
+    hyp.init(argc > 1 ? argv[1] : "Hyperiso/Hyperiso/core/Test/InputFiles/testInput.slha", config_hyp); // Initialize program manager with LHA file
 
     auto wi = WilsonInterface(); // Initialize interface and build the required groups
 

@@ -356,7 +356,9 @@ class BKstarllConfig(DecayConfig):
         cfg = _CppBKstarllConfig()
         cfg.ff_src = _as_cpp_enum(self.ff_src, BVFFSource, "ff_src")
         cfg.ff_type = _as_cpp_enum(self.ff_type, BFFType, "ff_type")
-        cfg.power_corr_impl = _as_cpp_enum(self.power_corr_impl, BKstarllPowerCorrectionsImpl, "power_corr_impl")
+        cfg.power_corr_impl = _as_cpp_enum(
+            self.power_corr_impl, BKstarllPowerCorrectionsImpl, "power_corr_impl"
+        )
         cfg.charge = _as_cpp_enum(self.charge, BKstarllBCharge, "charge")
         cfg.gen = _as_cpp_enum(self.gen, BKstarllLepton, "gen")
         cfg.n_threads = int(self.n_threads)

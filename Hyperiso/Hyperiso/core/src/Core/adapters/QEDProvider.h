@@ -26,9 +26,9 @@
  * callable interface for computing the electromagnetic coupling
  * \f$\alpha_{\text{em}}(\mu)\f$ from an AlphasConfig.
  *
- * @note EWHelper::alpha_em currently does not implement the full running of
- * \f$\alpha_{\text{em}}\f$ and logs a NotImplementedError before returning
- * 0.0. Code requiring the precomputed special values should read them from
+ * @note EWHelper::alpha_em does not implement generic running and throws
+ * std::logic_error instead of returning a placeholder value. Code requiring
+ * the precomputed special values should read them from
  * the EW block populated by EWHelper::Init().
  *
  * Typical usage:

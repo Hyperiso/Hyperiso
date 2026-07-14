@@ -1,13 +1,17 @@
 from __future__ import annotations
 
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 from dash import dcc, html
 
 from pyhyperiso_dash.domain import code_to_display
 from pyhyperiso_dash.latex_data.decay_name_to_latex_map import DECAY_ENUM_TO_LATEX_MAP
-from pyhyperiso_dash.latex_data.new_to_latex_nuisance_map import NEW_TO_LATEX_NUISANCE_MAP
-from pyhyperiso_dash.latex_data.observable_flha_to_latex_map import OBSERVABLE_ENUM_TO_LATEX_MAP
+from pyhyperiso_dash.latex_data.new_to_latex_nuisance_map import (
+    NEW_TO_LATEX_NUISANCE_MAP,
+)
+from pyhyperiso_dash.latex_data.observable_flha_to_latex_map import (
+    OBSERVABLE_ENUM_TO_LATEX_MAP,
+)
 from pyhyperiso_dash.latex_data.wilson_lha_to_latex_map import (
     WILSON_LHA_ID_TO_LATEX_MAP,
     WILSON_LHA_ID_TO_NAME_MAP,
@@ -42,29 +46,99 @@ def text_latex(label: str | None, fallback: str = "") -> str:
     return _strip_math(label) or str(fallback or "")
 
 
-_SUBSCRIPT_TRANSLATION = str.maketrans({
-    "0": "₀", "1": "₁", "2": "₂", "3": "₃", "4": "₄",
-    "5": "₅", "6": "₆", "7": "₇", "8": "₈", "9": "₉",
-    "+": "₊", "-": "₋", "=": "₌", "(": "₍", ")": "₎",
-    "a": "ₐ", "e": "ₑ", "h": "ₕ", "i": "ᵢ", "j": "ⱼ",
-    "k": "ₖ", "l": "ₗ", "m": "ₘ", "n": "ₙ", "o": "ₒ",
-    "p": "ₚ", "r": "ᵣ", "s": "ₛ", "t": "ₜ", "u": "ᵤ",
-    "v": "ᵥ", "x": "ₓ", "S": "ₛ", "P": "ₚ", "L": "ₗ",
-    "T": "ₜ", "V": "ᵥ",
-})
+_SUBSCRIPT_TRANSLATION = str.maketrans(
+    {
+        "0": "₀",
+        "1": "₁",
+        "2": "₂",
+        "3": "₃",
+        "4": "₄",
+        "5": "₅",
+        "6": "₆",
+        "7": "₇",
+        "8": "₈",
+        "9": "₉",
+        "+": "₊",
+        "-": "₋",
+        "=": "₌",
+        "(": "₍",
+        ")": "₎",
+        "a": "ₐ",
+        "e": "ₑ",
+        "h": "ₕ",
+        "i": "ᵢ",
+        "j": "ⱼ",
+        "k": "ₖ",
+        "l": "ₗ",
+        "m": "ₘ",
+        "n": "ₙ",
+        "o": "ₒ",
+        "p": "ₚ",
+        "r": "ᵣ",
+        "s": "ₛ",
+        "t": "ₜ",
+        "u": "ᵤ",
+        "v": "ᵥ",
+        "x": "ₓ",
+        "S": "ₛ",
+        "P": "ₚ",
+        "L": "ₗ",
+        "T": "ₜ",
+        "V": "ᵥ",
+    }
+)
 
-_SUPERSCRIPT_TRANSLATION = str.maketrans({
-    "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴",
-    "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹",
-    "+": "⁺", "-": "⁻", "=": "⁼", "(": "⁽", ")": "⁾",
-    "a": "ᵃ", "b": "ᵇ", "c": "ᶜ", "d": "ᵈ", "e": "ᵉ",
-    "f": "ᶠ", "g": "ᵍ", "h": "ʰ", "i": "ⁱ", "j": "ʲ",
-    "k": "ᵏ", "l": "ˡ", "m": "ᵐ", "n": "ⁿ", "o": "ᵒ",
-    "p": "ᵖ", "r": "ʳ", "s": "ˢ", "t": "ᵗ", "u": "ᵘ",
-    "v": "ᵛ", "w": "ʷ", "x": "ˣ", "y": "ʸ", "z": "ᶻ",
-    "B": "ᴮ", "D": "ᴰ", "K": "ᴷ", "P": "ᴾ", "S": "ˢ",
-    "T": "ᵀ", "V": "ⱽ",
-})
+_SUPERSCRIPT_TRANSLATION = str.maketrans(
+    {
+        "0": "⁰",
+        "1": "¹",
+        "2": "²",
+        "3": "³",
+        "4": "⁴",
+        "5": "⁵",
+        "6": "⁶",
+        "7": "⁷",
+        "8": "⁸",
+        "9": "⁹",
+        "+": "⁺",
+        "-": "⁻",
+        "=": "⁼",
+        "(": "⁽",
+        ")": "⁾",
+        "a": "ᵃ",
+        "b": "ᵇ",
+        "c": "ᶜ",
+        "d": "ᵈ",
+        "e": "ᵉ",
+        "f": "ᶠ",
+        "g": "ᵍ",
+        "h": "ʰ",
+        "i": "ⁱ",
+        "j": "ʲ",
+        "k": "ᵏ",
+        "l": "ˡ",
+        "m": "ᵐ",
+        "n": "ⁿ",
+        "o": "ᵒ",
+        "p": "ᵖ",
+        "r": "ʳ",
+        "s": "ˢ",
+        "t": "ᵗ",
+        "u": "ᵘ",
+        "v": "ᵛ",
+        "w": "ʷ",
+        "x": "ˣ",
+        "y": "ʸ",
+        "z": "ᶻ",
+        "B": "ᴮ",
+        "D": "ᴰ",
+        "K": "ᴷ",
+        "P": "ᴾ",
+        "S": "ˢ",
+        "T": "ᵀ",
+        "V": "ⱽ",
+    }
+)
 
 
 def compact_math_text(label: str | None, fallback: str = "") -> str:
@@ -258,7 +332,9 @@ def wilson_parameter_latex(block: str | None, code: Any) -> str | None:
     return None
 
 
-def parameter_latex(block: str | None, code: Any, param_type: str | None = None) -> str | None:
+def parameter_latex(
+    block: str | None, code: Any, param_type: str | None = None
+) -> str | None:
     if not block or code in (None, ""):
         return None
     block_s = str(block)
@@ -266,31 +342,67 @@ def parameter_latex(block: str | None, code: Any, param_type: str | None = None)
 
     # For ParameterType.WILSON, use the Wilson-specific map first.
     if str(param_type or "").upper() == "WILSON":
-        return wilson_parameter_latex(block_s, code_s) or NEW_TO_LATEX_NUISANCE_MAP.get((block_s, code_s))
+        return wilson_parameter_latex(block_s, code_s) or NEW_TO_LATEX_NUISANCE_MAP.get(
+            (block_s, code_s)
+        )
 
     # Nuisance/ordinary parameter map first, with Wilson as a permissive fallback.
-    return NEW_TO_LATEX_NUISANCE_MAP.get((block_s, code_s)) or wilson_parameter_latex(block_s, code_s)
+    return NEW_TO_LATEX_NUISANCE_MAP.get((block_s, code_s)) or wilson_parameter_latex(
+        block_s, code_s
+    )
 
 
-def parameter_label(block: str | None, code: Any, raw: str | None = None, param_type: str | None = None) -> str:
+def parameter_label(
+    block: str | None, code: Any, raw: str | None = None, param_type: str | None = None
+) -> str:
     code_s = code_to_display(code)
-    return plain_label(parameter_latex(block, code_s, param_type), raw or f"{block}:{code_s}")
+    return plain_label(
+        parameter_latex(block, code_s, param_type), raw or f"{block}:{code_s}"
+    )
 
 
-def parameter_table_label(block: str | None, code: Any, raw: str | None = None, param_type: str | None = None) -> str:
+def parameter_table_label(
+    block: str | None, code: Any, raw: str | None = None, param_type: str | None = None
+) -> str:
     code_s = code_to_display(code)
-    return table_label(parameter_latex(block, code_s, param_type), raw or f"{block}:{code_s}")
+    return table_label(
+        parameter_latex(block, code_s, param_type), raw or f"{block}:{code_s}"
+    )
 
 
 _LATEX_SYMBOLS = {
-    r"\alpha": "α", r"\beta": "β", r"\gamma": "γ", r"\delta": "δ",
-    r"\Delta": "Δ", r"\epsilon": "ε", r"\lambda": "λ", r"\mu": "μ",
-    r"\nu": "ν", r"\rho": "ρ", r"\sigma": "σ", r"\tau": "τ",
-    r"\phi": "φ", r"\Phi": "Φ", r"\pi": "π", r"\bar": "",
-    r"\parallel": "∥", r"\perp": "⊥", r"\to": "→", r"\rightarrow": "→",
-    r"\ell": "ℓ", r"\pm": "±", r"\times": "×", r"\cdot": "·",
-    r"\mathrm": "", r"\text": "", r"\operatorname": "", r"\left": "", r"\right": "",
-    r"\,": " ", r"\;": " ", r"\!": "",
+    r"\alpha": "α",
+    r"\beta": "β",
+    r"\gamma": "γ",
+    r"\delta": "δ",
+    r"\Delta": "Δ",
+    r"\epsilon": "ε",
+    r"\lambda": "λ",
+    r"\mu": "μ",
+    r"\nu": "ν",
+    r"\rho": "ρ",
+    r"\sigma": "σ",
+    r"\tau": "τ",
+    r"\phi": "φ",
+    r"\Phi": "Φ",
+    r"\pi": "π",
+    r"\bar": "",
+    r"\parallel": "∥",
+    r"\perp": "⊥",
+    r"\to": "→",
+    r"\rightarrow": "→",
+    r"\ell": "ℓ",
+    r"\pm": "±",
+    r"\times": "×",
+    r"\cdot": "·",
+    r"\mathrm": "",
+    r"\text": "",
+    r"\operatorname": "",
+    r"\left": "",
+    r"\right": "",
+    r"\,": " ",
+    r"\;": " ",
+    r"\!": "",
 }
 
 
@@ -380,7 +492,7 @@ def _latex_static_nodes(label: str) -> list[Any]:
             j = i + 1
             while j < len(text) and text[j].isalpha():
                 j += 1
-            buf.append(text[i + 1:j])
+            buf.append(text[i + 1 : j])
             i = j
             continue
         if ch in "{}":
@@ -407,7 +519,12 @@ def parameter_dropdown_label(latex: str | None, raw_code: str, raw_full: str):
     if latex:
         rendered = _latex_static_nodes(latex)
         if rendered:
-            children.append(html.Span(rendered, className="parameter-code-latex parameter-code-latex-static"))
+            children.append(
+                html.Span(
+                    rendered,
+                    className="parameter-code-latex parameter-code-latex-static",
+                )
+            )
     children.append(html.Span(raw_code, className="parameter-code-raw"))
     return html.Span(
         className="latex-option parameter-code-option",
@@ -455,10 +572,14 @@ def wilson_option(coeff_name: str) -> dict:
 
 
 def _order_index(order_name: str | None) -> str:
-    return {"LO": "0", "NLO": "1", "NNLO": "2", "NONE": "0"}.get(str(order_name or "LO"), "0")
+    return {"LO": "0", "NLO": "1", "NNLO": "2", "NONE": "0"}.get(
+        str(order_name or "LO"), "0"
+    )
 
 
-def wilson_request_latex(method: str, coeff_name: str, order_name: str, contribution: str) -> str:
+def wilson_request_latex(
+    method: str, coeff_name: str, order_name: str, contribution: str
+) -> str:
     """Return the displayed Wilson coefficient with order/full/contribution marks."""
     base = _strip_math(wilson_latex(coeff_name)) or str(coeff_name)
     n = _order_index(order_name)
@@ -483,6 +604,8 @@ def strip_for_title(label: str) -> str:
     return label or ""
 
 
-def wilson_request_table_latex(method: str, coeff_name: str, order_name: str, contribution: str) -> str:
+def wilson_request_table_latex(
+    method: str, coeff_name: str, order_name: str, contribution: str
+) -> str:
     """Return a MathJax-friendly Wilson request label for tables."""
     return wilson_request_latex(method, coeff_name, order_name, contribution)

@@ -4,11 +4,11 @@ from __future__ import annotations
 
 from enum import Enum
 
-from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationProvider as _CppCorrelationProvider
-# from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationType as _CppCorrelationType
-_CppCorrelationType = _CppCorrelationProvider.CorrelationType
 from pyhyperiso.core.Common.GeneralEnum import Observables
 from pyhyperiso.core.Common.ParamId import ParamId
+from pyhyperiso.phyperiso.pyhyperiso.core import CorrelationProvider as _CppCorrelationProvider
+
+_CppCorrelationType = _CppCorrelationProvider.CorrelationType
 
 
 class CorrelationType(Enum):
@@ -71,7 +71,7 @@ class CorrelationProvider:
         obs_1: Observables,
         obs_2: Observables,
         corr_type: CorrelationType,
-        experiment : str = "DEFAULT",
+        experiment: str = "DEFAULT",
     ) -> float:
         """Return the experimental correlation between two observables.
 
@@ -87,36 +87,3 @@ class CorrelationProvider:
 
 
 __all__ = ["CorrelationProvider", "CorrelationType"]
-        
-if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
-    from pyhyperiso.core.Common.GeneralEnum import Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/si_input.flha" 
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    corr_provider = CorrelationProvider()
-    
-    print("correlation between two obs (same obs)", corr_provider.correlation_from_observable(Observables.BR_B_XS_GAMMA, Observables.BR_B_XS_GAMMA, CorrelationType.COMBINED))

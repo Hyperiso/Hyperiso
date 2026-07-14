@@ -9,8 +9,8 @@ git clone https://github.com/HyperIso/HyperIso.git
 cd HyperIso
 
 sudo apt-get update
-sudo apt-get install -y build-essential cmake ninja-build libgsl-dev python3-dev python3-pip
-python -m pip install --upgrade pip pre-commit pytest
+sudo apt-get install -y build-essential cmake ninja-build libgsl-dev libeigen3-dev python3-dev python3-pip
+python -m pip install --upgrade pip pre-commit ruff==0.15.21 pyyaml
 pre-commit install
 ```
 
@@ -30,8 +30,8 @@ ctest --test-dir build --output-on-failure
 Python checks:
 
 ```bash
-python -m pip install -e ./Hyperiso/Hyperiso
-pytest Hyperiso/Hyperiso/pyhyperiso/test
+python -m pip install -e "./Hyperiso/Hyperiso[test]"
+python -m pytest Hyperiso/Hyperiso/pyhyperiso/test
 ```
 
 Run formatting and lightweight checks:

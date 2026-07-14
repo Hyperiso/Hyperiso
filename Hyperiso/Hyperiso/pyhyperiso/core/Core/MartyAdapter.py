@@ -64,39 +64,3 @@ class MartyAdapter:
 
 
 __all__ = ["MartyAdapter", "MartyPath"]
-
-    
-    
-if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/zprime_input.flha"
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    marty_adapt = MartyAdapter()
-    
-    print("model name : ", marty_adapt.get_model_name())
-    print("moddel path : ", marty_adapt.get_path(MartyPath.MODEL_FILE))

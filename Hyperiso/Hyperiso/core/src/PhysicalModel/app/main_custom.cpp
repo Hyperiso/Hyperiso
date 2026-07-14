@@ -5,15 +5,15 @@
 #include "CustomWilson.h"
 #include "CustomWilsonGroup.h"
 
-int main() {
+int main(int argc, char** argv) {
 
     auto hyp = HyperisoMaster();
     HyperisoConfig config_hyp;
 
     config_hyp.model = Model::SM;
     config_hyp.mty_model_name = "ZPrime";
-    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/ZPrime.h";
-    hyp.init("lha/camilia.flha", config_hyp);
+    config_hyp.mty_model_path = argc > 2 ? argv[2] : "Assets/input_files/marty_model/ZPrime.h";
+    hyp.init(argc > 1 ? argv[1] : "Assets/lha/camilia.flha", config_hyp);
 
     GroupMapper::register_custom("NP_DEMO", {"np-demo"});
     const WGroupId GID = GroupMapper::id_of("NP_DEMO");

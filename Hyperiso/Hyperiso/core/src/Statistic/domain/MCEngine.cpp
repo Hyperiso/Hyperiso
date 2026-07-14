@@ -6,7 +6,10 @@
 #include <atomic>
 #include <exception>
 #include <fstream>
+#include <iomanip>
+#include <limits>
 #include <mutex>
+#include <sstream>
 #include <thread>
 
 RealMatrix symmetrize_covariance_matrix2(RealMatrix cov) {
@@ -145,47 +148,16 @@ MCObservableCovariance covariance_from_obs_samples(
         }
     }
 
-    double trace = 0.0;
-    // for (std::size_t i = 0; i < D; ++i) {
-    //     trace += std::max(0.0, cov.at(i, i));
-    // }
-
-    // const double scale = D > 0 ? trace / static_cast<double>(D) : 1.0;
-    // const double ridge = std::max(ridge_abs, ridge_rel * std::max(scale, 1.0));
-
-    // for (std::size_t i = 0; i < D; ++i) {
-    //     cov.at(i, i) += ridge;
-    // }
-
-    // MCObservableCovariance out;
-    // out.ids = ids;
-    // out.mean = mean;
-    // out.covariance = cov;
-    // out.covariance_inv = cov.inv();
-    // return out;
-    for (std::size_t i = 0; i < D; ++i) {
-        for (std::size_t j = i + 1; j < D; ++j) {
-            const double v = 0.5 * (cov.at(i, j) + cov.at(j, i));
-            cov.at(i, j) = v;
-            cov.at(j, i) = v;
-        }
-    }
-
     MCObservableCovariance out;
     out.ids = ids;
     out.mean = mean;
 
-    // Important: covariance brute, sans ridge physique.
     out.covariance = cov;
-
-    // Option 1 : si covariance_inv n'est pas utilisée dans le fit MLE,
-    // tu peux soit ne pas l'utiliser, soit la régulariser séparément.
-    // out.covariance_inv = inverse_covariance_with_ridge2(
-    //     cov,
-    //     ridge_rel,
-    //     ridge_abs
-    // );
-    out.covariance_inv = RealMatrix(D, D);
+    out.covariance_inv = inverse_covariance_with_ridge2(
+        cov,
+        ridge_rel,
+        ridge_abs
+    );
     return out;
 }
 
@@ -533,17 +505,46 @@ MCResult MonteCarloEngine::summarize(const std::map<ParamId, double>& p) const {
     auto smpl = sample_predictions(p);
 
     if (cfg_.write_samples_csv && !smpl.sampled_obss.empty()) {
-        std::ofstream fs;
-        fs.open(cfg_.samples_csv_path);
+        std::ofstream fs(cfg_.samples_csv_path, std::ios::trunc);
+        if (!fs) {
+            throw std::runtime_error(
+                "Cannot open Monte-Carlo samples CSV: " + cfg_.samples_csv_path
+            );
+        }
 
-        for (auto &&[oid, v] : smpl.sampled_obss[0])
-            fs << oid.str() << ',';
+        const auto write_csv_field = [&fs](const std::string& field) {
+            fs << '"';
+            for (const char c : field) {
+                if (c == '"') fs << '"';
+                fs << c;
+            }
+            fs << '"';
+        };
+
+        bool first = true;
+        for (const auto& [oid, value] : smpl.sampled_obss.front()) {
+            static_cast<void>(value);
+            if (!first) fs << ',';
+            write_csv_field(oid.str());
+            first = false;
+        }
         fs << '\n';
 
-        for (auto &&ovec : smpl.sampled_obss) {
-            for (auto &&[oid, v] : ovec)
-                fs << v << ',';
+        fs << std::setprecision(std::numeric_limits<double>::max_digits10);
+        for (const auto& observable_values : smpl.sampled_obss) {
+            first = true;
+            for (const auto& [oid, value] : observable_values) {
+                static_cast<void>(oid);
+                if (!first) fs << ',';
+                fs << value;
+                first = false;
+            }
             fs << '\n';
+        }
+        if (!fs) {
+            throw std::runtime_error(
+                "Failed while writing Monte-Carlo samples CSV: " + cfg_.samples_csv_path
+            );
         }
     }
 

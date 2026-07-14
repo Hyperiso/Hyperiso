@@ -9,15 +9,15 @@ from pyhyperiso.core.Common.Configs import AlphasConfig
 
 
 class QEDProvider:
-    """Compute QED/electroweak quantities through the bound C++ provider.
+    r"""Compute QED/electroweak quantities through the bound C++ provider.
 
     The provider expects the global Hyperiso state to have been initialized
     before use, typically through ``HyperisoMaster.init(...)``. The numerical
     implementation is delegated to the C++ ``EWHelper`` backend.
 
     Note:
-        At the C++ level, ``EWHelper::alpha_em`` currently logs a
-        ``NotImplementedError`` and returns ``0.0``. The special precomputed
+        At the C++ level, generic running through ``EWHelper::alpha_em``
+        raises an explicit error because it is not implemented. The precomputed
         values of :math:`\alpha_{\mathrm{em}}` are stored in the ``EW`` block
         initialized by ``EWHelper::Init()``.
 

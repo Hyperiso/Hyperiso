@@ -7,9 +7,11 @@ objects where appropriate, for example :class:`ObservableId` and
 :class:`LhaID`.
 """
 
-from typing import AnyStr, Iterable, Optional, Sequence, Union
+from typing import AnyStr, Optional, Sequence, Union
 
-from pyhyperiso.phyperiso.pyhyperiso.common import ContributionTypeMapper as _CppContributionTypeMapper
+from pyhyperiso.phyperiso.pyhyperiso.common import (
+    ContributionTypeMapper as _CppContributionTypeMapper,
+)
 from pyhyperiso.phyperiso.pyhyperiso.common import DecayMapper as _CppDecayMapper
 from pyhyperiso.phyperiso.pyhyperiso.common import CustomObservableSpec as _CppCustomObservableSpec
 from pyhyperiso.phyperiso.pyhyperiso.common import _CppDecayId
@@ -37,8 +39,15 @@ from pyhyperiso.core.Common.GeneralEnum import (
     WilsonBasis,
 )
 from pyhyperiso.core.Common.LhaID import LhaID
+
 try:
-    from pyhyperiso.core.Common.SymbolId import ObservableId, DecayId, WGroupId, WCoefId, _unwrap_optional
+    from pyhyperiso.core.Common.SymbolId import (
+        ObservableId,
+        DecayId,
+        WGroupId,
+        WCoefId,
+        _unwrap_optional,
+    )
 except ImportError:
     from pyhyperiso.core.Common.SymbolId import ObservableId, WGroupId, WCoefId, _unwrap_optional
 
@@ -176,7 +185,6 @@ class CustomObservableSpec:
             "Custom observable spec must be CustomObservableSpec, dict, "
             "or tuple(canonical[, aliases[, ext]])"
         )
-
 
 
 class OrderMapper:
@@ -731,22 +739,15 @@ class DecayMapper:
 
         if isinstance(decay, DecayId):
             return [
-                _wrap_observable_id(o)
-                for o in _CppDecayMapper.get_observables(decay._to_cpp())
+                _wrap_observable_id(o) for o in _CppDecayMapper.get_observables(decay._to_cpp())
             ]
 
-        return [
-            _wrap_observable_id(o)
-            for o in _CppDecayMapper.get_observables_by_name(str(decay))
-        ]
+        return [_wrap_observable_id(o) for o in _CppDecayMapper.get_observables_by_name(str(decay))]
 
     @staticmethod
     def get_observable_ids(decay: Decays):
         """Return builtin decay observables converted to :class:`ObservableId`."""
-        return [
-            _wrap_observable_id(o)
-            for o in _CppDecayMapper.get_observable_ids(decay.value)
-        ]
+        return [_wrap_observable_id(o) for o in _CppDecayMapper.get_observable_ids(decay.value)]
 
     @staticmethod
     def get_decay(obs: Observables) -> Decays:
@@ -798,6 +799,7 @@ class DecayMapper:
             list(aliases or []),
         )
 
+
 __all__ = [
     "OrderMapper",
     "ParameterTypeMapper",
@@ -815,34 +817,3 @@ __all__ = [
     "CustomObservableSpec",
     "DecayId",
 ]
-
-if __name__ == "__main__":
-    
-    ordermapper = OrderMapper()
-    
-    print(ordermapper.get_str())
-    print(ordermapper.get_str_all())
-    print(ordermapper.get_enum())
-    
-    gm = GroupMapper()
-    
-    print(gm.str(WGroup.B))
-    
-    print(gm.id_of(WGroup.B))
-    print(type(gm.id_of(WGroup.B)))
-    
-    om = ObservableMapper()
-    
-    print(om.str(Observables.A_FB_B__D_TAU_NU))
-    
-    print(om.flha(Observables.BR_BU_TAU_NU))
-    print(type(om.flha(Observables.BR_BU_TAU_NU)))
-    
-    decaymapper = DecayMapper()
-    
-
-    print(decaymapper.get_observables(Decays.B__D_l_nu))
-    print(decaymapper.get_decay(Observables.BR_D__MU_NU))
-    
-    wcoefmapper = WCoefMapper()
-    

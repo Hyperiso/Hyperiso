@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import os
+
 from pathlib import Path
 
 import plotly.express as px
@@ -34,7 +36,9 @@ def make_app() -> Dash:
         __name__,
         suppress_callback_exceptions=True,
         title="PyHyperiso Dash GUI",
-        assets_folder=str(Path(__file__).resolve().parent / "pyhyperiso_dash" / "assets"),
+        assets_folder=str(
+            Path(__file__).resolve().parent / "pyhyperiso_dash" / "assets"
+        ),
     )
 
     app.layout = html.Div(
@@ -103,4 +107,4 @@ server = app.server
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=os.getenv("HYPERISO_DASH_DEBUG", "0").lower() in {"1", "true", "yes"})

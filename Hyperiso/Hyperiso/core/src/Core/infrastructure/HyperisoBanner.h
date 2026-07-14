@@ -10,15 +10,13 @@
 #include <vector>
 
 #include "Config.h"
+#include "config.hpp"
 #include "IPathsProvider.h"
 #include "MemoryManager.h"
 
-#ifndef HYPERISO_VERSION
-#define HYPERISO_VERSION "0.1.0"
-#endif
 
 #ifndef HYPERISO_AUTHORS
-#define HYPERISO_AUTHORS "Theo Reymermier and the Hyperiso contributors"
+#define HYPERISO_AUTHORS "Theo Reymermier, Niels Fardeau and the Hyperiso contributors"
 #endif
 
 /**
@@ -39,7 +37,7 @@ public:
 
         std::cout << "\n";
         print_rule('=');
-        std::cout << "  H Y P E R I S O   v" << HYPERISO_VERSION << "\n";
+        std::cout << "  H Y P E R I S O   v" << project_version << "\n";
         std::cout << "  High-energy flavour observables and Wilson coefficient engine\n";
         std::cout << "  Authors: " << HYPERISO_AUTHORS << "\n";
         print_rule('-');

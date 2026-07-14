@@ -33,7 +33,7 @@ Useful options:
 | `BUILD_WITH_MARTY` | `OFF` | Enable MARTY integration. |
 | `BUILD_WITH_SOFTSUSY` | `OFF` | Enable bundled SOFTSUSY fallback; Python/C++ can also use a runtime `softpoint.x` path. |
 | `ENABLE_CLANG_TIDY` | `OFF` | Run clang-tidy during the build. |
-| `ENABLE_ADRESS_SANITIZER` | `OFF` | Enable AddressSanitizer. |
+| `ENABLE_ADDRESS_SANITIZER` | `OFF` | Enable AddressSanitizer. |
 | `ENABLE_UNDEFINED_SANITIZER` | `OFF` | Enable UndefinedBehaviorSanitizer. |
 
 ## Run tests
@@ -108,9 +108,9 @@ cmake --build build-examples -j
 The C++ project, Python package and release tag should use the same semantic version. For example:
 
 ```text
-CMake project version: 0.1.0
-Python package version: 0.1.0
-Git tag: v0.1.0
+CMake project version: 1.0.0
+Python package version: 1.0.0
+Git tag: v1.0.0
 ```
 
 Update all version locations in the same pull request.

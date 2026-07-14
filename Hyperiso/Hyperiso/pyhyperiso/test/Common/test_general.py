@@ -1,7 +1,6 @@
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.LhaID import LhaID
-import pytest
 
 
 def test_lhaid_from_string():
@@ -48,8 +47,4 @@ def test_paramid_repr_and_dict():
     repr_str = repr(pid)
     assert "ParamId" in repr_str
     d = pid.to_dict()
-    assert d == {
-        "type": "SM",
-        "block": "X",
-        "code": "1_2"
-    }
+    assert d == {"type": "SM", "block": "X", "code": "1_2"}

@@ -3,7 +3,7 @@ from __future__ import annotations
 import math
 import re
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any
 
 
 def enum_by_name(enum_cls: type, name: str):
@@ -13,7 +13,9 @@ def enum_by_name(enum_cls: type, name: str):
         return enum_cls[str(name)]
     except KeyError as exc:
         valid = ", ".join(x.name for x in enum_cls)
-        raise ValueError(f"Unknown {enum_cls.__name__}: {name}. Valid values: {valid}") from exc
+        raise ValueError(
+            f"Unknown {enum_cls.__name__}: {name}. Valid values: {valid}"
+        ) from exc
 
 
 def as_float(value: Any, default: float | None = None) -> float | None:
@@ -109,7 +111,11 @@ def scalar_components(value: Any, _seen: set[int] | None = None) -> tuple[float,
     # scalar_t usually exposes the same methods.
     if hasattr(value, "real") or hasattr(value, "to_double"):
         try:
-            real_obj = _call_or_value(value, "real") if hasattr(value, "real") else _call_or_value(value, "to_double")
+            real_obj = (
+                _call_or_value(value, "real")
+                if hasattr(value, "real")
+                else _call_or_value(value, "to_double")
+            )
             imag_obj = _call_or_value(value, "imag") if hasattr(value, "imag") else 0.0
             real = _primitive_float(real_obj)
             imag = _primitive_float(imag_obj)
@@ -135,14 +141,20 @@ def scalar_components(value: Any, _seen: set[int] | None = None) -> tuple[float,
         if hasattr(value, real_name):
             try:
                 real_obj = _call_or_value(value, real_name)
-                imag_obj = _call_or_value(value, imag_name) if hasattr(value, imag_name) else 0.0
+                imag_obj = (
+                    _call_or_value(value, imag_name)
+                    if hasattr(value, imag_name)
+                    else 0.0
+                )
                 real = _primitive_float(real_obj)
                 imag = _primitive_float(imag_obj)
                 if real is not None and imag is not None:
                     return real, imag
                 return (
                     scalar_components(real_obj, _seen)[0],
-                    scalar_components(imag_obj, _seen)[0] if imag_obj is not None else 0.0,
+                    scalar_components(imag_obj, _seen)[0]
+                    if imag_obj is not None
+                    else 0.0,
                 )
             except Exception:
                 pass
@@ -161,10 +173,14 @@ def scalar_components(value: Any, _seen: set[int] | None = None) -> tuple[float,
     # ``1.2+0.3i`` or ``scalar_t(real=1.2, imag=-0.3)``. Do not parse
     # default Python object reprs because their memory addresses contain digits.
     if "object at 0x" in text or (text.startswith("<") and text.endswith(">")):
-        raise TypeError(f"Cannot convert opaque scalar object {type(value)!r}; expose real/imag accessors in the binding.")
+        raise TypeError(
+            f"Cannot convert opaque scalar object {type(value)!r}; expose real/imag accessors in the binding."
+        )
     nums = re.findall(r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?", text)
     if nums:
-        if len(nums) >= 2 and any(token in text.lower() for token in ("j", "i", "imag", ",")):
+        if len(nums) >= 2 and any(
+            token in text.lower() for token in ("j", "i", "imag", ",")
+        ):
             return float(nums[0]), float(nums[1])
         return float(nums[0]), 0.0
 

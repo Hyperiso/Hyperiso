@@ -1,5 +1,5 @@
 from dataclasses import dataclass, field
-from typing import Iterable, Set, Union
+from typing import Set, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.common import (
     WilsonBuildConfig as _CppWilsonBuildConfig,
@@ -149,17 +149,3 @@ __all__ = [
     "_cpp_group_id",
     "_cpp_coef_id",
 ]
-    
-    
-if __name__ == "__main__":
-    py_alpha_config = AlphasConfig(scale=91.1876, m_b_type=MassType.POLE, m_t_type=MassType.MSBAR)
-    py_mass_config = MassConfig(pdg_id=5, scale=91.1876, m_b_type=MassType.MSBAR, m_t_type=MassType.MSBAR)
-    py_wilson = WilsonRequest(WGroup.B, WCoeff.C7, QCDOrder.LO, ContributionType.SM, ScaleType.HADRONIC)
-    print(py_alpha_config)
-    print(py_mass_config)
-    print(py_wilson)
-
-    cpp_alpha_config = py_alpha_config.to_cpp()
-    cpp_mass_config = py_mass_config.to_cpp()
-    py_wilson.to_cpp()
-    

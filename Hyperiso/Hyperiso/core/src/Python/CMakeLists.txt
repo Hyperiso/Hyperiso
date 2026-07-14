@@ -1,5 +1,9 @@
 cmake_minimum_required(VERSION 3.20)
-project(phyperiso LANGUAGES CXX)
+if(DEFINED SKBUILD_PROJECT_VERSION)
+    project(phyperiso VERSION "${SKBUILD_PROJECT_VERSION}" LANGUAGES CXX)
+else()
+    project(phyperiso VERSION 1.0.0 LANGUAGES CXX)
+endif()
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -11,20 +15,7 @@ if (NOT DEFINED BUILD_WITH_MARTY)
     option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
 endif()
 
-# pybind11 via pybind11-config (OK tant que le package pybind11 est installé via pip)
-execute_process(
-    COMMAND pybind11-config --cmakedir
-    OUTPUT_VARIABLE PYBIND11_CMAKE_DIR
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-    ERROR_QUIET
-)
-
-if(PYBIND11_CMAKE_DIR)
-    list(APPEND CMAKE_PREFIX_PATH "${PYBIND11_CMAKE_DIR}")
-else()
-    message(FATAL_ERROR "pybind11-config not found, please install pybind11.")
-endif()
-
+find_package(Python REQUIRED COMPONENTS Interpreter Development.Module)
 find_package(pybind11 CONFIG REQUIRED)
 
 include_directories(${CMAKE_SOURCE_DIR}/include)
@@ -49,7 +40,7 @@ if (NOT TARGET StatisticLib)
     add_subdirectory(../Statistic StatisticLib)
 endif()
 
-add_library(pyhyperiso MODULE
+pybind11_add_module(pyhyperiso MODULE
     src/pyhyperiso.cpp
     src/common/binding_common.cpp
     src/math/binding_math.cpp
@@ -60,20 +51,12 @@ add_library(pyhyperiso MODULE
 )
 
 target_link_libraries(pyhyperiso PRIVATE
-    pybind11::module
     CoreLib
     PhysicalModelLib
     BusinessLogicLib
     StatisticLib
 )
 
-set_target_properties(pyhyperiso PROPERTIES
-    PREFIX "${PYTHON_MODULE_PREFIX}"
-    SUFFIX "${PYTHON_MODULE_EXTENSION}"
-)
 
-# ⚠️ IMPORTANT : Installation dans le wheel
-# Destination RELATIVE à la racine de site-packages
-# => le .so sera installé dans pyhyperiso/phyperiso/ dans le wheel
 install(TARGETS pyhyperiso
         LIBRARY DESTINATION "pyhyperiso/phyperiso")

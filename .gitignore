@@ -34,3 +34,7 @@ GHyperiso/.next
 GHyperiso/node_modules
 Hyperiso/Hyperiso/dist/*
 Hyperiso/Hyperiso/wheelhouse/*
+# Local release/build leftovers
+Assets/*.zip
+Assets/template/MARTY/* copy.cpp
+Hyperiso/Hyperiso/core/src/configured_files/

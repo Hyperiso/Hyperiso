@@ -83,8 +83,10 @@ class QCDConstants:
 
     def __repr__(self):
         """Return a compact developer-oriented representation."""
-        return (f"QCDConstants(Nc={self.Nc}, C_F={self.C_F}, C_A={self.C_A}, "
-                f"beta={self.beta}, gamma={self.gamma})")
+        return (
+            f"QCDConstants(Nc={self.Nc}, C_F={self.C_F}, C_A={self.C_A}, "
+            f"beta={self.beta}, gamma={self.gamma})"
+        )
 
 
 __all__ = ["QCDConstants"]

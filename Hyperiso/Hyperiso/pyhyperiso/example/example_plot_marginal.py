@@ -1,9 +1,8 @@
 from __future__ import annotations
 
 import os
-import math
 from dataclasses import dataclass
-from typing import Sequence, Optional, List, Tuple
+from typing import Optional, List, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -22,7 +21,7 @@ from pyhyperiso.core.Statistic.MarginalDistribution import (
 def make_likelihood_cfg() -> LikelihoodMarginalConfig:
     """Likelihood synthétique (mélange de 2 gaussiennes) sur une grille."""
     xs = np.linspace(-5.0, 5.0, 401)
-    w = np.exp(-0.5 * ((xs - (-1.2)) / 0.7) ** 2) + 0.65 * np.exp(-0.5 * ((xs - 1.6)) / 1.1) ** 2
+    w = np.exp(-0.5 * ((xs - (-1.2)) / 0.7) ** 2) + 0.65 * np.exp(-0.5 * (xs - 1.6) / 1.1) ** 2
     w = w / np.sum(w)
     return LikelihoodMarginalConfig(values=xs.tolist(), weights=w.tolist())
 
@@ -69,14 +68,15 @@ def _ecdf(samples: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     return s, y
 
 
-def plot_pdf_vs_samples(name: str, dist, xs: np.ndarray, samples: np.ndarray, outpath: Optional[str] = None) -> None:
+def plot_pdf_vs_samples(
+    name: str, dist, xs: np.ndarray, samples: np.ndarray, outpath: Optional[str] = None
+) -> None:
     pdf = _pdf(dist, xs)
 
     plt.figure(figsize=(10.2, 5.7))
     plt.hist(samples, bins=60, density=True, alpha=0.35, label="samples (density)")
     plt.plot(xs, pdf, linewidth=2.3, label="pdf = exp(logpdf)")
 
-    # Bande 68% + médiane
     try:
         q16, q50, q84 = dist.ppf(0.16), dist.ppf(0.50), dist.ppf(0.84)
         q16, q50, q84 = float(q16), float(q50), float(q84)
@@ -86,7 +86,6 @@ def plot_pdf_vs_samples(name: str, dist, xs: np.ndarray, samples: np.ndarray, ou
     except Exception:
         pass
 
-    # Moyenne
     try:
         mu = float(dist.mean())
         if np.isfinite(mu):
@@ -107,7 +106,9 @@ def plot_pdf_vs_samples(name: str, dist, xs: np.ndarray, samples: np.ndarray, ou
         plt.close()
 
 
-def plot_cdf_theory_vs_empirical(name: str, dist, xs: np.ndarray, samples: np.ndarray, outpath: Optional[str] = None) -> None:
+def plot_cdf_theory_vs_empirical(
+    name: str, dist, xs: np.ndarray, samples: np.ndarray, outpath: Optional[str] = None
+) -> None:
     cdf_th = _cdf(dist, xs)
     s, y = _ecdf(samples)
 
@@ -115,7 +116,6 @@ def plot_cdf_theory_vs_empirical(name: str, dist, xs: np.ndarray, samples: np.nd
     plt.plot(xs, cdf_th, linewidth=2.4, label="theoretical CDF")
     plt.step(s, y, where="post", linewidth=1.8, alpha=0.9, label="empirical CDF (ECDF)")
 
-    # Repères (quartiles)
     for p, ls in [(0.25, "--"), (0.50, "--"), (0.75, "--")]:
         try:
             q = float(dist.ppf(p))
@@ -138,7 +138,9 @@ def plot_cdf_theory_vs_empirical(name: str, dist, xs: np.ndarray, samples: np.nd
         plt.close()
 
 
-def plot_global_cdf_ppf_consistency(specs: List[DistSpec], seed: int, outpath: Optional[str] = None) -> None:
+def plot_global_cdf_ppf_consistency(
+    specs: List[DistSpec], seed: int, outpath: Optional[str] = None
+) -> None:
     p = np.linspace(0.001, 0.999, 500)
 
     plt.figure(figsize=(10.4, 5.8))
@@ -168,12 +170,20 @@ def plot_global_cdf_ppf_consistency(specs: List[DistSpec], seed: int, outpath: O
         plt.close()
 
 
-def main(show: bool = True, outdir: Optional[str] = "marginal_plots", seed: int = 123, n_samples: int = 3500) -> None:
+def main(
+    show: bool = True,
+    outdir: Optional[str] = "marginal_plots",
+    seed: int = 123,
+    n_samples: int = 3500,
+) -> None:
     specs: List[DistSpec] = [
         DistSpec("Gaussian", MarginalKind.GAUSSIAN, GaussianMarginalConfig(mu=0.6, sigma=1.15)),
-        DistSpec("SplitGaussian", MarginalKind.HALF_GAUSSIAN, SplitGaussianMarginalConfig(mu=0.0, sigma_p=0.75, sigma_m=1.55)),
+        DistSpec(
+            "SplitGaussian",
+            MarginalKind.HALF_GAUSSIAN,
+            SplitGaussianMarginalConfig(mu=0.0, sigma_p=0.75, sigma_m=1.55),
+        ),
         DistSpec("Flat", MarginalKind.FLAT, FlatMarginalConfig(a=-2.5, b=3.2)),
-        # DistSpec("Likelihood", MarginalKind.LIKELIHOOD, make_likelihood_cfg()),
     ]
 
     if outdir is not None:

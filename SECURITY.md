@@ -2,15 +2,15 @@
 
 ## Supported versions
 
-HyperIso is currently in active research and pre-release development. Security fixes are provided for:
+HyperIso is active research software. Security fixes are provided for:
 
 | Version | Supported |
 |---|---|
 | `main` branch | Yes |
 | Latest tagged release | Yes |
-| Older pre-release tags | Best effort |
+| Older releases | Best effort |
 
-Long-term support windows will be defined once the first stable release is published.
+Version 1.0.0 is the first stable release. Long-term support windows are not guaranteed.
 
 ## Reporting a vulnerability
 
@@ -37,14 +37,10 @@ Security-sensitive areas include:
 - Python bindings that cross the C++/Python boundary;
 - Docker images and CI artifacts.
 
-## Hardening roadmap
+## Implemented release hardening
 
-Planned security and quality improvements include:
+The repository uses CodeQL, OpenSSF Scorecard, Dependabot, C++ sanitizer
+configuration, strict pre-commit checks, frozen numerical references, SBOM
+generation and provenance attestations in the release workflow.
 
-- CodeQL analysis in CI;
-- OpenSSF Scorecard monitoring;
-- Dependabot updates;
-- pre-commit secret detection;
-- parser fuzzing for LHA/SLHA/FLHA/YAML inputs;
-- sanitizers for C++ Debug CI;
-- reproducible release artifacts.
+Parser fuzzing and broader long-running numerical campaigns remain roadmap work.

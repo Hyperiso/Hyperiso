@@ -3,6 +3,12 @@
 FlatMarginal::FlatMarginal(double a, double b, unsigned int seed)
     : a(a), b(b)
 {
+    if (!std::isfinite(a) || !std::isfinite(b) || !(a < b)) {
+        throw std::invalid_argument("FlatMarginal requires finite bounds with a < b");
+    }
+    if (!eng_) {
+        throw std::runtime_error("FlatMarginal could not allocate its GSL RNG");
+    }
     gsl_rng_set(eng_.get(), seed);
 }
 
@@ -14,12 +20,12 @@ std::vector<double> FlatMarginal::rvs(std::size_t n) {
 }
 
 double FlatMarginal::logpdf(double x) {
-    return (x > a && x < b) ? std::log(gsl_ran_flat_pdf(x, a, b)) : -1e100;
+    return (x >= a && x <= b) ? std::log(gsl_ran_flat_pdf(x, a, b)) : -std::numeric_limits<double>::infinity();
 }
 
 PDFDiff FlatMarginal::f_df_ddf(double x) {
-    double f = logpdf(x); //TODO :: should be pdf not logpdf
-    return {f, 0.0, 0.0};
+    const double pdf = (x >= a && x <= b) ? gsl_ran_flat_pdf(x, a, b) : 0.0;
+    return {pdf, 0.0, 0.0};
 }
 
 double FlatMarginal::cdf(double x) {

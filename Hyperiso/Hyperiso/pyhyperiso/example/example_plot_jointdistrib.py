@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import os
 import math
-from typing import Any, List, Optional, Sequence, Tuple
+from typing import Any, Tuple
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,9 +11,6 @@ from statistics import NormalDist
 from pyhyperiso.core.Math.RealMatrix import Matrix
 
 
-# ---------------- Robust imports (selon tes modules) ----------------
-
-# Joint
 from pyhyperiso.core.Statistic.JointDistribution import JointDistributionFactory as JF
 
 from pyhyperiso.core.Statistic.MarginalDistribution import DistributionFactoryWrapper as MF
@@ -21,22 +18,22 @@ from pyhyperiso.core.Statistic.MarginalDistribution import DistributionFactoryWr
 from pyhyperiso.core.Statistic.MarginalDistribution import MarginalKind
 
 from pyhyperiso.core.Statistic.MarginalConfig import (
-        GaussianMarginalConfig as GaussianCfg,
-        SplitGaussianMarginalConfig as SplitGaussianCfg,
-        FlatMarginalConfig as FlatCfg,
-        LikelihoodMarginalConfig as LikelihoodCfg,
-    )
+    GaussianMarginalConfig as GaussianCfg,
+    SplitGaussianMarginalConfig as SplitGaussianCfg,
+    LikelihoodMarginalConfig as LikelihoodCfg,
+)
 
 from pyhyperiso.core.Statistic.Copula import CopulaKind
 
 from pyhyperiso.core.Statistic.CopulaConfig import (
-        GaussianCopulaConfigPy as GaussianCopulaCfg,
-        StudentTCopulaConfigPy as StudentTCopulaCfg,
-    )
+    GaussianCopulaConfigPy as GaussianCopulaCfg,
+    StudentTCopulaConfigPy as StudentTCopulaCfg,
+)
 
 
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
+
 
 def ar1_corr(d: int, rho: float) -> Matrix:
     if not (-0.999 < rho < 0.999):
@@ -44,11 +41,13 @@ def ar1_corr(d: int, rho: float) -> Matrix:
     R = [[(rho ** abs(i - j)) for j in range(d)] for i in range(d)]
     return Matrix(R)
 
+
 def make_likelihood_cfg() -> Any:
     xs = np.linspace(-5.0, 5.0, 401)
     w = np.exp(-0.5 * ((xs - (-1.2)) / 0.7) ** 2) + 0.65 * np.exp(-0.5 * ((xs - 1.6) / 1.1) ** 2)
     w = w / np.sum(w)
     return LikelihoodCfg(values=xs.tolist(), weights=w.tolist())
+
 
 def _safe_float(x) -> float:
     try:
@@ -56,10 +55,12 @@ def _safe_float(x) -> float:
     except Exception:
         return float("nan")
 
+
 def ecdf(samples: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     s = np.sort(samples)
     y = np.arange(1, len(s) + 1) / len(s)
     return s, y
+
 
 def gaussianize(U: np.ndarray) -> np.ndarray:
     nd = NormalDist()
@@ -68,13 +69,14 @@ def gaussianize(U: np.ndarray) -> np.ndarray:
     inv = np.vectorize(nd.inv_cdf, otypes=[float])
     return inv(Uc)
 
+
 def spearman_corr(U: np.ndarray) -> np.ndarray:
-    # Spearman via rangs + corrcoef
     order = np.argsort(U, axis=0)
     ranks = np.empty_like(order, dtype=float)
     for j in range(U.shape[1]):
         ranks[order[:, j], j] = np.arange(1, len(U) + 1, dtype=float)
     return np.corrcoef(ranks, rowvar=False)
+
 
 def plot_hist_pdf(samples: np.ndarray, dist, name: str, outpath: str) -> None:
     # grille basée sur quantiles pour être “smart”
@@ -104,6 +106,7 @@ def plot_hist_pdf(samples: np.ndarray, dist, name: str, outpath: str) -> None:
     plt.savefig(outpath, dpi=200)
     plt.close()
 
+
 def plot_cdf_ecdf(samples: np.ndarray, dist, name: str, outpath: str) -> None:
     try:
         xlo = _safe_float(dist.ppf(0.001))
@@ -132,6 +135,7 @@ def plot_cdf_ecdf(samples: np.ndarray, dist, name: str, outpath: str) -> None:
     plt.savefig(outpath, dpi=200)
     plt.close()
 
+
 def plot_uniformity(u: np.ndarray, name: str, outpath: str) -> None:
     plt.figure(figsize=(7.6, 4.6))
     plt.hist(u, bins=50, density=True, alpha=0.45, label="u = F(x)")
@@ -148,6 +152,7 @@ def plot_uniformity(u: np.ndarray, name: str, outpath: str) -> None:
     plt.savefig(outpath, dpi=200)
     plt.close()
 
+
 def plot_hist2d(u1: np.ndarray, u2: np.ndarray, title: str, outpath: str) -> None:
     plt.figure(figsize=(6.9, 6.5))
     plt.hist2d(u1, u2, bins=80, density=True)
@@ -162,6 +167,7 @@ def plot_hist2d(u1: np.ndarray, u2: np.ndarray, title: str, outpath: str) -> Non
     plt.tight_layout()
     plt.savefig(outpath, dpi=200)
     plt.close()
+
 
 def plot_heatmap(M: np.ndarray, title: str, outpath: str) -> None:
     plt.figure(figsize=(6.9, 6.0))
@@ -179,6 +185,7 @@ def plot_heatmap(M: np.ndarray, title: str, outpath: str) -> None:
     plt.tight_layout()
     plt.savefig(outpath, dpi=200)
     plt.close()
+
 
 def plot_joint_density_2d(jd, X: np.ndarray, title: str, outpath: str, grid: int = 120) -> None:
     # heatmap exp(logpdf) sur une grille autour des quantiles empiriques
@@ -201,7 +208,9 @@ def plot_joint_density_2d(jd, X: np.ndarray, title: str, outpath: str, grid: int
         D[i, :] = row
 
     plt.figure(figsize=(7.6, 6.2))
-    im = plt.imshow(D, origin="lower", extent=[xs[0], xs[-1], ys[0], ys[-1]], interpolation="nearest")
+    im = plt.imshow(
+        D, origin="lower", extent=[xs[0], xs[-1], ys[0], ys[-1]], interpolation="nearest"
+    )
     plt.colorbar(im, label="joint density")
     plt.title(title)
     plt.xlabel("x1")
@@ -212,23 +221,22 @@ def plot_joint_density_2d(jd, X: np.ndarray, title: str, outpath: str, grid: int
     plt.close()
 
 
-# ---------------- Main “dashboard” ----------------
 
 def main(
     outdir: str = "joint_plots",
     seed: int = 123,
     n: int = 15000,
-    copula_kind: str = "GAUSSIAN",   # "GAUSSIAN" or "STUDENT_T"
+    copula_kind: str = "GAUSSIAN",  # "GAUSSIAN" or "STUDENT_T"
     nu: int = 6,
     rho: float = 0.65,
 ) -> None:
     ensure_dir(outdir)
 
-    # ---- Exemple de modèle (tu peux changer ces configs)
-    # Ici on met d=2 pour avoir aussi la heatmap joint density.
     marginal_types = [
         MarginalKind.GAUSSIAN,
-        MarginalKind.SPLIT_GAUSSIAN if hasattr(MarginalKind, "SPLIT_GAUSSIAN") else MarginalKind.HALF_GAUSSIAN,
+        MarginalKind.SPLIT_GAUSSIAN
+        if hasattr(MarginalKind, "SPLIT_GAUSSIAN")
+        else MarginalKind.HALF_GAUSSIAN,
     ]
 
     marginal_cfgs = [
@@ -238,11 +246,8 @@ def main(
 
     d = len(marginal_types)
 
-    # ---- Build marginals (wrappers) for diagnostics (cdf/pdf/ppf)
-    # seed pas important pour pdf/cdf, mais on le met pour cohérence
     marginals = [MF.create(marginal_types[i], marginal_cfgs[i], seed=seed + i) for i in range(d)]
 
-    # ---- Build copula config
     R = ar1_corr(d, rho)
     if copula_kind.upper() == "GAUSSIAN":
         c_kind = CopulaKind.GAUSSIAN
@@ -251,59 +256,70 @@ def main(
         c_kind = CopulaKind.STUDENT_T
         c_cfg = StudentTCopulaCfg(R=R, nu=int(nu))
 
-    # ---- Build joint distribution
     jd = JF.create(marginal_types, marginal_cfgs, c_kind, c_cfg, seed=seed)
 
-    # ---- Sample
     X = np.array(jd.sample(int(n)), dtype=float)  # shape (n, d)
 
-    # ---- Marginal checks: PDF + CDF/ECDF + PIT uniformity
     for i in range(d):
         xi = X[:, i]
         dist = marginals[i]
 
-        plot_hist_pdf(xi, dist, name=f"Marginal {i+1}", outpath=os.path.join(outdir, f"marg_{i+1}_pdf.png"))
-        plot_cdf_ecdf(xi, dist, name=f"Marginal {i+1}", outpath=os.path.join(outdir, f"marg_{i+1}_cdf.png"))
+        plot_hist_pdf(
+            xi,
+            dist,
+            name=f"Marginal {i + 1}",
+            outpath=os.path.join(outdir, f"marg_{i + 1}_pdf.png"),
+        )
+        plot_cdf_ecdf(
+            xi,
+            dist,
+            name=f"Marginal {i + 1}",
+            outpath=os.path.join(outdir, f"marg_{i + 1}_cdf.png"),
+        )
 
-        # PIT: u = F(x) doit être ~ Uniform(0,1)
         ui = np.array([_safe_float(dist.cdf(float(x))) for x in xi], dtype=float)
-        plot_uniformity(ui, name=f"Marginal {i+1}", outpath=os.path.join(outdir, f"marg_{i+1}_pit.png"))
+        plot_uniformity(
+            ui, name=f"Marginal {i + 1}", outpath=os.path.join(outdir, f"marg_{i + 1}_pit.png")
+        )
 
-    # ---- Copula-level checks via U = (F1(x1), ..., Fd(xd))
     U = np.empty_like(X, dtype=float)
     for i in range(d):
         dist = marginals[i]
         U[:, i] = np.array([_safe_float(dist.cdf(float(x))) for x in X[:, i]], dtype=float)
     U = np.clip(U, 1e-12, 1 - 1e-12)
 
-    # 2D dependence in U (si d>=2)
     if d >= 2:
         plot_hist2d(
-            U[:, 0], U[:, 1],
+            U[:, 0],
+            U[:, 1],
             title="Dependence check — copula space (u1,u2)",
             outpath=os.path.join(outdir, "copula_u1_u2_hist2d.png"),
         )
 
-    # Spearman(U) + Corr(Phi^-1(U)) (bon check pour Gaussian copula)
     S = spearman_corr(U)
     Z = gaussianize(U)
     C = np.corrcoef(Z, rowvar=False)
 
     plot_heatmap(S, "Spearman corr of U (ranks)", os.path.join(outdir, "copula_spearman.png"))
-    plot_heatmap(C, "Corr of Z = Phi^-1(U) (compare to target R)", os.path.join(outdir, "copula_gaussianized_corr.png"))
+    plot_heatmap(
+        C,
+        "Corr of Z = Phi^-1(U) (compare to target R)",
+        os.path.join(outdir, "copula_gaussianized_corr.png"),
+    )
 
-    # ---- Joint density plot (2D only): exp(logpdf) heatmap
     if d == 2:
         plot_joint_density_2d(
-            jd, X,
+            jd,
+            X,
             title="Joint density heatmap: exp(logpdf(x))",
             outpath=os.path.join(outdir, "joint_density_heatmap.png"),
             grid=120,
         )
 
-    # ---- Quick summary in console
     print(f"[OK] Saved plots in: {outdir}/")
-    print(f"Joint dim = {jd.dim()} ; mean logpdf(sample) ≈ {float(np.mean([jd.logpdf(row.tolist()) for row in X[:2000]])):.3f}")
+    print(
+        f"Joint dim = {jd.dim()} ; mean logpdf(sample) ≈ {float(np.mean([jd.logpdf(row.tolist()) for row in X[:2000]])):.3f}"
+    )
     if copula_kind.upper() == "GAUSSIAN":
         print("Tip: for Gaussian copula, Corr(Phi^-1(U)) should be close to your R.")
 

@@ -15,5 +15,5 @@
       ]
     }
   },
-  "postCreateCommand": "python3 -m pip install --break-system-packages pre-commit pytest && pre-commit install || true"
+  "postCreateCommand": "python3 -m pip install --break-system-packages pre-commit pytest ruff==0.15.21 pyyaml && pre-commit install"
 }

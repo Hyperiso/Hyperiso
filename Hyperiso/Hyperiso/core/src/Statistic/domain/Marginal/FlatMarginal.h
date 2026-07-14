@@ -3,6 +3,8 @@
 
 #include <random>
 #include <cmath>
+#include <limits>
+#include <stdexcept>
 
 #include "IMarginalDistribution.h"
 #include "Include.h"
@@ -66,9 +68,9 @@ struct FlatMarginalCfg : public AbstractConfig {
  *
  * A GSL random-number generator is owned internally.
  *
- * @note The current implementation uses open-interval logic in @ref logpdf
- * (`x > a && x < b`), while the CDF/PPF follow the usual closed-boundary
- * conventions of the uniform law.
+ * The constructor rejects non-finite or reversed bounds. The density and
+ * log-density use the closed support convention at the two endpoints; this
+ * choice has no effect on probabilities for a continuous distribution.
  */
 class FlatMarginal final : public IMarginalDistribution {
 public:

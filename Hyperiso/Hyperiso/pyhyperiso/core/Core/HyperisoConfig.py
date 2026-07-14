@@ -56,12 +56,14 @@ class HyperisoConfig:
         >>> cpp_cfg = cfg.to_cpp()
     """
 
-    flags: Dict[ExternalFlag, bool] = field(default_factory=lambda: {
-        ExternalFlag.IS_LHA_SPECTRUM: False,
-        ExternalFlag.HAS_WILSON_INPUT: False,
-        ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-        ExternalFlag.HYP_AS_SM_MARTY: True,
-    })
+    flags: Dict[ExternalFlag, bool] = field(
+        default_factory=lambda: {
+            ExternalFlag.IS_LHA_SPECTRUM: False,
+            ExternalFlag.HAS_WILSON_INPUT: False,
+            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
+            ExternalFlag.HYP_AS_SM_MARTY: True,
+        }
+    )
     model: Model = Model.SM
     mty_model_name: Optional[str] = None
     mty_model_path: Optional[PathLike] = None

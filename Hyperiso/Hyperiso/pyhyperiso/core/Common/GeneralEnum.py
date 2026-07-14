@@ -9,9 +9,10 @@ from pyhyperiso.phyperiso.pyhyperiso.common import WCoef as _CppWCoef
 from pyhyperiso.phyperiso.pyhyperiso.common import Decays as _CppDecays
 from pyhyperiso.phyperiso.pyhyperiso.common import MassType as _CppMassType
 from pyhyperiso.phyperiso.pyhyperiso.common import ScaleType as _CppScaleType
-from pyhyperiso.phyperiso.pyhyperiso.common import ContributionType  as _CppContributionType 
-from pyhyperiso.phyperiso.pyhyperiso.common import DataType  as _CppDataType
+from pyhyperiso.phyperiso.pyhyperiso.common import ContributionType as _CppContributionType
+from pyhyperiso.phyperiso.pyhyperiso.common import DataType as _CppDataType
 from pyhyperiso.phyperiso.pyhyperiso.common import UncertaintyType as _CppUncertaintyType
+
 
 class Model(Enum):
     SM = _CppModel.SM
@@ -28,6 +29,7 @@ class ParameterType(Enum):
     DECAY = _CppParameterType.DECAY
     PASSTHROUGH = _CppParameterType.PASSTHROUGH
     OBSERVABLE = _CppParameterType.OBSERVABLE
+
 
 class QCDOrder(Enum):
     NONE = _CppQCDOrder.NONE
@@ -111,7 +113,7 @@ class WCoeff(Enum):
     CT_BD_3 = _CppWCoef.CT_BD_3
     C_BD_4 = _CppWCoef.C_BD_4
     C_BD_5 = _CppWCoef.C_BD_5
-    
+
     C_BS_1 = _CppWCoef.C_BS_1
     CT_BS_1 = _CppWCoef.CT_BS_1
     C_BS_2 = _CppWCoef.C_BS_2
@@ -120,7 +122,7 @@ class WCoeff(Enum):
     CT_BS_3 = _CppWCoef.CT_BS_3
     C_BS_4 = _CppWCoef.C_BS_4
     C_BS_5 = _CppWCoef.C_BS_5
-    
+
     C_SD_1 = _CppWCoef.C_SD_1
     CT_SD_1 = _CppWCoef.CT_SD_1
     C_SD_2 = _CppWCoef.C_SD_2
@@ -129,7 +131,7 @@ class WCoeff(Enum):
     CT_SD_3 = _CppWCoef.CT_SD_3
     C_SD_4 = _CppWCoef.C_SD_4
     C_SD_5 = _CppWCoef.C_SD_5
-    
+
     C_CU_1 = _CppWCoef.C_CU_1
     CT_CU_1 = _CppWCoef.CT_CU_1
     C_CU_2 = _CppWCoef.C_CU_2
@@ -138,7 +140,7 @@ class WCoeff(Enum):
     CT_CU_3 = _CppWCoef.CT_CU_3
     C_CU_4 = _CppWCoef.C_CU_4
     C_CU_5 = _CppWCoef.C_CU_5
-    
+
     CK9 = _CppWCoef.CK9
     CPK9 = _CppWCoef.CPK9
     CK10 = _CppWCoef.CK10
@@ -155,10 +157,12 @@ class WGroup(Enum):
     BPrime = _CppWGroup.BPrime
     BScalar = _CppWGroup.BScalar
     CC_bc = _CppWGroup.CC_bc
-    
+
+
 class WilsonBasis(Enum):
     STANDARD = _CppWilsonBasis.STANDARD
     TRADITIONAL = _CppWilsonBasis.TRADITIONAL
+
 
 class Observables(Enum):
     """Python enum wrapper around the bound C++ ``Observables`` enum.
@@ -697,6 +701,7 @@ class Observables(Enum):
     BR_DS__MU_NU = _CppObservables.BR_DS__MU_NU
     BR_DS__TAU_NU = _CppObservables.BR_DS__TAU_NU
 
+
 class Decays(Enum):
     B__D_l_nu = _CppDecays.B__D_l_nu
     B__Dstar_l_nu = _CppDecays.B__Dstar_l_nu
@@ -715,28 +720,32 @@ class Decays(Enum):
     K__l_nu = _CppDecays.K__l_nu
     D__l_nu = _CppDecays.D__l_nu
     Ds__l_nu = _CppDecays.Ds__l_nu
-    
+
+
 class MassType(Enum):
     POLE = _CppMassType.POLE
     MSBAR = _CppMassType.MSBAR
-    
+
+
 class ScaleType(Enum):
     MATCHING = _CppScaleType.MATCHING
     HADRONIC = _CppScaleType.HADRONIC
-    
+
+
 class ContributionType(Enum):
     SM = _CppContributionType.SM
     BSM = _CppContributionType.BSM
     TOTAL = _CppContributionType.TOTAL
-    
+
+
 class DataType(Enum):
     VALUE = _CppDataType.VALUE
     STD_STAT = _CppDataType.STD_STAT
     STD_SYST = _CppDataType.STD_SYST
     STD_COMBINED = _CppDataType.STD_COMBINED
-    
+
+
 class UncertaintyType(Enum):
     STAT = _CppUncertaintyType.STAT
     SYST = _CppUncertaintyType.SYST
     COMBINED = _CppUncertaintyType.COMBINED
-    

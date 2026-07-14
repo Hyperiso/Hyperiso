@@ -53,8 +53,7 @@ class BlockLogger:
         """
         if not isinstance(param_type, ParameterType):
             raise TypeError(
-                "param_type must be an instance of ParameterType, "
-                f"got {type(param_type).__name__}."
+                f"param_type must be an instance of ParameterType, got {type(param_type).__name__}."
             )
 
         return param_type.value
@@ -140,52 +139,3 @@ class BlockLogger:
 
 
 __all__ = ["BlockLogger", "BlockContent", "BlockKey"]
-        
-if __name__ == "__main__":
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/camilia.flha" 
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    block_prov = BlockLogger()
-
-    print("block mass : ")
-    block_prov.log_block(ParameterType.SM, "MASS")
-    print("all blocks in wilson: ")
-    block_prov.log_all_blocks(ParameterType.WILSON)
-    
-    print("does block SMINPUTS exists ? ", block_prov.exists("SMINPUTS", ParameterType.SM))
-    
-    print("block MASS:")
-    print(block_prov.get_block(ParameterType.SM, "MASS"))
-
-    print("all blocks in SM:")
-    print(block_prov.get_all_blocks(ParameterType.SM))
-
-    print(
-        "does block SMINPUTS exist?",
-        block_prov.exists("SMINPUTS", ParameterType.SM),
-    )

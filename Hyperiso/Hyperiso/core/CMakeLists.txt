@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 project(Hyperiso VERSION 1.0.0 LANGUAGES CXX)
 
-# Set C++ standard
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
@@ -13,12 +12,6 @@ include(Tools)
 include(CMakePackageConfigHelpers)
 include(GNUInstallDirs)
 include(FetchContent)
-
-# define_property(GLOBAL PROPERTY SUPPORTED_OS BRIEF_DOC "Supported Operating Systems")
-# set_property(GLOBAL PROPERTY SUPPORTED_OS "Linux")
-# if(NOT CMAKE_SYSTEM_NAME STREQUAL "Linux")
-#     message(FATAL_ERROR "This project is only supported on Linux.")
-# endif()
 
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
@@ -92,8 +85,14 @@ option(ENABLE_TESTS "Enable building of tests" OFF)
 option(ENABLE_WARNINGS "Enable warnings" OFF)
 option(ENABLE_WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
 
-option(ENABLE_ADRESS_SANITIZER "Enable adress sanitizer" OFF)
-option(ENABLE_UNDEFINED_SANITIZER "Enable undefined sanitizer" OFF)
+option(ENABLE_ADDRESS_SANITIZER "Enable AddressSanitizer" OFF)
+option(ENABLE_ADRESS_SANITIZER "Deprecated alias for ENABLE_ADDRESS_SANITIZER" OFF)
+option(ENABLE_UNDEFINED_SANITIZER "Enable UndefinedBehaviorSanitizer" OFF)
+
+if(ENABLE_ADRESS_SANITIZER)
+    message(DEPRECATION "ENABLE_ADRESS_SANITIZER is deprecated; use ENABLE_ADDRESS_SANITIZER")
+    set(ENABLE_ADDRESS_SANITIZER ON)
+endif()
 
 option(ENABLE_CLANG_TIDY "Enable to add clang tidy." OFF)
 
@@ -101,7 +100,7 @@ option(ENABLE_CLANG_FORMAT "Enable to add clang-format." OFF)
 option(ENABLE_CMAKE_FORMAT "Enable to add cmake-format." OFF)
 
 
-if (ENABLE_ADRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)
+if (ENABLE_ADDRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)
     include(Sanitizers)
     add_sanitizer_flags()
 endif()
@@ -122,13 +121,6 @@ add_subdirectory(src/Statistic StatisticLib)
 add_subdirectory(src/UserInterface UserInterfaceLib)
 
 if (ENABLE_TESTS)
-    # FetchContent_Declare(
-    #     Catch2
-    #     GIT_REPOSITORY https://github.com/catchorg/Catch2
-    #     GIT_TAG v3.5.3
-    #     GIT_SHALLOW TRUE)
-    # FetchContent_MakeAvailable(Catch2)
-    # list(APPEND CMAKE_MODULE_PATH ${catch2_SOURCE_DIR}/extras)
     enable_testing()
     add_subdirectory(Test)
 endif()
@@ -160,7 +152,6 @@ target_link_libraries(Hyperiso INTERFACE
     UserInterfaceLib
 )
 
-# Inclure src/ pendant le build (pour #include <hyperiso/...>)
 target_include_directories(Hyperiso
     INTERFACE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
@@ -168,10 +159,8 @@ target_include_directories(Hyperiso
         $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
 )
 
-# --- Installation ---
 include(GNUInstallDirs)
 
-# Liste des modules à copier depuis src/ (temporaire tant que les publics sont dans src/)
 set(HYPERISO_MODULES
     Common
     Configured
@@ -181,7 +170,7 @@ set(HYPERISO_MODULES
     Core
     ExternalIntegration/MartyInterface
     PhysicalModel
-    BusinessLogic,
+    BusinessLogic
     Statistic
     UserInterface
 )
@@ -197,28 +186,9 @@ foreach(MOD IN LISTS HYPERISO_MODULES)
     )
 endforeach()
 
-# Installe l’umbrella header
 install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso.hpp
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso)
 
-# # Installe la cible meta et les libs
-# install(TARGETS
-#     Hyperiso
-#     CommonLib
-#     ConfiguredModule
-#     MathLib
-#     DataBaseLib
-#     ExternalIntegrationLib
-#     CoreLib
-#     MartyInterfaceLib
-#     PhysicalModelLib
-#     BusinessLogicLib
-#     UserInterfaceLib
-#     EXPORT HyperisoTargets
-#     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-#     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-# )
 
 install(TARGETS Hyperiso
     EXPORT HyperisoTargets
@@ -232,12 +202,11 @@ install(EXPORT HyperisoTargets
 
 include(CMakePackageConfigHelpers)
 
-# Passe les options pour qu'elles soient substituées dans le .in
 set(BUILD_WITH_SOFTSUSY ${BUILD_WITH_SOFTSUSY})
 set(BUILD_WITH_MARTY    ${BUILD_WITH_MARTY})
 
 configure_package_config_file(
-    ${PROJECT_SOURCE_DIR}/Cmake/HyperisoConfig.cmake.in   # <<< casse "Cmake"
+    ${PROJECT_SOURCE_DIR}/Cmake/HyperisoConfig.cmake.in
     ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfig.cmake
     INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
 )

@@ -1,4 +1,6 @@
 #include "Parameters.h"
+
+#include <stdexcept>
 #include "DependentBlockManager.h"
 #include "MemoryManager.h"
 #include "ParameterRuntimeContext.h"
@@ -141,7 +143,7 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
     // FUTURE_UPDATE v1.1 : manage case of theoretical obs in lha. For now, assume only exp is given.
     if (type == ParameterType::OBSERVABLE &&
         MemoryManager::GetInstance()->cache.config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT]) {
-        LOG_ERROR("NotImplementedError", "Theoretical observable input is not yet implemented.");
+        throw std::logic_error("Theoretical observable input is not implemented");
     }
 
     if (auto* ctx = ParameterRuntimeContext::current()) {

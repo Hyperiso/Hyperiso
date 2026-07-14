@@ -3,7 +3,7 @@
   "input": "reproducibility/inputs/sm_reference.flha",
   "default_tolerances": {
     "abs_tol": 1e-12,
-    "rel_tol": 1e-8
+    "rel_tol": 1e-08
   },
   "examples": [
     {
@@ -12,7 +12,7 @@
       "command": "hyperiso-ui wilson summary --model SM --lha reproducibility/inputs/sm_reference.flha --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 4.8 --order NNLO",
       "stdout": "wilson_b_sm_nnlo.txt",
       "abs_tol": 1e-12,
-      "rel_tol": 1e-8
+      "rel_tol": 1e-08
     },
     {
       "id": "R2",
@@ -20,7 +20,7 @@
       "command": "hyperiso-ui wilson summary --model SM --lha reproducibility/inputs/sm_reference.flha --groups BScalarCoefficients --coeffs CQ1_MU,CQ2_MU --qmatch 81 --q 4.8 --order LO",
       "stdout": "wilson_bscalar_sm_lo.txt",
       "abs_tol": 1e-12,
-      "rel_tol": 1e-8
+      "rel_tol": 1e-08
     },
     {
       "id": "R3",
@@ -28,7 +28,7 @@
       "command": "hyperiso-ui observable summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --order NNLO",
       "stdout": "observables_sm_nnlo.txt",
       "abs_tol": 1e-14,
-      "rel_tol": 1e-8
+      "rel_tol": 1e-08
     },
     {
       "id": "R4",
@@ -36,15 +36,28 @@
       "command": "hyperiso-ui observable summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu --bins F_L_B0__K*0_mu_mu:1.1:6.0 --order NNLO",
       "stdout": "observable_binned_fl_kstar_sm_nnlo.txt",
       "abs_tol": 1e-12,
-      "rel_tol": 1e-8
+      "rel_tol": 1e-08
     },
     {
       "id": "R5",
       "description": "MC uncertainty summary with fixed seed",
-      "command": "hyperiso-ui statistic summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --uncertainties --draws 500 --seed 123456 --samples-csv reproducibility/outputs/statistics_samples.csv --order NNLO",
+      "command": "hyperiso-ui statistic summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --uncertainties --draws 1000 --seed 123456 --samples-csv reproducibility/outputs/statistics_samples.csv --order NNLO",
       "stdout": "statistics_sm_seed123456.txt",
-      "abs_tol": 5e-6,
-      "rel_tol": 5e-3
+      "abs_tol": 1e-12,
+      "rel_tol": 0.005,
+      "samples_csv": {
+        "file": "statistics_samples.csv",
+        "rows": 1000,
+        "columns": [
+          "BR_B__Xs_gamma [0, 0]",
+          "BR_Bs__mu_mu [0, 0]"
+        ],
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "abs_tol": 1e-12,
+        "rel_tol": 1e-08
+      }
     }
-  ]
+  ],
+  "hyperiso_version": "1.0.0"
 }

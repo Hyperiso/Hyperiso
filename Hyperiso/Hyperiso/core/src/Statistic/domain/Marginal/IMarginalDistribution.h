@@ -54,7 +54,8 @@ struct PDFDiff {
  *
  * For distributions where some notions are not naturally defined
  * (for example a discrete likelihood used only as a sampler), implementations
- * may return placeholder values, but this should be clearly documented.
+ * should throw a documented exception rather than return a plausible placeholder
+ * value.
  */
 struct IMarginalDistribution {
     /// Virtual destructor for safe polymorphic deletion.

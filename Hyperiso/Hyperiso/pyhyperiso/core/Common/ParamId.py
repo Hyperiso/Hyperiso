@@ -1,9 +1,10 @@
 from pyhyperiso.phyperiso.pyhyperiso import common
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from dataclasses import dataclass, field
-from typing import Optional, List, Union, Set
+from typing import Optional, List, Union
 from pyhyperiso.core.Common.BlockName import BlockName
 from pyhyperiso.core.Common.LhaID import LhaID
+
 
 @dataclass
 class ParamId:
@@ -34,6 +35,7 @@ class ParamId:
           ``type=None``, ``block="NULL"``, ``code=0``.
         - This class keeps an underlying C++ object in ``_cpp_obj``.
     """
+
     type: Optional[ParameterType] = None
     block: str = "NULL"
     code: Union[LhaID, int, str, List[int]] = field(default_factory=lambda: LhaID(0))
@@ -55,7 +57,7 @@ class ParamId:
         """
         if not isinstance(self.code, LhaID):
             self.code = LhaID(self.code)
-        
+
         if not isinstance(self.block, BlockName):
             self.block = BlockName(self.block)
 
@@ -98,7 +100,7 @@ class ParamId:
         return {
             "type": self.type.name if self.type else None,
             "block": self.block,
-            "code": self.code.to_string()
+            "code": self.code.to_string(),
         }
 
     @classmethod
@@ -117,7 +119,7 @@ class ParamId:
         instance.block = BlockName(cpp_obj.block)
         instance.code = LhaID(cpp_obj.code)
         return instance
-    
+
     def to_cpp(self):
         """Return the underlying bound C++ object.
 
@@ -125,7 +127,7 @@ class ParamId:
             common.ParamId: The wrapped pybind11 C++ instance.
         """
         return self._cpp_obj
-    
+
     def __repr__(self):
         """Return a debug representation.
 
@@ -133,7 +135,7 @@ class ParamId:
             str: Debug-style string including type, block and code.
         """
         return f"ParamId(type={self.type}, block='{self.block}', code={self.code})"
-    
+
     def __eq__(self, other):
         if not isinstance(other, ParamId):
             return NotImplemented
@@ -148,32 +150,10 @@ class ParamId:
         )
 
     def __hash__(self):
-        return hash((
-            self.type,
-            str(self.block),
-            self.code.to_string(),
-        ))
-    
-if __name__ == "__main__":
-    
-    print("\n🧬 Testing ParamId...")
-    pid1 = ParamId(ParameterType.SM, "MASS", 32)
-    pid2 = ParamId(block="YUKAWA", code="3_3")  # sans type
-    pid3 = ParamId(type=None, block=BlockName("QNUMBERS"), code=LhaID([6, 2]))
-
-    print(f"pid1 = {pid1}")
-    print(f"pid2 = {pid2}")
-    print(f"pid3 = {pid3}")
-
-    print("\n📤 Serialized dicts:")
-    print("pid1.to_dict() =", pid1.to_dict())
-    print("pid2.to_dict() =", pid2.to_dict())
-    print("pid3.to_dict() =", pid3.to_dict())
-
-    print("\n🛠️ Testing set_parameter_type...")
-    pid2.set_parameter_type(ParameterType.WILSON)
-    print(f"pid2 (after setting type to WILSON) = {pid2}")
-
-    print("\n✅ Equality check:")
-    print("pid1 == pid1:", pid1 == pid1)
-    print("pid1 != pid2:", pid1 != pid2)
+        return hash(
+            (
+                self.type,
+                str(self.block),
+                self.code.to_string(),
+            )
+        )

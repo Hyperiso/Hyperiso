@@ -8,6 +8,7 @@ def test_scalar_creation():
     assert s.real() == pytest.approx(1.5)
     assert s.imag() == pytest.approx(-0.5)
 
+
 def test_scalar_from_complex():
     z = complex(2, 3)
     s = Scalar.from_complex(z)

@@ -1,5 +1,7 @@
 #include "DslnuDecay.h"
 
+#include <stdexcept>
+
 void DslnuDecay::load_params() {
     complex_t C_A = w_proxy->getFM(WGroup::CC_cs, WCoef::C_V2_cs, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cs, WCoef::C_V1_cs, QCDOrder::LO);
     complex_t C_P = w_proxy->getFM(WGroup::CC_cs, WCoef::C_S2_cs, QCDOrder::LO) - w_proxy->getFM(WGroup::CC_cs, WCoef::C_S1_cs, QCDOrder::LO);
@@ -8,7 +10,7 @@ void DslnuDecay::load_params() {
 }
 
 double DslnuDecay::BR(int gen) {
-    double BR;
+    double BR = 0.0;
     switch (gen)
     {
     case 2:
@@ -18,14 +20,13 @@ double DslnuDecay::BR(int gen) {
         BR = cache.calc_tau.BR_0_SM() * cache.calc_tau.R_SM_BSM();
         break;
     default:
-        LOG_ERROR("NotImplementedError", "Decay Ds > e nu is not implemented.");
-        break;
+        throw std::invalid_argument("DslnuDecay supports only muon (2) and tau (3) generations");
     }
     return BR;
 }
 
 std::vector<ObservableValue> DslnuDecay::compute_observable(Observables obs) {
-    double value;
+    double value = 0.0;
     switch (obs) {
     case Observables::BR_DS__MU_NU:   
         value = BR(2);
@@ -34,7 +35,9 @@ std::vector<ObservableValue> DslnuDecay::compute_observable(Observables obs) {
         value = BR(3);
         break;
     default:
-        LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));
+        throw std::invalid_argument(
+            "Observable " + ObservableMapper::str(obs) + " does not belong to " + DecayMapper::str(this->id)
+        );
     }
 
     return {ObservableValue(ObservableMapper::to_id(obs), value)};

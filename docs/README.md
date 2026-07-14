@@ -32,3 +32,9 @@ Documentation should be:
 - clear about optional dependencies;
 - linked to examples and tests;
 - updated in the same pull request as public API changes.
+
+## Release and publication
+
+- [Release procedure](release.md)
+- [CPC Program Summary](cpc_program_summary.md)
+- [Known limitations](../KNOWN_LIMITATIONS.md)

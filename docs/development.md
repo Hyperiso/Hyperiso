@@ -29,7 +29,7 @@ cmake -S Hyperiso/Hyperiso/core -B build-asan \
   -G Ninja \
   -DCMAKE_BUILD_TYPE=Debug \
   -DENABLE_TESTS=ON \
-  -DENABLE_ADRESS_SANITIZER=ON \
+  -DENABLE_ADDRESS_SANITIZER=ON \
   -DENABLE_UNDEFINED_SANITIZER=ON
 
 cmake --build build-asan -j
@@ -47,7 +47,7 @@ Planned fuzzing targets:
 - Wilson coefficient request construction;
 - observable ID and mapper conversions.
 
-Until OSS-Fuzz integration exists, fuzzing is marked as planned in the README badges.
+These targets are roadmap items and are not release claims.
 
 ## Generated files
 

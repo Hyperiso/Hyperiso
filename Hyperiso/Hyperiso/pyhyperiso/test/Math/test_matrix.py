@@ -1,7 +1,5 @@
-import pytest
 from pyhyperiso.core.Math.SparseMatrix import SparseMatrix
-from contextlib import redirect_stdout
-import io
+
 
 def test_create_identity_matrix():
     indices = [0, 1, 2]
@@ -14,6 +12,7 @@ def test_create_identity_matrix():
             expected = 1.0 if i == j else 0.0
             assert mat.get(i, j) == expected
 
+
 def test_get_set_element():
     mat = SparseMatrix()
     mat.set(0, 1, 2.5)
@@ -22,6 +21,7 @@ def test_get_set_element():
     mat.set(0, 1, 0.0)
     assert mat.get(0, 1) == 0.0
 
+
 def test_get_diagonal_elements():
     mat = SparseMatrix()
     for i in range(3):
@@ -29,6 +29,7 @@ def test_get_diagonal_elements():
 
     diag = mat.diagonal()
     assert sorted(diag) == [0, 1, 2]
+
 
 def test_invert_matrix():
     indices = [0, 1]

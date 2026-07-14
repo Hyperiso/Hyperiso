@@ -19,6 +19,7 @@ from typing import Any
 from pyhyperiso.phyperiso.pyhyperiso.core import DependencyPruner as _CppDependencyPruner
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 
+
 class DependencyPruner:
     """Detach and reattach dependency links in the Hyperiso parameter graph.
 
@@ -145,46 +146,3 @@ class DependencyPruner:
 
 
 __all__ = ["DependencyPruner"]
-
-if __name__ == "__main__":
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster, HyperisoConfig, ExternalFlag,Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY : True
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/camilia.flha"
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-
-    from pyhyperiso.core.Core.DependantBlockInfoProvider import DependantBlockInfoProvider
-
-    dep = DependantBlockInfoProvider()
-    pruner = DependencyPruner()
-
-    # pruner.detach_block(ParameterType.SM, "EW")
-    # pruner.reattach_block(ParameterType.SM, "EW")
-    print("BEFORE : ", dep.get_source_blocks(ParameterType.SM, "VCKM"))
-    pruner.detach_block(ParameterType.SM, "VCKM")
-    
-    print("AFTER : ", dep.get_source_blocks(ParameterType.SM, "VCKM"))
-    
-    pruner.reattach_block(ParameterType.SM, "VCKM")
-    
-    print("BEFORE2 : ", dep.get_source_blocks(ParameterType.SM, "VCKM"))

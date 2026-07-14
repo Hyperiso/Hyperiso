@@ -100,24 +100,26 @@ struct MCObservableCovariance {
     /** Empirical mean for each observable in @ref ids order. */
     std::vector<double> mean;
 
-    /** Regularized empirical covariance matrix. */
+    /** Raw empirical covariance matrix. */
     RealMatrix covariance;
 
-    /** Inverse of @ref covariance. */
+    /** Numerically regularized inverse of @ref covariance. */
     RealMatrix covariance_inv;
 };
 
 /**
  * @brief Builds a regularized empirical covariance matrix from observable samples.
  *
- * The samples are read in the order specified by @p ids.  A diagonal ridge
- * equal to @c max(ridge_abs, ridge_rel * max(mean_variance, 1)) is added before
- * inversion to improve numerical stability.
+ * The samples are read in the order specified by @p ids. The empirical
+ * covariance is converted to a dimensionless correlation matrix, a ridge of
+ * `max(ridge_rel, ridge_abs)` is added to its diagonal, and the inverse is
+ * transformed back to covariance units. The returned covariance itself remains
+ * the raw empirical estimate.
  *
  * @param S Monte Carlo observable samples.
  * @param ids Observable identifiers defining the covariance ordering.
  * @param ridge_rel Relative ridge factor.
- * @param ridge_abs Absolute ridge floor.
+ * @param ridge_abs Minimum dimensionless ridge floor.
  * @return Empirical covariance, inverse covariance and column means.
  *
  * @throws std::invalid_argument if the sample set is empty, if @p ids is empty,

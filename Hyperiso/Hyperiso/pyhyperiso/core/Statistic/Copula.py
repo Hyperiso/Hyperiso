@@ -13,7 +13,6 @@ from pyhyperiso.core.Statistic.CopulaConfig import (
     GaussianCopulaConfigPy,
     StudentTCopulaConfigPy,
     MatrixLike,
-    Matrix,
 )
 from typing import Any, List, Optional, Sequence, Union, cast
 from pyhyperiso.phyperiso.pyhyperiso import statistic as st
@@ -170,7 +169,9 @@ class CopulaFactoryWrapper:
             >>> isinstance(cop.sample_u(), list)
             True
         """
-        cop = CopulaFactoryWrapper.create(CopulaKind.GAUSSIAN, GaussianCopulaConfigPy(R=R), seed=seed)
+        cop = CopulaFactoryWrapper.create(
+            CopulaKind.GAUSSIAN, GaussianCopulaConfigPy(R=R), seed=seed
+        )
         return cast(GaussianCopula, cop)
 
     @staticmethod
@@ -185,7 +186,9 @@ class CopulaFactoryWrapper:
         Returns:
             A ``StudentTCopula`` instance.
         """
-        cop = CopulaFactoryWrapper.create(CopulaKind.STUDENT_T, StudentTCopulaConfigPy(R=R, nu=nu), seed=seed)
+        cop = CopulaFactoryWrapper.create(
+            CopulaKind.STUDENT_T, StudentTCopulaConfigPy(R=R, nu=nu), seed=seed
+        )
         return cast(StudentTCopula, cop)
 
 

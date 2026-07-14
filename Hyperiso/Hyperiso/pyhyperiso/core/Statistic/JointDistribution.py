@@ -68,7 +68,15 @@ def _cpp_marginal_config(cfg: MarginalConfig):
     Raises:
         TypeError: If the configuration family is not supported.
     """
-    if not isinstance(cfg, (FlatMarginalConfig, GaussianMarginalConfig, SplitGaussianMarginalConfig, LikelihoodMarginalConfig)):
+    if not isinstance(
+        cfg,
+        (
+            FlatMarginalConfig,
+            GaussianMarginalConfig,
+            SplitGaussianMarginalConfig,
+            LikelihoodMarginalConfig,
+        ),
+    ):
         raise TypeError(f"config marginale non supportée : {type(cfg)!r}.")
     return cfg.to_cpp()
 
@@ -247,8 +255,12 @@ class JointDistributionFactory:
             ValueError: If input sequence lengths differ or no marginal is
                 provided.
         """
-        if len(marginal_types) != len(marginal_configs) or len(marginal_types) != len(marginal_seeds):
-            raise ValueError("marginal_types, marginal_configs et marginal_seeds doivent avoir la même taille.")
+        if len(marginal_types) != len(marginal_configs) or len(marginal_types) != len(
+            marginal_seeds
+        ):
+            raise ValueError(
+                "marginal_types, marginal_configs et marginal_seeds doivent avoir la même taille."
+            )
         if not marginal_types:
             raise ValueError("Au moins une marginale est requise.")
 
@@ -264,25 +276,3 @@ class JointDistributionFactory:
 
 
 __all__ = ["JointDistribution", "JointDistributionFactory"]
-
-
-
-if __name__ == "__main__":
-    from pyhyperiso.core.Statistic.MarginalDistribution import MarginalKind
-    from pyhyperiso.core.Statistic.MarginalConfig import GaussianMarginalConfig, FlatMarginalConfig
-    from pyhyperiso.core.Statistic.Copula import CopulaKind
-    from pyhyperiso.core.Statistic.CopulaConfig import GaussianCopulaConfigPy
-    from pyhyperiso.core.Math.RealMatrix import Matrix
-    m_types = [MarginalKind.GAUSSIAN, MarginalKind.FLAT]
-    m_cfgs  = [GaussianMarginalConfig(mu=0.0, sigma=1.0),
-            FlatMarginalConfig(a=-2.0, b=2.0)]
-
-    R = Matrix([[1.0, 0.6],[0.6, 1.0]])
-    c_cfg = GaussianCopulaConfigPy(R=R)
-
-    jd = JointDistributionFactory.create(m_types, m_cfgs, CopulaKind.GAUSSIAN, c_cfg, seed=123)
-
-    x = jd.sample()
-    X = jd.sample(5)
-    lp = jd.logpdf(x)
-    print(jd, jd.ndim, lp)

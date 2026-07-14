@@ -11,10 +11,10 @@ from dataclasses import dataclass, field
 from typing import Callable, Sequence, Set
 
 from pyhyperiso.phyperiso.pyhyperiso import observable as _obs
-from pyhyperiso.core.Common.GeneralEnum import QCDOrder, ContributionType, WilsonBasis, DataType
+from pyhyperiso.core.Common.GeneralEnum import QCDOrder, ContributionType, DataType
 from pyhyperiso.core.Common.LhaID import LhaID
 from pyhyperiso.core.Common.ParamId import ParamId
-from pyhyperiso.core.Common.SymbolId import WGroupId, WCoefId, ObservableId
+from pyhyperiso.core.Common.SymbolId import WGroupId, ObservableId
 from pyhyperiso.core.Common.Mapper import GroupMapper
 from pyhyperiso.core.PhysicalModel.WilsonInterface import CustomWilsonGroupConfig
 from pyhyperiso.core.Common.Configs import _cpp_group_id, _cpp_coef_id
@@ -50,27 +50,47 @@ class LambdaDecayContext:
 
     def get_M(self, group, coeff, order: QCDOrder, contribution: ContributionType) -> Scalar:
         """Return a matching coefficient as ``Scalar``."""
-        return Scalar.from_cpp(self._cpp_obj.get_M(
-            _cpp_group_id(group), _cpp_coef_id(coeff), _enum_value(order), _enum_value(contribution)
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_M(
+                _cpp_group_id(group),
+                _cpp_coef_id(coeff),
+                _enum_value(order),
+                _enum_value(contribution),
+            )
+        )
 
     def get_FM(self, group, coeff, order: QCDOrder, contribution: ContributionType) -> Scalar:
         """Return a full matching coefficient as ``Scalar``."""
-        return Scalar.from_cpp(self._cpp_obj.get_FM(
-            _cpp_group_id(group), _cpp_coef_id(coeff), _enum_value(order), _enum_value(contribution)
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_FM(
+                _cpp_group_id(group),
+                _cpp_coef_id(coeff),
+                _enum_value(order),
+                _enum_value(contribution),
+            )
+        )
 
     def get_R(self, group, coeff, order: QCDOrder, contribution: ContributionType) -> Scalar:
         """Return a running coefficient as ``Scalar``."""
-        return Scalar.from_cpp(self._cpp_obj.get_R(
-            _cpp_group_id(group), _cpp_coef_id(coeff), _enum_value(order), _enum_value(contribution)
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_R(
+                _cpp_group_id(group),
+                _cpp_coef_id(coeff),
+                _enum_value(order),
+                _enum_value(contribution),
+            )
+        )
 
     def get_FR(self, group, coeff, order: QCDOrder, contribution: ContributionType) -> Scalar:
         """Return a full running coefficient as ``Scalar``."""
-        return Scalar.from_cpp(self._cpp_obj.get_FR(
-            _cpp_group_id(group), _cpp_coef_id(coeff), _enum_value(order), _enum_value(contribution)
-        ))
+        return Scalar.from_cpp(
+            self._cpp_obj.get_FR(
+                _cpp_group_id(group),
+                _cpp_coef_id(coeff),
+                _enum_value(order),
+                _enum_value(contribution),
+            )
+        )
 
     def get_sm_param(self, pid: ParamId, data_type: DataType = DataType.VALUE) -> Scalar:
         """Return an SM parameter as ``Scalar``."""
@@ -109,20 +129,23 @@ class LambdaObservableConfig:
         binned: bool = False,
     ):
         if binned:
+
             def wrapped_compute(ctx, bin_range, obs_id):
                 return compute(LambdaDecayContext(ctx), bin_range, _to_observable_id(obs_id))
+
             factory = _obs.LambdaObservableConfig.binned_scalar
         else:
+
             def wrapped_compute(ctx, obs_id):
                 return compute(LambdaDecayContext(ctx), _to_observable_id(obs_id))
+
             factory = _obs.LambdaObservableConfig.scalar
 
         self._cpp_obj = factory(canonical, wrapped_compute)
         self._cpp_obj.aliases = list(aliases or [])
         self._cpp_obj.flha = None if flha is None else flha.to_cpp()
         self._cpp_obj.dependencies = {
-            p.to_cpp() if isinstance(p, ParamId) else p
-            for p in (dependencies or [])
+            p.to_cpp() if isinstance(p, ParamId) else p for p in (dependencies or [])
         }
 
     @classmethod
@@ -139,7 +162,9 @@ class LambdaObservableConfig:
         ``compute`` receives ``(ctx, observable_id)`` and can return ``float`` or
         any object implementing ``__float__`` such as ``Scalar``.
         """
-        return cls(canonical, compute, aliases=aliases, flha=flha, dependencies=dependencies, binned=False)
+        return cls(
+            canonical, compute, aliases=aliases, flha=flha, dependencies=dependencies, binned=False
+        )
 
     @classmethod
     def binned_scalar(
@@ -155,7 +180,9 @@ class LambdaObservableConfig:
         ``compute`` receives ``(ctx, (q2_min, q2_max), observable_id)`` and can
         return ``float`` or any object implementing ``__float__``.
         """
-        return cls(canonical, compute, aliases=aliases, flha=flha, dependencies=dependencies, binned=True)
+        return cls(
+            canonical, compute, aliases=aliases, flha=flha, dependencies=dependencies, binned=True
+        )
 
     def to_cpp(self):
         """Return the bound C++ ``LambdaObservableConfig``."""
@@ -200,8 +227,7 @@ class LambdaDecayConfig:
             for g in self.custom_wilson_groups
         ]
         cpp.observables = [
-            o.to_cpp() if isinstance(o, LambdaObservableConfig) else o
-            for o in self.observables
+            o.to_cpp() if isinstance(o, LambdaObservableConfig) else o for o in self.observables
         ]
         cpp.propagate_custom_wilson_dependencies = bool(self.propagate_custom_wilson_dependencies)
         return cpp

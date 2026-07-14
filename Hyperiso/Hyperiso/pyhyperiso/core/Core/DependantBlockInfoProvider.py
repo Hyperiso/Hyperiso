@@ -101,39 +101,3 @@ class DependantBlockInfoProvider:
 
 
 __all__ = ["DependantBlockInfoProvider"]
-
-if __name__ == "__main__":
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster, HyperisoConfig, ExternalFlag,Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY : True
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/camilia.flha"
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-
-    print("✅ Current model:", hyp.model.name)
-    print("✅ Flag IS_LHA_SPECTRUM:", hyp.check_flag(ExternalFlag.IS_LHA_SPECTRUM))
-
-    hyp.switch_lha("lha/testinput_thdm.lha",config)
-    
-    dep = DependantBlockInfoProvider()
-    
-    print(dep.is_dependent_block(ParameterType.SM, "QCD"))

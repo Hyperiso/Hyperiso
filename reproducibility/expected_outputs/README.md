@@ -1,10 +1,15 @@
-# Reference outputs
+# Frozen HyperIso 1.0.0 reference outputs
 
-This directory is populated when the release reference values are frozen:
+These files are normalized CPC reference results. The startup banner and all
+machine-specific paths are intentionally excluded. `statistics_samples.csv`
+contains exactly 1,000 accepted serial Monte-Carlo samples generated with seed
+`123456`.
+
+Update the references only through:
 
 ```bash
 ./reproducibility/scripts/run_cli_suite.sh --update-expected
 ```
 
-Do not commit provisional outputs generated before the release tag, final input
-files and numerical tolerances are fixed.
+The command validates finite values, CSV structure and sample count before
+replacing the references. Every update must be reviewed as a numerical change.

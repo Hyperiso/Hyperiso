@@ -1,7 +1,6 @@
 from pyhyperiso.phyperiso.pyhyperiso import common
-from pyhyperiso.core.Common.GeneralEnum import ParameterType
-from dataclasses import dataclass, field
-from typing import Optional, List, Union, Set
+from typing import List, Union, Set
+
 
 class BlockName:
     """Python wrapper around the C++ ``BlockName`` with alias semantics.
@@ -20,7 +19,7 @@ class BlockName:
           Prefer ``get_alias()`` when you need all aliases.
         - ``add_alias()`` and ``to_upper()`` are chainable and return ``self``.
     """
-    
+
     def __init__(self, names: Union[str, List[str], Set[str], common.BlockName]):
         """Create a ``PyBlockName`` from common Python representations.
 
@@ -140,24 +139,3 @@ class BlockName:
     def __repr__(self):
         """Debug representation."""
         return f"BlockName({self.get_alias()})"
-    
-if __name__ == "__main__":
-    print("🔧 Testing BlockName...")
-    b1 = BlockName("MASS")
-    b2 = BlockName(["mass", "MASS"])
-    b3 = BlockName({"mass", "other"})
-
-    print(f"b1: {b1}")
-    print(f"b2: {b2}")
-    print(f"b3 (before to_upper): {b3}")
-
-    print("✅ b1 == 'MASS' :", b1 == "MASS")
-    print("✅ b2 == b1     :", b2 == b1)
-    print("✅ 'mass' in b3.get_alias():", "mass" in b3.get_alias())
-
-    b3.to_upper()
-    print(f"b3 (after to_upper): {b3}")
-
-    b3.add_alias("EXTRA")
-    print(f"b3 (after add_alias): {b3}")
-    print("✅ has_alias('EXTRA'):", b3.has_alias("EXTRA"))

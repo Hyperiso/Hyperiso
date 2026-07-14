@@ -47,7 +47,15 @@ def _cpp_marginal_config(config: MarginalConfig):
         TypeError: If ``config`` is not one of the supported marginal config
             dataclasses.
     """
-    if not isinstance(config, (FlatMarginalConfig, GaussianMarginalConfig, SplitGaussianMarginalConfig, LikelihoodMarginalConfig)):
+    if not isinstance(
+        config,
+        (
+            FlatMarginalConfig,
+            GaussianMarginalConfig,
+            SplitGaussianMarginalConfig,
+            LikelihoodMarginalConfig,
+        ),
+    ):
         raise TypeError(f"config marginale non supportée : {type(config)!r}.")
     return config.to_cpp()
 
@@ -166,7 +174,9 @@ class DistributionFactoryWrapper:
     """Factory helpers for marginal distributions."""
 
     @staticmethod
-    def create(kind: MarginalKind, config: MarginalConfig, seed: Optional[int] = None) -> MarginalDistribution:
+    def create(
+        kind: MarginalKind, config: MarginalConfig, seed: Optional[int] = None
+    ) -> MarginalDistribution:
         """Create a marginal distribution from a kind and configuration.
 
         Args:
@@ -177,7 +187,9 @@ class DistributionFactoryWrapper:
         Returns:
             A Python wrapper around the bound C++ marginal.
         """
-        cpp_dist = st.MarginalFactory.create(_cpp_marginal_kind(kind), _cpp_marginal_config(config), seed)
+        cpp_dist = st.MarginalFactory.create(
+            _cpp_marginal_kind(kind), _cpp_marginal_config(config), seed
+        )
         return MarginalDistribution.from_cpp(cpp_dist)
 
     @staticmethod
@@ -192,10 +204,17 @@ class DistributionFactoryWrapper:
         Returns:
             A ``GaussianMarginalDist`` wrapper.
         """
-        return cast(GaussianMarginalDist, DistributionFactoryWrapper.create(MarginalKind.GAUSSIAN, GaussianMarginalConfig(mu=mu, sigma=sigma), seed))
+        return cast(
+            GaussianMarginalDist,
+            DistributionFactoryWrapper.create(
+                MarginalKind.GAUSSIAN, GaussianMarginalConfig(mu=mu, sigma=sigma), seed
+            ),
+        )
 
     @staticmethod
-    def split_gaussian(mu: float, sigma_p: float, sigma_m: float, seed: Optional[int] = None) -> SplitGaussianMarginalDist:
+    def split_gaussian(
+        mu: float, sigma_p: float, sigma_m: float, seed: Optional[int] = None
+    ) -> SplitGaussianMarginalDist:
         """Create an asymmetric split-Gaussian marginal.
 
         Args:
@@ -219,10 +238,20 @@ class DistributionFactoryWrapper:
     @staticmethod
     def flat(a: float, b: float, seed: Optional[int] = None) -> FlatMarginalDist:
         """Create a uniform marginal over ``[a, b]``."""
-        return cast(FlatMarginalDist, DistributionFactoryWrapper.create(MarginalKind.FLAT, FlatMarginalConfig(a=a, b=b), seed))
+        return cast(
+            FlatMarginalDist,
+            DistributionFactoryWrapper.create(
+                MarginalKind.FLAT, FlatMarginalConfig(a=a, b=b), seed
+            ),
+        )
 
     @staticmethod
-    def likelihood(values: Sequence[float], weights: Sequence[float], seed: Optional[int] = None, standardize: bool = False) -> LikelihoodMarginalDist:
+    def likelihood(
+        values: Sequence[float],
+        weights: Sequence[float],
+        seed: Optional[int] = None,
+        standardize: bool = False,
+    ) -> LikelihoodMarginalDist:
         """Create an empirical likelihood marginal.
 
         Args:
@@ -240,9 +269,17 @@ class DistributionFactoryWrapper:
         """
         cfg = LikelihoodMarginalConfig(values=values, weights=weights)
         if standardize:
-            cpp_obj = st.LikelihoodMarginal(list(map(float, cfg.values)), list(map(float, cfg.weights)), int(0 if seed is None else seed), True)
+            cpp_obj = st.LikelihoodMarginal(
+                list(map(float, cfg.values)),
+                list(map(float, cfg.weights)),
+                int(0 if seed is None else seed),
+                True,
+            )
             return cast(LikelihoodMarginalDist, MarginalDistribution.from_cpp(cpp_obj))
-        return cast(LikelihoodMarginalDist, DistributionFactoryWrapper.create(MarginalKind.LIKELIHOOD, cfg, seed))
+        return cast(
+            LikelihoodMarginalDist,
+            DistributionFactoryWrapper.create(MarginalKind.LIKELIHOOD, cfg, seed),
+        )
 
 
 class MarginalConfigFactoryWrapper:
@@ -278,7 +315,9 @@ class MarginalConfigFactoryWrapper:
         Returns:
             A Python marginal configuration dataclass.
         """
-        return _config_from_cpp(self._cpp_obj.create(_cpp_experiment_obs(obs), _cpp_marginal_kind(kind)))
+        return _config_from_cpp(
+            self._cpp_obj.create(_cpp_experiment_obs(obs), _cpp_marginal_kind(kind))
+        )
 
 
 __all__ = [
@@ -296,39 +335,3 @@ __all__ = [
     "DistributionFactoryWrapper",
     "MarginalConfigFactoryWrapper",
 ]
-
-
-if __name__ == "__main__":
-    
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model, Observables, QCDOrder, ParameterType
-    from pathlib import Path
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: False,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY: True
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-    
-    hyp = HyperisoMaster()
-    lha_file_path = "/home/theo/hyperiso/Assets/lha/si_input.flha" 
-    
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    cfg = GaussianMarginalConfig(mu=1.2, sigma=0.3)
-    dist = DistributionFactoryWrapper.create(MarginalKind.GAUSSIAN, cfg, seed=123)
-
-    samples = dist.rvs(5)         # list[float]
-    m = dist.mean()               # float
-    s = dist.std()                # float
-
-    mcf = MarginalConfigFactoryWrapper()
-    pid = ParamId(ParameterType.SM, block = "MASS", code = 1)
-    py_cfg = mcf.create_from_param(pid, MarginalKind.FLAT)
-    dist2 = DistributionFactoryWrapper.create(MarginalKind.FLAT, py_cfg)

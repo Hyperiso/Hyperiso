@@ -20,7 +20,7 @@ int main() {
     // We specify here that we want to use MARTY to calculate the Wilson coefficients.
     config_hyp.model = Model::MARTY;
     config_hyp.mty_model_name = "SM";
-    config_hyp.mty_model_path = "/home/theo/hyperiso/Assets/input_files/marty_model/sm.h";
+    config_hyp.mty_model_path = "Assets/input_files/marty_model/sm.h";
 
     HyperisoMaster hyp;
 

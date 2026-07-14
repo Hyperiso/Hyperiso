@@ -52,7 +52,12 @@ def page_title(title: str, subtitle: str, badge: str | None = None):
     )
 
 
-def card(title: str, subtitle: str | None = None, children: Any = None, className: str = "card"):
+def card(
+    title: str,
+    subtitle: str | None = None,
+    children: Any = None,
+    className: str = "card",
+):
     return html.Div(
         className=className,
         children=[
@@ -69,15 +74,48 @@ def field(label: str, component: Any, className: str | None = None):
     return html.Div(className=className, children=[html.Label(label), component])
 
 
-def text_input(id: str, value: str = "", placeholder: str = "", type: str = "text", debounce: bool = True):
-    return dcc.Input(id=id, value=value, placeholder=placeholder, type=type, debounce=debounce, style={"width": "100%"})
+def text_input(
+    id: str,
+    value: str = "",
+    placeholder: str = "",
+    type: str = "text",
+    debounce: bool = True,
+):
+    return dcc.Input(
+        id=id,
+        value=value,
+        placeholder=placeholder,
+        type=type,
+        debounce=debounce,
+        style={"width": "100%"},
+    )
 
 
-def num_input(id: str, value: float | int | None = None, placeholder: str = "", debounce: bool = True):
-    return dcc.Input(id=id, value=value, placeholder=placeholder, type="number", debounce=debounce, style={"width": "100%"})
+def num_input(
+    id: str,
+    value: float | int | None = None,
+    placeholder: str = "",
+    debounce: bool = True,
+):
+    return dcc.Input(
+        id=id,
+        value=value,
+        placeholder=placeholder,
+        type="number",
+        debounce=debounce,
+        style={"width": "100%"},
+    )
 
 
-def dropdown(id: str | dict, options: Sequence[dict] | None, value: Any = None, multi: bool = False, placeholder: str = "Select...", disabled: bool = False, clearable: bool = True):
+def dropdown(
+    id: str | dict,
+    options: Sequence[dict] | None,
+    value: Any = None,
+    multi: bool = False,
+    placeholder: str = "Select...",
+    disabled: bool = False,
+    clearable: bool = True,
+):
     """Create a Dropdown with stable JSON values for Dash/React-Select.
 
     In particular, a multi dropdown must never receive ``None``/``undefined``:
@@ -106,7 +144,11 @@ def dropdown(id: str | dict, options: Sequence[dict] | None, value: Any = None, 
     )
 
 
-def enum_options(enum_cls: type, include: Iterable[str] | None = None, exclude: Iterable[str] | None = None) -> list[dict[str, str]]:
+def enum_options(
+    enum_cls: type,
+    include: Iterable[str] | None = None,
+    exclude: Iterable[str] | None = None,
+) -> list[dict[str, str]]:
     include_set = set(include or [])
     exclude_set = set(exclude or [])
     out = []
@@ -137,6 +179,7 @@ def data_table(
     if row_selectable:
         table_kwargs["row_selectable"] = row_selectable
         table_kwargs["selected_rows"] = []
+
     def _normalize_column(c):
         col = dict(c) if isinstance(c, dict) else {"name": c, "id": c}
         col.setdefault("editable", editable)
@@ -144,7 +187,10 @@ def data_table(
         cname = str(col.get("name", ""))
         # Columns carrying LaTeX labels render better as Markdown cells; the
         # app-level MathJax observer then typesets any $...$ fragments.
-        if any(token in cid.lower() for token in ("label", "latex", "parameter", "nuisance")) or cname.lower() in {"observable", "coefficient", "parameter", "nuisance"}:
+        if any(
+            token in cid.lower()
+            for token in ("label", "latex", "parameter", "nuisance")
+        ) or cname.lower() in {"observable", "coefficient", "parameter", "nuisance"}:
             col.setdefault("presentation", "markdown")
         return col
 
@@ -168,7 +214,11 @@ def data_table(
 def metric(label: str, value: Any, suffix: str = "", tone: str = ""):
     return html.Div(
         className=f"metric {tone}".strip(),
-        children=[html.Div(label, className="k"), html.Div(str(value), className="v"), html.Div(suffix, className="s")],
+        children=[
+            html.Div(label, className="k"),
+            html.Div(str(value), className="v"),
+            html.Div(suffix, className="s"),
+        ],
     )
 
 

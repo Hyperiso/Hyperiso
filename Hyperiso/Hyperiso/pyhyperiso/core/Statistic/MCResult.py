@@ -215,7 +215,9 @@ class MCResult:
         return cpp
 
 
-def covariance_ids_from_first_sample(samples: Sequence[Mapping[BinnedObservableId, float]]) -> List[BinnedObservableId]:
+def covariance_ids_from_first_sample(
+    samples: Sequence[Mapping[BinnedObservableId, float]],
+) -> List[BinnedObservableId]:
     """Return the observable ordering inferred from the first sample.
 
     Args:
@@ -229,7 +231,10 @@ def covariance_ids_from_first_sample(samples: Sequence[Mapping[BinnedObservableI
             empty.
     """
     cpp_samples = [_obs_sample_to_cpp(row) for row in samples]
-    return [BinnedObservableId.from_cpp(x) for x in _cpp_stat.covariance_ids_from_first_sample(cpp_samples)]
+    return [
+        BinnedObservableId.from_cpp(x)
+        for x in _cpp_stat.covariance_ids_from_first_sample(cpp_samples)
+    ]
 
 
 def covariance_from_obs_samples(
@@ -259,7 +264,9 @@ def covariance_from_obs_samples(
     cpp_samples = [_obs_sample_to_cpp(row) for row in samples]
     cpp_ids = [_cpp_binned_observable_id(x) for x in ids]
     return MCObservableCovariance.from_cpp(
-        _cpp_stat.covariance_from_obs_samples(cpp_samples, cpp_ids, float(ridge_rel), float(ridge_abs))
+        _cpp_stat.covariance_from_obs_samples(
+            cpp_samples, cpp_ids, float(ridge_rel), float(ridge_abs)
+        )
     )
 
 

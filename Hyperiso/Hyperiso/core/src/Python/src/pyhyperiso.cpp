@@ -1,4 +1,6 @@
 #include <pybind11/pybind11.h>
+
+#include "config.hpp"
 namespace py = pybind11;
 
 void init_common(py::module &);
@@ -9,7 +11,8 @@ void init_observable(py::module &);
 void init_statistic(py::module &);
 
 PYBIND11_MODULE(pyhyperiso, m) {
-    m.doc() = "Python interface for hyperiso project";
+    m.doc() = "Python interface for HyperIso";
+    m.attr("__version__") = std::string(project_version);
 
     auto common = m.def_submodule("common", "Common functionalities for hyperiso");
     init_common(common);

@@ -1,30 +1,32 @@
 # Reproducibility
 
-HyperIso ships a compact CPC reference reproducibility suite in the repository
-root under `reproducibility/`.  The suite is the canonical place for the input
-files, commands, frozen reference outputs and numerical tolerances used to check
-that the public command-line workflows reported in the paper can be regenerated
-from the released source archive.
+HyperIso ships a fixed-seed CPC reference suite under `reproducibility/`.
+It contains one frozen FLHA input, five normalized CLI summaries and a
+1,000-row Monte-Carlo sample table.
 
-Run it with
+Run the suite after building `hyperiso-ui` in `Release` mode:
 
 ```bash
 ./reproducibility/scripts/run_cli_suite.sh
 ```
 
-or, for a non-standard executable location,
+Use a non-standard executable with:
 
 ```bash
-HYPERISO_BIN=/path/to/hyperiso-ui ./reproducibility/scripts/run_cli_suite.sh
+HYPERISO_BIN=/path/to/hyperiso-ui \
+  ./reproducibility/scripts/run_cli_suite.sh
 ```
 
-Reference outputs should only be updated when the release tag, input files,
-compiler/build setup and numerical tolerances are frozen:
+Reference outputs intentionally exclude the startup banner and absolute paths,
+so comparisons do not depend on the checkout location or user cache directory.
+The statistical case uses seed `123456`, one thread and 1,000 accepted draws.
+
+References may be regenerated only for an intentional numerical update:
 
 ```bash
 ./reproducibility/scripts/run_cli_suite.sh --update-expected
 ```
 
-The Monte-Carlo statistic example uses a fixed `--seed` and the serial MC path by
-default.  Parallel MC can be used for performance studies, but serial seeded runs
-are recommended for release-to-release numerical comparison.
+The command validates the outputs before freezing them, then records SHA-256
+hashes in `expected_outputs/reference_metadata.json`. Review every reference
+diff together with the corresponding physics or numerical change.

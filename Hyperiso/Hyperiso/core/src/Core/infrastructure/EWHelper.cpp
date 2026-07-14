@@ -1,5 +1,7 @@
 #include "EWHelper.h"
 
+#include <stdexcept>
+
 void EWHelper::Init() {
     LOG_DEBUG("Init EW dependent block");
 	std::unordered_map<ParameterType, std::vector<std::string>> src = {
@@ -29,8 +31,9 @@ void EWHelper::Init() {
 }
 
 double EWHelper::alpha_em(double) {
-    LOG_ERROR("NotImplementedError", "Running of alpha_em is not implemented yet. Use special values in EW block.");
-    return 0.0;
+    throw std::logic_error(
+        "EWHelper::alpha_em running is not implemented; use the precomputed EW block values"
+    );
 }
 
 double EWHelper::I_s(int k, double mu_low, double mu_high) {

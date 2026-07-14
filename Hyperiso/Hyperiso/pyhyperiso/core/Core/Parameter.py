@@ -181,37 +181,3 @@ class PyDependentParameter(Parameter):
 
 
 __all__ = ["Parameter", "ParameterMode", "PyDependentParameter"]
-        
-if __name__ == "__main__":
-    
-    from pyhyperiso.core.Math.scalar import Scalar, pow_scalar, sqrt, _to_scalar
-    from pyhyperiso.core.Common.GeneralEnum import ParameterType
-    
-    print("🧪 Scalar operations")
-
-    a = Scalar(3.0)
-    b = Scalar(4.0)
-    c = a + b
-    print(f"{a} + {b} = {c}")
-    print("Real part of c:", c.real())
-    print("Imaginary part of c:", c.imag())
-    print("As float:", float(c))
-    print("As complex:", complex(c))
-
-    d = pow_scalar(a, 2)
-    print(f"{a}^2 =", d)
-
-    e = sqrt(b)
-    print(f"sqrt({b}) =", e)
-    
-    pid = ParamId(type=ParameterType.SM, block="MASS", code=25)
-    param = Parameter(pid, 125.0, 0.1, 0.2)
-
-    print("Initial:", param)
-    param.set_expected(126.5)
-    param.set_std(0.05, 0.15)
-    param.set_expected(130)
-    print("Updated:", param)
-    param.set_mode(ParameterMode.SHIFTABLE)
-    param.set_shift(0.1)
-    print("Updated by shift:", param)

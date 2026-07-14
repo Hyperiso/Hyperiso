@@ -6,11 +6,10 @@
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/) [![Python](https://img.shields.io/pypi/pyversions/pyhyperiso.svg?label=Python)](https://pypi.org/project/pyhyperiso/) [![PyPI](https://img.shields.io/pypi/v/pyhyperiso.svg?label=PyPI)](https://pypi.org/project/pyhyperiso/) [![CI](https://github.com/HyperIso/HyperIso/actions/workflows/ci.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/ci.yml) [![Python CI](https://github.com/HyperIso/HyperIso/actions/workflows/python.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/python.yml) [![Docs](https://github.com/HyperIso/HyperIso/actions/workflows/docs.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/docs.yml) [![CodeQL](https://github.com/HyperIso/HyperIso/actions/workflows/codeql.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/codeql.yml)
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE) [![INSPIRE](https://img.shields.io/badge/INSPIRE-3138024-003366.svg)](https://inspirehep.net/literature/3138024) [![DOI](https://img.shields.io/badge/DOI-TBD-lightgrey.svg)](https://inspirehep.net/literature/3138024) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/HyperIso/HyperIso/badge)](https://securityscorecards.dev/viewer/?uri=github.com/HyperIso/HyperIso) [![CII Best Practices](https://img.shields.io/badge/CII%20Best%20Practices-TBD-lightgrey.svg)](https://bestpractices.coreinfrastructure.org/) [![OSSRank](https://img.shields.io/badge/OSSRank-TBD-lightgrey.svg)](https://ossrank.com/) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Fuzzing](https://img.shields.io/badge/fuzzing-planned-lightgrey.svg)](docs/development.md#fuzzing-and-hardening)
+[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE) [![INSPIRE](https://img.shields.io/badge/INSPIRE-3138024-003366.svg)](https://inspirehep.net/literature/3138024) [![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/HyperIso/HyperIso/badge)](https://securityscorecards.dev/viewer/?uri=github.com/HyperIso/HyperIso) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
 
 [Paper](https://inspirehep.net/literature/3138024) | [Documentation](docs/README.md) | [Examples](#examples) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md)
 
-<sub>Some quality badges such as DOI, CII Best Practices, OSSRank and fuzzing are placeholders until the corresponding public services are activated for the repository.</sub>
 
 </div>
 
@@ -96,11 +95,12 @@ All user-facing layers are designed to rely on the same backend initialization p
 - CMake >= 3.20.
 - C++20-capable compiler.
 - GNU Scientific Library (GSL).
+- Eigen 3.
 - Ninja or Make.
 
 ### Required for Python
 
-- Python >= 3.9.
+- Python 3.10–3.12.
 - `pip`, `build`, `scikit-build-core`.
 - `pybind11`.
 
@@ -109,9 +109,9 @@ All user-facing layers are designed to rely on the same backend initialization p
 | Option | Purpose | CMake flag |
 |---|---|---|
 | MARTY | Generic BSM Wilson coefficients at leading order. | `-DBUILD_WITH_MARTY=ON` |
-| 2HDMC | THDM spectrum support. | `-DBUILD_WITH_2HDMC=ON` |
+| 2HDMC | Bundled THDM spectrum support used by the THDM backend. | Built with the core. |
 | SoftSusy | SUSY spectrum support. | `-DBUILD_WITH_SOFTSUSY=ON` |
-| Minuit2 backend | Fit and likelihood minimization backends where enabled. | `-DBUILD_WITH_MINUIT2=ON` |
+| MinuitCpp | Bundled minimization backend used by statistical fits. | Built with the core. |
 
 ## Installation
 
@@ -122,7 +122,7 @@ git clone https://github.com/HyperIso/HyperIso.git
 cd HyperIso
 
 sudo apt-get update
-sudo apt-get install -y build-essential cmake ninja-build libgsl-dev
+sudo apt-get install -y build-essential cmake ninja-build libgsl-dev libeigen3-dev
 
 cmake -S Hyperiso/Hyperiso/core -B build \
   -G Ninja \
@@ -172,7 +172,7 @@ from pyhyperiso.Observable import ObservableInterface
 
 config = HyperisoConfig(model=Model.SM)
 hyp = HyperisoMaster()
-hyp.init(lha_file="Assets/lha/si_input.flha", config=config)
+hyp.init(lha_file="lha/si_input.flha", config=config)
 
 obs = ObservableInterface()
 obs.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO)
@@ -278,22 +278,30 @@ cmake -S Hyperiso/Hyperiso/core -B build-comparison \
 ### Python tests
 
 ```bash
-python -m pip install -e ./Hyperiso/Hyperiso
-python -m pip install pytest
-pytest Hyperiso/Hyperiso/pyhyperiso/test
+python -m pip install -e "./Hyperiso/Hyperiso[test]"
+python -m pytest Hyperiso/Hyperiso/pyhyperiso/test
 ```
 
 ## Reproducibility
 
-The repository is organized so that the calculations shown in the paper can be reproduced from the public C++ API, Python API and CLI. The planned reproducibility package should contain:
+The repository includes a frozen reproducibility package for the calculations shown in the paper. It contains:
 
 - input LHA/SLHA/FLHA files;
 - exact commands;
 - expected numerical outputs;
-- validation tables comparing HyperIso and SuperIso;
-- scripts to regenerate benchmark plots and confidence contours.
+- frozen numerical references and SHA-256 provenance metadata;
+- a strict checker and scripts to regenerate the five reference cases.
 
-See `docs/reproducibility.md` for the recommended layout.
+Validate the frozen references with:
+
+```bash
+python reproducibility/scripts/check_expected_outputs.py \
+  --manifest reproducibility/manifest.json \
+  --outputs reproducibility/expected_outputs \
+  --expected reproducibility/expected_outputs
+```
+
+See `docs/reproducibility.md` for the complete workflow.
 
 ## Documentation
 
@@ -302,6 +310,7 @@ See `docs/reproducibility.md` for the recommended layout.
 - C++ examples: `Hyperiso/Hyperiso/examples_cpp/README.md`
 - Python examples: `Hyperiso/Hyperiso/examples_python/README.md`
 - CLI guide: `Hyperiso/Hyperiso/core/src/UserInterface/README.md`
+- Known limitations: `KNOWN_LIMITATIONS.md`
 - Dash GUI guide: `GHyperiso/HyperisoDashGUI/README.md`
 
 Build the C++ API documentation locally:
@@ -339,7 +348,7 @@ The `.github` configuration includes professional automation for:
 - Dependabot updates;
 - issue and pull-request templates.
 
-Planned hardening items include OSS-Fuzz integration, numerical fuzz tests for parsers and random-input tests for LHA/SLHA/FLHA readers.
+Future hardening work is tracked as roadmap work and is not presented as part of the 1.0.0 release guarantees.
 
 ## Citation
 
@@ -360,4 +369,7 @@ Contributions are welcome. Please read:
 
 ## License
 
-HyperIso is released under the MIT License. See `LICENSE`.
+The combined HyperIso distribution is released under the GNU General Public
+License, version 3 or later. HyperIso-authored portions originally published
+under MIT retain their MIT grant. See `LICENSE`, `LICENSES/` and
+`THIRD_PARTY_NOTICES.md` for component-level details.

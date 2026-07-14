@@ -96,13 +96,7 @@ class HyperisoMaster:
     def _legacy_source_assets_root() -> Optional[Path]:
         """Return the historical source-tree ``Assets`` directory when present."""
         assets = (
-            Path(__file__).resolve().parent
-            / ".."
-            / ".."
-            / ".."
-            / ".."
-            / ".."
-            / "Assets"
+            Path(__file__).resolve().parent / ".." / ".." / ".." / ".." / ".." / "Assets"
         ).resolve()
         return assets if assets.is_dir() else None
 
@@ -265,7 +259,9 @@ class HyperisoMaster:
             return
 
         if self.config is None:
-            raise RuntimeError("HyperisoMaster.switch_lha() requires a config before init() has been called.")
+            raise RuntimeError(
+                "HyperisoMaster.switch_lha() requires a config before init() has been called."
+            )
 
         self._cpp_obj.switch_lha(resolved_lha, self.config.to_cpp())
 
@@ -284,35 +280,3 @@ class HyperisoMaster:
 
 
 __all__ = ["HyperisoMaster", "APIPath"]
-    
-    
-if __name__ == "__main__":
-    from pathlib import Path
-
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY : True
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/zprime_input.flha"
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-
-    print("✅ Current model:", hyp.model.name)
-    print("✅ Flag IS_LHA_SPECTRUM:", hyp.check_flag(ExternalFlag.IS_LHA_SPECTRUM))
-
-    hyp.switch_lha("lha/testinput_thdm.lha",config)

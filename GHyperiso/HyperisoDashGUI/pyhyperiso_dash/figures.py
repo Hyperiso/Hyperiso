@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import Iterable, Sequence
+from typing import Sequence
 
 import numpy as np
 import pandas as pd
@@ -8,7 +8,6 @@ import plotly.graph_objects as go
 
 PLOT_FONT = dict(color="rgba(229,231,235,0.92)")
 DEFAULT_FIG_HEIGHT = 430
-
 
 
 def style_fig(fig: go.Figure, title: str | None = None) -> go.Figure:
@@ -20,16 +19,24 @@ def style_fig(fig: go.Figure, title: str | None = None) -> go.Figure:
         height=DEFAULT_FIG_HEIGHT,
         autosize=False,
         font=PLOT_FONT,
-        legend=dict(bgcolor="rgba(0,0,0,0)", bordercolor="rgba(148,163,184,0.16)", borderwidth=1),
+        legend=dict(
+            bgcolor="rgba(0,0,0,0)", bordercolor="rgba(148,163,184,0.16)", borderwidth=1
+        ),
     )
-    fig.update_xaxes(gridcolor="rgba(148,163,184,0.14)", zerolinecolor="rgba(148,163,184,0.22)")
-    fig.update_yaxes(gridcolor="rgba(148,163,184,0.14)", zerolinecolor="rgba(148,163,184,0.22)")
+    fig.update_xaxes(
+        gridcolor="rgba(148,163,184,0.14)", zerolinecolor="rgba(148,163,184,0.22)"
+    )
+    fig.update_yaxes(
+        gridcolor="rgba(148,163,184,0.14)", zerolinecolor="rgba(148,163,184,0.22)"
+    )
     return fig
 
 
 def empty_fig(title: str = "No data") -> go.Figure:
     fig = go.Figure()
-    fig.add_annotation(text=title, x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False)
+    fig.add_annotation(
+        text=title, x=0.5, y=0.5, xref="paper", yref="paper", showarrow=False
+    )
     return style_fig(fig, title)
 
 
@@ -37,7 +44,14 @@ def block_size_bar(rows: Sequence[dict]) -> go.Figure:
     if not rows:
         return empty_fig("Block inventory")
     df = pd.DataFrame(rows)
-    fig = go.Figure(go.Bar(x=df["parameter_type"], y=df["n_blocks"], text=df["n_blocks"], textposition="auto"))
+    fig = go.Figure(
+        go.Bar(
+            x=df["parameter_type"],
+            y=df["n_blocks"],
+            text=df["n_blocks"],
+            textposition="auto",
+        )
+    )
     fig.update_layout(xaxis_title="Parameter type", yaxis_title="Number of blocks")
     return style_fig(fig, "Blocks by ParameterType")
 
@@ -48,15 +62,27 @@ def block_values_scatter(rows: Sequence[dict], title: str) -> go.Figure:
     df = pd.DataFrame(rows)
     y = pd.to_numeric(df.get("value"), errors="coerce")
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=list(range(len(df))), y=y, mode="markers", text=df.get("code"), name="value"))
+    fig.add_trace(
+        go.Scatter(
+            x=list(range(len(df))),
+            y=y,
+            mode="markers",
+            text=df.get("code"),
+            name="value",
+        )
+    )
     if "combined_std" in df:
         err = pd.to_numeric(df["combined_std"], errors="coerce")
-        fig.update_traces(error_y=dict(type="data", array=err.fillna(0).to_numpy(), visible=True))
+        fig.update_traces(
+            error_y=dict(type="data", array=err.fillna(0).to_numpy(), visible=True)
+        )
     fig.update_layout(xaxis_title="Entry index", yaxis_title="Value")
     return style_fig(fig, title)
 
 
-def series_1d(x: Sequence[float], y: Sequence[float], title: str, x_title: str, y_title: str) -> go.Figure:
+def series_1d(
+    x: Sequence[float], y: Sequence[float], title: str, x_title: str, y_title: str
+) -> go.Figure:
     if not x:
         return empty_fig(title)
     fig = go.Figure(go.Scatter(x=x, y=y, mode="markers+lines", name=y_title))
@@ -64,7 +90,15 @@ def series_1d(x: Sequence[float], y: Sequence[float], title: str, x_title: str, 
     return style_fig(fig, title)
 
 
-def heatmap_2d(x: Sequence[float], y: Sequence[float], z: Sequence[Sequence[float]], title: str, x_title: str, y_title: str, z_title: str) -> go.Figure:
+def heatmap_2d(
+    x: Sequence[float],
+    y: Sequence[float],
+    z: Sequence[Sequence[float]],
+    title: str,
+    x_title: str,
+    y_title: str,
+    z_title: str,
+) -> go.Figure:
     if not x or not y:
         return empty_fig(title)
     fig = go.Figure(go.Heatmap(x=x, y=y, z=z, colorbar=dict(title=z_title)))
@@ -76,10 +110,17 @@ def uncertainty_fig(rows: Sequence[dict], asymmetric: bool = False) -> go.Figure
     if not rows:
         return empty_fig("Uncertainty")
     df = pd.DataFrame(rows)
-    if "bin_center" in df and pd.to_numeric(df["bin_center"], errors="coerce").notna().any():
+    if (
+        "bin_center" in df
+        and pd.to_numeric(df["bin_center"], errors="coerce").notna().any()
+    ):
         x = df["bin_center"]
     else:
-        x = df.get("observable_label") if "observable_label" in df else df.get("observable")
+        x = (
+            df.get("observable_label")
+            if "observable_label" in df
+            else df.get("observable")
+        )
     if x is None:
         x = list(range(len(df)))
     y = pd.to_numeric(df["central"], errors="coerce").to_numpy()
@@ -87,7 +128,9 @@ def uncertainty_fig(rows: Sequence[dict], asymmetric: bool = False) -> go.Figure
     fig.add_trace(go.Scatter(x=x, y=y, mode="markers+lines", name="central"))
     if asymmetric:
         up = pd.to_numeric(df.get("sigma_plus"), errors="coerce").fillna(0).to_numpy()
-        down = pd.to_numeric(df.get("sigma_minus"), errors="coerce").fillna(0).to_numpy()
+        down = (
+            pd.to_numeric(df.get("sigma_minus"), errors="coerce").fillna(0).to_numpy()
+        )
     else:
         sig = pd.to_numeric(df.get("sigma"), errors="coerce").fillna(0).to_numpy()
         up, down = sig, sig
@@ -118,11 +161,15 @@ def correlation_heatmap(rows: Sequence[dict], title: str) -> go.Figure:
     z = np.full((len(y), len(x)), np.nan)
     for _, r in df.iterrows():
         z[y.index(r["y"]), x.index(r["x"])] = r["corr"]
-    fig = go.Figure(go.Heatmap(x=x, y=y, z=z, zmin=-1, zmax=1, colorbar=dict(title="ρ")))
+    fig = go.Figure(
+        go.Heatmap(x=x, y=y, z=z, zmin=-1, zmax=1, colorbar=dict(title="ρ"))
+    )
     return style_fig(fig, title)
 
 
-def likelihood_contour(points: Sequence[dict], levels: Sequence[float], title: str = "Likelihood contour") -> go.Figure:
+def likelihood_contour(
+    points: Sequence[dict], levels: Sequence[float], title: str = "Likelihood contour"
+) -> go.Figure:
     if not points:
         return empty_fig(title)
     df = pd.DataFrame(points)
@@ -132,14 +179,21 @@ def likelihood_contour(points: Sequence[dict], levels: Sequence[float], title: s
     for _, r in df.iterrows():
         z[ys.index(r["y"]), xs.index(r["x"])] = r["delta_nll"]
     fig = go.Figure()
-    fig.add_trace(go.Heatmap(x=xs, y=ys, z=z, colorbar=dict(title="ΔNLL"), opacity=0.78))
+    fig.add_trace(
+        go.Heatmap(x=xs, y=ys, z=z, colorbar=dict(title="ΔNLL"), opacity=0.78)
+    )
     if levels:
         fig.add_trace(
             go.Contour(
                 x=xs,
                 y=ys,
                 z=z,
-                contours=dict(start=float(min(levels)), end=float(max(levels)), size=1.0, coloring="none"),
+                contours=dict(
+                    start=float(min(levels)),
+                    end=float(max(levels)),
+                    size=1.0,
+                    coloring="none",
+                ),
                 line=dict(width=2),
                 showscale=False,
                 name="levels",
@@ -166,7 +220,12 @@ def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Fi
     direct_dependents = set(map(str, data.get("direct_dependents", [])))
     edges = [(str(a), str(b)) for a, b in data.get("edges", [])]
 
-    layers: dict[str, list[str]] = {"source": [], "selected": [], "dependent": [], "other": []}
+    layers: dict[str, list[str]] = {
+        "source": [],
+        "selected": [],
+        "dependent": [],
+        "other": [],
+    }
     for n in nodes:
         if n == block:
             layers["selected"].append(n)
@@ -199,11 +258,29 @@ def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Fi
             continue
         x0, y0 = pos[src]
         x1, y1 = pos[dst]
-        fig.add_trace(go.Scatter(x=[x0, x1], y=[y0, y1], mode="lines", line=dict(width=1.8), hoverinfo="skip", showlegend=False))
+        fig.add_trace(
+            go.Scatter(
+                x=[x0, x1],
+                y=[y0, y1],
+                mode="lines",
+                line=dict(width=1.8),
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
         # Small arrow marker near downstream side.
         xm = x0 + 0.78 * (x1 - x0)
         ym = y0 + 0.78 * (y1 - y0)
-        fig.add_trace(go.Scatter(x=[xm], y=[ym], mode="markers", marker=dict(symbol="triangle-right", size=9), hoverinfo="skip", showlegend=False))
+        fig.add_trace(
+            go.Scatter(
+                x=[xm],
+                y=[ym],
+                mode="markers",
+                marker=dict(symbol="triangle-right", size=9),
+                hoverinfo="skip",
+                showlegend=False,
+            )
+        )
 
     for layer, ns in layers.items():
         if not ns:
@@ -213,7 +290,9 @@ def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Fi
             if n not in pos:
                 continue
             x, y = pos[n]
-            xs.append(x); ys.append(y); texts.append(n)
+            xs.append(x)
+            ys.append(y)
+            texts.append(n)
             tags = []
             if n == block:
                 tags.append("selected")
@@ -226,7 +305,21 @@ def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Fi
             elif n in dependents:
                 tags.append("downstream")
             hover.append(f"{n}<br>{', '.join(tags) if tags else layer}")
-        fig.add_trace(go.Scatter(x=xs, y=ys, mode="markers+text", text=texts, textposition="top center", hovertext=hover, hoverinfo="text", name=layer, marker=dict(size=18 if layer == "selected" else 13, line=dict(width=1.2))))
+        fig.add_trace(
+            go.Scatter(
+                x=xs,
+                y=ys,
+                mode="markers+text",
+                text=texts,
+                textposition="top center",
+                hovertext=hover,
+                hoverinfo="text",
+                name=layer,
+                marker=dict(
+                    size=18 if layer == "selected" else 13, line=dict(width=1.2)
+                ),
+            )
+        )
 
     fig.update_xaxes(visible=False, range=[-1.35, 1.35])
     fig.update_yaxes(visible=False, range=[-1.12, 1.12])
@@ -246,7 +339,10 @@ def confidence_contour_paths(
         return empty_fig(title)
     fig = go.Figure()
     shown_levels: set[float] = set()
-    for item in sorted(contours, key=lambda row: (float(row.get("sigma", 0.0)), int(row.get("path_id", 0)))):
+    for item in sorted(
+        contours,
+        key=lambda row: (float(row.get("sigma", 0.0)), int(row.get("path_id", 0))),
+    ):
         points = list(item.get("points") or [])
         if len(points) < 2:
             continue
@@ -261,26 +357,30 @@ def confidence_contour_paths(
             ys.append(ys[0])
         showlegend = sigma not in shown_levels
         shown_levels.add(sigma)
-        fig.add_trace(go.Scatter(
-            x=xs,
-            y=ys,
-            mode="lines",
-            name=f"{sigma:g}σ",
-            legendgroup=f"sigma-{sigma:g}",
-            showlegend=showlegend,
-            line=dict(width=2.4),
-            customdata=[[level]] * len(xs),
-            hovertemplate="x=%{x:.6g}<br>y=%{y:.6g}<br>ΔNLL level=%{customdata[0]:.6g}<extra></extra>",
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=xs,
+                y=ys,
+                mode="lines",
+                name=f"{sigma:g}σ",
+                legendgroup=f"sigma-{sigma:g}",
+                showlegend=showlegend,
+                line=dict(width=2.4),
+                customdata=[[level]] * len(xs),
+                hovertemplate="x=%{x:.6g}<br>y=%{y:.6g}<br>ΔNLL level=%{customdata[0]:.6g}<extra></extra>",
+            )
+        )
     if best_fit is not None:
-        fig.add_trace(go.Scatter(
-            x=[float(best_fit["x"])],
-            y=[float(best_fit["y"])],
-            mode="markers",
-            marker=dict(size=11, symbol="x"),
-            name="best fit",
-            hovertemplate="best fit<br>x=%{x:.6g}<br>y=%{y:.6g}<extra></extra>",
-        ))
+        fig.add_trace(
+            go.Scatter(
+                x=[float(best_fit["x"])],
+                y=[float(best_fit["y"])],
+                mode="markers",
+                marker=dict(size=11, symbol="x"),
+                name="best fit",
+                hovertemplate="best fit<br>x=%{x:.6g}<br>y=%{y:.6g}<extra></extra>",
+            )
+        )
     fig.update_layout(xaxis_title=x_title, yaxis_title=y_title)
     if bounds and len(bounds) == 4:
         fig.update_xaxes(range=[float(bounds[0]), float(bounds[1])])

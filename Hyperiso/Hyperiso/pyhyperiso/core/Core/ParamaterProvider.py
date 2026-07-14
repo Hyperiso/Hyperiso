@@ -14,6 +14,7 @@ from pyhyperiso.core.Common.ParamId import LhaID, ParamId
 from pyhyperiso.core.Core.Parameter import Parameter
 from pyhyperiso.core.Math.Scalar import Scalar
 
+
 class ParameterProvider:
     """Read parameter values and metadata from a C++ parameter namespace.
 
@@ -107,46 +108,4 @@ class ParameterProvider:
         return f"<PyParameterProvider type={self.get_type().name}>"
 
 
-__all__ = ["ParameterProvider"]    
-    
-if __name__ == "__main__" :
-    
-    from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-    from pathlib import Path
-    from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
-    from pyhyperiso.core.Common.GeneralEnum import Model
-    
-    print("🔧 Initializing PyHyperisoMaster with custom PyHyperisoConfig...")
-
-    config = HyperisoConfig(
-        flags={
-            ExternalFlag.IS_LHA_SPECTRUM: True,
-            ExternalFlag.HAS_WILSON_INPUT: False,
-            ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            # ExternalFlag.USE_MARTY: False
-        },
-        model=Model.SM,
-        mty_model_name="MSSM_UFO",
-        mty_model_path=Path("/my/custom/marty/path")
-    )
-
-    print("🔧 PyHyperisoConfig content:")
-    print(config)
-
-    hyp = HyperisoMaster()
-    lha_file_path = "lha/camilia.flha"
-
-    print("\n🚀 Calling init with config...")
-    hyp.init(lha_file=lha_file_path, config=config)
-    
-    provider = ParameterProvider(ParameterType.SM)
-    pid = ParamId(type=ParameterType.SM, block="MASS", code=24)
-
-    print("🔍 By ParamId")
-    print("exists:", provider.exists_by_pid(pid))
-    print("value:", provider.get_by_pid(pid))
-    print("stored (get_parameter):", provider.get_parameter(pid))
-
-    print("\n🔍 By (block, code)")
-    print("exists:", provider.exists_by_block("MASS", [24]))
-    print("value:", provider.get_by_block("MASS", "24"))
+__all__ = ["ParameterProvider"]

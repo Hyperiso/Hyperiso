@@ -1,7 +1,5 @@
 from pyhyperiso.phyperiso.pyhyperiso import math as ma
-import math
-import cmath
-from typing import  Union
+from typing import Union
 
 
 class Scalar:
@@ -125,7 +123,7 @@ class Scalar:
         instance = cls()
         instance._cpp_obj = cpp_obj
         return instance
-    
+
     def __repr__(self) -> str:
         return f"Scalar({self.real()}, {self.imag()})"
 
@@ -140,16 +138,19 @@ def _to_scalar(value: Union[float, complex, Scalar]) -> Scalar:
         return Scalar.from_complex(value)
     else:
         raise TypeError(f"Expected float, complex or Scalar, got {type(value)}")
-    
+
 
 # -------- Math function wrappers -------- #
+
 
 def _wrap_math_func(cpp_func):
     def wrapped(x: Scalar) -> Scalar:
         result = Scalar()
         result._cpp_obj = cpp_func(x._cpp_obj)
         return result
+
     return wrapped
+
 
 # Map to C++ functions
 sqrt = _wrap_math_func(ma.sqrt)
@@ -167,6 +168,7 @@ tanh = _wrap_math_func(ma.tanh)
 abs_scalar = _wrap_math_func(ma.abs)
 arg = _wrap_math_func(ma.arg)
 norm = _wrap_math_func(ma.norm)
+
 
 def pow_scalar(base: Scalar, exponent: Union[Scalar, float, int]) -> Scalar:
     """Raises a Scalar to a scalar/int/float exponent.

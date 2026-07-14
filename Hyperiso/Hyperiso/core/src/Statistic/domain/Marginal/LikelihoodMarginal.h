@@ -56,11 +56,9 @@ struct LikelihoodMarginalCfg : public AbstractConfig {
  *   z = \frac{x-\mu}{\sigma}.
  * \f]
  *
- * @note In the current implementation:
- * - @ref rvs is fully implemented,
- * - @ref logpdf, @ref cdf, @ref ppf, @ref mean and @ref std return placeholder
- *   values rather than the exact discrete-distribution quantities.
- *   This matches the current code but should be documented clearly for users.
+ * @note Random sampling is implemented. Analytical distribution methods are
+ * deliberately unavailable until their discrete semantics are finalized; they
+ * throw `std::logic_error` instead of returning a plausible placeholder value.
  */
 class LikelihoodMarginal final : public IMarginalDistribution {
 public:
@@ -87,52 +85,36 @@ public:
     /// \copydoc IMarginalDistribution::rvs
     std::vector<double> rvs(std::size_t n) override;
 
-    /**
-     * @brief Placeholder log-density implementation.
-     *
-     * @note The current implementation always returns 0.0.
-     *       This class is currently intended mainly as a sampler.
-     */
-    double logpdf(double x) override { return 0.0; }
+    /** @brief Not implemented; use this class only for sampling. */
+    double logpdf(double) override {
+        throw std::logic_error("LikelihoodMarginal::logpdf is not implemented");
+    }
 
-    /**
-     * @brief Placeholder density and derivatives implementation.
-     *
-     * @note The current implementation always returns 0.0.
-     *       This class is currently intended mainly as a sampler.
-     */
-    PDFDiff f_df_ddf(double x) override { return {0.0, 0.0, 0.0}; }
+    /** @brief Not implemented; use this class only for sampling. */
+    PDFDiff f_df_ddf(double) override {
+        throw std::logic_error("LikelihoodMarginal::f_df_ddf is not implemented");
+    }
 
-    /**
-     * @brief Placeholder CDF implementation.
-     *
-     * @note The current implementation always returns 0.0.
-     */
+    /** @brief Not implemented; use this class only for sampling. */
 
-    double cdf(double x) override { return 0.0; }
+    double cdf(double) override {
+        throw std::logic_error("LikelihoodMarginal::cdf is not implemented");
+    }
 
-    /**
-     * @brief Placeholder inverse-CDF implementation.
-     *
-     * @note The current implementation always returns 0.0.
-     */
-    double ppf(double p) override { return 0.0; }
+    /** @brief Not implemented; use this class only for sampling. */
+    double ppf(double) override {
+        throw std::logic_error("LikelihoodMarginal::ppf is not implemented");
+    }
 
-    /**
-     * @brief Placeholder mean implementation.
-     *
-     * @note The current implementation always returns 0.0, even when the
-     *       internal weighted mean has been computed for standardization.
-     */
-    double mean() override { return 0.0; }
+    /** @brief Not implemented; use this class only for sampling. */
+    double mean() override {
+        throw std::logic_error("LikelihoodMarginal::mean is not implemented");
+    }
 
-    /**
-     * @brief Placeholder standard deviation implementation.
-     *
-     * @note The current implementation always returns 0.0, even when the
-     *       internal weighted standard deviation has been computed.
-     */
-    double std() override { return 0.0; }
+    /** @brief Not implemented; use this class only for sampling. */
+    double std() override {
+        throw std::logic_error("LikelihoodMarginal::std is not implemented");
+    }
 
 private:
     /**

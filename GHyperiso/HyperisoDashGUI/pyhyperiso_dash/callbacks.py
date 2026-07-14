@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from dash import ALL, Input, Output, State, callback_context, dcc, html, no_update
+from dash import ALL, Input, Output, State, callback_context, html, no_update
 from dash.exceptions import PreventUpdate
 
 from pyhyperiso_dash import services as svc
@@ -43,11 +43,26 @@ def _progress_value(value) -> str:
 def _runtime_metrics():
     s = svc.runtime_summary()
     return [
-        metric("Runtime", "ON" if s["initialized"] else "OFF", "Hyperiso singleton", "good" if s["initialized"] else "bad"),
+        metric(
+            "Runtime",
+            "ON" if s["initialized"] else "OFF",
+            "Hyperiso singleton",
+            "good" if s["initialized"] else "bad",
+        ),
         metric("Model", s["model"], "active config"),
         metric("LHA", "set" if s["lha_path"] != "—" else "—", s["lha_path"]),
-        metric("Wilson", "built" if s["wilson_built"] else "not built", "current session", "good" if s["wilson_built"] else ""),
-        metric("Observables", "built" if s["observable_built"] else "not built", "current session", "good" if s["observable_built"] else ""),
+        metric(
+            "Wilson",
+            "built" if s["wilson_built"] else "not built",
+            "current session",
+            "good" if s["wilson_built"] else "",
+        ),
+        metric(
+            "Observables",
+            "built" if s["observable_built"] else "not built",
+            "current session",
+            "good" if s["observable_built"] else "",
+        ),
     ]
 
 
@@ -108,6 +123,7 @@ def register_callbacks(app):
         "obs-y-param",
     ]
     for prefix in parameter_prefixes:
+
         @app.callback(
             Output(f"{prefix}-block", "options"),
             Output(f"{prefix}-block", "value"),
@@ -120,7 +136,11 @@ def register_callbacks(app):
             try:
                 opts = svc.block_name_options(ptype) if ptype else []
                 valid = {o["value"] for o in opts}
-                value = current_block if current_block in valid else (opts[0]["value"] if opts else None)
+                value = (
+                    current_block
+                    if current_block in valid
+                    else (opts[0]["value"] if opts else None)
+                )
                 return opts, value
             except Exception:
                 return [], None
@@ -138,7 +158,11 @@ def register_callbacks(app):
             try:
                 opts = svc.block_code_options(ptype, block) if ptype and block else []
                 valid = {o["value"] for o in opts}
-                value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+                value = (
+                    current_code
+                    if current_code in valid
+                    else (opts[0]["value"] if opts else None)
+                )
                 return opts, value
             except Exception:
                 return [], None
@@ -155,7 +179,11 @@ def register_callbacks(app):
         try:
             opts = svc.block_name_options(ptype) if ptype else []
             valid = {o["value"] for o in opts}
-            value = current_block if current_block in valid else (opts[0]["value"] if opts else None)
+            value = (
+                current_block
+                if current_block in valid
+                else (opts[0]["value"] if opts else None)
+            )
             return opts, value
         except Exception:
             return [], None
@@ -173,7 +201,11 @@ def register_callbacks(app):
         try:
             opts = svc.block_code_options(ptype, block) if ptype and block else []
             valid = {o["value"] for o in opts}
-            value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+            value = (
+                current_code
+                if current_code in valid
+                else (opts[0]["value"] if opts else None)
+            )
             return opts, value
         except Exception:
             return [], None
@@ -188,11 +220,16 @@ def register_callbacks(app):
     def update_wilson_coeffs(group, current_coeff):
         opts = svc.wilson_coeff_options_for_group(group)
         valid = {o["value"] for o in opts}
-        value = current_coeff if current_coeff in valid else (opts[0]["value"] if opts else None)
+        value = (
+            current_coeff
+            if current_coeff in valid
+            else (opts[0]["value"] if opts else None)
+        )
         return opts, value
 
     # ---------- Decay -> observable cascading selectors ----------
     for prefix in ["obs-build", "stat-obs"]:
+
         @app.callback(
             Output(f"{prefix}-obs", "options"),
             Output(f"{prefix}-obs", "value"),
@@ -205,7 +242,9 @@ def register_callbacks(app):
         def _update_observables_for_decay(decays, mode, current, _prefix=prefix):
             opts = svc.observable_options_for_decays(decays or [])
             valid = {o["value"] for o in opts}
-            current_values = current if isinstance(current, list) else ([current] if current else [])
+            current_values = (
+                current if isinstance(current, list) else ([current] if current else [])
+            )
             value = [x for x in current_values if x in valid]
             if not value and opts and mode != "decay":
                 value = [opts[0]["value"]]
@@ -221,7 +260,9 @@ def register_callbacks(app):
     )
     def update_obs_decay_config_target(decays, current):
         selected = decays or []
-        opts = [o for o in svc.decay_options() if not selected or o["value"] in selected]
+        opts = [
+            o for o in svc.decay_options() if not selected or o["value"] in selected
+        ]
         valid = {o["value"] for o in opts}
         value = current if current in valid else (opts[0]["value"] if opts else None)
         return opts, value
@@ -235,7 +276,9 @@ def register_callbacks(app):
     )
     def update_stat_decay_config_target(decays, current):
         selected = decays or []
-        opts = [o for o in svc.decay_options() if not selected or o["value"] in selected]
+        opts = [
+            o for o in svc.decay_options() if not selected or o["value"] in selected
+        ]
         valid = {o["value"] for o in opts}
         value = current if current in valid else (opts[0]["value"] if opts else None)
         return opts, value
@@ -258,6 +301,7 @@ def register_callbacks(app):
         return {} if flag else {"display": "none"}
 
     for prefix in ["obs", "stat"]:
+
         @app.callback(
             Output(f"{prefix}-decay-config-fields", "children"),
             Input(f"{prefix}-decay-config-decay", "value"),
@@ -266,12 +310,24 @@ def register_callbacks(app):
         def _render_decay_config_fields(decay_name, _prefix=prefix):
             specs = svc.decay_config_field_specs(decay_name)
             if not specs:
-                return small_note("No typed decay configuration is exposed for this decay in the current binding.", tone="warn")
+                return small_note(
+                    "No typed decay configuration is exposed for this decay in the current binding.",
+                    tone="warn",
+                )
             children = []
             for spec in specs:
-                cid = {"type": "decay-config-field", "prefix": _prefix, "field": spec["name"]}
+                cid = {
+                    "type": "decay-config-field",
+                    "prefix": _prefix,
+                    "field": spec["name"],
+                }
                 if spec["kind"] == "enum":
-                    component = dropdown(cid, spec.get("options", []), value=spec.get("value"), clearable=False)
+                    component = dropdown(
+                        cid,
+                        spec.get("options", []),
+                        value=spec.get("value"),
+                        clearable=False,
+                    )
                 else:
                     component = num_input(cid, spec.get("value"))
                 children.append(field(spec["label"], component))
@@ -287,7 +343,9 @@ def register_callbacks(app):
     )
     def apply_obs_decay_config(_clicks, decay_name, ids, values):
         try:
-            field_values = {str(i.get("field")): v for i, v in zip(ids or [], values or [])}
+            field_values = {
+                str(i.get("field")): v for i, v in zip(ids or [], values or [])
+            }
             info = svc.apply_decay_config(decay_name, field_values)
             return f"Applied {info['config']} to {info['decay']}: {info['values']}"
         except Exception as exc:
@@ -303,7 +361,9 @@ def register_callbacks(app):
     )
     def apply_stat_decay_config(_clicks, decay_name, ids, values):
         try:
-            field_values = {str(i.get("field")): v for i, v in zip(ids or [], values or [])}
+            field_values = {
+                str(i.get("field")): v for i, v in zip(ids or [], values or [])
+            }
             info = svc.apply_decay_config(decay_name, field_values)
             return f"Applied {info['config']} to {info['decay']}: {info['values']}"
         except Exception as exc:
@@ -338,7 +398,11 @@ def register_callbacks(app):
     def toggle_obs_build_bins(use_bin, smooth):
         enabled = "bin" in (use_bin or [])
         is_smooth = "smooth" in (smooth or [])
-        return _visible(enabled), _visible(enabled and not is_smooth), _visible(enabled and is_smooth)
+        return (
+            _visible(enabled),
+            _visible(enabled and not is_smooth),
+            _visible(enabled and is_smooth),
+        )
 
     @app.callback(
         Output("stat-obs-bin-mode-wrap", "style"),
@@ -351,7 +415,11 @@ def register_callbacks(app):
     def toggle_stat_bins(use_bin, smooth):
         enabled = "bin" in (use_bin or [])
         is_smooth = "smooth" in (smooth or [])
-        return _visible(enabled), _visible(enabled and not is_smooth), _visible(enabled and is_smooth)
+        return (
+            _visible(enabled),
+            _visible(enabled and not is_smooth),
+            _visible(enabled and is_smooth),
+        )
 
     @app.callback(
         Output("obs-scan-bin-wrap", "style"),
@@ -362,6 +430,7 @@ def register_callbacks(app):
         return _visible("bin" in (use_bin or []))
 
     for prefix in ["wilson", "obs"]:
+
         @app.callback(
             Output(f"{prefix}-y-range-wrap", "style"),
             Output(f"{prefix}-y-param-wrap", "style"),
@@ -403,7 +472,11 @@ def register_callbacks(app):
     def refresh_core_parameter_type_options(_ping, current_value):
         options = svc.parameter_type_options()
         valid_values = {opt["value"] for opt in options}
-        value = current_value if current_value in valid_values else svc.default_parameter_type_name("SM")
+        value = (
+            current_value
+            if current_value in valid_values
+            else svc.default_parameter_type_name("SM")
+        )
         return options, value
 
     @app.callback(
@@ -420,14 +493,22 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def core_init(click_ts, lha_path, flags, model, marty_name, marty_path, ping):
-        if click_ts in (None, -1) or int(click_ts) <= int(getattr(svc.RUNTIME, "last_core_init_ts", -1)):
+        if click_ts in (None, -1) or int(click_ts) <= int(
+            getattr(svc.RUNTIME, "last_core_init_ts", -1)
+        ):
             raise PreventUpdate
         try:
             svc.RUNTIME.last_core_init_ts = int(click_ts)
-            info = svc.init_or_switch_hyperiso(lha_path, flags or [], model, marty_name, marty_path)
+            info = svc.init_or_switch_hyperiso(
+                lha_path, flags or [], model, marty_name, marty_path
+            )
             return _ok("Hyperiso ready.", info), _runtime_metrics(), int(ping or 0) + 1
         except Exception as exc:
-            return _err("Hyperiso initialization failed.", exc), _runtime_metrics(), ping
+            return (
+                _err("Hyperiso initialization failed.", exc),
+                _runtime_metrics(),
+                ping,
+            )
 
     @app.callback(
         Output("core-block-inventory-fig", "figure"),
@@ -444,10 +525,24 @@ def register_callbacks(app):
             inventory = svc.block_inventory_rows()
             opts = svc.block_name_options(ptype)
             valid_values = {x["value"] for x in opts}
-            value = current_block if current_block in valid_values else (opts[0]["value"] if opts else None)
-            return block_size_bar(inventory), f"Loaded {len(opts)} blocks for {ptype}.", opts, value
+            value = (
+                current_block
+                if current_block in valid_values
+                else (opts[0]["value"] if opts else None)
+            )
+            return (
+                block_size_bar(inventory),
+                f"Loaded {len(opts)} blocks for {ptype}.",
+                opts,
+                value,
+            )
         except Exception as exc:
-            return empty_fig("Block inventory unavailable"), _err("Block refresh failed.", exc), [], None
+            return (
+                empty_fig("Block inventory unavailable"),
+                _err("Block refresh failed.", exc),
+                [],
+                None,
+            )
 
     @app.callback(
         Output("core-block-table", "data"),
@@ -476,7 +571,11 @@ def register_callbacks(app):
         try:
             opts = svc.block_code_options(ptype, block) if ptype and block else []
             valid = {o["value"] for o in opts}
-            value = current_code if current_code in valid else (opts[0]["value"] if opts else None)
+            value = (
+                current_code
+                if current_code in valid
+                else (opts[0]["value"] if opts else None)
+            )
             return opts, value
         except Exception:
             return [], None
@@ -494,9 +593,15 @@ def register_callbacks(app):
         State("core-dep-code", "value"),
         prevent_initial_call=True,
     )
-    def refresh_or_prune_dependencies(_refresh, _apply, block_name, ptype, action, scope, code):
+    def refresh_or_prune_dependencies(
+        _refresh, _apply, block_name, ptype, action, scope, code
+    ):
         try:
-            trig = callback_context.triggered[0]["prop_id"].split(".")[0] if callback_context.triggered else ""
+            trig = (
+                callback_context.triggered[0]["prop_id"].split(".")[0]
+                if callback_context.triggered
+                else ""
+            )
             if trig == "core-dep-apply-btn":
                 data = svc.prune_dependency(action, scope, ptype, block_name, code)
                 last = data.get("last_action", {})
@@ -507,9 +612,17 @@ def register_callbacks(app):
                 data = svc.block_dependency_data(ptype, block_name)
                 msg = f"Loaded dependency component for {ptype}:{block_name}."
             msg += f" Dependent block: {data.get('is_dependent')}. Nodes: {len(data.get('nodes', []))}. Edges: {len(data.get('edges', []))}."
-            return msg, data.get("rows", []), dependency_graph(data, f"Dependencies for {ptype}:{block_name}")
+            return (
+                msg,
+                data.get("rows", []),
+                dependency_graph(data, f"Dependencies for {ptype}:{block_name}"),
+            )
         except Exception as exc:
-            return _err("Dependency inspection failed.", exc), [], empty_fig("Dependency graph unavailable")
+            return (
+                _err("Dependency inspection failed.", exc),
+                [],
+                empty_fig("Dependency graph unavailable"),
+            )
 
     # ---------- Wilson ----------
     @app.callback(
@@ -546,7 +659,9 @@ def register_callbacks(app):
     )
     def query_wilson(_, method, group, coeff, order, contribution, basis, component):
         try:
-            row = svc.query_wilson(method, group, coeff, order, contribution, basis, component or "real")
+            row = svc.query_wilson(
+                method, group, coeff, order, contribution, basis, component or "real"
+            )
             return [row], _ok("Wilson request succeeded.", row)
         except Exception as exc:
             return [], _err("Wilson request failed.", exc)
@@ -577,16 +692,94 @@ def register_callbacks(app):
         State("wilson-y-n", "value"),
         prevent_initial_call=True,
     )
-    def wilson_scan(_, dim, method, group, coeff, order, contribution, basis, component, x_ptype, x_block, x_code, x_min, x_max, x_n, y_ptype, y_block, y_code, y_min, y_max, y_n):
+    def wilson_scan(
+        _,
+        dim,
+        method,
+        group,
+        coeff,
+        order,
+        contribution,
+        basis,
+        component,
+        x_ptype,
+        x_block,
+        x_code,
+        x_min,
+        x_max,
+        x_n,
+        y_ptype,
+        y_block,
+        y_code,
+        y_min,
+        y_max,
+        y_n,
+    ):
         try:
             component = component or "real"
             if dim == "2d":
-                xs, ys, z = svc.wilson_scan_2d(method, group, coeff, order, contribution, basis, component, (x_ptype, x_block, x_code), (y_ptype, y_block, y_code), x_min, x_max, x_n, y_min, y_max, y_n)
-                title = svc.wilson_request_display_label(method, coeff, order, contribution) + f" [{component}]"
-                return heatmap_2d(xs, ys, z, title, svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), svc.parameter_display_label(y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype), f"Wilson {component}"), f"2D scan complete: {len(xs)}×{len(ys)} points."
-            xs, ys = svc.wilson_scan_1d(method, group, coeff, order, contribution, basis, component, x_ptype, x_block, x_code, x_min, x_max, x_n)
-            title = svc.wilson_request_display_label(method, coeff, order, contribution) + f" [{component}]"
-            return series_1d(xs, ys, title, svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), f"Wilson {component}"), f"1D scan complete: {len(xs)} points."
+                xs, ys, z = svc.wilson_scan_2d(
+                    method,
+                    group,
+                    coeff,
+                    order,
+                    contribution,
+                    basis,
+                    component,
+                    (x_ptype, x_block, x_code),
+                    (y_ptype, y_block, y_code),
+                    x_min,
+                    x_max,
+                    x_n,
+                    y_min,
+                    y_max,
+                    y_n,
+                )
+                title = (
+                    svc.wilson_request_display_label(method, coeff, order, contribution)
+                    + f" [{component}]"
+                )
+                return heatmap_2d(
+                    xs,
+                    ys,
+                    z,
+                    title,
+                    svc.parameter_display_label(
+                        x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype
+                    ),
+                    svc.parameter_display_label(
+                        y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype
+                    ),
+                    f"Wilson {component}",
+                ), f"2D scan complete: {len(xs)}×{len(ys)} points."
+            xs, ys = svc.wilson_scan_1d(
+                method,
+                group,
+                coeff,
+                order,
+                contribution,
+                basis,
+                component,
+                x_ptype,
+                x_block,
+                x_code,
+                x_min,
+                x_max,
+                x_n,
+            )
+            title = (
+                svc.wilson_request_display_label(method, coeff, order, contribution)
+                + f" [{component}]"
+            )
+            return series_1d(
+                xs,
+                ys,
+                title,
+                svc.parameter_display_label(
+                    x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype
+                ),
+                f"Wilson {component}",
+            ), f"1D scan complete: {len(xs)} points."
         except Exception as exc:
             return empty_fig("Wilson scan failed"), _err("Wilson scan failed.", exc)
 
@@ -609,10 +802,40 @@ def register_callbacks(app):
         State("obs-build-smooth-step", "value"),
         prevent_initial_call=True,
     )
-    def build_observables(_, mode, obs, decays, order, deps, use_bin, low, high, smooth, sm_min, sm_max, sm_step):
+    def build_observables(
+        _,
+        mode,
+        obs,
+        decays,
+        order,
+        deps,
+        use_bin,
+        low,
+        high,
+        smooth,
+        sm_min,
+        sm_max,
+        sm_step,
+    ):
         try:
-            rows = svc.build_observables(mode, obs, decays, order, "deps" in (deps or []), "bin" in (use_bin or []), low, high, "smooth" in (smooth or []), sm_min, sm_max, sm_step)
-            return rows, f"Configured {len(rows)} requested entries. {svc.observable_status_text()}"
+            rows = svc.build_observables(
+                mode,
+                obs,
+                decays,
+                order,
+                "deps" in (deps or []),
+                "bin" in (use_bin or []),
+                low,
+                high,
+                "smooth" in (smooth or []),
+                sm_min,
+                sm_max,
+                sm_step,
+            )
+            return (
+                rows,
+                f"Configured {len(rows)} requested entries. {svc.observable_status_text()}",
+            )
         except Exception as exc:
             return [], _err("Observable configuration failed.", exc)
 
@@ -669,18 +892,87 @@ def register_callbacks(app):
         State("obs-y-n", "value"),
         prevent_initial_call=True,
     )
-    def observable_scan(_, dim, obs, order, deps, use_bin, bin_low, bin_high, x_ptype, x_block, x_code, x_min, x_max, x_n, y_ptype, y_block, y_code, y_min, y_max, y_n):
+    def observable_scan(
+        _,
+        dim,
+        obs,
+        order,
+        deps,
+        use_bin,
+        bin_low,
+        bin_high,
+        x_ptype,
+        x_block,
+        x_code,
+        x_min,
+        x_max,
+        x_n,
+        y_ptype,
+        y_block,
+        y_code,
+        y_min,
+        y_max,
+        y_n,
+    ):
         try:
             add_deps = "deps" in (deps or [])
             if "bin" not in (use_bin or []):
                 bin_low = bin_high = None
             if dim == "2d":
-                xs, ys, z = svc.observable_scan_2d(obs, order, add_deps, bin_low, bin_high, (x_ptype, x_block, x_code), (y_ptype, y_block, y_code), x_min, x_max, x_n, y_min, y_max, y_n)
-                return heatmap_2d(xs, ys, z, svc.observable_display_label(obs), svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), svc.parameter_display_label(y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype), "observable"), f"2D observable scan complete: {len(xs)}×{len(ys)} points."
-            xs, ys = svc.observable_scan_1d(obs, order, add_deps, bin_low, bin_high, x_ptype, x_block, x_code, x_min, x_max, x_n)
-            return series_1d(xs, ys, svc.observable_display_label(obs), svc.parameter_display_label(x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype), "observable"), f"1D observable scan complete: {len(xs)} points."
+                xs, ys, z = svc.observable_scan_2d(
+                    obs,
+                    order,
+                    add_deps,
+                    bin_low,
+                    bin_high,
+                    (x_ptype, x_block, x_code),
+                    (y_ptype, y_block, y_code),
+                    x_min,
+                    x_max,
+                    x_n,
+                    y_min,
+                    y_max,
+                    y_n,
+                )
+                return heatmap_2d(
+                    xs,
+                    ys,
+                    z,
+                    svc.observable_display_label(obs),
+                    svc.parameter_display_label(
+                        x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype
+                    ),
+                    svc.parameter_display_label(
+                        y_block, y_code, f"{y_ptype}:{y_block}:{y_code}", y_ptype
+                    ),
+                    "observable",
+                ), f"2D observable scan complete: {len(xs)}×{len(ys)} points."
+            xs, ys = svc.observable_scan_1d(
+                obs,
+                order,
+                add_deps,
+                bin_low,
+                bin_high,
+                x_ptype,
+                x_block,
+                x_code,
+                x_min,
+                x_max,
+                x_n,
+            )
+            return series_1d(
+                xs,
+                ys,
+                svc.observable_display_label(obs),
+                svc.parameter_display_label(
+                    x_block, x_code, f"{x_ptype}:{x_block}:{x_code}", x_ptype
+                ),
+                "observable",
+            ), f"1D observable scan complete: {len(xs)} points."
         except Exception as exc:
-            return empty_fig("Observable scan failed"), _err("Observable scan failed.", exc)
+            return empty_fig("Observable scan failed"), _err(
+                "Observable scan failed.", exc
+            )
 
     # ---------- Stat ----------
     @app.callback(
@@ -701,9 +993,27 @@ def register_callbacks(app):
         State("stat-obs-smooth-step", "value"),
         prevent_initial_call=True,
     )
-    def configure_stat_observables(_, mode, obs, decays, order, deps, use_bin, bin_low, bin_high, smooth, sm_min, sm_max, sm_step):
+    def configure_stat_observables(
+        _,
+        mode,
+        obs,
+        decays,
+        order,
+        deps,
+        use_bin,
+        bin_low,
+        bin_high,
+        smooth,
+        sm_min,
+        sm_max,
+        sm_step,
+    ):
         try:
-            bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
+            bin_strategy = (
+                "smooth"
+                if ("bin" in (use_bin or []) and "smooth" in (smooth or []))
+                else ("single" if "bin" in (use_bin or []) else "none")
+            )
             rows = svc.configure_stat_observables(
                 mode,
                 obs,
@@ -719,7 +1029,10 @@ def register_callbacks(app):
             )
             for row in rows:
                 row["registered"] = True
-            return rows, f"Configured {len(rows)} requested entries. {svc.stat_observable_status_text()}"
+            return (
+                rows,
+                f"Configured {len(rows)} requested entries. {svc.stat_observable_status_text()}",
+            )
         except Exception as exc:
             return [], _err("Statistic observable configuration failed.", exc)
 
@@ -736,7 +1049,11 @@ def register_callbacks(app):
             rows = svc.remove_stat_observable_rows(selected_rows or [])
             for row in rows:
                 row["registered"] = True
-            return rows, [], f"Removed selected rows. {svc.stat_observable_status_text()}"
+            return (
+                rows,
+                [],
+                f"Removed selected rows. {svc.stat_observable_status_text()}",
+            )
         except Exception as exc:
             return no_update, [], _err("Statistic observable removal failed.", exc)
 
@@ -772,9 +1089,20 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def edit_pspec_rows(
-        _add, _remove, _apply_wilson, fit_mode, ptype, block, code,
-        coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order,
-        rows, selected_rows,
+        _add,
+        _remove,
+        _apply_wilson,
+        fit_mode,
+        ptype,
+        block,
+        code,
+        coefficients,
+        scan_kind,
+        matching_scale,
+        hadronic_scale,
+        wilson_order,
+        rows,
+        selected_rows,
     ):
         rows = list(rows or [])
         triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
@@ -786,11 +1114,19 @@ def register_callbacks(app):
         if triggered == "stat-apply-wilson-pspec-btn":
             try:
                 setup = svc.wilson_scan_setup(
-                    coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order
+                    coefficients,
+                    scan_kind,
+                    matching_scale,
+                    hadronic_scale,
+                    wilson_order,
                 )
                 rows = svc.wilson_scan_parameter_rows(setup)
                 groups = sorted({row.get("wilson_group") for row in rows})
-                convention = "ΔC (BSM only)" if setup["scan_mode"] == "DELTA" else "full C (total)"
+                convention = (
+                    "ΔC (BSM only)"
+                    if setup["scan_mode"] == "DELTA"
+                    else "full C (total)"
+                )
                 status = (
                     f"Wilson Scan configured: {len(rows)} coefficient(s), {convention}. "
                     f"Required groups ready: {', '.join(groups)}."
@@ -800,7 +1136,11 @@ def register_callbacks(app):
                 return rows[:10], [], _err("Wilson Scan configuration failed.", exc)
 
         if str(fit_mode or "STANDARD").upper() != "STANDARD":
-            return rows[:10], [], "Use ‘Use selected Wilson coefficients’ to configure a Wilson Scan."
+            return (
+                rows[:10],
+                [],
+                "Use ‘Use selected Wilson coefficients’ to configure a Wilson Scan.",
+            )
         if not (ptype and block and code not in (None, "")):
             return rows[:10], [], no_update
         try:
@@ -810,7 +1150,9 @@ def register_callbacks(app):
         # Standard mode and Wilson mode are intentionally mutually exclusive.
         rows = [row for row in rows if str(row.get("type")) != "WILSON"]
         row = {
-            "parameter": svc.parameter_display_label(block, code, f"{ptype}:{block}:{code}", ptype),
+            "parameter": svc.parameter_display_label(
+                block, code, f"{ptype}:{block}:{code}", ptype
+            ),
             "source": "Standard parameter",
             "type": ptype,
             "block": block,
@@ -820,7 +1162,9 @@ def register_callbacks(app):
             "upper_bound": upper,
         }
         key = (row["type"], row["block"], row["code"])
-        if key not in {(r.get("type"), r.get("block"), str(r.get("code"))) for r in rows}:
+        if key not in {
+            (r.get("type"), r.get("block"), str(r.get("code"))) for r in rows
+        }:
             rows.append(row)
         return rows[:10], [], no_update
 
@@ -840,15 +1184,23 @@ def register_callbacks(app):
         State("stat-profiling-method", "value"),
         prevent_initial_call=False,
     )
-    def update_stat_contour_controls(rows, do_contour, current_x, current_y, current_method):
+    def update_stat_contour_controls(
+        rows, do_contour, current_x, current_y, current_method
+    ):
         options = svc.p_spec_axis_options(rows)
         valid = [item["value"] for item in options]
         x_value = current_x if current_x in valid else (valid[0] if valid else None)
         y_candidates = [value for value in valid if value != x_value]
-        y_value = current_y if current_y in y_candidates else (y_candidates[0] if y_candidates else None)
+        y_value = (
+            current_y
+            if current_y in y_candidates
+            else (y_candidates[0] if y_candidates else None)
+        )
         n_params = len(options)
         method_disabled = n_params <= 2
-        method_value = "SLICE" if method_disabled else (current_method or "FREE_PROJECTION")
+        method_value = (
+            "SLICE" if method_disabled else (current_method or "FREE_PROJECTION")
+        )
         style = {} if "contour" in (do_contour or []) else {"display": "none"}
         if n_params < 2:
             note = "Add at least two fit parameters to enable a contour."
@@ -856,7 +1208,16 @@ def register_callbacks(app):
             note = "Exactly two fit parameters: the contour is already 2D, so ProfilingMethod is fixed to SLICE."
         else:
             note = f"{n_params} fit parameters: choose how the {n_params - 2} hidden parameter(s) are reduced to the selected 2D plane."
-        return options, x_value, options, y_value, method_disabled, method_value, style, note
+        return (
+            options,
+            x_value,
+            options,
+            y_value,
+            method_disabled,
+            method_value,
+            style,
+            note,
+        )
 
     @app.callback(
         Output("stat-contour-fallback", "options"),
@@ -880,7 +1241,9 @@ def register_callbacks(app):
         if current in valid:
             value = current
         else:
-            alternatives = [item["value"] for item in options if item["value"] != "NONE"]
+            alternatives = [
+                item["value"] for item in options if item["value"] != "NONE"
+            ]
             value = alternatives[0] if alternatives else "NONE"
         return options, value
 
@@ -931,33 +1294,107 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def stat_uncertainty(
-        _clicks, _ticks, job_data, mode, obs, decays, order, deps, use_bin,
-        bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments,
-        mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune,
-        contexts, seed, uncertainty_mode, configured_rows, fit_mode,
-        coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order,
+        _clicks,
+        _ticks,
+        job_data,
+        mode,
+        obs,
+        decays,
+        order,
+        deps,
+        use_bin,
+        bin_low,
+        bin_high,
+        smooth,
+        sm_min,
+        sm_max,
+        sm_step,
+        experiments,
+        mc_draws,
+        mc_threads,
+        mc_seed,
+        skew,
+        ridge_rel,
+        ridge_abs,
+        prune,
+        contexts,
+        seed,
+        uncertainty_mode,
+        configured_rows,
+        fit_mode,
+        coefficients,
+        scan_kind,
+        matching_scale,
+        hadronic_scale,
+        wilson_order,
     ):
         triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
         if triggered == "stat-uncertainty-btn":
             try:
-                bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-                kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+                bin_strategy = (
+                    "smooth"
+                    if ("bin" in (use_bin or []) and "smooth" in (smooth or []))
+                    else ("single" if "bin" in (use_bin or []) else "none")
+                )
+                kwargs = _stat_kwargs(
+                    mode,
+                    obs,
+                    decays,
+                    order,
+                    deps,
+                    bin_strategy,
+                    bin_low,
+                    bin_high,
+                    sm_min,
+                    sm_max,
+                    sm_step,
+                    experiments,
+                    mc_draws,
+                    mc_threads,
+                    mc_seed,
+                    skew,
+                    ridge_rel,
+                    ridge_abs,
+                    prune,
+                    contexts,
+                    seed,
+                )
                 if configured_rows:
                     kwargs["configured_rows"] = configured_rows
                 wilson_setup = None
                 if str(fit_mode or "STANDARD").upper() == "WILSON":
-                    wilson_setup = svc.wilson_scan_setup(coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order)
+                    wilson_setup = svc.wilson_scan_setup(
+                        coefficients,
+                        scan_kind,
+                        matching_scale,
+                        hadronic_scale,
+                        wilson_order,
+                    )
                 job_id = svc.start_uncertainty_job(kwargs, wilson_setup)
                 return (
-                    no_update, no_update, "Uncertainty computation started.",
-                    {"job_id": job_id}, False, True, {"display": "grid"}, _progress_value(0),
-                    "Preparing the statistic workflow…", "",
+                    no_update,
+                    no_update,
+                    "Uncertainty computation started.",
+                    {"job_id": job_id},
+                    False,
+                    True,
+                    {"display": "grid"},
+                    _progress_value(0),
+                    "Preparing the statistic workflow…",
+                    "",
                 )
             except Exception as exc:
                 return (
-                    [], empty_fig("Uncertainty failed"), _err("Uncertainty computation failed.", exc),
-                    no_update, True, False, {"display": "grid"}, _progress_value(100),
-                    "Uncertainty computation failed", str(exc),
+                    [],
+                    empty_fig("Uncertainty failed"),
+                    _err("Uncertainty computation failed.", exc),
+                    no_update,
+                    True,
+                    False,
+                    {"display": "grid"},
+                    _progress_value(100),
+                    "Uncertainty computation failed",
+                    str(exc),
                 )
 
         job_id = (job_data or {}).get("job_id")
@@ -967,27 +1404,55 @@ def register_callbacks(app):
             state = svc.poll_statistic_job(job_id)
         except Exception as exc:
             return (
-                no_update, no_update, _err("Progress polling failed.", exc),
-                job_data, True, False, {"display": "grid"}, _progress_value(100),
-                "Progress polling failed", str(exc),
+                no_update,
+                no_update,
+                _err("Progress polling failed.", exc),
+                job_data,
+                True,
+                False,
+                {"display": "grid"},
+                _progress_value(100),
+                "Progress polling failed",
+                str(exc),
             )
         if not state["done"]:
             return (
-                no_update, no_update, no_update, job_data, False, True,
-                {"display": "grid"}, _progress_value(state["percent"]), state["message"], state["meta"],
+                no_update,
+                no_update,
+                no_update,
+                job_data,
+                False,
+                True,
+                {"display": "grid"},
+                _progress_value(state["percent"]),
+                state["message"],
+                state["meta"],
             )
         if state["error"]:
             return (
-                [], empty_fig("Uncertainty failed"), f"Uncertainty computation failed.\nERROR: {state['error']}",
-                job_data, True, False, {"display": "grid"}, _progress_value(100),
-                "Uncertainty computation failed", state["error"],
+                [],
+                empty_fig("Uncertainty failed"),
+                f"Uncertainty computation failed.\nERROR: {state['error']}",
+                job_data,
+                True,
+                False,
+                {"display": "grid"},
+                _progress_value(100),
+                "Uncertainty computation failed",
+                state["error"],
             )
         rows = state["result"] or []
         return (
-            rows, uncertainty_fig(rows, asymmetric=(uncertainty_mode == "asym")),
+            rows,
+            uncertainty_fig(rows, asymmetric=(uncertainty_mode == "asym")),
             f"Computed uncertainties for {len(rows)} observable/bin entries.",
-            job_data, True, False, {"display": "grid"}, _progress_value(100),
-            "Uncertainty propagation complete", state["meta"],
+            job_data,
+            True,
+            False,
+            {"display": "grid"},
+            _progress_value(100),
+            "Uncertainty propagation complete",
+            state["meta"],
         )
 
     @app.callback(
@@ -1047,31 +1512,114 @@ def register_callbacks(app):
         prevent_initial_call=True,
     )
     def stat_fit(
-        _clicks, _ticks, job_data, mode, obs, decays, order, deps, use_bin,
-        bin_low, bin_high, smooth, sm_min, sm_max, sm_step, experiments,
-        mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune,
-        contexts, seed, p_rows_in, configured_rows, do_contour, x_key, y_key,
-        levels, profiling_method, contour_algorithm, fallback_algorithm,
-        profiler_mode, resolution, fit_mode, coefficients, scan_kind,
-        matching_scale, hadronic_scale, wilson_order,
+        _clicks,
+        _ticks,
+        job_data,
+        mode,
+        obs,
+        decays,
+        order,
+        deps,
+        use_bin,
+        bin_low,
+        bin_high,
+        smooth,
+        sm_min,
+        sm_max,
+        sm_step,
+        experiments,
+        mc_draws,
+        mc_threads,
+        mc_seed,
+        skew,
+        ridge_rel,
+        ridge_abs,
+        prune,
+        contexts,
+        seed,
+        p_rows_in,
+        configured_rows,
+        do_contour,
+        x_key,
+        y_key,
+        levels,
+        profiling_method,
+        contour_algorithm,
+        fallback_algorithm,
+        profiler_mode,
+        resolution,
+        fit_mode,
+        coefficients,
+        scan_kind,
+        matching_scale,
+        hadronic_scale,
+        wilson_order,
     ):
         triggered = callback_context.triggered[0]["prop_id"].split(".")[0]
         if triggered == "stat-fit-btn":
             try:
-                bin_strategy = "smooth" if ("bin" in (use_bin or []) and "smooth" in (smooth or [])) else ("single" if "bin" in (use_bin or []) else "none")
-                kwargs = _stat_kwargs(mode, obs, decays, order, deps, bin_strategy, bin_low, bin_high, sm_min, sm_max, sm_step, experiments, mc_draws, mc_threads, mc_seed, skew, ridge_rel, ridge_abs, prune, contexts, seed)
+                bin_strategy = (
+                    "smooth"
+                    if ("bin" in (use_bin or []) and "smooth" in (smooth or []))
+                    else ("single" if "bin" in (use_bin or []) else "none")
+                )
+                kwargs = _stat_kwargs(
+                    mode,
+                    obs,
+                    decays,
+                    order,
+                    deps,
+                    bin_strategy,
+                    bin_low,
+                    bin_high,
+                    sm_min,
+                    sm_max,
+                    sm_step,
+                    experiments,
+                    mc_draws,
+                    mc_threads,
+                    mc_seed,
+                    skew,
+                    ridge_rel,
+                    ridge_abs,
+                    prune,
+                    contexts,
+                    seed,
+                )
                 if configured_rows:
                     kwargs["configured_rows"] = configured_rows
                 wilson_setup = None
                 if str(fit_mode or "STANDARD").upper() == "WILSON":
-                    wilson_setup = svc.wilson_scan_setup(coefficients, scan_kind, matching_scale, hadronic_scale, wilson_order)
+                    wilson_setup = svc.wilson_scan_setup(
+                        coefficients,
+                        scan_kind,
+                        matching_scale,
+                        hadronic_scale,
+                        wilson_order,
+                    )
                     selected = list(wilson_setup["coefficients"])
-                    table_selected = [str(row.get("wilson_coefficient")) for row in (p_rows_in or []) if row.get("wilson_coefficient")]
-                    wilson_rows = [row for row in (p_rows_in or []) if row.get("wilson_coefficient")]
-                    table_mode = {str(row.get("wilson_scan_mode")) for row in wilson_rows}
-                    table_matching = {float(row.get("wilson_matching_scale")) for row in wilson_rows}
-                    table_hadronic = {float(row.get("wilson_hadronic_scale")) for row in wilson_rows}
-                    table_order = {str(row.get("wilson_order", "")).upper() for row in wilson_rows}
+                    table_selected = [
+                        str(row.get("wilson_coefficient"))
+                        for row in (p_rows_in or [])
+                        if row.get("wilson_coefficient")
+                    ]
+                    wilson_rows = [
+                        row
+                        for row in (p_rows_in or [])
+                        if row.get("wilson_coefficient")
+                    ]
+                    table_mode = {
+                        str(row.get("wilson_scan_mode")) for row in wilson_rows
+                    }
+                    table_matching = {
+                        float(row.get("wilson_matching_scale")) for row in wilson_rows
+                    }
+                    table_hadronic = {
+                        float(row.get("wilson_hadronic_scale")) for row in wilson_rows
+                    }
+                    table_order = {
+                        str(row.get("wilson_order", "")).upper() for row in wilson_rows
+                    }
                     setup_changed = (
                         table_selected != selected
                         or table_mode != {wilson_setup["scan_mode"]}
@@ -1086,21 +1634,47 @@ def register_callbacks(app):
                         )
                 contour_enabled = "contour" in (do_contour or [])
                 job_id = svc.start_fit_job(
-                    kwargs, p_rows_in or [], contour_enabled, x_key, y_key, levels,
-                    profiling_method, contour_algorithm, fallback_algorithm,
-                    profiler_mode, resolution, wilson_setup,
+                    kwargs,
+                    p_rows_in or [],
+                    contour_enabled,
+                    x_key,
+                    y_key,
+                    levels,
+                    profiling_method,
+                    contour_algorithm,
+                    fallback_algorithm,
+                    profiler_mode,
+                    resolution,
+                    wilson_setup,
                 )
                 return (
-                    no_update, no_update, no_update, "χ² fit started.",
-                    {"job_id": job_id}, False, True, {"display": "grid"}, _progress_value(0),
-                    "Preparing Wilson groups and statistic workflow…" if wilson_setup else "Preparing the χ² fit…",
+                    no_update,
+                    no_update,
+                    no_update,
+                    "χ² fit started.",
+                    {"job_id": job_id},
+                    False,
+                    True,
+                    {"display": "grid"},
+                    _progress_value(0),
+                    "Preparing Wilson groups and statistic workflow…"
+                    if wilson_setup
+                    else "Preparing the χ² fit…",
                     "",
                 )
             except Exception as exc:
                 return (
-                    [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"),
-                    _err("χ² fit/contour failed.", exc), no_update, True, False,
-                    {"display": "grid"}, _progress_value(100), "χ² fit failed", str(exc),
+                    [],
+                    empty_fig("Fit correlations unavailable"),
+                    empty_fig("Contour unavailable"),
+                    _err("χ² fit/contour failed.", exc),
+                    no_update,
+                    True,
+                    False,
+                    {"display": "grid"},
+                    _progress_value(100),
+                    "χ² fit failed",
+                    str(exc),
                 )
 
         job_id = (job_data or {}).get("job_id")
@@ -1110,30 +1684,61 @@ def register_callbacks(app):
             state = svc.poll_statistic_job(job_id)
         except Exception as exc:
             return (
-                no_update, no_update, no_update, _err("Progress polling failed.", exc),
-                job_data, True, False, {"display": "grid"}, _progress_value(100),
-                "Progress polling failed", str(exc),
+                no_update,
+                no_update,
+                no_update,
+                _err("Progress polling failed.", exc),
+                job_data,
+                True,
+                False,
+                {"display": "grid"},
+                _progress_value(100),
+                "Progress polling failed",
+                str(exc),
             )
         if not state["done"]:
             return (
-                no_update, no_update, no_update, no_update, job_data, False, True,
-                {"display": "grid"}, _progress_value(state["percent"]), state["message"], state["meta"],
+                no_update,
+                no_update,
+                no_update,
+                no_update,
+                job_data,
+                False,
+                True,
+                {"display": "grid"},
+                _progress_value(state["percent"]),
+                state["message"],
+                state["meta"],
             )
         if state["error"]:
             return (
-                [], empty_fig("Fit correlations unavailable"), empty_fig("Contour unavailable"),
-                f"χ² fit/contour failed.\nERROR: {state['error']}", job_data, True, False,
-                {"display": "grid"}, _progress_value(100), "χ² fit failed", state["error"],
+                [],
+                empty_fig("Fit correlations unavailable"),
+                empty_fig("Contour unavailable"),
+                f"χ² fit/contour failed.\nERROR: {state['error']}",
+                job_data,
+                True,
+                False,
+                {"display": "grid"},
+                _progress_value(100),
+                "χ² fit failed",
+                state["error"],
             )
 
         result = state["result"]
-        corr_fig = correlation_heatmap(result["corr_rows"], "Fit-parameter correlations")
+        corr_fig = correlation_heatmap(
+            result["corr_rows"], "Fit-parameter correlations"
+        )
         contour_enabled = "contour" in (do_contour or [])
         if result["contour_paths"]:
             x_label, y_label = result["axis_labels"]
             contour_fig = confidence_contour_paths(
-                result["contour_paths"], "2D confidence contours", x_label, y_label,
-                result["best_fit_point"], result["bounds"],
+                result["contour_paths"],
+                "2D confidence contours",
+                x_label,
+                y_label,
+                result["best_fit_point"],
+                result["bounds"],
             )
         elif contour_enabled:
             contour_fig = empty_fig("Contour computation returned no usable path")
@@ -1141,19 +1746,36 @@ def register_callbacks(app):
             contour_fig = empty_fig("Contour disabled")
         contour_status = ""
         if result["contour_paths"]:
-            levels_done = sorted({float(row["sigma"]) for row in result["contour_paths"]})
+            levels_done = sorted(
+                {float(row["sigma"]) for row in result["contour_paths"]}
+            )
             contour_status = f" Contours: {', '.join(f'{z:g}σ' for z in levels_done)}."
         if result["contour_errors"]:
-            contour_status += " Contour warnings: " + " | ".join(result["contour_errors"])
-        warning = "Warning: MC_draws > 200 may be slow. " if mc_draws and int(mc_draws) > 200 else ""
+            contour_status += " Contour warnings: " + " | ".join(
+                result["contour_errors"]
+            )
+        warning = (
+            "Warning: MC_draws > 200 may be slow. "
+            if mc_draws and int(mc_draws) > 200
+            else ""
+        )
         status = (
             f"{warning}χ² fit done. fit_ok={result['fit_ok']}, "
             f"ell_hat={result['ell_hat']:.6g}, parameters={len(result['p_rows'])}."
             f"{contour_status}"
         )
         return (
-            result["p_rows"], corr_fig, contour_fig, status, job_data, True, False,
-            {"display": "grid"}, _progress_value(100), "χ² fit / contours complete", state["meta"],
+            result["p_rows"],
+            corr_fig,
+            contour_fig,
+            status,
+            job_data,
+            True,
+            False,
+            {"display": "grid"},
+            _progress_value(100),
+            "χ² fit / contours complete",
+            state["meta"],
         )
 
     # ---------- QCD ----------
@@ -1170,7 +1792,13 @@ def register_callbacks(app):
     )
     def qcd_compute(_, scale, pdg_id, mb_type, mt_type, include_qed):
         try:
-            rows = svc.qcd_single_result_rows(scale, pdg_id, mb_type, mt_type, include_qed="qed" in (include_qed or []))
+            rows = svc.qcd_single_result_rows(
+                scale,
+                pdg_id,
+                mb_type,
+                mt_type,
+                include_qed="qed" in (include_qed or []),
+            )
             return rows, f"Computed QCD values at μ={float(scale):.6g} GeV."
         except Exception as exc:
             return [], _err("QCD computation failed.", exc)
@@ -1188,8 +1816,12 @@ def register_callbacks(app):
     )
     def qcd_alpha_scan(_, scale_min, scale_max, n_points, mb_type, mt_type):
         try:
-            xs, ys = svc.qcd_scan_alphas(scale_min, scale_max, n_points, mb_type, mt_type)
-            return series_1d(xs, ys, r"$\alpha_s(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$\alpha_s$"), f"Computed αs scan with {len(xs)} points."
+            xs, ys = svc.qcd_scan_alphas(
+                scale_min, scale_max, n_points, mb_type, mt_type
+            )
+            return series_1d(
+                xs, ys, r"$\alpha_s(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$\alpha_s$"
+            ), f"Computed αs scan with {len(xs)} points."
         except Exception as exc:
             return empty_fig("αs scan failed"), _err("αs scan failed.", exc)
 
@@ -1206,8 +1838,16 @@ def register_callbacks(app):
     )
     def qcd_alphaem_scan(_, scale_min, scale_max, n_points, mb_type, mt_type):
         try:
-            xs, ys = svc.qcd_scan_alphaem(scale_min, scale_max, n_points, mb_type, mt_type)
-            return series_1d(xs, ys, r"$\alpha_{\mathrm{em}}(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$\alpha_{\mathrm{em}}$"), f"Computed αem scan with {len(xs)} points."
+            xs, ys = svc.qcd_scan_alphaem(
+                scale_min, scale_max, n_points, mb_type, mt_type
+            )
+            return series_1d(
+                xs,
+                ys,
+                r"$\alpha_{\mathrm{em}}(\mu)$",
+                r"$\mu\;[\mathrm{GeV}]$",
+                r"$\alpha_{\mathrm{em}}$",
+            ), f"Computed αem scan with {len(xs)} points."
         except Exception as exc:
             return empty_fig("αem scan failed"), _err("αem scan failed.", exc)
 
@@ -1225,8 +1865,12 @@ def register_callbacks(app):
     )
     def qcd_mass_scan(_, scale_min, scale_max, n_points, pdg_id, mb_type, mt_type):
         try:
-            xs, ys = svc.qcd_scan_mass(scale_min, scale_max, n_points, pdg_id, mb_type, mt_type)
-            return series_1d(xs, ys, rf"$m_{{{pdg_id}}}(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$m(\mu)$"), f"Computed mass scan with {len(xs)} points."
+            xs, ys = svc.qcd_scan_mass(
+                scale_min, scale_max, n_points, pdg_id, mb_type, mt_type
+            )
+            return series_1d(
+                xs, ys, rf"$m_{{{pdg_id}}}(\mu)$", r"$\mu\;[\mathrm{GeV}]$", r"$m(\mu)$"
+            ), f"Computed mass scan with {len(xs)} points."
         except Exception as exc:
             return empty_fig("Mass scan failed"), _err("Mass scan failed.", exc)
 
@@ -1241,4 +1885,3 @@ def register_callbacks(app):
             return svc.qcd_constants_rows(kind or "all")
         except Exception:
             return []
-

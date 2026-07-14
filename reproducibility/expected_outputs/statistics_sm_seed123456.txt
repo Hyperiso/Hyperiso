@@ -1,0 +1,49 @@
+== Statistic summary ==
+observables=2, draws=1000, seed=123456, mode=PROFILED_NUISANCE
+
+== Predictions ==
+
+BR_B__Xs_gamma
+  prediction=0.00032967
+
+BR_Bs__mu_mu
+  prediction=3.2711e-09
+
+== Active observable dependencies ==
+  MASS:1 = 0.0047
+  MASS:2 = 0.00216
+  MASS:3 = 0.0935
+  MASS:4 = 1.273
+  MASS:15 = 1.77693
+  MASS:24 = 80.3692
+  MASS:25 = 125.2
+  SMINPUTS:2 = 1.16637e-05
+  SMINPUTS:3 = 0.118
+  SMINPUTS:4 = 91.188
+  SMINPUTS:5 = 4.183
+  SMINPUTS:6 = 172.57
+  SMINPUTS:7_1 = 0.23116
+  SMINPUTS:7_2 = 0.22348
+  VCKMIN:1 = 0.22501
+  VCKMIN:2 = 0.826
+  VCKMIN:3 = 0.1591
+  VCKMIN:4 = 0.3523
+  FCONST:511_1 = 0.19
+  FCONST:531_1 = 0.2303
+  FLIFE:511 = 1.517e-12
+  FLIFE:531 = 1.527e-12
+  FMASS:511 = 5.27972
+  FMASS:531 = 5.36693
+  SCALE_NUIS:1 = 0
+  SCALE_NUIS:2 = 0
+  B_Xs:2 = 0.1065
+  B_Xs:3 = 0.336
+  B_Xs:4 = 0.153
+  B_Xs:5 = -0.145
+  B_Xs:7 = 2.45
+  B_Xs:10 = 0
+  B_ll:1 = 0.0635
+
+== MC uncertainty summaries ==
+  BR_B__Xs_gamma [0, 0] -> BR_B__Xs_gamma[0,0] = 0.0003079 + 5.838e-05 - 2.484e-05 (skew = 0.75)
+  BR_Bs__mu_mu [0, 0] -> BR_Bs__mu_mu[0,0] = 3.293e-09 +- 3.207e-10 (skew = 0.081)

@@ -1,3 +1,5 @@
+include(GNUInstallDirs)
+
 if (NOT DEFINED PROJECT_ROOT)
     get_filename_component(PROJECT_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/../../" ABSOLUTE)
     if(NOT PROJECT_ROOT MATCHES "/$")
@@ -31,8 +33,6 @@ target_include_directories(ConfiguredModule
     $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/configured_files/include>
     $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/Configured>
 )
-
-include(GNUInstallDirs)
 
 install(TARGETS ConfiguredModule
   EXPORT HyperisoTargets

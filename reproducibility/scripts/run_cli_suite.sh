@@ -6,6 +6,10 @@ if [[ "${1:-}" == "--update-expected" ]]; then
   UPDATE_EXPECTED=1
   shift
 fi
+if [[ "$#" -ne 0 ]]; then
+  echo "Usage: $0 [--update-expected]" >&2
+  exit 2
+fi
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPRO_DIR="$(cd "${SCRIPT_DIR}/.." && pwd)"
@@ -50,59 +54,62 @@ run_case() {
   local id="$1"
   local outfile="$2"
   shift 2
+  local raw_stdout raw_stderr
+  raw_stdout="$(mktemp)"
+  raw_stderr="$(mktemp)"
   echo "[${id}] $*"
-  "$@" | tee "${OUT_DIR}/${outfile}"
+  if ! "$@" >"${raw_stdout}" 2>"${raw_stderr}"; then
+    cat "${raw_stdout}" >&2
+    cat "${raw_stderr}" >&2
+    rm -f "${raw_stdout}" "${raw_stderr}"
+    return 1
+  fi
+  if [[ -s "${raw_stderr}" ]]; then
+    echo "[${id}] unexpected stderr from reference command:" >&2
+    cat "${raw_stderr}" >&2
+    rm -f "${raw_stdout}" "${raw_stderr}"
+    return 1
+  fi
+  python3 "${SCRIPT_DIR}/normalize_cli_output.py" "${raw_stdout}" "${OUT_DIR}/${outfile}"
+  rm -f "${raw_stdout}" "${raw_stderr}"
+  cat "${OUT_DIR}/${outfile}"
 }
 
 run_case R1 wilson_b_sm_nnlo.txt \
   "${BIN}" wilson summary \
-  --model SM \
-  --lha "${INPUT}" \
-  --groups BCoefficients \
-  --coeffs C7,C8,C9,C10 \
-  --qmatch 81 \
-  --q 4.8 \
-  --order NNLO
+  --model SM --lha "${INPUT}" --groups BCoefficients \
+  --coeffs C7,C8,C9,C10 --qmatch 81 --q 4.8 --order NNLO
 
 run_case R2 wilson_bscalar_sm_lo.txt \
   "${BIN}" wilson summary \
-  --model SM \
-  --lha "${INPUT}" \
-  --groups BScalarCoefficients \
-  --coeffs CQ1_MU,CQ2_MU \
-  --qmatch 81 \
-  --q 4.8 \
-  --order LO
+  --model SM --lha "${INPUT}" --groups BScalarCoefficients \
+  --coeffs CQ1_MU,CQ2_MU --qmatch 81 --q 4.8 --order LO
 
 run_case R3 observables_sm_nnlo.txt \
   "${BIN}" observable summary \
-  --model SM \
-  --lha "${INPUT}" \
-  --observables BR_Bs__mu_mu,BR_B__Xs_gamma \
-  --order NNLO
+  --model SM --lha "${INPUT}" \
+  --observables BR_Bs__mu_mu,BR_B__Xs_gamma --order NNLO
 
 run_case R4 observable_binned_fl_kstar_sm_nnlo.txt \
   "${BIN}" observable summary \
-  --model SM \
-  --lha "${INPUT}" \
-  --observables BR_Bs__mu_mu \
-  --bins 'F_L_B0__K*0_mu_mu:1.1:6.0' \
-  --order NNLO
+  --model SM --lha "${INPUT}" --observables BR_Bs__mu_mu \
+  --bins 'F_L_B0__K*0_mu_mu:1.1:6.0' --order NNLO
 
 run_case R5 statistics_sm_seed123456.txt \
   "${BIN}" statistic summary \
-  --model SM \
-  --lha "${INPUT}" \
+  --model SM --lha "${INPUT}" \
   --observables BR_Bs__mu_mu,BR_B__Xs_gamma \
-  --uncertainties \
-  --draws 500 \
-  --seed 123456 \
-  --samples-csv "${OUT_DIR}/statistics_samples.csv" \
-  --order NNLO
+  --uncertainties --draws 1000 --seed 123456 \
+  --samples-csv "${OUT_DIR}/statistics_samples.csv" --order NNLO
+
+python3 "${SCRIPT_DIR}/check_expected_outputs.py" \
+  --manifest "${REPRO_DIR}/manifest.json" \
+  --outputs "${OUT_DIR}" \
+  --validate-only
 
 if [[ "${UPDATE_EXPECTED}" -eq 1 ]]; then
-  cp "${OUT_DIR}"/*.txt "${EXP_DIR}/"
-  echo "Reference text outputs updated in ${EXP_DIR}. Review and commit only for a frozen release."
+  python3 "${SCRIPT_DIR}/freeze_reference_outputs.py" --root "${ROOT_DIR}"
+  echo "References updated. Review the numerical diff before committing."
 else
   python3 "${SCRIPT_DIR}/check_expected_outputs.py" \
     --manifest "${REPRO_DIR}/manifest.json" \

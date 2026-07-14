@@ -1,4 +1,3 @@
-import pytest
 from pathlib import Path
 
 from pyhyperiso.core.Common.GeneralEnum import Model
@@ -29,7 +28,7 @@ def test_py_config_custom_values():
         },
         model=Model.THDM,
         mty_model_name="THDM_Model",
-        mty_model_path=Path("/tmp/THDM_Model.h")
+        mty_model_path=Path("/tmp/THDM_Model.h"),
     )
 
     cpp_cfg = cfg.to_cpp()

@@ -33,7 +33,7 @@ if __name__ == "__main__":
         },
         model=Model.MARTY,
         mty_model_name="SM",
-        mty_model_path=Path("/home/theo/hyperiso/Assets/input_files/marty_model/sm.h")
+        mty_model_path=Path("Assets/input_files/marty_model/sm.h")
     )
 
     hyp = HyperisoMaster()

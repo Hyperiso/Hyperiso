@@ -6,6 +6,7 @@ from pyhyperiso.core.Common.SymbolId import ObservableId
 from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.core.Common.GeneralEnum import Observables
 
+
 @dataclass
 class BinnedObservableId:
     """Python wrapper around the C++ ``BinnedObservableId`` composite identifier.
@@ -59,7 +60,7 @@ class BinnedObservableId:
         # Normalize p to (float, float)
         if not (isinstance(self.p, (tuple, list, set)) and len(self.p) == 2):
             raise TypeError("p must be a (low, high) pair")
-        if (isinstance(self.p, set)):
+        if isinstance(self.p, set):
             low = self.p.pop()
             high = self.p.pop()
             print(low, high)
@@ -164,20 +165,3 @@ class BinnedObservableId:
             return hash(self._cpp_obj)
         except TypeError:
             return hash((str(self.s), float(self.p[0]), float(self.p[1])))
-
-
-if __name__ == "__main__":
-    print("\n🧬 Testing BinnedObservableId...")
-
-    bid1 = BinnedObservableId("A_FB_B__KSTAR_MU_MU", (1.0, 6.0))
-    print("bid1 =", bid1)
-    print("bid1.to_dict() =", bid1.to_dict())
-
-    try:
-        lhaid = bid1.flha()
-        print("bid1.flha() =", lhaid)
-        bid2 = BinnedObservableId.from_flha(lhaid)
-        print("bid2 =", bid2)
-        print("bid1 == bid2:", bid1 == bid2)
-    except Exception as e:
-        print("FLHA roundtrip skipped:", e)

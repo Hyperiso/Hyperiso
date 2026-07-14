@@ -253,7 +253,11 @@ def nearest_psd(R: Union[Matrix, NestedList], thr: float = 1e-12) -> Matrix:
     Returns:
         Matrix: Regularized positive-semidefinite matrix.
     """
-    cpp_R = R._cpp_obj if isinstance(R, Matrix) else ma.matrix.RealMatrix([[float(x) for x in row] for row in R])
+    cpp_R = (
+        R._cpp_obj
+        if isinstance(R, Matrix)
+        else ma.matrix.RealMatrix([[float(x) for x in row] for row in R])
+    )
     return Matrix._from_cpp(ma.matrix.nearest_psd(cpp_R, float(thr)))
 
 
@@ -266,31 +270,12 @@ def cholesky_L(R: Union[Matrix, NestedList]) -> Matrix:
     Returns:
         Matrix: Lower triangular Cholesky factor as returned by C++.
     """
-    cpp_R = R._cpp_obj if isinstance(R, Matrix) else ma.matrix.RealMatrix([[float(x) for x in row] for row in R])
+    cpp_R = (
+        R._cpp_obj
+        if isinstance(R, Matrix)
+        else ma.matrix.RealMatrix([[float(x) for x in row] for row in R])
+    )
     return Matrix._from_cpp(ma.matrix.cholesky_L(cpp_R))
 
 
 __all__ = ["Matrix", "SignedLogDet", "eye", "nearest_psd", "cholesky_L"]
-
-if __name__ == "__main__":
-    
-    A = Matrix([[1.0, 2.0],
-            [3.0, 4.0]])
-
-    A[0, 1] = 20.0
-    print(A.to_list())
-
-    B = eye(2)
-    C = A + B
-    D = A @ B 
-    E = 2.0 * A
-
-    logdet = A.slogdet()
-    print(logdet.logdet, logdet.sign)
-
-    Dmat, P = A.eig()
-    print(Dmat.to_list())
-    print(P.to_list())
-
-    Rpsd = nearest_psd([[1, -2], [-2, 1]])
-    L = cholesky_L(Rpsd)

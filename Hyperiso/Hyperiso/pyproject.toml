@@ -11,12 +11,13 @@ name = "pyhyperiso"                 # Nom du package PyPI (pip install pyhyperis
 version = "1.0.0"
 description = "Hyperiso Python binding (C++ backend via pybind11)"
 readme = "README.md"
-requires-python = ">=3.9"
+requires-python = ">=3.10,<3.13"
 authors = [
   { name = "Théo Reymermier" },
   { name = "Niels Fardeau" },
 ]
-license = { text = "MIT" }
+license = "GPL-3.0-or-later"
+license-files = ["LICENSES/*", "THIRD_PARTY_NOTICES.md"]
 
 dependencies = [
   "numpy>=1.23",
@@ -26,7 +27,6 @@ dependencies = [
 classifiers = [
   "Programming Language :: Python :: 3",
   "Programming Language :: Python :: 3 :: Only",
-  "Programming Language :: Python :: 3.9",
   "Programming Language :: Python :: 3.10",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
@@ -42,8 +42,9 @@ test = [
 dev = [
   "build>=1.2",
   "twine>=5",
-  "ruff>=0.9",
+  "ruff==0.15.21",
   "pre-commit>=3",
+  "pyyaml>=6",
 ]
 
 [project.urls]
@@ -61,7 +62,6 @@ minimum-version = "0.10"
 
 # Paquet Python à inclure dans le wheel (dossier pyhyperiso/)
 wheel.packages = ["pyhyperiso"]
-wheel.license-files = ["LICENSE"]
 wheel.exclude = [
   "pyhyperiso/test/**",
   "pyhyperiso/example/**",
@@ -99,11 +99,18 @@ define.CMAKE_INTERPROCEDURAL_OPTIMIZATION = "OFF"
 # cibuildwheel : wheels Linux multi-Python
 # ----------------------------
 [tool.cibuildwheel]
-# On ne build que pour CPython 3.9+ (Linux)
-build = "cp39-* cp310-* cp311-* cp312-*"
-
-# On ignore PyPy et musllinux pour commencer
+# Wheels Linux pour les versions Python officiellement supportees
+build = "cp310-* cp311-* cp312-*"
 skip = "pp* *-musllinux*"
+build-verbosity = 1
+test-requires = ["pytest>=8"]
+test-command = [
+  "python -c \"import pyhyperiso; assert pyhyperiso.__version__ == '1.0.0'; from pyhyperiso.phyperiso import pyhyperiso as native; assert native.__version__ == '1.0.0'\"",
+  "python -m pytest {project}/pyhyperiso/test -q --import-mode=importlib",
+]
+
+[tool.cibuildwheel.environment]
+CMAKE_BUILD_PARALLEL_LEVEL = "2"
 
 [tool.cibuildwheel.linux]
 archs = ["x86_64"]          # tu pourras ajouter "aarch64" plus tard
@@ -120,3 +127,28 @@ skip = "*"
 [tool.pytest.ini_options]
 testpaths = ["pyhyperiso/test"]
 addopts = "-ra"
+
+# ----------------------------
+# Ruff: lint/format policy
+# ----------------------------
+[tool.ruff]
+target-version = "py310"
+line-length = 100
+exclude = [
+  "core/src/ExternalIntegration/third_party",
+  "core/src/ExternalIntegration/2HDMC",
+  "core/src/configured_files",
+]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F"]
+
+[tool.ruff.lint.per-file-ignores]
+"pyhyperiso/**/__init__.py" = ["F401"]
+"pyhyperiso/Common.py" = ["F401"]
+"pyhyperiso/Core.py" = ["F401"]
+"pyhyperiso/Observable.py" = ["F401"]
+"pyhyperiso/Statistic.py" = ["F401"]
+"pyhyperiso/Wilson.py" = ["F401"]
+"pyhyperiso/test/Math/test_math.py" = ["F403", "F405"]
+"pyhyperiso/core/Math/Math.py" = ["E741"]
