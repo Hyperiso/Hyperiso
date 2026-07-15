@@ -1,6 +1,10 @@
+"""Plot normalized experimental and theoretical pulls for selected observables."""
+
 from __future__ import annotations
 
+import argparse
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Optional, Tuple, Dict, Any, List
 import numpy as np
 import matplotlib.pyplot as plt
@@ -149,9 +153,7 @@ def anomalies_plot(
 
     exp_provider = PyParameterProvider(ParameterType.OBSERVABLE)
 
-    summaries_raw = stat_interface.compute_uncertainties()
-    print("raw : ", summaries_raw)
-    summaries = normalize_summaries_keys(summaries_raw)
+    summaries = normalize_summaries_keys(stat_interface.compute_uncertainties())
 
     labels: List[str] = [""]
     points = []
@@ -161,23 +163,18 @@ def anomalies_plot(
         lhaid: LhaID = obs_2.flha()
         exp = exp_point_from_fobs(exp_provider, lhaid)
 
-        print(obs)
-
-        print("the sum : ", summaries)
-
         bid = BinnedObservableId(ObservableMapper.to_id(obs))
         theo_val = summaries[bid].mu
-        print(theo_val)
         gid: ObservableId = ObservableMapper.id_of(ObservableMapper.str(obs))
         gobs_2 = BinnedObservableId(gid)
         if gobs_2 not in summaries:
             keys_preview = list(summaries.keys())[:10]
             raise KeyError(
-                f"[anomalies_plot] ObservableId {gid} absent de summaries.\n"
-                f"Obs={obs} str={ObservableMapper.str(obs)}\n"
-                f"Exemples de clés présentes: {keys_preview}\n"
-                f"Ca arrive si StatisticConfig.obss n'inclut pas cet observable, "
-                f"ou si l'id construit n'est pas exactement celui utilisé côté C++."
+                f"ObservableId {gid} is absent from the uncertainty summaries.\n"
+                f"Observable={obs}, mapped name={ObservableMapper.str(obs)}\n"
+                f"Available-key preview: {keys_preview}\n"
+                "Ensure StatisticConfig.obss contains the observable and that the "
+                "constructed identifier matches the C++ identifier."
             )
 
         g = summaries[gobs_2]
@@ -217,7 +214,19 @@ def anomalies_plot(
     return fig
 
 
-def main():
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    default_lha = (
+        Path(__file__).resolve().parents[2] / "pyhyperiso" / "assets" / "lha" / "si_input.flha"
+    )
+    parser.add_argument(
+        "--lha",
+        type=Path,
+        default=default_lha,
+        help="FLHA input file (default: packaged si_input.flha asset)",
+    )
+    args = parser.parse_args()
+
     hyp = PyHyperisoMaster()
 
     config = PyHyperisoConfig(
@@ -231,8 +240,7 @@ def main():
         mty_model_name="MSSM_UFO",
     )
 
-    lha_file_path = "lha/si_input.flha"
-    hyp.init(lha_file=lha_file_path, config=config)
+    hyp.init(lha_file=str(args.lha), config=config)
 
     anomalies_plot(
         flip=True,

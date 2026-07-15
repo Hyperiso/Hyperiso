@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import math
 from typing import Sequence
 
 import numpy as np
@@ -335,32 +336,132 @@ def _rgba(hex_color: str, alpha: float) -> str:
     return f"rgba({red},{green},{blue},{alpha:.3g})"
 
 
+def _confidence_axis_title(title: str) -> str:
+    """Return a MathJax-ready axis title without altering plain labels."""
+    text = str(title or "").strip()
+    if not text:
+        return ""
+    if text.startswith("$") and text.endswith("$"):
+        return text
+    if text == "p₁":
+        return r"$p_1$"
+    if text == "p₂":
+        return r"$p_2$"
+    return text
+
+
+def _confidence_label(sigma: float) -> str:
+    """Return a publication-style legend label for a Gaussian sigma level."""
+    standard = {
+        1.0: "1σ (68.3% CL)",
+        2.0: "2σ (95.4% CL)",
+        3.0: "3σ (99.7% CL)",
+    }
+    return standard.get(float(sigma), f"{sigma:g}σ")
+
+
+def _padded_contour_range(
+    values: Sequence[float],
+    hard_bounds: Sequence[float] | None = None,
+    padding_fraction: float = 0.14,
+) -> list[float] | None:
+    """Return a tight visible range, clipped to the fit-parameter bounds.
+
+    The fit bounds are hard physical/numerical limits, not necessarily useful
+    plotting limits.  The viewport therefore follows the actual contour and
+    best-fit coordinates, with a small margin, while never extending outside
+    the bounds supplied by the corresponding ``p_specs`` rows.
+    """
+    finite: list[float] = []
+    for value in values:
+        try:
+            numeric = float(value)
+        except (TypeError, ValueError):
+            continue
+        if math.isfinite(numeric):
+            finite.append(numeric)
+    bounds = None
+    if hard_bounds is not None and len(hard_bounds) == 2:
+        lo, hi = (float(hard_bounds[0]), float(hard_bounds[1]))
+        if math.isfinite(lo) and math.isfinite(hi) and lo < hi:
+            bounds = (lo, hi)
+
+    if not finite:
+        return list(bounds) if bounds is not None else None
+
+    data_lo = min(finite)
+    data_hi = max(finite)
+    span = data_hi - data_lo
+    center = 0.5 * (data_lo + data_hi)
+
+    if not span > 0.0:
+        if bounds is not None:
+            span = max(0.08 * (bounds[1] - bounds[0]), 1e-12)
+        else:
+            span = max(0.1 * max(abs(center), 1.0), 1e-12)
+
+    padding = max(padding_fraction * span, 1e-12)
+    visible_lo = data_lo - padding
+    visible_hi = data_hi + padding
+
+    if bounds is not None:
+        hard_lo, hard_hi = bounds
+        visible_lo = max(visible_lo, hard_lo)
+        visible_hi = min(visible_hi, hard_hi)
+        if not visible_lo < visible_hi:
+            return [hard_lo, hard_hi]
+
+    return [visible_lo, visible_hi]
+
+
 def _confidence_contour_style(fig: go.Figure, title: str) -> go.Figure:
     """Apply the publication-style white theme used for confidence contours."""
     fig.update_layout(
-        title=title,
+        title=dict(text=title, x=0.5, xanchor="center", font=dict(size=20)),
         paper_bgcolor="white",
         plot_bgcolor="white",
-        margin=dict(l=70, r=24, t=54, b=62),
-        height=DEFAULT_FIG_HEIGHT,
-        autosize=False,
-        font=dict(color="#111827"),
-        legend=dict(
-            bgcolor="rgba(255,255,255,0.88)",
-            bordercolor="rgba(55,65,81,0.25)",
-            borderwidth=1,
+        margin=dict(l=88, r=30, t=72, b=82),
+        height=590,
+        autosize=True,
+        font=dict(
+            color="#111827",
+            family="Arial, Helvetica, sans-serif",
+            size=14,
         ),
+        legend=dict(
+            x=0.02,
+            y=0.98,
+            xanchor="left",
+            yanchor="top",
+            bgcolor="rgba(255,255,255,0.90)",
+            bordercolor="rgba(55,65,81,0.30)",
+            borderwidth=1,
+            font=dict(size=13),
+        ),
+        hovermode="closest",
+        hoverlabel=dict(bgcolor="white", font_color="#111827"),
     )
     axis_style = dict(
         showgrid=True,
-        gridcolor="rgba(107,114,128,0.22)",
+        gridcolor="rgba(107,114,128,0.18)",
+        gridwidth=1,
         zeroline=True,
-        zerolinecolor="rgba(75,85,99,0.38)",
-        linecolor="#374151",
-        linewidth=1,
+        zerolinecolor="rgba(55,65,81,0.42)",
+        zerolinewidth=1.2,
+        showline=True,
+        linecolor="#1F2937",
+        linewidth=1.4,
         mirror=True,
         ticks="outside",
-        tickcolor="#374151",
+        ticklen=6,
+        tickwidth=1.2,
+        tickcolor="#1F2937",
+        tickfont=dict(size=13),
+        tickformat=".4g",
+        exponentformat="power",
+        showexponent="all",
+        automargin=True,
+        title_standoff=18,
     )
     fig.update_xaxes(**axis_style)
     fig.update_yaxes(**axis_style)
@@ -380,7 +481,8 @@ def confidence_contour_paths(
     Each confidence level is rendered as a semi-transparent filled region with
     a darker boundary. Larger sigma regions are drawn first, so nested smaller
     regions remain visible. Disconnected paths at the same level share their
-    color and legend entry.
+    color and legend entry. The visible range follows the computed paths rather
+    than displaying the full fit bounds when those bounds are much wider.
     """
     if not contours:
         return empty_fig(title)
@@ -396,6 +498,8 @@ def confidence_contour_paths(
     sigma_colors = {
         sigma: palette[index % len(palette)] for index, sigma in enumerate(sigma_values)
     }
+    all_x: list[float] = []
+    all_y: list[float] = []
 
     for item in ordered:
         points = list(item.get("points") or [])
@@ -405,11 +509,14 @@ def confidence_contour_paths(
         level = float(item.get("level", float("nan")))
         xs = [float(point["x"]) for point in points]
         ys = [float(point["y"]) for point in points]
+        all_x.extend(xs)
+        all_y.extend(ys)
         if xs[0] != xs[-1] or ys[0] != ys[-1]:
             xs.append(xs[0])
             ys.append(ys[0])
 
         color = sigma_colors[sigma]
+        legend_name = _confidence_label(sigma)
         showlegend = sigma not in shown_levels
         shown_levels.add(sigma)
         fig.add_trace(
@@ -418,33 +525,51 @@ def confidence_contour_paths(
                 y=ys,
                 mode="lines",
                 fill="toself",
-                fillcolor=_rgba(color, 0.24),
-                name=f"{sigma:g}σ",
+                fillcolor=_rgba(color, 0.22),
+                name=legend_name,
                 legendgroup=f"sigma-{sigma:g}",
                 showlegend=showlegend,
-                line=dict(color=color, width=2.4),
+                line=dict(color=color, width=2.5),
                 customdata=[[level]] * len(xs),
                 hovertemplate=(
-                    "x=%{x:.6g}<br>y=%{y:.6g}<br>"
-                    "ΔNLL level=%{customdata[0]:.6g}<extra></extra>"
+                    f"{legend_name}<br>x=%{{x:.6g}}<br>y=%{{y:.6g}}<br>"
+                    "ΔNLL=%{customdata[0]:.6g}<extra></extra>"
                 ),
             )
         )
 
     if best_fit is not None:
+        best_x = float(best_fit["x"])
+        best_y = float(best_fit["y"])
+        all_x.append(best_x)
+        all_y.append(best_y)
         fig.add_trace(
             go.Scatter(
-                x=[float(best_fit["x"])],
-                y=[float(best_fit["y"])],
+                x=[best_x],
+                y=[best_y],
                 mode="markers",
-                marker=dict(size=12, symbol="x", color="#111827", line=dict(width=2)),
-                name="best fit",
-                hovertemplate="best fit<br>x=%{x:.6g}<br>y=%{y:.6g}<extra></extra>",
+                marker=dict(
+                    size=13,
+                    symbol="x",
+                    color="#111827",
+                    line=dict(width=2.2, color="white"),
+                ),
+                name="Best fit",
+                hovertemplate="Best fit<br>x=%{x:.6g}<br>y=%{y:.6g}<extra></extra>",
             )
         )
 
-    fig.update_layout(xaxis_title=x_title, yaxis_title=y_title)
-    if bounds and len(bounds) == 4:
-        fig.update_xaxes(range=[float(bounds[0]), float(bounds[1])])
-        fig.update_yaxes(range=[float(bounds[2]), float(bounds[3])])
+    x_bounds = bounds[:2] if bounds and len(bounds) == 4 else None
+    y_bounds = bounds[2:] if bounds and len(bounds) == 4 else None
+    x_range = _padded_contour_range(all_x, x_bounds)
+    y_range = _padded_contour_range(all_y, y_bounds)
+
+    fig.update_layout(
+        xaxis_title=_confidence_axis_title(x_title),
+        yaxis_title=_confidence_axis_title(y_title),
+    )
+    if x_range is not None:
+        fig.update_xaxes(range=x_range)
+    if y_range is not None:
+        fig.update_yaxes(range=y_range)
     return _confidence_contour_style(fig, title)

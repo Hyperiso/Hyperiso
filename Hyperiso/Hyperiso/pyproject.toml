@@ -20,7 +20,7 @@ maintainers = [
   { name = "Théo Reymermier", email = "t.reymermier@ip2i.in2p3.fr" },
 ]
 license = "GPL-3.0-or-later"
-license-files = ["LICENSES/GPL-3.0-or-later.txt", "THIRD_PARTY_NOTICES.md"]
+license-files = ["LICENSE", "LICENSES/GPL-3.0-or-later.txt", "THIRD_PARTY_NOTICES.md"]
 
 dependencies = [
   "numpy>=1.23",
@@ -48,7 +48,10 @@ dev = [
   "ruff==0.15.21",
   "pre-commit>=3",
   "pyyaml>=6",
-  "cibuildwheel==4.1.0",
+  "pybind11>=2.8.0",
+  "scikit-build-core>=0.10",
+  "ninja>=1.11",
+  "cibuildwheel==4.1.0; python_version >= '3.11'",
 ]
 
 [project.urls]

@@ -325,7 +325,7 @@ static const Prototype* find_proto(const std::unordered_set<Prototype>& protos, 
 
 static void write_block_header(std::ostream& os, const Prototype& proto, double Q, bool hasQ)
 {
-    os << "Block " << blockname_primary(proto.blockName);
+    os << "BLOCK " << blockname_primary(proto.blockName);
     if (proto.globalScale && hasQ) {
         os << " Q= " << std::setprecision(8) << std::scientific << Q;
     }

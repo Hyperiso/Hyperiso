@@ -82,7 +82,10 @@ axes. When more than two parameters are fitted, the GUI exposes the core
 `PRIOR_CONSTRAINED_PROJECTION`) together with `ContourAlgorithm`, optional
 fallback extraction, profiler mode, confidence levels, and one common contour
 resolution. The plotted geometry comes directly from `ContourEngine.paths`, not
-from a separate rectangular likelihood scan.
+from a separate rectangular likelihood scan. Confidence regions use a white
+publication-style theme, MathJax axis labels, semi-transparent filled regions
+with darker boundaries, and an automatic viewport fitted to the computed paths
+while remaining inside the bounds supplied by the selected fit parameters.
 
 The GUI maps covariance and nuisance-pruning settings to
 `StatisticConfig.advanced`, while common Monte-Carlo settings remain on the

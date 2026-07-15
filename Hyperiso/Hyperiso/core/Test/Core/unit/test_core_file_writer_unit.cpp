@@ -99,8 +99,8 @@ int main() {
     assert(yaml.find("imaginary_value") != std::string::npos);
     assert(lha.find("BLOCK MASS") != std::string::npos);
     assert(lha.find("BLOCK SMINPUTS") != std::string::npos);
-    assert(lha.find("Block CUSTOMBLOCK") != std::string::npos);
-    assert(lha.find("Block IMMASS") != std::string::npos);
+    assert(lha.find("BLOCK CUSTOMBLOCK") != std::string::npos);
+    assert(lha.find("BLOCK IMMASS") != std::string::npos);
     assert(lha.find("1.25000000e-01") != std::string::npos);
 
     // JSON/YAML exports preserve complex values through the database loader.

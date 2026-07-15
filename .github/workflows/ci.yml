@@ -102,3 +102,13 @@ jobs:
             -G Ninja \
             -DCMAKE_PREFIX_PATH="$PWD/install"
           cmake --build build-examples --parallel 2
+
+      - name: Run database-writer example
+        run: |
+          ./build-examples/core_database_writer \
+            "$PWD/Assets/lha/si_input.flha" \
+            "$PWD/database_exports_cpp"
+          test -s database_exports_cpp/database.json
+          test -s database_exports_cpp/database.yaml
+          test -s database_exports_cpp/database.flha
+          grep -q '^BLOCK MASS' database_exports_cpp/database.flha

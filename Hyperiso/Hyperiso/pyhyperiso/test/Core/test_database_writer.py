@@ -101,9 +101,16 @@ def test_database_writer_native_json_integration(tmp_path, monkeypatch):
     master = HyperisoMaster()
     master.init("lha/testInput.flha", HyperisoConfig(model=Model.SM))
 
-    destination = tmp_path / "database.json"
-    DatabaseWriter().write(destination)
+    writer = DatabaseWriter()
 
-    payload = json.loads(destination.read_text(encoding="utf-8"))
+    json_destination = tmp_path / "database.json"
+    writer.write(json_destination)
+    payload = json.loads(json_destination.read_text(encoding="utf-8"))
     assert payload
     assert any(str(key).upper() == "MASS" for key in payload)
+
+    lha_destination = tmp_path / "database.slha"
+    writer.write(lha_destination)
+    lha_text = lha_destination.read_text(encoding="utf-8")
+    assert "BLOCK MASS" in lha_text
+    assert "BLOCK SMINPUTS" in lha_text

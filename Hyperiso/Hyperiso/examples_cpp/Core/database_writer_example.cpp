@@ -8,7 +8,7 @@
 #include "Include.h"
 #include "ParamID.h"
 
-int main() {
+int main(int argc, char** argv) {
     HyperisoConfig config;
     config.model = Model::SM;
     config.flags[ExternalFlag::IS_LHA_SPECTRUM] = false;
@@ -16,10 +16,16 @@ int main() {
     config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT] = false;
     config.flags[ExternalFlag::HYP_AS_SM_MARTY] = true;
 
-    HyperisoMaster hyperiso;
-    hyperiso.init("lha/si_input.flha", config);
+    const std::filesystem::path lha_path =
+        argc > 1 ? std::filesystem::path(argv[1])
+                 : std::filesystem::path("Assets/lha/si_input.flha");
+    const std::filesystem::path output_dir =
+        argc > 2 ? std::filesystem::path(argv[2])
+                 : std::filesystem::path("database_exports_cpp");
 
-    const std::filesystem::path output_dir = "database_exports_cpp";
+    HyperisoMaster hyperiso;
+    hyperiso.init(lha_path.string(), config);
+
     std::filesystem::create_directories(output_dir);
 
     FileWriter writer;

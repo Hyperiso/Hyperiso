@@ -54,6 +54,15 @@ jobs:
       - name: Run Python tests
         run: python -m pytest Hyperiso/Hyperiso/pyhyperiso/test -q --import-mode=importlib
 
+      - name: Run database-writer Python example
+        run: |
+          python Hyperiso/Hyperiso/examples_python/Core/database_writer_example.py \
+            --output-dir "$PWD/database_exports_python"
+          test -s database_exports_python/database.json
+          test -s database_exports_python/database.yaml
+          test -s database_exports_python/database.flha
+          grep -q '^BLOCK MASS' database_exports_python/database.flha
+
       - name: Test reproducibility tooling
         run: python -m unittest discover -s reproducibility/tests -v
 
