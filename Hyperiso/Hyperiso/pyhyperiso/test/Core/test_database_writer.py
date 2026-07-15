@@ -88,3 +88,22 @@ def test_database_writer_rejects_non_string_block_names():
     writer = _writer_with_fake_backend()
     with pytest.raises(TypeError, match="only strings"):
         writer.write_blocks("blocks.json", ["MASS", object()])
+
+
+def test_database_writer_native_json_integration(tmp_path, monkeypatch):
+    """Initialize Core and verify that the native writer creates valid JSON."""
+    import json
+
+    from pyhyperiso.Common import Model
+    from pyhyperiso.Core import HyperisoConfig, HyperisoMaster
+
+    monkeypatch.setenv("HYPERISO_CACHE_ROOT", str(tmp_path / "cache"))
+    master = HyperisoMaster()
+    master.init("lha/testInput.flha", HyperisoConfig(model=Model.SM))
+
+    destination = tmp_path / "database.json"
+    DatabaseWriter().write(destination)
+
+    payload = json.loads(destination.read_text(encoding="utf-8"))
+    assert payload
+    assert any(str(key).upper() == "MASS" for key in payload)

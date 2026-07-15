@@ -326,6 +326,47 @@ def dependency_graph(data: dict, title: str = "Block dependency graph") -> go.Fi
     return style_fig(fig, title)
 
 
+def _rgba(hex_color: str, alpha: float) -> str:
+    """Convert a ``#RRGGBB`` color to a Plotly RGBA string."""
+    value = hex_color.lstrip("#")
+    if len(value) != 6:
+        raise ValueError("hex_color must use the #RRGGBB form")
+    red, green, blue = (int(value[index : index + 2], 16) for index in (0, 2, 4))
+    return f"rgba({red},{green},{blue},{alpha:.3g})"
+
+
+def _confidence_contour_style(fig: go.Figure, title: str) -> go.Figure:
+    """Apply the publication-style white theme used for confidence contours."""
+    fig.update_layout(
+        title=title,
+        paper_bgcolor="white",
+        plot_bgcolor="white",
+        margin=dict(l=70, r=24, t=54, b=62),
+        height=DEFAULT_FIG_HEIGHT,
+        autosize=False,
+        font=dict(color="#111827"),
+        legend=dict(
+            bgcolor="rgba(255,255,255,0.88)",
+            bordercolor="rgba(55,65,81,0.25)",
+            borderwidth=1,
+        ),
+    )
+    axis_style = dict(
+        showgrid=True,
+        gridcolor="rgba(107,114,128,0.22)",
+        zeroline=True,
+        zerolinecolor="rgba(75,85,99,0.38)",
+        linecolor="#374151",
+        linewidth=1,
+        mirror=True,
+        ticks="outside",
+        tickcolor="#374151",
+    )
+    fig.update_xaxes(**axis_style)
+    fig.update_yaxes(**axis_style)
+    return fig
+
+
 def confidence_contour_paths(
     contours: Sequence[dict],
     title: str = "Confidence contours",
@@ -334,15 +375,29 @@ def confidence_contour_paths(
     best_fit: dict | None = None,
     bounds: Sequence[float] | None = None,
 ) -> go.Figure:
-    """Plot path geometry returned by the core ``ContourEngine``."""
+    """Plot filled confidence regions returned by the core ``ContourEngine``.
+
+    Each confidence level is rendered as a semi-transparent filled region with
+    a darker boundary. Larger sigma regions are drawn first, so nested smaller
+    regions remain visible. Disconnected paths at the same level share their
+    color and legend entry.
+    """
     if not contours:
         return empty_fig(title)
+
+    palette = ["#2563EB", "#DC2626", "#059669", "#7C3AED", "#D97706", "#0891B2"]
     fig = go.Figure()
     shown_levels: set[float] = set()
-    for item in sorted(
+    ordered = sorted(
         contours,
-        key=lambda row: (float(row.get("sigma", 0.0)), int(row.get("path_id", 0))),
-    ):
+        key=lambda row: (-float(row.get("sigma", 0.0)), int(row.get("path_id", 0))),
+    )
+    sigma_values = sorted({float(row.get("sigma", 0.0)) for row in contours})
+    sigma_colors = {
+        sigma: palette[index % len(palette)] for index, sigma in enumerate(sigma_values)
+    }
+
+    for item in ordered:
         points = list(item.get("points") or [])
         if len(points) < 2:
             continue
@@ -350,11 +405,11 @@ def confidence_contour_paths(
         level = float(item.get("level", float("nan")))
         xs = [float(point["x"]) for point in points]
         ys = [float(point["y"]) for point in points]
-        # Close paths in the display when the extractor returns an open final
-        # segment because of floating-point endpoint differences.
         if xs[0] != xs[-1] or ys[0] != ys[-1]:
             xs.append(xs[0])
             ys.append(ys[0])
+
+        color = sigma_colors[sigma]
         showlegend = sigma not in shown_levels
         shown_levels.add(sigma)
         fig.add_trace(
@@ -362,27 +417,34 @@ def confidence_contour_paths(
                 x=xs,
                 y=ys,
                 mode="lines",
+                fill="toself",
+                fillcolor=_rgba(color, 0.24),
                 name=f"{sigma:g}σ",
                 legendgroup=f"sigma-{sigma:g}",
                 showlegend=showlegend,
-                line=dict(width=2.4),
+                line=dict(color=color, width=2.4),
                 customdata=[[level]] * len(xs),
-                hovertemplate="x=%{x:.6g}<br>y=%{y:.6g}<br>ΔNLL level=%{customdata[0]:.6g}<extra></extra>",
+                hovertemplate=(
+                    "x=%{x:.6g}<br>y=%{y:.6g}<br>"
+                    "ΔNLL level=%{customdata[0]:.6g}<extra></extra>"
+                ),
             )
         )
+
     if best_fit is not None:
         fig.add_trace(
             go.Scatter(
                 x=[float(best_fit["x"])],
                 y=[float(best_fit["y"])],
                 mode="markers",
-                marker=dict(size=11, symbol="x"),
+                marker=dict(size=12, symbol="x", color="#111827", line=dict(width=2)),
                 name="best fit",
                 hovertemplate="best fit<br>x=%{x:.6g}<br>y=%{y:.6g}<extra></extra>",
             )
         )
+
     fig.update_layout(xaxis_title=x_title, yaxis_title=y_title)
     if bounds and len(bounds) == 4:
         fig.update_xaxes(range=[float(bounds[0]), float(bounds[1])])
         fig.update_yaxes(range=[float(bounds[2]), float(bounds[3])])
-    return style_fig(fig, title)
+    return _confidence_contour_style(fig, title)

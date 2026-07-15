@@ -65,7 +65,7 @@ private:
      * this block. The container is unordered; no ordering guarantees are given.
      */
     std::unordered_set<std::string> block_names;
-    std::string primary; //TODO
+    std::string primary;
     
     static inline std::string upper_copy(std::string s) {
         std::transform(s.begin(), s.end(), s.begin(),
@@ -100,7 +100,6 @@ private:
         if (!cur.empty()) out.insert(cur);
         return out;
     }
-    //TODO
     public:
     /**
      * @brief Default constructor.
@@ -161,7 +160,8 @@ private:
      */
     std::unordered_set<std::string> get_alias() const;
     
-    const std::string& canonical() const;//TODO
+    /** Return the stable primary alias used for serialization. */
+    const std::string& canonical() const;
     
     /**
      * @brief Implicit conversion to std::string.

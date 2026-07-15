@@ -42,3 +42,7 @@ Semantic Versioning.
 - JSON and YAML database exports preserve complex parameter components through
   the `imaginary_value` field; LHA-family exports generate `IM...` companion
   blocks when complex values are stored directly.
+- The Python extension now defines and links `BlockName::canonical()`, preventing
+  import-time undefined-symbol failures in installed wheels.
+- GHyperiso confidence contours use filled semi-transparent regions, darker
+  boundaries and a white publication-style canvas.

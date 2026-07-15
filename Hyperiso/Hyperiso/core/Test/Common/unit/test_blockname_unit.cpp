@@ -41,6 +41,8 @@ int main() {
         assert(many == "YU");
         assert(many == "UCOUPL");
         assert(many != "YD");
+        assert(many.canonical() == "YU");
+        assert(static_cast<std::string>(many) == "YU");
 
         std::unordered_set<std::string> aliases = {"A","B","C"};
         BlockName from_set(aliases);
@@ -53,6 +55,7 @@ int main() {
         assert(b == "MASS");
         assert(b == "GAUGE");
         assert(b != "mass");
+        assert(b.canonical() == "MASS");
     }
 
     {

@@ -1,29 +1,37 @@
 #include "BlockName.h"
 
-BlockName::BlockName(const std::string& name) {
+BlockName::BlockName(const std::string& name) : primary(name) {
     block_names.insert(name);
 }
 
-BlockName::BlockName(const char* name) {
-    block_names.insert(std::string(name));
+BlockName::BlockName(const char* name) : primary(name == nullptr ? "" : name) {
+    if (name != nullptr) block_names.insert(std::string(name));
 }
 
 BlockName::BlockName(std::initializer_list<std::string> names)
-: block_names(names.begin(), names.end()) {}
+: block_names(names.begin(), names.end()),
+  primary(names.size() == 0 ? "" : *names.begin()) {}
 
 BlockName::BlockName(const std::unordered_set<std::string>& names)
-: block_names(names) {}
+: block_names(names) {
+    if (!block_names.empty()) {
+        primary = *std::min_element(block_names.begin(), block_names.end());
+    }
+}
 
 std::unordered_set<std::string> BlockName::get_alias() const {
     return block_names;
 }
 
+const std::string& BlockName::canonical() const {
+    static const std::string empty;
+    if (!primary.empty()) return primary;
+    if (block_names.empty()) return empty;
+    return *std::min_element(block_names.begin(), block_names.end());
+}
+
 BlockName::operator std::string() const {
-    if (block_names.size() > 1) {
-        LOG_TRACE("Casting BlockName with multiple aliases to string discards information.");
-        for (const auto& name : block_names) LOG_TRACE(name);
-    }
-    return block_names.empty() ? "" : *block_names.begin();
+    return canonical();
 }
 
 bool BlockName::hasAlias(const std::string& alias) const {
@@ -58,6 +66,7 @@ bool BlockName::operator!=(const std::string& name) const {
 }
 
 BlockName& BlockName::addAlias(const std::string& alias) {
+    if (primary.empty()) primary = alias;
     block_names.insert(alias);
     return *this;
 }
@@ -88,6 +97,7 @@ void BlockName::to_upper() {
         upper_names.insert(std::move(name));
     }
     block_names = std::move(upper_names);
+    primary = upper_copy(primary);
 }
 
 bool BlockName::operator<(const BlockName& other) const {

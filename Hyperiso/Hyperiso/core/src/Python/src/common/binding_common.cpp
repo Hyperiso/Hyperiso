@@ -1092,6 +1092,7 @@ void init_common(py::module &m) {
     .def(py::init<const std::unordered_set<std::string>&>(), py::arg("names"))
 
     .def("get_alias", &BlockName::get_alias)
+    .def("canonical", &BlockName::canonical, py::return_value_policy::copy)
     .def("has_alias", &BlockName::hasAlias, py::arg("alias"))
     .def("add_alias", &BlockName::addAlias, py::arg("alias"), py::return_value_policy::reference)
     .def("to_string", &BlockName::to_string)
