@@ -1,3 +1,5 @@
+"""Typed LHA entry identifiers."""
+
 from pyhyperiso.phyperiso.pyhyperiso import common
 from typing import List, Union
 

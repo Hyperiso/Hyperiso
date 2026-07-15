@@ -119,6 +119,18 @@ run_case R5 statistics_sm_seed123456.txt \
   --uncertainties --draws 200 --seed 123456 \
   --samples-csv "${OUT_DIR}/statistics_samples.csv" --order NNLO
 
+run_case R6 wilson_b_thdm_spectrum_nnlo.txt \
+  "${BIN}" wilson summary \
+  --model THDM --lha "${REPRO_DIR}/inputs/thdm_reference.lha" --spectrum true \
+  --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 \
+  --qmatch 81 --q 81 --order NNLO
+
+run_case R7 wilson_b_susy_spectrum_nnlo.txt \
+  "${BIN}" wilson summary \
+  --model SUSY --lha "${REPRO_DIR}/inputs/susy_reference.slha" --spectrum true \
+  --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 \
+  --qmatch 81 --q 81 --order NNLO
+
 python3 "${SCRIPT_DIR}/check_expected_outputs.py" \
   --manifest "${REPRO_DIR}/manifest.json" \
   --outputs "${OUT_DIR}" \

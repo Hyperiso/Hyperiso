@@ -1,3 +1,5 @@
+"""Typed names for LHA and internal parameter blocks."""
+
 from pyhyperiso.phyperiso.pyhyperiso import common
 from typing import List, Union, Set
 

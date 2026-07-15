@@ -1,3 +1,5 @@
+"""Identifiers for observables evaluated over a finite kinematic bin."""
+
 from dataclasses import dataclass, field
 from typing import Tuple, Union, Any
 

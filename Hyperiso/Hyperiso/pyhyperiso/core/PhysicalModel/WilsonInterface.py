@@ -227,6 +227,7 @@ class CustomWilsonGroupConfig:
 
     @install_identity_running_if_empty.setter
     def install_identity_running_if_empty(self, value: bool) -> None:
+        """Enable or disable automatic identity running for an empty group."""
         self._cpp_obj.install_identity_running_if_empty = bool(value)
 
     def to_cpp(self):

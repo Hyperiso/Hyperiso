@@ -1,3 +1,5 @@
+"""Public convenience exports for common HyperIso identifiers and configuration types."""
+
 from pyhyperiso.core.Common.GeneralEnum import (
     ContributionType,
     Decays,

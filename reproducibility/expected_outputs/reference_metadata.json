@@ -15,14 +15,50 @@
     "wilson_b_sm_nnlo.txt": {
       "sha256": "de137e041d0a8e8612751d95ca9fac2b916c50d33dd4f72d2d6ba7b069958745"
     },
+    "wilson_b_susy_spectrum_nnlo.txt": {
+      "sha256": "dac3f9af12ae3e0b1b99e83f488e88d446452b4c8dc9f378b112fec601cae394"
+    },
+    "wilson_b_thdm_spectrum_nnlo.txt": {
+      "sha256": "4f9a31b343e1ba734c90009ff6b76cd828771177ce45986afbc250849a23c09d"
+    },
     "wilson_bscalar_sm_lo.txt": {
       "sha256": "0ea586dee2af2d7a6b8e4497cd45d967d068ef87e3cf818790e5f409e418c2ce"
     }
   },
-  "generated_utc": "2026-07-15T08:21:50.181104+00:00",
+  "generated_utc": "TO_BE_RECORDED_WHEN_REFERENCES_ARE_FROZEN",
   "hyperiso_version": "1.0.0",
+  "inputs": {
+    "sm_reference.flha": {
+      "sha256": "40b0a3d68090611ff7bcdb4c26abcc6e9f7f6171d6ef86833def536d76cd0c0e"
+    },
+    "susy_reference.slha": {
+      "sha256": "c52d055d13901f538bad55bf5b6aefd915823000af7d33ae4892da8f36469ee3",
+      "spectrum": true
+    },
+    "thdm_reference.lha": {
+      "sha256": "984391031656a5f4f86ee71f5b60e7d0cb2b1b80edabd9ff6ba912da3ba39374",
+      "spectrum": true
+    }
+  },
   "normalization": "startup banner and machine-specific paths removed",
-  "provenance_note": "Release CI rebuilds the final source and must match all frozen values before publication.",
-  "reference_origin": "first 200 accepted samples from the validated seed-123456 release-candidate run",
+  "provenance": {
+    "architecture": "x86_64",
+    "binary_sha256": "TO_BE_RECORDED",
+    "build_type": "Release",
+    "cmake": "TO_BE_RECORDED",
+    "compiler": "TO_BE_RECORDED",
+    "eigen": "TO_BE_RECORDED",
+    "external_spectrum_generators_required": false,
+    "gsl": "TO_BE_RECORDED",
+    "marty_required": false,
+    "python": "TO_BE_RECORDED",
+    "thread_count": 1
+  },
+  "reference_origin": {
+    "R1-R5": "regenerated from the reviewed release candidate with 200 statistical draws",
+    "R6-R7": "benchmark values transcribed from the article validation table; run --update-expected with the final binary before tagging"
+  },
+  "source_commit": "TO_BE_REPLACED_BY_RELEASE_COMMIT",
+  "source_tag": "v1.0.0",
   "suite": "HyperIso CPC reference reproducibility suite"
 }

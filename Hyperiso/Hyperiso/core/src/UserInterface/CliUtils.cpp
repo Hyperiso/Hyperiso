@@ -118,10 +118,20 @@ QCDOrder parse_qcd_order(const std::string& order) {
     throw std::invalid_argument("Unknown QCD order: " + order);
 }
 
+
+ContributionType parse_contribution(const std::string& contribution) {
+    const std::string value = lower(contribution);
+    if (value == "sm") return ContributionType::SM;
+    if (value == "bsm") return ContributionType::BSM;
+    if (value == "total") return ContributionType::TOTAL;
+    throw std::invalid_argument("Unknown contribution type: " + contribution);
+}
+
 HyperisoMaster init_hyperiso_from_cli(const CliOptions& opts) {
     HyperisoConfig cfg;
     cfg.model = parse_model(opts.get("model", "SM"));
     cfg.flags[ExternalFlag::HYP_AS_SM_MARTY] = opts.flag("sm-marty", false);
+    cfg.flags[ExternalFlag::IS_LHA_SPECTRUM] = opts.flag("spectrum", false);
 
     HyperisoMaster hyp;
     hyp.init(opts.get("lha", "lha/si_input.flha"), cfg);

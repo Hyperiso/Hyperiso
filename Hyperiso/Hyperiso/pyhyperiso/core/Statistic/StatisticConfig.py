@@ -44,6 +44,7 @@ class StatisticProgressMonitor:
     def reset(
         self, phase: str = "preparing", message: str = "Preparing statistic workflow"
     ) -> None:
+        """Reset progress reporting and set the initial phase and message."""
         self._cpp_obj.reset(str(phase), str(message))
 
     def set_progress(
@@ -57,6 +58,7 @@ class StatisticProgressMonitor:
         eta_seconds: float = -1.0,
         finished: bool = False,
     ) -> None:
+        """Publish a progress update to Python and graphical frontends."""
         self._cpp_obj.set_progress(
             str(phase),
             str(message),
@@ -68,6 +70,7 @@ class StatisticProgressMonitor:
         )
 
     def snapshot(self) -> StatisticProgressSnapshot:
+        """Return an immutable snapshot of the latest progress event."""
         event = self._cpp_obj.snapshot()
         return StatisticProgressSnapshot(
             phase=str(event.phase),

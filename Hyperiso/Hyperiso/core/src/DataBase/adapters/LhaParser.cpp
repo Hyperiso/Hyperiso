@@ -1,5 +1,17 @@
 #include "LhaParser.h"
 
+namespace {
+
+bool is_ignored_metadata_block(std::string_view name) {
+    // Informational blocks do not contain numerical model parameters and may
+    // have free-form string payloads.  Treating them as unsupported numerical
+    // blocks only creates noisy warnings for otherwise valid spectrum files.
+    return name == "SPINFO" || name == "spinfo" ||
+           name == "DCINFO" || name == "dcinfo";
+}
+
+} // namespace
+
 void LhaParser::addBlock(std::map<BlockName, std::shared_ptr<LhaBlock>>& blocks, const BlockName& id, const std::vector<std::vector<std::string>>& lines) const {
     auto block = std::make_shared<LhaBlock>(findPrototype(id));
     LOG_DEBUG(id);
@@ -87,7 +99,11 @@ LhaParser::parse_tokens(std::vector<Token> tokens, bool comments) const
                 decay            = false;
             }
             else {
-                LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
+                if (is_ignored_metadata_block(t.value)) {
+                    LOG_DEBUG("LHA reader: Metadata block ", t.value, " skipped.");
+                } else {
+                    LOG_WARN("LHA reader: Unknown block " + t.value + " encountered. Skipping.");
+                }
                 skipBlock        = true;
                 hasGlobalScale   = false;
                 current_block_it = rawBlocks.end();

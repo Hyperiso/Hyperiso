@@ -1,3 +1,5 @@
+"""Symbolic identifiers used by dynamic mappers and registries."""
+
 from dataclasses import dataclass
 from pyhyperiso.phyperiso.pyhyperiso.common import _CppObservableId
 from pyhyperiso.phyperiso.pyhyperiso.common import _CppDecayId

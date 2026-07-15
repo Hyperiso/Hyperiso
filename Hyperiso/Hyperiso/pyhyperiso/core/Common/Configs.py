@@ -1,3 +1,5 @@
+"""Python configuration objects converted to native HyperIso structures."""
+
 from dataclasses import dataclass, field
 from typing import Set, Union
 

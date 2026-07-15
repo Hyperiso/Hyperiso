@@ -1,5 +1,7 @@
 #include "SUSYParametersHelper.h"
 
+#include "Parameters.h"
+
 void SUSYParameterHelper::init(int gen, WGroupId) {
 
 	if (initialized) {
@@ -18,13 +20,27 @@ void SUSYParameterHelper::init(int gen, WGroupId) {
 }
 
 void SUSYParameterHelper::init_epsilon_block() {
+    const auto bsm_blocks = Parameters::GetInstance(ParameterType::BSM)->get_block_accessor();
+
+    // Prefer the SLHA2 5x5 NMSSM matrix whenever it is available.  Keeping the
+    // selected block name in the dependency list avoids mutating BlockAccessor
+    // aliases and also handles files that contain both NMIX and NMNMIX.
+    const std::string neutralino_mix_block =
+        bsm_blocks->contains("NMNMIX") ? "NMNMIX" : "NMIX";
+
     std::unordered_map<ParameterType, std::vector<std::string>> src = {
-        {ParameterType::SM, {"MASS", "SMINPUTS"}}, 
-        {ParameterType::BSM, {"MASS", "GAUGE", "HMIX", "MSOFT", "AD", "AU", "YD", "YU", "SBOTMIX", "STOPMIX", "UMIX", "VMIX", "NMIX", "ALPHA"}},
-        {ParameterType::WILSON, {"WPARAM_SI_SM"}}
+        {ParameterType::SM, {"MASS", "SMINPUTS"}},
+        {ParameterType::BSM, {"MASS", "GAUGE", "HMIX", "MSOFT", "AD", "AU", "SBOTMIX", "STOPMIX", "UMIX", "VMIX", neutralino_mix_block, "ALPHA"}},
+        {ParameterType::WILSON, {"WPARAM_SI_SM", "WPARAM_MATCH_SM"}}
     };
 
-    auto func = [] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
+    // YU and YD are optional in SLHA spectrum output.  Add them as sources
+    // only when the spectrum actually provides them; otherwise the update
+    // function below reconstructs y_t and y_b from running quark masses.
+    if (bsm_blocks->contains("YU")) src[ParameterType::BSM].push_back("YU");
+    if (bsm_blocks->contains("YD")) src[ParameterType::BSM].push_back("YD");
+
+    auto func = [neutralino_mix_block] (const BlockSrc& src, std::shared_ptr<DependentBlock> dep_block) {
 
         src.get_val("ALPHA", LhaID());
 
@@ -53,17 +69,57 @@ void SUSYParameterHelper::init_epsilon_block() {
         double mqL3 = src.get_val("MSOFT", 43);
         double mbR = src.get_val("MSOFT", 49);
 
-        double m_G = src.get_val("MASS", 1000039);
+        const auto mass_block = src.block("MASS");
+        const auto mass_if_present = [&](int pdg) {
+            return mass_block->contains(LhaID(pdg)) ? src.get_val("MASS", pdg) : 0.0;
+        };
 
-        std::map<int,int> neutralino = {{0, 1000022},{1, 1000023},{2, 1000025},{3, 1000035}};
+        std::vector<double> m_neutralino = {
+            src.get_val("MASS", 1000022),
+            src.get_val("MASS", 1000023),
+            src.get_val("MASS", 1000025),
+            src.get_val("MASS", 1000035)
+        };
 
-
-        std::vector<double> m_neutralino = {src.get_val("MASS", neutralino[0]), src.get_val("MASS", neutralino[1]), src.get_val("MASS", neutralino[2]), src.get_val("MASS", neutralino[3])};
+        // The NMSSM singlino-like fifth neutralino is PDG 1000045.  The old
+        // code accidentally queried the gravitino (1000039) and then indexed
+        // past a four-element vector.  Include state 5 only when both its mass
+        // and the required NMIX/NMNMIX entries are present.
+        const double m_neutralino5 = mass_if_present(1000045);
+        const bool has_neutralino5_mix =
+            src.block(neutralino_mix_block)->contains(LhaID(5, 3)) &&
+            src.block(neutralino_mix_block)->contains(LhaID(5, 4));
+        if (m_neutralino5 != 0.0 && has_neutralino5_mix) {
+            m_neutralino.push_back(m_neutralino5);
+        } else if (m_neutralino5 != 0.0) {
+            LOG_WARN("EPSILON_SUSY: MASS(1000045) is present but NMIX/NMNMIX row 5 is incomplete; ignoring neutralino 5.");
+        }
         double ad_22 = src.get_val("AD", {3, 3});
         double au_22 = src.get_val("AU", {3, 3});
 
-        double yu_22 = src.get_val("YU", {3, 3});
-        double yd_22 = src.get_val("YD", {3, 3});
+        const double tan_beta = src.get_val("HMIX", 2);
+        const double sin_beta = tan_beta / std::sqrt(1.0 + tan_beta * tan_beta);
+        const double cos_beta = 1.0 / std::sqrt(1.0 + tan_beta * tan_beta);
+        const double mW = src.get_val("MASS", 24);
+
+        const bool has_yu33 = src.has_block("YU") && src.block("YU")->contains(LhaID(3, 3));
+        const bool has_yd33 = src.has_block("YD") && src.block("YD")->contains(LhaID(3, 3));
+
+        // Prefer the running Yukawa blocks supplied by the spectrum generator.
+        // When they are absent, reconstruct the couplings at the matching scale
+        // from m_t(mu_W), m_b(mu_W), g2 and tan(beta):
+        //   y_t = g2 m_t / (sqrt(2) m_W sin(beta)),
+        //   y_b = g2 m_b / (sqrt(2) m_W cos(beta)).
+        const double yu_22 = has_yu33
+            ? src.get_val("YU", LhaID(3, 3))
+            : g2 * src.get_val("WPARAM_MATCH_SM", 6) / (std::sqrt(2.0) * mW * sin_beta);
+        const double yd_22 = has_yd33
+            ? src.get_val("YD", LhaID(3, 3))
+            : g2 * src.get_val("WPARAM_MATCH_SM", LhaID(5, 1)) / (std::sqrt(2.0) * mW * cos_beta);
+
+        if (!has_yu33 || !has_yd33) {
+            LOG_WARN("EPSILON_SUSY: YU(3,3)/YD(3,3) missing; using Yukawas reconstructed from running quark masses.");
+        }
 
         double sbot_mix_00 = src.get_val("SBOTMIX", {0+1, 0+1});
         double sbot_mix_01 = src.get_val("SBOTMIX", {0+1, 1+1});
@@ -83,7 +139,6 @@ void SUSYParameterHelper::init_epsilon_block() {
         double MSOFT = ParameterProxy(ParameterType::BSM).get_scale("MSOFT"); //TODO : better things to do with scale
 
         std::cout << "MSOFT" << MSOFT << std::endl; 
-        double tan_beta = src.get_val("HMIX", 2);
 
         double factor = 2.0 / 3.0 * alphas_MSOFT / M_PI;
 
@@ -121,7 +176,7 @@ void SUSYParameterHelper::init_epsilon_block() {
         double epsilon_b = epsilon_0 + epsilon_2;
 
         //bp
-        int nb_neut = (m_G == 0.) ? 4 : 5; //mass_neut[5] is gravitino ?
+        const int nb_neut = static_cast<int>(m_neutralino.size());
 
         
         double epsilonbp = 2.0 / 3.0 * alphas_MSOFT / M_PI * 
@@ -137,7 +192,7 @@ void SUSYParameterHelper::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilonbp += yu_22 * yu_22 / 16.0 / M_PI / M_PI * 
-                        src.get_val("NMIX", {ie + 1, 3 + 1}) * src.get_val("NMIX", {ie + 1, 2 + 1}) * 
+                        src.get_val(neutralino_mix_block, {ie + 1, 3 + 1}) * src.get_val(neutralino_mix_block, {ie + 1, 2 + 1}) *
                         (au_22 - mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 *
                         H2(m_t2s * m_t2s / m_neutralino[ie] / m_neutralino[ie], m_bs * m_bs / m_neutralino[ie] / m_neutralino[ie]) +
@@ -170,7 +225,7 @@ void SUSYParameterHelper::init_epsilon_block() {
 
         for(int ie = 0; ie < nb_neut; ++ie) {
             epsilon0p += yd_22 * yd_22 / 16.0 / M_PI / M_PI * 
-                        src.get_val("NMIX", {ie+1, 3+1}) * src.get_val("NMIX", {ie+1, 2+1}) * 
+                        src.get_val(neutralino_mix_block, {ie+1, 3+1}) * src.get_val(neutralino_mix_block, {ie+1, 2+1}) *
                         (mu_Q / tan_beta) / m_neutralino[ie] *
                         (stop_mix_00 * stop_mix_00 * sbot_mix_00 * sbot_mix_00 * 
                         H2(m_ts * m_ts / m_neutralino[ie] / m_neutralino[ie], m_b2s * m_b2s / m_neutralino[ie] / m_neutralino[ie]) +

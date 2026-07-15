@@ -1,3 +1,5 @@
+"""Public convenience exports for statistical inference interfaces."""
+
 from pyhyperiso.core.Statistic.StatisticConfig import (
     StatisticConfig,
     AdvancedStatisticConfig,

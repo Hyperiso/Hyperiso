@@ -1,3 +1,5 @@
+"""Composite identifiers for model and nuisance parameters."""
+
 from pyhyperiso.phyperiso.pyhyperiso import common
 from pyhyperiso.core.Common.GeneralEnum import ParameterType
 from dataclasses import dataclass, field

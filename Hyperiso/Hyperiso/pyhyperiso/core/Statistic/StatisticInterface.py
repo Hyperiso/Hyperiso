@@ -313,20 +313,24 @@ class Contour:
 
     @classmethod
     def from_cpp(cls, cpp_obj) -> "Contour":
+        """Create a Python contour view from a bound C++ contour object."""
         return cls(cpp_obj)
 
     @property
     def paths(self) -> List[List[tuple[float, float]]]:
+        """Return all disconnected contour paths as ``(x, y)`` coordinates."""
         return [
             [(float(point[0]), float(point[1])) for point in path] for path in self._cpp_obj.paths
         ]
 
     @property
     def level(self) -> float:
+        """Return the likelihood or confidence level represented by the contour."""
         return float(self._cpp_obj.level)
 
     @property
     def success(self) -> bool:
+        """Report whether the native contour extraction completed successfully."""
         return bool(self._cpp_obj.success)
 
     def _to_cpp(self):

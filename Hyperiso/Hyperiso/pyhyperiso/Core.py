@@ -1,3 +1,5 @@
+"""Public convenience exports for HyperIso initialization and runtime configuration."""
+
 from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
 from pyhyperiso.core.Core.HyperisoConfig import HyperisoConfig, ExternalFlag
 from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider

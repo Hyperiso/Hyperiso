@@ -57,6 +57,22 @@
         "abs_tol": 0.0,
         "rel_tol": 1e-08
       }
+    },
+    {
+      "id": "R6",
+      "description": "THDM BSM Wilson coefficients from an archived 2HDMC spectrum",
+      "command": "hyperiso-ui wilson summary --model THDM --lha reproducibility/inputs/thdm_reference.lha --spectrum true --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 81 --order NNLO",
+      "stdout": "wilson_b_thdm_spectrum_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-07
+    },
+    {
+      "id": "R7",
+      "description": "SUSY BSM Wilson coefficients from an archived SOFTSUSY spectrum",
+      "command": "hyperiso-ui wilson summary --model SUSY --lha reproducibility/inputs/susy_reference.slha --spectrum true --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 81 --order NNLO",
+      "stdout": "wilson_b_susy_spectrum_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-07
     }
   ],
   "hyperiso_version": "1.0.0"

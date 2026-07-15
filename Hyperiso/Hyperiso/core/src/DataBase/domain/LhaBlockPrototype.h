@@ -53,11 +53,20 @@ const Prototype UPMNSIN = Prototype{"UPMNSIN"}; /**< SLHA2 */
 const Prototype MINPAR = Prototype{"MINPAR"};
 const Prototype EXTPAR = Prototype{"EXTPAR"};
 const Prototype MASS = Prototype{"MASS"};
-const Prototype NMIX = Prototype{"NMIX", 3, 2};
+// Neutralino mixing matrices are also frequently written with a global Q=
+// scale.  Keep the synthetic scale column so both scaled and unscaled SLHA
+// variants map their matrix indices to LhaID(i,j) consistently.
+const Prototype NMIX = Prototype{"NMIX", 4, 3, -1, -1, -1, true};
+const Prototype NMNMIX = Prototype{"NMNMIX", 4, 3, -1, -1, -1, true};
 const Prototype UMIX = Prototype{"UMIX", 3, 2};
 const Prototype VMIX = Prototype{"VMIX", 3, 2};
-const Prototype NMAMIX = Prototype{"NMAMIX", 3, 2};
-const Prototype NMHMIX = Prototype{"NMHMIX", 3, 2};
+// Spectrum generators commonly attach a global Q= scale to NMSSM Higgs
+// mixing matrices.  The parser prepends that scale to every data row, hence
+// the four-column layout [Q, i, j, value].  Files without Q= are also
+// accepted: the parser stores -1 as the synthetic scale column.
+const Prototype NMAMIX = Prototype{"NMAMIX", 4, 3, -1, -1, -1, true};
+const Prototype NMHMIX = Prototype{"NMHMIX", 4, 3, -1, -1, -1, true};
+const Prototype NMSSMRUN = Prototype{"NMSSMRUN", 3, 2, -1, -1, -1, true};
 const Prototype STOPMIX = Prototype{"STOPMIX", 3, 2};
 const Prototype SBOTMIX = Prototype{"SBOTMIX", 3, 2};
 const Prototype STAUMIX = Prototype{"STAUMIX", 3, 2};
@@ -73,7 +82,7 @@ const Prototype YD = Prototype{{"YD", "DCOUPL"}, 4, 3, -1, -1, -1, true};
 const Prototype YE = Prototype{{"YE", "LCOUPL", "YL"}, 4, 3, -1, -1, -1, true};
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
-const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX}; // MAJ : SPINFO/FCINFO pb (values are string)
+const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, NMNMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX, NMSSMRUN}; // MAJ : SPINFO/FCINFO pb (values are string)
 
 // FLHA Block prototypes
 const Prototype FCINFO = Prototype{"FCINFO"};

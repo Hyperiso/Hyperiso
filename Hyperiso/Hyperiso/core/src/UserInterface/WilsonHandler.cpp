@@ -21,7 +21,9 @@ void print_wilson_usage() {
         << "  --q <value>        Running scale, default 4.8\n"
         << "  --order <order>    LO, NLO or NNLO, default NNLO\n"
         << "  --model <model>    SM, THDM, MSSM or MARTY, default SM\n"
-        << "  --lha <path>       Input LHA/FLHA file\n";
+        << "  --lha <path>       Input LHA/SLHA/FLHA file\n"
+        << "  --spectrum <bool>  Treat the input as an already generated spectrum\n"
+        << "  --contribution <type>  SM, BSM or TOTAL, default TOTAL\n";
 }
 
 } // namespace
@@ -46,6 +48,7 @@ int handleWilsonOptions(int argc, char* argv[]) {
     const double qmatch = opts.get_double("qmatch", 81.0);
     const double q = opts.get_double("q", 4.8);
     const QCDOrder order = parse_qcd_order(opts.get("order", "NNLO"));
+    const ContributionType contribution = parse_contribution(opts.get("contribution", "TOTAL"));
 
     std::unordered_set<WGroupId> groups;
     for (const auto& name : group_names) {
@@ -65,8 +68,8 @@ int handleWilsonOptions(int argc, char* argv[]) {
         std::cout << "\nGroup: " << GroupMapper::str(group) << "\n";
         for (const auto& coeff_name : coeff_names) {
             WCoefId coeff = WCoefMapper::id_of(coeff_name);
-            const auto m = wilson.getFM(group, coeff, order, ContributionType::TOTAL);
-            const auto r = wilson.getFR(group, coeff, order, ContributionType::TOTAL);
+            const auto m = wilson.getFM(group, coeff, order, contribution);
+            const auto r = wilson.getFR(group, coeff, order, contribution);
             std::cout << "  " << WCoefMapper::str(coeff)
                       << "  matching=" << m
                       << "  running=" << r << "\n";

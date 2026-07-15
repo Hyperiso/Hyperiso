@@ -24,11 +24,16 @@ jobs:
           sudo apt-get install -y doxygen graphviz
 
       - name: Build Doxygen documentation
-        run: doxygen Hyperiso/Docs/Doxyfile
+        run: |
+          cd Hyperiso/Docs
+          rm -rf html
+          doxygen Doxyfile
+          test -s html/index.html
+          test "$(find html -type f | wc -l)" -gt 20
 
       - name: Upload documentation artifact
         uses: actions/upload-artifact@v4
         with:
           name: hyperiso-doxygen-html
           path: Hyperiso/Docs/html
-          if-no-files-found: warn
+          if-no-files-found: error

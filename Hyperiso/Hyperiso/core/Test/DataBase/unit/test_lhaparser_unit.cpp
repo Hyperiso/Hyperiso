@@ -24,7 +24,7 @@ int main() {
 
     LhaParser p;
     std::unordered_set<Prototype> protos = {
-        GAUGE, MASS, FMASS 
+        GAUGE, MASS, FMASS, NMIX, NMNMIX
     };
     p.set_prototypes(protos);
 
@@ -37,6 +37,12 @@ int main() {
         "DeCaY 25  1.0\n"            // ignore
         "Block FMASS\n"
         "  13  1.234  91.1876  1\n"  // value=1.234, scale=91.1876, rg=1
+        "BLOCK NMNMIX Q= 1000\n"
+        "  5  3  1.25000000E-01\n"
+        "  5  4 -2.50000000E-01\n"
+        "BLOCK NMIX\n"
+        "  5  3 -1.50000000E-01\n"
+        "  5  4  3.50000000E-01\n"
         "# end\n";
 
     auto root = p.parse(src);
@@ -61,6 +67,18 @@ int main() {
     assert(std::abs(std::get<double>(mu->get("central_value")) - 1.234) < 1e-12);
     assert(std::abs(std::get<double>(mu->get("scale")) - 91.1876) < 1e-6);
     assert(std::get<int>(mu->get("renormalization_scheme")) == 1);
+
+    assert(root->contains("NMNMIX"));
+    auto NN = std::get<std::shared_ptr<DBNode>>(root->get("NMNMIX"));
+    assert(std::abs(as_num(NN->get("5_3")) - 0.125) < 1e-12);
+    assert(std::abs(as_num(NN->get("5_4")) + 0.25) < 1e-12);
+    assert(std::abs(std::get<double>(NN->get("scale")) - 1000.0) < 1e-12);
+
+    assert(root->contains("NMIX"));
+    auto N = std::get<std::shared_ptr<DBNode>>(root->get("NMIX"));
+    assert(std::abs(as_num(N->get("5_3")) + 0.15) < 1e-12);
+    assert(std::abs(as_num(N->get("5_4")) - 0.35) < 1e-12);
+    assert(std::abs(std::get<double>(N->get("scale")) + 1.0) < 1e-12);
 
     std::cout << "\n LhaParser unit tests passed!\n";
     return 0;

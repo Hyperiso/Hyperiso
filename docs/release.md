@@ -1,3 +1,19 @@
+
+## Publication order
+
+HyperIso uses a tag-driven immutable release workflow. First merge the reviewed
+release commit and verify all branch checks. Then create and push the signed
+`v1.0.0` tag. The tag builds the sdist and wheels once, publishes those exact
+artefacts to TestPyPI, installs and verifies the TestPyPI wheel, and pauses at
+the protected `pypi` environment for maintainer approval before publishing the
+same files to PyPI. The GitHub Release is created only after PyPI succeeds.
+
+Do not upload a separately rebuilt package before the tag: PyPI versions cannot
+be overwritten, and rebuilding between TestPyPI and PyPI would break artefact
+identity. A pre-tag release candidate may be tested with local wheels or a
+distinct development version such as `1.0.0rc1`, but the final `1.0.0` files are
+produced from the immutable tag.
+
 # Release procedure
 
 HyperIso releases are immutable and tag-driven. The release version must match

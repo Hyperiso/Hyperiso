@@ -1,3 +1,5 @@
+"""Scalar wrapper and elementary operations exposed by the native backend."""
+
 from pyhyperiso.phyperiso.pyhyperiso import math as ma
 from typing import Union
 

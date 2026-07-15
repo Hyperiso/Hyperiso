@@ -290,7 +290,7 @@ The repository includes a frozen reproducibility package for the calculations sh
 - exact commands;
 - expected numerical outputs;
 - frozen numerical references and SHA-256 provenance metadata;
-- a strict checker and scripts to regenerate the five reference cases.
+- a strict checker and scripts to regenerate the seven reference cases.
 
 Validate the frozen references with:
 
@@ -369,7 +369,7 @@ Contributions are welcome. Please read:
 
 ## License
 
-The combined HyperIso distribution is released under the GNU General Public
-License, version 3 or later. HyperIso-authored portions originally published
-under MIT retain their MIT grant. See `LICENSE`, `LICENSES/` and
-`THIRD_PARTY_NOTICES.md` for component-level details.
+HyperIso is free software: you may redistribute it and/or modify it under the
+terms of the GNU General Public License as published by the Free Software
+Foundation, either version 3 of the License, or (at your option) any later
+version. See `LICENSE`, `LICENSES/` and `THIRD_PARTY_NOTICES.md`.

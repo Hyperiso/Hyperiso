@@ -27,7 +27,7 @@ jobs:
       - name: Install quality and system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev doxygen graphviz
           python -m pip install --upgrade pip
           python -m pip install pre-commit ruff==0.15.21 pyyaml
 
@@ -36,6 +36,14 @@ jobs:
           python tools/check_version_consistency.py --tag "${GITHUB_REF_NAME}"
           python tools/validate_metadata.py
           pre-commit run --all-files
+
+      - name: Build API documentation
+        run: |
+          cd Hyperiso/Docs
+          rm -rf html
+          doxygen Doxyfile
+          test -s html/index.html
+          test "$(find html -type f | wc -l)" -gt 20
 
       - name: Configure release build
         run: |

@@ -42,7 +42,7 @@ jobs:
             -DBUILD_WITH_CLI=ON \
             -DENABLE_TESTS=OFF
           cmake --build build --parallel 2
-      - name: Compare R1-R5 with frozen references
+      - name: Compare R1-R7 with frozen references
         run: |
           HYPERISO_BIN="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
           test -n "${HYPERISO_BIN}"

@@ -46,7 +46,7 @@ struct ParameterBlockRepartition {
      */
     static inline const std::map<ParameterType, std::unordered_set<BlockName>> BLOCKS {
         {ParameterType::SM, {"SMINPUTS", "MASS", "VCKMIN", "UPMNSIN", "UPMNS", "VCKM", "GAUGE"}},
-        {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
+        {ParameterType::BSM, {"GAUGE", "MASS", "HMIX", "ALPHA", "MSOFT", "NMIX", "NMNMIX", "UMIX", "VMIX", "NMAMIX", "NMHMIX", "NMSSMRUN", "STOPMIX", "SBOTMIX", "STAUMIX", "AU", "AD", "AE", "YU", "YD", "YE", "MINPAR"}},
         {ParameterType::FLAVOR, {"FMASS", "FLIFE", "FCONST", "FCONSTRATIO", "FBAG", "FPARAM"}},
         {ParameterType::WILSON, {"FWCOEF", "IMFWCOEF", "EW_SCALE", "B_SCALE", "D_SCALE", "K_SCALE", "SCALE_NUIS"}},
         {ParameterType::DECAY, {"B_Ks", "B_ll", "B_Xs", "B_Dlnu", "B_Dslnu", "B_Xsll", "B_Ksll", "M0_Mix", "B_phi", "B_K", "K_ll", "K_pi", "K_lnu", "Lb_L"}},
@@ -146,10 +146,10 @@ struct ParametersAccessRights {
      * primarily a data structure for model-level logic outside ParamRouter.
      */
     static inline const std::map<BlockName, std::unordered_set<long>> SUSY_RIGHTS {
-        {"MASS", {25, 35, 36, 37, 
+        {"MASS", {25, 35, 36, 37, 45, 46, 
                   1000001, 1000002, 1000003, 1000004, 1000005, 1000006, 1000011, 1000012, 1000013, 1000014, 1000015, 1000016, 
                   2000001, 2000002, 2000003, 2000004, 2000005, 2000006, 2000011, 2000013, 2000015, 
-                  1000021, 1000022, 1000023, 1000024, 1000025, 1000035, 1000037, 1000039}}, 
+                  1000021, 1000022, 1000023, 1000024, 1000025, 1000035, 1000037, 1000039, 1000045}}, 
         {"GAUGE", {1, 2, 3}},
     };
 };

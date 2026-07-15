@@ -40,6 +40,7 @@ Model parse_model(const std::string& model);
 
 /** Convert a CLI string to QCD order. */
 QCDOrder parse_qcd_order(const std::string& order);
+ContributionType parse_contribution(const std::string& contribution);
 
 /** Build and initialize HyperisoMaster from common CLI options. */
 HyperisoMaster init_hyperiso_from_cli(const CliOptions& opts);

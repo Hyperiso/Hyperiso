@@ -7,6 +7,8 @@ import argparse
 import datetime as dt
 import hashlib
 import json
+import os
+import platform
 import subprocess
 import tomllib
 from pathlib import Path
@@ -57,19 +59,51 @@ def main() -> int:
         except json.JSONDecodeError:
             previous_metadata = {}
 
+    def command_version(*command: str) -> str:
+        try:
+            return subprocess.check_output(
+                list(command), text=True, stderr=subprocess.STDOUT
+            ).splitlines()[0].strip()
+        except (OSError, subprocess.CalledProcessError, IndexError):
+            return "unavailable"
+
+    binary = os.environ.get("HYPERISO_BIN")
+    binary_path = Path(binary).resolve() if binary else None
     metadata = {
         "suite": manifest["suite_name"],
         "hyperiso_version": version,
         "source_commit": commit,
+        "source_tag": os.environ.get("GITHUB_REF_NAME", "unreleased"),
         "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "normalization": "startup banner and machine-specific paths removed",
         "reference_origin": previous_metadata.get(
             "reference_origin",
             "outputs regenerated from the reviewed release build",
         ),
-        "provenance_note": previous_metadata.get(
-            "provenance_note",
-            "Release CI rebuilds the final source and must match all frozen values before publication.",
+        "provenance": {
+            "operating_system": platform.platform(),
+            "architecture": platform.machine(),
+            "python": platform.python_version(),
+            "compiler": command_version("c++", "--version"),
+            "cmake": command_version("cmake", "--version"),
+            "gsl": command_version("pkg-config", "--modversion", "gsl"),
+            "eigen": command_version(
+                "pkg-config", "--modversion", "eigen3"
+            ),
+            "build_type": os.environ.get("CMAKE_BUILD_TYPE", "Release"),
+            "thread_count": int(os.environ.get("HYPERISO_REPRO_THREADS", "1")),
+            "binary": str(binary_path) if binary_path else "not recorded",
+            "binary_sha256": (
+                sha256(binary_path)
+                if binary_path and binary_path.is_file()
+                else "not recorded"
+            ),
+            "marty_required": False,
+            "external_spectrum_generators_required": False,
+        },
+        "provenance_note": (
+            "R6 and R7 consume archived THDM and SUSY spectra. The release CI "
+            "rebuilds the final source and must match all frozen values before publication."
         ),
         "files": {
             name: {"sha256": sha256(expected / name)} for name in sorted(set(files))
