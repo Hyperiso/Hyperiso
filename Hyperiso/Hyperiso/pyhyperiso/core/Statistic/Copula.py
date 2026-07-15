@@ -81,7 +81,7 @@ class Copula:
             u = self._cpp_obj.sample_u()
             return [float(x) for x in u]
         if int(n) < 0:
-            raise ValueError("n doit être >= 0")
+            raise ValueError("n must be >= 0")
         U = self._cpp_obj.sample_u(int(n))
         return [[float(x) for x in row] for row in U]
 

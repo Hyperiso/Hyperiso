@@ -78,7 +78,7 @@ private:
         if (auto i = std::get_if<int>(&v))      return std::to_string(*i);
         if (auto d = std::get_if<double>(&v))   return std::to_string(*d);
         if (auto b = std::get_if<bool>(&v))     return *b ? "true" : "false";
-        throw std::runtime_error("JSON mapping: valeur non scalaire convertissable en string");
+        throw std::runtime_error("JSON mapping: non-scalar value cannot be converted to a string");
     }
 
 private:

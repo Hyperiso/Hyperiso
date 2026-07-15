@@ -49,8 +49,7 @@ double ChiSquaredLikelihood::nll(const std::vector<double>& theta) const {
             q += r[i] * row;
         }
 
-        const double out = 0.5 * q; //Niels avait tort
-        // const double out = q; //Niels à dit pas de 1/2, c'est sa responsabilité.
+        const double out = 0.5 * q;
         return std::isfinite(out) ? out : 1e100;
     } catch (const std::exception& e) {
         std::cout << "[CHI2DBG] nll exception: " << e.what() << "\n";

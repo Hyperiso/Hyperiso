@@ -72,7 +72,7 @@ ProfileBackend = ProfilerMode
 def _require(value, typ, name: str):
     """Validate a typed argument and return it unchanged."""
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be {typ.__name__}, received {type(value)!r}.")
     return value
 
 
@@ -589,9 +589,7 @@ class StatisticInterface:
                 been computed before requesting the contour.
         """
         if len(bounds) != 4:
-            raise ValueError(
-                "bounds doit contenir exactement 4 valeurs : [xmin, xmax, ymin, ymax]."
-            )
+            raise ValueError("bounds must contain exactly 4 values: [xmin, xmax, ymin, ymax].")
         cpp_options = (
             ContourOptions().to_cpp()
             if options is None

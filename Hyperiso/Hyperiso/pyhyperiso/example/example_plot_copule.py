@@ -11,7 +11,7 @@ from statistics import NormalDist
 from pyhyperiso.core.Math.RealMatrix import Matrix
 
 
-from pyhyperiso.core.Statistic.Copula import CopulaKind 
+from pyhyperiso.core.Statistic.Copula import CopulaKind
 
 from pyhyperiso.core.Statistic.Copula import CopulaFactoryWrapper as CF
 
@@ -45,7 +45,6 @@ def spearman_corr(U: np.ndarray) -> np.ndarray:
 def gaussianize(U: np.ndarray) -> np.ndarray:
     """Transforme U~(0,1) vers Z~N(0,1) via invCDF (sans scipy)."""
     nd = NormalDist()
-    # clamp pour éviter inf
     eps = 1e-12
     Uc = np.clip(U, eps, 1 - eps)
     inv = np.vectorize(nd.inv_cdf, otypes=[float])
@@ -60,8 +59,6 @@ def corrcoef_Z(U: np.ndarray) -> np.ndarray:
 
 def ensure_dir(path: str) -> None:
     os.makedirs(path, exist_ok=True)
-
-
 
 
 def plot_scatter_or_hist2d(
@@ -138,7 +135,7 @@ def plot_density_surface_2d(copula: Any, title: str, outpath: str, grid: int = 9
             row.append(math.exp(ld))
         D[i, :] = row
 
-    approx_integral = float(D.mean())  # area=1, grid uniforme
+    approx_integral = float(D.mean())
     plt.figure(figsize=(7.0, 6.0))
     im = plt.imshow(D, origin="lower", extent=[0, 1, 0, 1], interpolation="nearest")
     plt.colorbar(im, label="density c(u)")
@@ -151,15 +148,13 @@ def plot_density_surface_2d(copula: Any, title: str, outpath: str, grid: int = 9
     plt.close()
 
 
-
-
 def make_gaussian_copula(R: Matrix, seed: int):
     cfg = GaussianCfg(R=R)
     if hasattr(CF, "gaussian"):
         return CF.gaussian(R, seed=seed)
     if hasattr(CF, "create"):
         return CF.create(CopulaKind.GAUSSIAN, cfg, seed=seed)
-    return CF.create_gaussian(cfg, seed)  # type: ignore
+    return CF.create_gaussian(cfg, seed) 
 
 
 def make_student_t_copula(R: Matrix, nu: int, seed: int):
@@ -168,7 +163,7 @@ def make_student_t_copula(R: Matrix, nu: int, seed: int):
         return CF.student_t(R, nu=nu, seed=seed)
     if hasattr(CF, "create"):
         return CF.create(CopulaKind.STUDENT_T, cfg, seed=seed)
-    return CF.create_student_t(cfg, seed)  # type: ignore
+    return CF.create_student_t(cfg, seed)
 
 
 def main(

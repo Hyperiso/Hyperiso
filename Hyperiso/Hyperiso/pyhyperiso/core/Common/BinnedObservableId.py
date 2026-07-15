@@ -49,7 +49,7 @@ class BinnedObservableId:
         Raises:
             TypeError: If ``p`` is not a pair (low, high).
         """
-        # Normalize s to ObservableId wrapper
+
         if isinstance(self.s, str):
             self.s = ObservableId(self.s)
         elif isinstance(self.s, Observables):
@@ -61,21 +61,16 @@ class BinnedObservableId:
         if not (isinstance(self.p, (tuple, list, set)) and len(self.p) == 2):
             raise TypeError("p must be a (low, high) pair")
         if isinstance(self.p, set):
-            low = self.p.pop()
-            high = self.p.pop()
-            print(low, high)
+            low, high = sorted(float(value) for value in self.p)
         else:
             low = float(self.p[0])
             high = float(self.p[1])
 
         self.p = (low, high)
 
-        # Build C++ instance
-        s_cpp = self.s._to_cpp()  # IMPORTANT: instance, not type/class
+        s_cpp = self.s._to_cpp() 
 
-        # Choose ctor
         if low == 0.0 and high == 0.0:
-            # Commonly you want the (id) ctor even for (0,0) bins
             self._cpp_obj = common.BinnedObservableId(s_cpp)
         else:
             self._cpp_obj = common.BinnedObservableId(s_cpp, (low, high))
@@ -118,12 +113,9 @@ class BinnedObservableId:
         Returns:
             BinnedObservableId: Python wrapper around the provided C++ object.
         """
-        # Create without running __post_init__ logic that would rebuild cpp_obj:
         inst = cls.__new__(cls)
         inst._cpp_obj = cpp_obj
 
-        # Recover python-side fields from C++ object
-        # NOTE: assumes cpp_obj.s is convertible to string; if not, adapt here.
         inst.s = ObservableId(str(cpp_obj.s))
         inst.p = (float(cpp_obj.p[0]), float(cpp_obj.p[1]))
         return inst

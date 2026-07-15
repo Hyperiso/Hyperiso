@@ -46,7 +46,9 @@ class ExperimentObs:
     def __post_init__(self) -> None:
         """Validate the public observable identifier field."""
         if not isinstance(self.obs, BinnedObservableId):
-            raise TypeError(f"obs doit être un BinnedObservableId Python, reçu {type(self.obs)!r}.")
+            raise TypeError(
+                f"obs must be a Python BinnedObservableId, received {type(self.obs)!r}."
+            )
 
     @classmethod
     def from_cpp(cls, cpp_obj) -> "ExperimentObs":
@@ -74,9 +76,9 @@ class ExperimentObs:
         """
         if self._cpp_obj is None:
             raise RuntimeError(
-                "ExperimentObs ne peut pas encore être construit côté Python pur : "
-                "utilise un ExperimentObs renvoyé par StatisticInterface.get_obs_exp() "
-                "ou expose un constructeur C++ dédié dans le binding."
+                "ExperimentObs cannot yet be constructed in pure Python: "
+                "use an ExperimentObs returned by StatisticInterface.get_obs_exp() "
+                "or expose a dedicated C++ constructor in the binding."
             )
         return self._cpp_obj
 

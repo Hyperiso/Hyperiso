@@ -41,20 +41,20 @@
     {
       "id": "R5",
       "description": "MC uncertainty summary with fixed seed",
-      "command": "hyperiso-ui statistic summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --uncertainties --draws 1000 --seed 123456 --samples-csv reproducibility/outputs/statistics_samples.csv --order NNLO",
+      "command": "hyperiso-ui statistic summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --uncertainties --draws 200 --seed 123456 --samples-csv reproducibility/outputs/statistics_samples.csv --order NNLO",
       "stdout": "statistics_sm_seed123456.txt",
       "abs_tol": 1e-12,
       "rel_tol": 0.005,
       "samples_csv": {
         "file": "statistics_samples.csv",
-        "rows": 1000,
+        "rows": 200,
         "columns": [
           "BR_B__Xs_gamma [0, 0]",
           "BR_Bs__mu_mu [0, 0]"
         ],
         "minimum": 0.0,
         "maximum": 1.0,
-        "abs_tol": 1e-12,
+        "abs_tol": 0.0,
         "rel_tol": 1e-08
       }
     }

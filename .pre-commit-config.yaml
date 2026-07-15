@@ -11,6 +11,9 @@ repos:
           - Hyperiso/Hyperiso/pyhyperiso
           - GHyperiso/HyperisoDashGUI
           - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
+          - reproducibility/scripts
+          - reproducibility/tests
+          - tools
 
       - id: ruff-format
         name: Ruff format
@@ -22,6 +25,9 @@ repos:
           - Hyperiso/Hyperiso/pyhyperiso
           - GHyperiso/HyperisoDashGUI
           - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
+          - reproducibility/scripts
+          - reproducibility/tests
+          - tools
 
       - id: metadata
         name: Validate JSON, TOML and YAML
@@ -32,6 +38,13 @@ repos:
       - id: versions
         name: Check release version consistency
         entry: python tools/check_version_consistency.py
+        language: system
+        pass_filenames: false
+
+
+      - id: reproducibility-tests
+        name: Test reproducibility tooling
+        entry: python -m unittest discover -s reproducibility/tests -v
         language: system
         pass_filenames: false
 

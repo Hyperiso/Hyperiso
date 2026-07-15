@@ -20,11 +20,11 @@ modules exposed through C++, Python and a command-line interface.
 likelihood sampler and direct theoretical-observable LHA input are not supported
 in 1.0.0 and fail explicitly.
 **Typical running time:** The deterministic reference cases complete on a
-standard Linux workstation; the 1,000-draw Monte-Carlo case is the longest of
+standard Linux workstation; the 200-draw Monte-Carlo case is the longest of
 the five. Exact timing is hardware-dependent and is recorded by CI rather than
 claimed as a universal benchmark.
 **Reproducibility:** `reproducibility/manifest.json` defines five fixed commands.
-The statistical case uses 1,000 draws and seed `123456`. Normalized outputs,
+The statistical case uses 200 draws and seed `123456`. Normalized outputs,
 sample values, hashes and strict tolerances are stored in
 `reproducibility/expected_outputs/`. The release workflow rebuilds the final
 source and must match all frozen references before publication.

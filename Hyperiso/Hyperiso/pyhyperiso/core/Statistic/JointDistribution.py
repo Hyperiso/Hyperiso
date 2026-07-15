@@ -48,7 +48,7 @@ def _require(value, typ, name: str):
         TypeError: If ``value`` is not an instance of ``typ``.
     """
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be {typ.__name__}, received {type(value)!r}.")
     return value
 
 
@@ -77,7 +77,7 @@ def _cpp_marginal_config(cfg: MarginalConfig):
             LikelihoodMarginalConfig,
         ),
     ):
-        raise TypeError(f"config marginale non supportée : {type(cfg)!r}.")
+        raise TypeError(f"unsupported marginal configuration: {type(cfg)!r}.")
     return cfg.to_cpp()
 
 
@@ -88,7 +88,7 @@ def _cpp_copula_config(cfg: CopulaConfig):
         TypeError: If the configuration family is not supported.
     """
     if not isinstance(cfg, (GaussianCopulaConfig, StudentTCopulaConfig)):
-        raise TypeError(f"config copule non supportée : {type(cfg)!r}.")
+        raise TypeError(f"unsupported copula configuration: {type(cfg)!r}.")
     return cfg.to_cpp()
 
 
@@ -142,7 +142,7 @@ class JointDistribution:
         if n is None:
             return [float(v) for v in self._cpp_obj.sample()]
         if int(n) < 0:
-            raise ValueError("n doit être >= 0.")
+            raise ValueError("n must be >= 0.")
         return [[float(v) for v in row] for row in self._cpp_obj.sample(int(n))]
 
     def logpdf(self, x: Sequence[float]) -> float:
@@ -215,7 +215,7 @@ class JointDistributionFactory:
             2
         """
         if len(marginal_types) != len(marginal_configs):
-            raise ValueError("marginal_types et marginal_configs doivent avoir la même taille.")
+            raise ValueError("marginal_types et marginal_configs must have the same size.")
         if not marginal_types:
             raise ValueError("Au moins une marginale est requise.")
 
@@ -259,7 +259,7 @@ class JointDistributionFactory:
             marginal_seeds
         ):
             raise ValueError(
-                "marginal_types, marginal_configs et marginal_seeds doivent avoir la même taille."
+                "marginal_types, marginal_configs et marginal_seeds must have the same size."
             )
         if not marginal_types:
             raise ValueError("Au moins une marginale est requise.")

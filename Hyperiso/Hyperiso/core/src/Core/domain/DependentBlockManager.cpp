@@ -5,7 +5,7 @@ void DependentBlockManager::addDependentBlock(
     std::string name,
     std::unordered_map<ParameterType, std::vector<std::string>> source_names,
     ParameterType dest,
-    DepUpdateFunc recalculateFunc   // <-- utilise le nouveau typedef
+    DepUpdateFunc recalculateFunc 
 ) {
     std::unordered_map<std::string, std::shared_ptr<Block>> sources;
     std::vector<std::string> missing;
@@ -30,7 +30,7 @@ void DependentBlockManager::addDependentBlock(
             auto ba = Parameters::GetInstance(k)->blockAccessor;
             oss << "  - " << ParameterTypeMapper::str(k) << ": ";
             bool first = true;
-            for (auto& bn : ba->get_block_names()) { if (!first) oss << ", "; first = false; oss << bn; }  // :contentReference[oaicite:2]{index=2}
+            for (auto& bn : ba->get_block_names()) { if (!first) oss << ", "; first = false; oss << bn; }
             oss << "\n";
         }
         throw std::invalid_argument(oss.str());
@@ -53,21 +53,10 @@ void DependentBlockManager::addDependentParameter(
 
     for (const auto& id : source_pids) {
         auto ba = Parameters::GetInstance(id.type.value())->blockAccessor;
-        // if (!ba->contains(id.block)) {
-        //     missing.push_back("Block " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block);
-        //     continue;
-        // }
-        // auto blk = ba->at(id.block);
-        // if (!blk->contains(id.code)) {
-        //     missing.push_back("Param " + ParameterTypeMapper::str(id.type.value()) + "::" + id.block + "::" + id.code.to_string());
-        //     continue;
-        // }
-        // sources.emplace(id, blk->retrieve(id.code));
 
         auto blk = ba->at(id.block);
 
         try {
-            // retrieve() doit déclencher le lazy ensure_up_to_date() côté block
             auto p = blk->retrieve(id.code);
             sources.emplace(id, p);
         } catch (...) {
@@ -86,17 +75,12 @@ void DependentBlockManager::addDependentParameter(
         throw std::invalid_argument(oss.str());
     }
 
-    // auto dependentParam = std::make_shared<DependentParameter>(pid, sources, recalculateFunc);
-    // dependentParam->init();
-    // dependentParam->update();
-
     auto ba = Parameters::GetInstance(pid.type.value())->blockAccessor;
     if (!ba->contains(pid.block)) {
         ba->emplace(pid.block, std::make_shared<Block>());
         ba->at(pid.block)->blockname = pid.block;
     }
-    // std::cout << "setting dep param : " << pid.block << " : " << pid.code << " = "<< *dependentParam << std::endl;
-    // ba->at(pid.block)->store_or_assign(pid.code, dependentParam);
+
     auto blk = ba->at(pid.block);
 
     if (blk->contains(pid.code)) {
@@ -104,14 +88,11 @@ void DependentBlockManager::addDependentParameter(
         if (auto dep = std::dynamic_pointer_cast<DependentParameter>(existing)) {
             dep->rebind(std::move(sources), recalculateFunc);
             dep->init();
-            // pas besoin de dep->update() : rebind met dirty + notify
             return;
         }
-        // sinon: cas dangereux (placeholder non-dependent). On peut soit throw, soit overwrite payload.
-        // throw std::logic_error("Expected placeholder DependentParameter for " + pid.code.to_string());
+
     }
 
-    // sinon il n'existe pas => création normale
     auto dependentParam = std::make_shared<DependentParameter>(pid, std::move(sources), recalculateFunc);
     dependentParam->init();
     dependentParam->update();
@@ -128,24 +109,11 @@ void DependentBlockManager::removeDependentBlock(const std::string &name,
         return;
     }
 
-    // Destroy the dependency subtree first: dependent blocks/parameters can
-    // still observe this block through shared_ptr-owned dependency edges.
     std::shared_ptr<Block> dep_block = accessor->at(name);
     if (dep_block) {
         dep_block->destroy();
     }
 
-    // IMPORTANT:
-    // BlockAccessor is alias-aware. Do not call unordered_map::erase directly.
-    // Direct erase removes the storage entry but leaves alias_to_key_ /
-    // key_to_name_ pointing to a now-missing key.
-    //
-    // That creates the exact crash observed in the benchmark:
-    //
-    //   contains("K_EW_SCALE") == true
-    //   at("K_EW_SCALE") -> std::out_of_range("unordered_map::at")
-    //
-    // Use erase_block() so both the storage and alias metadata are cleaned.
     accessor->erase_block(name);
 }
 

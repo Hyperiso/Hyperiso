@@ -34,7 +34,7 @@ NuisanceSamples = List[NuisanceSample]
 def _require(value, typ, name: str):
     """Validate a wrapper argument type and return the original value."""
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be {typ.__name__}, received {type(value)!r}.")
     return value
 
 

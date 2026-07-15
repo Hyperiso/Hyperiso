@@ -21,9 +21,13 @@ def normalize(text: str) -> str:
         raise ValueError("CLI output contains NaN or infinity")
     lines = [line.rstrip() for line in cleaned.splitlines()]
     try:
-        start = next(index for index, line in enumerate(lines) if SUMMARY_RE.fullmatch(line))
+        start = next(
+            index for index, line in enumerate(lines) if SUMMARY_RE.fullmatch(line)
+        )
     except StopIteration as exc:
-        raise ValueError("CLI output does not contain a supported summary header") from exc
+        raise ValueError(
+            "CLI output does not contain a supported summary header"
+        ) from exc
 
     stable = lines[start:]
     while stable and not stable[-1]:

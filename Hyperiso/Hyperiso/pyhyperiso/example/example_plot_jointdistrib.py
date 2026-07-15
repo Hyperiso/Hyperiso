@@ -79,7 +79,6 @@ def spearman_corr(U: np.ndarray) -> np.ndarray:
 
 
 def plot_hist_pdf(samples: np.ndarray, dist, name: str, outpath: str) -> None:
-    # grille basée sur quantiles pour être “smart”
     try:
         xlo = _safe_float(dist.ppf(0.001))
         xhi = _safe_float(dist.ppf(0.999))
@@ -188,7 +187,6 @@ def plot_heatmap(M: np.ndarray, title: str, outpath: str) -> None:
 
 
 def plot_joint_density_2d(jd, X: np.ndarray, title: str, outpath: str, grid: int = 120) -> None:
-    # heatmap exp(logpdf) sur une grille autour des quantiles empiriques
     x1 = X[:, 0]
     x2 = X[:, 1]
     q1 = np.quantile(x1, [0.002, 0.998])
@@ -219,7 +217,6 @@ def plot_joint_density_2d(jd, X: np.ndarray, title: str, outpath: str, grid: int
     plt.tight_layout()
     plt.savefig(outpath, dpi=200)
     plt.close()
-
 
 
 def main(

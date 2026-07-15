@@ -25,18 +25,18 @@ MarginalConfig MarginalConfigFactory::create(ParamId pid, MarginalType marginal)
         mu = (*parameter_proxy_)(pid, DataType::VALUE);
         sigma = (*parameter_proxy_)(pid, DataType::STD_COMBINED);
         return GaussianMarginalCfg {mu, sigma};
-        break;
     case MarginalType::FLAT:
         mu = (*parameter_proxy_)(pid, DataType::VALUE);
         sigma = (*parameter_proxy_)(pid, DataType::STD_COMBINED);
         return FlatMarginalCfg {mu - sigma * std::sqrt(3), mu + sigma * std::sqrt(3)};
-        break;
     case MarginalType::HALF_GAUSSIAN:
-        // MAJ : Update data structure to store asymmetric uncertainty
-        throw std::runtime_error("NYI");
+        throw std::logic_error(
+            "MarginalConfigFactory: HALF_GAUSSIAN parameter marginals are not implemented"
+        );
     case MarginalType::LIKELIHOOD:
-        // MAJ
-        throw std::runtime_error("NYI");
+        throw std::logic_error(
+            "MarginalConfigFactory: LIKELIHOOD parameter marginals are not implemented"
+        );
     default:
         throw std::invalid_argument("Unknown marginal type");
     }
@@ -69,29 +69,36 @@ MarginalConfig MarginalConfigFactory::create(ExperimentObs oid,
                                              MarginalType marginal) const {
     std::map<ExperimentObs, double> sigma =
         (*parameter_proxy_)(oid.obs, DataType::STD_COMBINED);
-    MarginalConfig out;
     switch (marginal) {
     case MarginalType::GAUSSIAN:
-        for (auto s : sigma) {
-            if (s.first == oid) {
-                out = GaussianMarginalCfg (0.0, s.second);
+        for (const auto& [experiment, uncertainty] : sigma) {
+            if (experiment == oid) {
+                return GaussianMarginalCfg {0.0, uncertainty};
             }
         }
-        return out;
-        break;
+        throw std::out_of_range(
+            "MarginalConfigFactory: no combined uncertainty found for the requested observable"
+        );
     case MarginalType::FLAT:
-        for (auto s : sigma) {
-            if (s.first == oid) {
-                out = FlatMarginalCfg {-s.second * std::sqrt(3), s.second * std::sqrt(3)};
+        for (const auto& [experiment, uncertainty] : sigma) {
+            if (experiment == oid) {
+                return FlatMarginalCfg {
+                    -uncertainty * std::sqrt(3),
+                    uncertainty * std::sqrt(3)
+                };
             }
         }
-        return out;
-        break;
+        throw std::out_of_range(
+            "MarginalConfigFactory: no combined uncertainty found for the requested observable"
+        );
     case MarginalType::HALF_GAUSSIAN:
-        // MAJ : Same as above
-        throw std::runtime_error("NYI");
+        throw std::logic_error(
+            "MarginalConfigFactory: HALF_GAUSSIAN observable marginals are not implemented"
+        );
     case MarginalType::LIKELIHOOD:
-        throw std::runtime_error("NYI");
+        throw std::logic_error(
+            "MarginalConfigFactory: LIKELIHOOD observable marginals are not implemented"
+        );
     default:
         throw std::invalid_argument("Unknown marginal type");
     }

@@ -498,7 +498,7 @@ std::string BlockAccessor::choose_key(const std::unordered_set<std::string>& ali
 
 
 void BlockAccessor::merge_name_into_key(const std::string& key, const BlockName& name) {
-    auto& full = key_to_name_[key]; // crée si absent (vide)
+    auto& full = key_to_name_[key];
     for (const auto& a : name.get_alias()) full.addAlias(a);
 
     for (const auto& a : full.get_alias()) {

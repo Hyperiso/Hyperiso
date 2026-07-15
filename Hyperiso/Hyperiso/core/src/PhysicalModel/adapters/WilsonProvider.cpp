@@ -1,5 +1,5 @@
 #include "WilsonProvider.h"
-#include "WilsonBuilder.h" // Théo is reponsible for this horror
+#include "WilsonBuilder.h"
 
 WilsonProvider::WilsonProvider(std::shared_ptr<WilsonBuilder> builder) : builder(builder), cm(builder->get_coefficient_manager()) {
     if (!cm) {
@@ -7,17 +7,13 @@ WilsonProvider::WilsonProvider(std::shared_ptr<WilsonBuilder> builder) : builder
     }
     
     if (cm->getGroups().empty()) {
-        LOG_DEBUG("(WilsonProvider) CoefficientManager does not contain any coefficient groups. Pretty sus.");
+        LOG_DEBUG("(WilsonProvider) CoefficientManager does not contain any coefficient groups.");
     }
 }
 
 scalar_t WilsonProvider::get(std::shared_ptr<AbstractConfig> config) {
     WilsonRequest request = *static_cast<WilsonRequest*>(config.get());
 
-    // if (UseMarty().get() && request.order > QCDOrder::LO) {
-    //     LOG_WARN("Trying to access coefficient at ", OrderMapper::str(request.order), "but coefficients were only calculated at LO (MARTY). Defaulting to LO.");
-    //     request.order = QCDOrder::LO;
-    // }
 
     ScaleType scale_type = request.scale_type;
 

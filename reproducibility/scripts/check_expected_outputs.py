@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+from decimal import Decimal, InvalidOperation
 import hashlib
 import json
 import math
@@ -19,7 +20,6 @@ FLOAT_RE = re.compile(
 NONFINITE_RE = re.compile(r"(?i)(?<![A-Za-z_])(?:nan|[-+]?inf(?:inity)?)(?![A-Za-z_])")
 ABSOLUTE_PATH_RE = re.compile(r"(?:^|\s)(?:/home/|/Users/|[A-Za-z]:\\)")
 SUMMARY_RE = re.compile(r"^== (?:Wilson|Observable|Statistic) summary ==$")
-
 
 
 def sha256(path: Path) -> str:
@@ -65,7 +65,9 @@ def validate_reference_metadata(expected: Path, manifest: dict[str, Any]) -> lis
             continue
         actual = sha256(path)
         if actual != recorded:
-            errors.append(f"SHA-256 mismatch for {name}: expected {recorded}, got {actual}")
+            errors.append(
+                f"SHA-256 mismatch for {name}: expected {recorded}, got {actual}"
+            )
     return errors
 
 
@@ -76,7 +78,9 @@ def validate_text(path: Path) -> list[str]:
     text = path.read_text(errors="replace")
     lines = text.splitlines()
     if not lines or not SUMMARY_RE.fullmatch(lines[0]):
-        errors.append("output is not normalized: expected a summary header on the first line")
+        errors.append(
+            "output is not normalized: expected a summary header on the first line"
+        )
     if ABSOLUTE_PATH_RE.search(text):
         errors.append("output contains a machine-specific absolute path")
     if NONFINITE_RE.search(text):
@@ -84,7 +88,9 @@ def validate_text(path: Path) -> list[str]:
     return errors
 
 
-def compare_text(ref_path: Path, out_path: Path, abs_tol: float, rel_tol: float) -> list[str]:
+def compare_text(
+    ref_path: Path, out_path: Path, abs_tol: float, rel_tol: float
+) -> list[str]:
     ref_lines = ref_path.read_text(errors="replace").splitlines()
     out_lines = out_path.read_text(errors="replace").splitlines()
     errors: list[str] = []
@@ -104,7 +110,9 @@ def compare_text(ref_path: Path, out_path: Path, abs_tol: float, rel_tol: float)
             )
             continue
 
-        for value_no, (ref_match, out_match) in enumerate(zip(ref_matches, out_matches), start=1):
+        for value_no, (ref_match, out_match) in enumerate(
+            zip(ref_matches, out_matches), start=1
+        ):
             expected = float(ref_match.group(0))
             obtained = float(out_match.group(0))
             if not (math.isfinite(expected) and math.isfinite(obtained)):
@@ -115,31 +123,36 @@ def compare_text(ref_path: Path, out_path: Path, abs_tol: float, rel_tol: float)
             elif not math.isclose(obtained, expected, rel_tol=rel_tol, abs_tol=abs_tol):
                 errors.append(
                     f"line {line_no} value {value_no} differs: expected {expected:.17g}, "
-                    f"got {obtained:.17g}, |diff|={abs(expected-obtained):.3g}, "
+                    f"got {obtained:.17g}, |diff|={abs(expected - obtained):.3g}, "
                     f"abs_tol={abs_tol:.3g}, rel_tol={rel_tol:.3g}"
                 )
     return errors
 
 
-def read_csv(path: Path, spec: dict[str, Any]) -> tuple[list[str], list[list[float]], list[str]]:
+def read_csv(
+    path: Path, spec: dict[str, Any]
+) -> tuple[list[str], list[list[str]], list[list[float]], list[str]]:
     errors: list[str] = []
     if not path.exists():
-        return [], [], [f"missing CSV {path}"]
+        return [], [], [], [f"missing CSV {path}"]
 
     with path.open(newline="") as handle:
         rows = list(csv.reader(handle))
     if not rows:
-        return [], [], ["CSV is empty"]
+        return [], [], [], ["CSV is empty"]
 
     header = rows[0]
     expected_columns = list(spec.get("columns", []))
     if expected_columns and header != expected_columns:
         errors.append(f"CSV columns differ: expected {expected_columns}, got {header}")
 
+    raw_data: list[list[str]] = []
     data: list[list[float]] = []
     for row_no, row in enumerate(rows[1:], start=2):
         if len(row) != len(header):
-            errors.append(f"CSV row {row_no} has {len(row)} columns; expected {len(header)}")
+            errors.append(
+                f"CSV row {row_no} has {len(row)} columns; expected {len(header)}"
+            )
             continue
         try:
             values = [float(value) for value in row]
@@ -149,23 +162,45 @@ def read_csv(path: Path, spec: dict[str, Any]) -> tuple[list[str], list[list[flo
         if not all(math.isfinite(value) for value in values):
             errors.append(f"CSV row {row_no} contains NaN or infinity")
             continue
+        raw_data.append(row)
         data.append(values)
 
     expected_rows = spec.get("rows")
     if expected_rows is not None and len(data) != int(expected_rows):
-        errors.append(f"CSV row count differs: expected {expected_rows}, got {len(data)}")
+        errors.append(
+            f"CSV row count differs: expected {expected_rows}, got {len(data)}"
+        )
 
     lower = spec.get("minimum")
     upper = spec.get("maximum")
     for row_no, values in enumerate(data, start=2):
         for column_no, value in enumerate(values, start=1):
             if lower is not None and value < float(lower):
-                errors.append(f"CSV row {row_no}, column {column_no} is below {lower}: {value}")
+                errors.append(
+                    f"CSV row {row_no}, column {column_no} is below {lower}: {value}"
+                )
             if upper is not None and value > float(upper):
-                errors.append(f"CSV row {row_no}, column {column_no} is above {upper}: {value}")
+                errors.append(
+                    f"CSV row {row_no}, column {column_no} is above {upper}: {value}"
+                )
             if len(errors) >= 20:
-                return header, data, errors
-    return header, data, errors
+                return header, raw_data, data, errors
+    return header, raw_data, data, errors
+
+
+def serialization_abs_tol(value: str) -> float:
+    """Return half the decimal unit represented by a frozen CSV field.
+
+    Older references were serialized with six significant digits. A newer writer
+    may preserve the full double without changing the underlying calculation.
+    This tolerance accepts only the rounding interval encoded by the frozen text.
+    """
+    try:
+        decimal_value = Decimal(value)
+    except InvalidOperation:
+        return 0.0
+    quantum = Decimal(1).scaleb(decimal_value.as_tuple().exponent)
+    return float(abs(quantum) * Decimal("0.5000001"))
 
 
 def compare_csv(
@@ -175,19 +210,27 @@ def compare_csv(
     abs_tol: float,
     rel_tol: float,
 ) -> list[str]:
-    ref_header, ref_data, ref_errors = read_csv(ref_path, spec)
-    out_header, out_data, out_errors = read_csv(out_path, spec)
+    ref_header, ref_raw, ref_data, ref_errors = read_csv(ref_path, spec)
+    out_header, _out_raw, out_data, out_errors = read_csv(out_path, spec)
     errors = [f"reference {error}" for error in ref_errors] + out_errors
     if errors:
         return errors
     if ref_header != out_header or len(ref_data) != len(out_data):
         return ["CSV reference and output shapes differ"]
-    for row_no, (ref_row, out_row) in enumerate(zip(ref_data, out_data), start=2):
-        for column_no, (expected, obtained) in enumerate(zip(ref_row, out_row), start=1):
-            if not math.isclose(obtained, expected, rel_tol=rel_tol, abs_tol=abs_tol):
+    for row_no, (ref_text_row, ref_row, out_row) in enumerate(
+        zip(ref_raw, ref_data, out_data), start=2
+    ):
+        for column_no, (expected_text, expected, obtained) in enumerate(
+            zip(ref_text_row, ref_row, out_row), start=1
+        ):
+            effective_abs_tol = max(abs_tol, serialization_abs_tol(expected_text))
+            if not math.isclose(
+                obtained, expected, rel_tol=rel_tol, abs_tol=effective_abs_tol
+            ):
                 errors.append(
                     f"CSV row {row_no}, column {column_no} differs: "
-                    f"expected {expected:.17g}, got {obtained:.17g}"
+                    f"expected {expected:.17g}, got {obtained:.17g}, "
+                    f"abs_tol={effective_abs_tol:.3g}, rel_tol={rel_tol:.3g}"
                 )
                 if len(errors) >= 20:
                     return errors
@@ -227,12 +270,14 @@ def main() -> int:
             if not reference_path.exists():
                 errors.append(f"missing frozen reference {reference_path}")
             elif output_path.exists():
-                errors.extend(compare_text(reference_path, output_path, abs_tol, rel_tol))
+                errors.extend(
+                    compare_text(reference_path, output_path, abs_tol, rel_tol)
+                )
 
         csv_spec = example.get("samples_csv")
         if csv_spec:
             csv_output = args.outputs / csv_spec["file"]
-            _, _, csv_errors = read_csv(csv_output, csv_spec)
+            _, _, _, csv_errors = read_csv(csv_output, csv_spec)
             errors.extend(csv_errors)
             if not args.validate_only:
                 csv_reference = args.expected / csv_spec["file"]

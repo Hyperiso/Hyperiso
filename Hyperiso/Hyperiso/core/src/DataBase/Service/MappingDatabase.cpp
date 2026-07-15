@@ -9,7 +9,7 @@ MappingDatabase::MappingDatabase(const std::string& instanceName, const std::str
     
     if (jsonFilePath.empty()) {
         std::cerr << "Instance " << instanceName
-                  << " introuvable et aucun chemin JSON fourni." << std::endl;
+                  << " was not found and no JSON path was provided." << std::endl;
     }
     
     if (!loader) {

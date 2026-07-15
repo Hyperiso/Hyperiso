@@ -22,7 +22,6 @@ void ParamOptimizer::commit(bool coalesce) {
 
     const auto plan = coalesce ? coalesce_ops_() : ops_;
 
-    // initial existence before modif (by block/id)
     std::unordered_map<std::pair<std::string,std::string>, bool, BAKeyHash> existed;
     existed.reserve(plan.size());
     for (const auto& v : plan) {
@@ -42,30 +41,27 @@ void ParamOptimizer::commit(bool coalesce) {
 
             if constexpr (std::is_same_v<T, OpSetValue>) {
                 if (had) {
-                    blk->assign(op.id, op.value);          // notify but frozen
+                    blk->assign(op.id, op.value); 
                 } else {
                     blk->store(op.id, std::make_shared<Parameter>(ParamId(blk->get_name(), op.id), op.value, 0., 0.));
-                    blocks_needing_notify.insert(blk);      // store does not notify, notify block at the end
+                    blocks_needing_notify.insert(blk);
                 }
             } else if constexpr (std::is_same_v<T, OpSetParam>) {
                 if (had) {
-                    blk->assign(op.id, op.param);           // notify but frozen
+                    blk->assign(op.id, op.param); 
                 } else {
                     blk->store(op.id, op.param);
                     blocks_needing_notify.insert(blk);
                 }
             } else if constexpr (std::is_same_v<T, OpRemove>) {
                 if (!had) {
-                    //remove of key which wasn't here initialy, ignore
                     return;
                 }
-                // real remove, destroy obs, no notif planned then
                 blk->remove(op.id);
             }
         }, v);
     }
 
-    //1 notif per block
     for (const auto& blk : blocks_needing_notify) {
         if (blk) blk->notifyObservers();
     }
@@ -82,7 +78,7 @@ std::vector<ParamOptimizer::Op> ParamOptimizer::coalesce_ops_() const {
     for (std::size_t i = 0; i < ops_.size(); ++i) {
         const auto& v = ops_[i];
         std::visit([&](auto&& op){
-            last[{op.block, op.id.to_string()}] = i; // last winning
+            last[{op.block, op.id.to_string()}] = i;
         }, v);
     }
     std::vector<std::size_t> idx; idx.reserve(last.size());

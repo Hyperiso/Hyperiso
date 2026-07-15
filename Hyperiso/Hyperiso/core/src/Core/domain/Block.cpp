@@ -1,10 +1,6 @@
 #include "Block.h"
 #include "SourcesView.h"
 
-// void Block::addObserver(std::shared_ptr<Block> observer) {
-//     observers.push_back(observer);
-// }
-
 void Block::addObserver(std::shared_ptr<Block> observer) {
     auto it = std::find_if(observers.begin(), observers.end(),
         [&](const std::shared_ptr<Block>& p){ return p.get() == observer.get(); });
@@ -80,21 +76,6 @@ void Block::erase_local(const LhaID& id) {
     this->items.erase(id);
 }
 
-
-// void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
-
-//     auto& dst = this->items.at(key);
-//     dst->overwrite_payload_from(*param);
-
-//     dst->notifyObservers();
-
-//     LOG_DEBUG("Call to notifyObservers from Block::assign(shared_ptr) of", blockname);
-//     notifyObservers();
-// }
-
 void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     if (!this->contains(key)) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
@@ -102,8 +83,8 @@ void Block::assign(const LhaID& key, std::shared_ptr<Parameter> param) {
     auto& dst = this->items.at(key);
     dst->overwrite_payload_from(*param);
 
-    dst->notifyObservers(); // ✅ notifie déjà param observers + owner_block observers
-    // notifyObservers();    // ❌ à supprimer
+    dst->notifyObservers();
+
 }
 
 void Block::assign(const LhaID& key, scalar_t value) {
@@ -111,21 +92,8 @@ void Block::assign(const LhaID& key, scalar_t value) {
         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
     }
     auto& p = this->items.at(key);
-    p->set_expected(value); // ✅ notifie déjà: param observers + block observers
-    // notifyObservers();    // ❌ à supprimer
+    p->set_expected(value);
 }
-
-// void Block::assign(const LhaID& key, scalar_t value) {
-//     if (!this->contains(key)) {
-//         LOG_ERROR("KeyError", "Cannot update non-existing parameter", key.to_string(), "in block", this->blockname);
-//     }
-
-//     auto& p = this->items.at(key);
-//     p->set_expected(value);
-
-//     LOG_DEBUG("Call to notifyObservers from Block::assign(const LhaID&, double) of", blockname);
-//     notifyObservers();
-// }
 
 void Block::store_or_assign(const LhaID& id, std::shared_ptr<Parameter> param) {
     if (!contains(id)) {
@@ -349,24 +317,6 @@ void DependentBlock::destroy() {
     }
 }
 
-
-// void DependentBlock::mark_dirty() {
-//     if (dirty) return;
-//     dirty = true;
-
-//     for (auto& obs : observers) {
-//         if (auto dep = std::dynamic_pointer_cast<DependentBlock>(obs)) {
-//             dep->mark_dirty();
-//         }
-//     }
-
-//     for (auto& [_, p] : items) {
-//         if (p) p->notifyObservers();
-//     }
-
-//     return;
-// }
-
 void DependentBlock::detach() {
     if (dependency_detached) return;
 
@@ -420,17 +370,14 @@ void DependentBlock::mark_dirty() {
     if (dirty) return;
     dirty = true;
 
-    // 1) Propage le "dirty" aux DependentBlocks downstream
     for (auto& obs : observers) {
         if (auto dep = std::dynamic_pointer_cast<DependentBlock>(obs)) {
             dep->mark_dirty();
         }
     }
 
-    // 2) Propage le "dirty" aux DependentParameters qui dépendent de nos params,
-    //    sans spammer les DependentBlocks observers.
     for (auto& [_, p] : items) {
-        if (p) p->notifyParamObserversOnly();  // ✅ au lieu de notifyObservers()
+        if (p) p->notifyParamObserversOnly();
     }
 }
 
@@ -460,7 +407,6 @@ void DependentBlock::ensure_up_to_date_impl() {
         if (p) p->notifyParamObserversOnly();
     }
 
-    // 2) prévenir les DependentBlocks qui observent ce block (UNE seule fois)
     notifyObservers();
 }
 

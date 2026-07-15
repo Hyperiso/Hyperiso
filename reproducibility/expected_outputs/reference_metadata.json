@@ -7,10 +7,10 @@
       "sha256": "c0976401d27f33df760035e523aeadc56ee110c69fb7fd0e8cff20d874a4f425"
     },
     "statistics_samples.csv": {
-      "sha256": "c584a1057f67e786c7f3044ec2c2fab668030ad57895bff2c6d5b2e338f2ff41"
+      "sha256": "27e619e1343b9c3c24fe57cdafb91fa1ba945bd84b13f651f800d3b5a19cc798"
     },
     "statistics_sm_seed123456.txt": {
-      "sha256": "62c9e4e710e762e04eaef6a070359aa777c1cfa617f2518e73904f775f0cc5fe"
+      "sha256": "d4e91a148c1350b4608b622b8b593b2c99cc06986f33b4042b1c5ce9f499afe1"
     },
     "wilson_b_sm_nnlo.txt": {
       "sha256": "de137e041d0a8e8612751d95ca9fac2b916c50d33dd4f72d2d6ba7b069958745"
@@ -19,12 +19,10 @@
       "sha256": "0ea586dee2af2d7a6b8e4497cd45d967d068ef87e3cf818790e5f409e418c2ce"
     }
   },
-  "generated_utc": "2026-07-14T19:35:20.597786+00:00",
+  "generated_utc": "2026-07-15T08:21:50.181104+00:00",
   "hyperiso_version": "1.0.0",
   "normalization": "startup banner and machine-specific paths removed",
-  "outputs_archive_sha256": "9e0bd656ae6d2c4ee9dbc9081d9675b77f8a6710d901ab952401f14bfa4d1516",
-  "provenance_note": "The release CI rebuilds the final source and must match these frozen values before publication.",
-  "reference_origin": "User-provided release-candidate outputs, normalized and validated",
-  "source_archive_sha256": "fd751a3e74c54a5474e1c9736096cce88f01122b89946f67ecfc3c620903e63e",
+  "provenance_note": "Release CI rebuilds the final source and must match all frozen values before publication.",
+  "reference_origin": "first 200 accepted samples from the validated seed-123456 release-candidate run",
   "suite": "HyperIso CPC reference reproducibility suite"
 }

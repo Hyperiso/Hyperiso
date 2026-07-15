@@ -12,7 +12,6 @@
 #include "Include.h"
 #include "SourcesView.h"
 
-// petit helper
 static std::shared_ptr<Parameter> mkp(ParameterType type, const std::string& blk, long code, double v){
     return std::make_shared<Parameter>(ParamId{type, blk, LhaID(code)}, v, 0.0, 0.0);
 }
@@ -24,7 +23,6 @@ static void print_block(BlockAccessor& ba, const std::string& name) {
         return;
     }
     auto blk = ba.at(name);
-    // getAllIDs() / getItems() doivent déclencher ensure_up_to_date() si nécessaire
     auto ids = blk->getAllIDs();
     std::cout << "IDs: ";
     for (auto& id : ids) std::cout << id.to_string() << " ";
@@ -37,25 +35,21 @@ static void print_block(BlockAccessor& ba, const std::string& name) {
 int main() {
     std::cout << "== Deep dependency graph smoke test ==\n";
 
-    // IDs
-    LhaID ID_X(100);   // valeur "principale"
-    LhaID ID_P1(200);  // param dérivé 1
-    LhaID ID_P2(201);  // param dérivé 2
-    LhaID ID_SUM(300); // entrée dans SUM
-    LhaID ID_POST(400);// entrée dans POST
+    LhaID ID_X(100);
+    LhaID ID_P1(200);
+    LhaID ID_P2(201);
+    LhaID ID_SUM(300);
+    LhaID ID_POST(400);
 
-    // 1) Blocks sources A/B
     auto A = std::make_shared<Block>(); A->blockname = "SRC_A";
     auto B = std::make_shared<Block>(); B->blockname = "SRC_B";
     A->store(ID_X, mkp(ParameterType::SM, "SRC_A", 100, 1.0));
     B->store(ID_X, mkp(ParameterType::SM, "SRC_B", 100, 2.0));
 
-    // 2) BlockAccessor global
     auto acc = std::make_shared<BlockAccessor>();
     acc->emplace("SRC_A", A);
     acc->emplace("SRC_B", B);
 
-    // 3) DependentBlock SUM: SUM[300] = A[100] + B[100]
     auto depSUM = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SRC_A", A},
@@ -71,14 +65,11 @@ int main() {
     );
     depSUM->blockname = "SUM";
     depSUM->init();
-    // on ne force PAS update ici : on veut tester le lazy
     acc->emplace("SUM", depSUM);
 
-    // 4) Block "DERIVED" qui va contenir des DependentParameter
     auto DER = std::make_shared<Block>(); DER->blockname = "DERIVED";
     acc->emplace("DERIVED", DER);
 
-    // 4a) DependentParameter P1 dans DERIVED: P1 = 10*A
     {
         ParamId pid{ParameterType::SM, "DERIVED", ID_P1};
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> srcs;
@@ -93,20 +84,15 @@ int main() {
             }
         );
         P1->init();
-        // lazy => on ne calcule pas ici; get_val déclenchera
         DER->store_or_assign(ID_P1, P1);
     }
 
-    // 4b) DependentParameter P2 dans DERIVED: P2 = SUM[300] + P1
     {
         ParamId pid{ParameterType::SM, "DERIVED", ID_P2};
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> srcs;
 
-        // source SUM[ID_SUM] : comme SUM est un Block, on récupère le Parameter via retrieve
-        // IMPORTANT: retrieve doit déclencher ensure_up_to_date si besoin
         srcs.emplace(ParamId{ParameterType::SM, "SUM", ID_SUM}, depSUM->retrieve(ID_SUM));
 
-        // source P1 (dans DERIVED)
         srcs.emplace(ParamId{ParameterType::SM, "DERIVED", ID_P1}, DER->retrieve(ID_P1));
 
         auto P2 = std::make_shared<DependentParameter>(
@@ -121,7 +107,6 @@ int main() {
         DER->store_or_assign(ID_P2, P2);
     }
 
-    // 5) DependentBlock POST: POST[400] = 3*SUM[300] + P2
     auto depPOST = std::make_shared<DependentBlock>(
         std::unordered_map<std::string, std::shared_ptr<Block>>{
             {"SUM", depSUM},
@@ -141,13 +126,8 @@ int main() {
     depPOST->init();
     acc->emplace("POST", depPOST);
 
-    // ============================
-    // TESTS / TRACES
-    // ============================
 
     std::cout << "\n[1] Test lazy via contains() sur blocks dependants\n";
-    // si ton Block::contains déclenche ensure_up_to_date pour DependentBlock,
-    // alors SUM contient déjà ID_SUM même si personne n’a fait get_val
     bool sum_has = acc->at("SUM")->contains(ID_SUM);
     std::cout << "SUM contains(300) = " << sum_has << "\n";
     assert(sum_has && "SUM should materialize on contains()");
@@ -191,9 +171,9 @@ int main() {
 
     std::cout << "\n[4] Freeze: freeze POST, mutate B, POST doit rester stable\n";
     acc->at("POST")->freeze();
-    acc->setValue("SRC_B", ID_X, 10.0); // SUM devrait devenir 17, etc. mais POST frozen
+    acc->setValue("SRC_B", ID_X, 10.0);
 
-    double sum2  = acc->getValue("SUM", ID_SUM); // 7+10=17 (SUM pas frozen)
+    double sum2  = acc->getValue("SUM", ID_SUM);
     double post2 = acc->getValue("POST", ID_POST);
 
     std::cout << "SUM  = " << sum2  << " (expected 17)\n";
@@ -205,7 +185,6 @@ int main() {
     acc->at("POST")->unfreeze();
     double post3 = acc->getValue("POST", ID_POST);
 
-    // avec A=7,B=10 => SUM=17, P1=70, P2=87, POST=3*17+87=138
     std::cout << "POST = " << post3 << " (expected 138)\n";
     assert(std::abs(post3 - 138.0) < 1e-12);
 
@@ -218,23 +197,15 @@ int main() {
 
     std::cout << "\n[7] Remove source parameter A[100] then check behavior\n";
 
-    // 7.1: supprimer le param dans SRC_A
     acc->remove_item("SRC_A", ID_X);
 
-    // SUM dépend de A+B => la prochaine lecture doit throw
     bool threw = !acc->at("SUM")->contains(300);
-    // try {
-    //     (void)acc->getValue("SUM", ID_SUM);
-    // } catch (const std::exception& e) {
-    //     threw = true;
-    //     std::cout << "Expected throw SUM after remove SRC_A[100]: " << e.what() << "\n";
-    // }
     assert(threw);
 
 
     threw = !acc->at("DERIVED")->contains(ID_P1);
 
     assert(threw);
-    std::cout << "\n✅ Deep dependency graph smoke test passed.\n";
+    std::cout << "\n Deep dependency graph smoke test passed.\n";
     return 0;
 }

@@ -131,9 +131,7 @@ class LikelihoodMarginalConfig:
     def __post_init__(self) -> None:
         """Validate the empirical likelihood support."""
         if len(self.values) != len(self.weights):
-            raise ValueError(
-                "LikelihoodMarginalConfig: values et weights doivent avoir la même taille."
-            )
+            raise ValueError("LikelihoodMarginalConfig: values et weights must have the same size.")
 
     def to_cpp(self) -> Any:
         """Build a bound C++ ``LikelihoodMarginalCfg`` instance."""

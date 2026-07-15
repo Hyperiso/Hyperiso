@@ -32,7 +32,6 @@ void BKstarllDecay::load_params() {
     cache.m_s = (*p)(ParamId{ParameterType::SM, "MASS", 3}, DataType::VALUE);
     cache.mu_b = (*p)(ParamId{ParameterType::WILSON, "B_SCALE", 1}, DataType::VALUE);
     cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig(cache.mu_b, MassType::POLE, MassType::POLE));
-    // cache.m_c_mu_b = (*ports.iobs_qcdp)(MassConfig(4, cache.mu_b, MassType::MSBAR, MassType::POLE));
     cache.m_c_mu_b = (*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE); // ASK : To match SI, should probably be m_c(mu_b) instead
     cache.m_b_mu_b = (*iobs_qcdp)(MassConfig(5, cache.mu_b, MassType::MSBAR, MassType::POLE));
     double mu_f = sqrt(cache.mu_b * (*p)(ParamId{ParameterType::DECAY, "B_Ks", 14}, DataType::VALUE));
@@ -60,54 +59,11 @@ void BKstarllDecay::load_params() {
     load_cfg_dependent_params();
 }
 
-// void BKstarllDecay::fill_wilson_cache() {
-//     auto b_wilsons = w_proxy->getAFR(WGroup::B, this->w_config.order);
-//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-//     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
-//     // All BPrime coefficients are cached because CPQ1/CPQ2 are lepton-specific.
-
-//     for (auto p : b_wilsons) cache.C.emplace(p); 
-//     for (auto p : bq_wilsons) cache.C.emplace(p);
-//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
-// }
-
-// void BKstarllDecay::fill_wilson_cache() {
-//     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
-//     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
-//     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
-
-//     static std::size_t dbg = 0;
-//     if (dbg < 20) {
-//         std::cout << "[DECDBG] fill_wilson_cache call=" << dbg << "\n";
-//         std::cout << "[DECDBG] B:C9   = " << b_wilsons.at(WCoef::C9) << "\n";
-//         std::cout << "[DECDBG] B:C10  = " << b_wilsons.at(WCoef::C10) << "\n";
-//         std::cout << "[DECDBG] BP:CP9 = " << bp_wilsons.at(WCoef::CP9) << "\n";
-//         std::cout << "[DECDBG] BP:CP10= " << bp_wilsons.at(WCoef::CP10) << "\n";
-//     }
-//     ++dbg;
-
-//     // All BPrime coefficients are cached because CPQ1/CPQ2 are lepton-specific.
-
-//     for (auto p : b_wilsons) cache.C.emplace(p);
-//     for (auto p : bq_wilsons) cache.C.emplace(p);
-//     for (auto id : bp_cached) cache.C.emplace(std::pair{id, bp_wilsons.at(id)});
-// }
-
 void BKstarllDecay::fill_wilson_cache() {
     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
 
-    // static std::size_t dbg = 0;
-    // if (dbg < 20) {
-    //     std::cout << "[DECDBG] fill_wilson_cache call=" << dbg << "\n";
-    //     std::cout << "[DECDBG] source B:C9   = " << b_wilsons.at(WCoef::C9) << "\n";
-    //     std::cout << "[DECDBG] source B:C10  = " << b_wilsons.at(WCoef::C10) << "\n";
-    //     std::cout << "[DECDBG] source BP:CP9 = " << bp_wilsons.at(WCoef::CP9) << "\n";
-    //     std::cout << "[DECDBG] source BP:CP10= " << bp_wilsons.at(WCoef::CP10) << "\n";
-    // }
-
-    // CRUCIAL: on repart d'un cache vide, sinon emplace garde les vieilles valeurs
     cache.C.clear();
 
     for (const auto& [coef, val] : b_wilsons) {
@@ -120,14 +76,6 @@ void BKstarllDecay::fill_wilson_cache() {
     for (const auto& [coef, val] : bp_wilsons) {
         cache.C[coef] = val;
     }
-
-    // if (dbg < 20) {
-    //     std::cout << "[DECDBG] cache  B:C9   = " << cache.C.at(WCoef::C9) << "\n";
-    //     std::cout << "[DECDBG] cache  B:C10  = " << cache.C.at(WCoef::C10) << "\n";
-    //     std::cout << "[DECDBG] cache  BP:CP9 = " << cache.C.at(WCoef::CP9) << "\n";
-    //     std::cout << "[DECDBG] cache  BP:CP10= " << cache.C.at(WCoef::CP10) << "\n";
-    // }
-    // ++dbg;
 }
 
 void BKstarllDecay::load_cfg_dependent_params() {
@@ -305,74 +253,6 @@ void BKstarllDecay::load_cfg_dependent_params() {
         }
     }
 
-    // double q2 = 14.0;
-
-    // printf("alpha_em = %.4e\n", cache.alpha_em);
-    // printf("kappa = %.4e\n", cache.kappa);
-    // printf("N_0 = %.4e + %.4e i\n", std::real(cache.N_0 * std::sqrt(q2 * std::sqrt(lambda(q2)) * beta_l(q2))), std::imag(cache.N_0 * std::sqrt(q2 * std::sqrt(lambda(q2)) * beta_l(q2))));
-
-    // double sh = q2 / std::pow(cache.m_b_PS, 2);
-
-    // printf("mb_PS = %.4e\n", cache.m_b_PS);
-    // printf("A = %.4e + %.4e i\n", real(BV::A_Seidel(sh, cache.L_b)), imag(BV::A_Seidel(sh, cache.L_b)));
-    // printf("B = %.4e + %.4e i\n", real(BV::B_Seidel(sh, cache.L_b)), imag(BV::B_Seidel(sh, cache.L_b)));
-    // printf("C = %.4e + %.4e i\n", real(BV::C_Seidel(q2, cache.mu_b)), imag(BV::C_Seidel(q2, cache.mu_b)));
-    // printf("alpha_s_mu_b = %.4e\n", cache.alpha_s_mu_b);
-    // printf("m_b_mu_b = %.4e\n", cache.m_b_mu_b);
-    // printf("kappa = %.4e\n", cache.kappa);
-
-    // LOG_INFO("Anchor");
-    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
-    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
-    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
-
-    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
-    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
-    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
-    // exit(0);
-
-    // complex_t ALperp = A_perp(q2, -1, false);
-    // complex_t ARperp = A_perp(q2, 1, false);
-    // complex_t ALpar = A_par(q2, -1, false);
-    // complex_t ARpar = A_par(q2, 1, false);
-    // complex_t AL0 = A_0(q2, -1, false);
-    // complex_t AR0 = A_0(q2, 1, false);
-    // complex_t At = A_t(q2, false);
-    // complex_t AS = A_S(q2, false);
-
-    // complex_t ALperp = A_perp(q2, -1, true);
-    // complex_t ARperp = A_perp(q2, 1, true);
-    // complex_t ALpar = A_par(q2, -1, true);
-    // complex_t ARpar = A_par(q2, 1, true);
-    // complex_t AL0 = A_0(q2, -1, true);
-    // complex_t AR0 = A_0(q2, 1, true);
-    // complex_t At = A_t(q2, true);
-    // complex_t AS = A_S(q2, true);
-
-    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
-	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
-	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
-	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
-	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
-	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
-	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
-	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
-    // exit(0);
-
-    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
-    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
-    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
-    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
-    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
-    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
-    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
-    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
-    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
-    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
-    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
-    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
-    // exit(0);
-    
     test_J();
 
     compute_binned_J_i();
@@ -455,8 +335,6 @@ complex_t BKstarllDecay::delta_A_perp_QCDf(double q2, double sign, bool bar) {
         size_t id = size_t (0.5 * (1 + sign));
         guesstimate_err = 1.0 + cache.a_k_low[id] * std::exp(I * cache.phi_k_low[id]) + cache.b_k_low[id] * std::exp(I * cache.theta_k_low[id]) * q2 / 6.0;
     }
-
-    // LOG_INFO("Guesstimate error in delta_A_perp_QCDf = ", guesstimate_err);
 
     return 2 * RT2 * (cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI)) * N(q2, bar) * std::sqrt(lambda(q2)) / q2 * T_perp_p_cached(q2, bar) * guesstimate_err + delta_A;
 }
@@ -543,12 +421,6 @@ complex_t BKstarllDecay::A_perp_low(double q2, double sign, bool bar) {
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    // printf("----- A_perp -----\n");
-    // printf("pref = %.4e + %.4e i\n", real(N(q2, bar) * std::sqrt(2 * lambda(q2))), imag(N(q2, bar) * std::sqrt(2 * lambda(q2))));
-    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
-
     return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
@@ -578,12 +450,6 @@ complex_t BKstarllDecay::A_par_low(double q2, double sign, bool bar) {
         delta_A = delta_A_par(q2, sign, bar);
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
-
-    // printf("----- A_par -----\n");
-    // printf("pref = %.4e + %.4e i\n", real(-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks)), imag(-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks)));
-    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
 
     return (-N(q2, bar) * std::sqrt(2.) * (cache.m_B * cache.m_B - cache.m_Ks * cache.m_Ks) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
@@ -619,12 +485,6 @@ complex_t BKstarllDecay::A_0_low(double q2, double sign, bool bar) {
         delta_A = delta_A_0(q2, sign, bar);
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
-
-    // printf("----- A_0 -----\n");
-    // printf("pref = %.4e + %.4e i\n", real(-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2))), imag(-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2))));
-    // printf("F_V = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
 
     return (-N(q2, bar) / (2. * cache.m_Ks * std::sqrt(q2)) * (F + 2. * m_b_local * F_T) + delta_A) * had_err_factor;
 }
@@ -691,8 +551,6 @@ complex_t BKstarllDecay::delta_A_0_QCDf(double q2, double sign, bool bar) {
     const double mK2 = cache.m_Ks * cache.m_Ks;
     const double f = lambda(q2) / ((mB2 - mK2) * mB2);
 
-    // Hot path: reuse the lookup/interpolation tables instead of re-triggering the
-    // full QCDf calculator inside the binned integrations.
     const complex_t Tperp_m = T_perp_m_cached(q2, bar);
     const complex_t Tpar_m  = T_par_m_cached(q2, bar);
 
@@ -763,15 +621,6 @@ complex_t BKstarllDecay::A_perp_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) + (bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] + cache.C[WCoef::CP10];
     if (bar) C10 = std::conj(C10);
-
-    // printf("C7eff = %.4e + %.4e i\n", std::real(C7_eff(q2, bar)), std::imag(C7_eff(q2, bar)));
-    // printf("C9eff = %.4e + %.4e i\n", std::real(C9_eff(q2, bar)), std::imag(C9_eff(q2, bar)));
-    // printf("m_B = %.4e\n", cache.m_B);
-    // printf("m_Kstar = %.4e\n", cache.m_Ks);
-    // printf("N0 = %.4e + %.4e i\n", real(cache.N_0), imag(cache.N_0));
-    // printf("N/N0 = %.4e\n", std::real(N(q2, bar) / cache.N_0));
-    // printf("N = %.4e + %.4e i\n", std::real(N(q2, bar)), std::imag(N(q2, bar)));
-    // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
 
     return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_mb * cache.m_B / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.a_k_high[size_t (0.5 * (1 + sign))] * std::exp(I * cache.phi_k_high[size_t (0.5 * (1 + sign))]));
 }
@@ -934,13 +783,7 @@ double BKstarllDecay::J9(double q2, bool bar) {
 }
 
 void BKstarllDecay::compute_binned_J_i() {
-    // One pass per bin and per CP-conjugation:
-    // - evaluate the 8 transversity amplitudes once per q2 point
-    // - derive all J_i from those amplitudes
-    // - accumulate every needed binned integral together
-    //
-    // This removes the previous "15 separate adaptive integrals per bin" pattern,
-    // which was recomputing the same amplitudes over and over.
+
     static constexpr std::array<double, 24> GL24_X {{
         -0.99518721999702131, -0.97472855597130947, -0.93827455200273280, -0.88641552700440107,
         -0.82000198597390295, -0.74012419157855436, -0.64809365193697555, -0.54542147138883956,
@@ -1123,19 +966,8 @@ void BKstarllDecay::compute_binned_J_i() {
     fill_binned(cache.J_i_bar_binned, true);
 }
 
-// std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
-//     std::vector<ObservableValue> out;
-//     auto J_i = bar ? cache.J_i_bar_binned : cache.J_i_binned;
-//     double br_factor = br ? cache.life_B : 1.0;
-//     for (size_t i = 0; i < this->bins.value().size(); i++) {
-//         double res = 0.75 * (cache.J_i_binned[0][i] + cache.J_i_bar_binned[0][i] - (2 * (cache.J_i_binned[1][i] + cache.J_i_bar_binned[1][i]) + cache.J_i_binned[2][i] + cache.J_i_bar_binned[2][i]) / 3.) * br_factor; 
-//         out.emplace_back(ObservableMapper::to_id(id), res, this->bins.value()[i]);
-//     }   
-//     return out;
-// }
-
 std::vector<ObservableValue> BKstarllDecay::dBR_dq2_binned(bool bar, Observables id, bool br) {
-    (void)bar; // current public observables are CP-averaged: B + Bbar, then /2 below.
+    (void)bar;
 
     std::vector<ObservableValue> out;
     const auto& bins = this->bins.value();

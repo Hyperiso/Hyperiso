@@ -23,7 +23,7 @@ CovarianceTransformer::transform(const std::map<ParamId, double>& ids) {
         for (const auto& elem2 : ids) {
             out[elem.first][elem2.first] =
                 (*corr_proxy)(elem.first, elem2.first,
-                              CorrelationProvider::CorrelationType::STAT); // TODO Theo : correlation for copula
+                              CorrelationProvider::CorrelationType::STAT); // v1.1 : correlation for copula
         }
     }
 
@@ -54,7 +54,7 @@ CovarianceTransformer::transform(const std::map<ExperimentObs, double>& ids) {
         for (const auto& elem2 : ids) {
             out[elem.first][elem2.first] =
                 (*corr_proxy)(elem.first, elem2.first,
-                              CorrelationProvider::CorrelationType::STAT); // TODO Theo : correlation for copula
+                              CorrelationProvider::CorrelationType::STAT); // v1.1 : correlation for copula
         }
     }
 
@@ -70,7 +70,7 @@ CovarianceTransformer::transform(const std::string& experiment,
         for (const auto& elem2 : ids) {
             out[elem.first][elem2.first] =
                 (*corr_proxy)(experiment, elem.first, elem2.first,
-                              CorrelationProvider::CorrelationType::STAT); // TODO Theo : correlation for copula
+                              CorrelationProvider::CorrelationType::STAT); // v1.1 : correlation for copula
         }
     }
 
@@ -99,7 +99,7 @@ std::vector<ParamId> CovarianceTransformer::check_if_corr(const std::vector<Para
     std::vector<ParamId> out;
 
     for (const auto& elem : ids) {
-        if ((*par_proxy)(elem, DataType::STD_STAT) > 0) { // TODO : eps 1e-50 ? ?
+        if ((*par_proxy)(elem, DataType::STD_STAT) > 0) { // v1.1 : eps 1e-50 ? ?
             out.push_back(elem);
         }
     }

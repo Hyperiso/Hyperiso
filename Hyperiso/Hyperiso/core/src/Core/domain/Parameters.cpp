@@ -9,7 +9,6 @@ std::map<ParameterType, std::shared_ptr<Parameters>> Parameters::instances;
 std::map<ParameterType, std::shared_ptr<Parameters>> ParametersFactory::instances;
 
 std::shared_ptr<Parameters> Parameters::GetInstance(ParameterType id) {
-    // LOG_INFO("Trying to access Parameters instance of type", static_cast<int>(id));
     if (auto* ctx = ParameterRuntimeContext::current()) {
         const auto& allowed = ctx->parameter_types();
         if (std::find(allowed.begin(), allowed.end(), id) == allowed.end())
@@ -42,10 +41,6 @@ Parameters::Parameters(std::shared_ptr<ModelStrategy> modelStrategy)
 }
 
 scalar_t Parameters::operator()(const BlockName& block, LhaID id) const {
-    // if (block == "WPARAM_MATCH_SM" ){
-
-    //     std::cout << blockAccessor << std::endl; 
-    // }
     return blockAccessor->getValue(block, id);
 }
 
@@ -157,7 +152,6 @@ std::unordered_set<BlockName> Parameters::init_blocks(ParameterType type) {
 
 void Parameters::freeze_block(const BlockName &blockName) {
     if (!blockAccessor->contains(blockName)) {
-        // std::cout << blockAccessor << std::endl;
         LOG_INFO(blockAccessor);
         LOG_ERROR("Cannot freeze non-existing block", blockName);
     }
@@ -264,7 +258,6 @@ void add_wilson_b_scale_from_nuisance()
     {
         const double x_b = src.get_val("SCALE_NUIS", 2);
 
-        // QCDHelper::Init() doit déjà avoir créé ce bloc.
         const double m_b_pole = src.get_val("QCD", LhaID(5, 2));
 
         const double mu_b = superiso_scale(m_b_pole, x_b);

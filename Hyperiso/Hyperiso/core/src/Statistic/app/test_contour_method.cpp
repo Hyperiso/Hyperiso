@@ -308,14 +308,11 @@ static std::shared_ptr<BaseLikelihood> build_test_likelihood(
 
     ctx->exp_obs_values = kgm.y;
 
-    // exp_obs_dist est la distribution des résidus r = f(p, eta) - y,
-    // donc elle est centrée en 0.
     ctx->exp_obs_dist = make_independent_gaussian_joint(
         Vec(kgm.y.size(), 0.0),
         kgm.obs_sigmas
     );
 
-    // nuisance_dist est centrée en eta0.
     ctx->nuisance_dist = make_independent_gaussian_joint(
         kgm.eta0,
         kgm.eta_sigmas
@@ -396,11 +393,8 @@ int main(int argc, char** argv) {
 
             const Vec p = {p0, p1};
 
-            // Vraie brique de ton pipeline :
-            // BaseLikelihood + JointDistribution::curvature + GradientHelper::laplace_profile_eta.
             const LaplaceProfileComputation lap = laplace_profile_eta(*like, p);
 
-            // Référence analytique connue pour ce modèle linéaire-gaussien.
             const double exact_profiled =
                 kgm.exact_profiled_nll_using_base_constant(*like, p);
 

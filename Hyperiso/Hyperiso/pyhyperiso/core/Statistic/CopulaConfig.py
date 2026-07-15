@@ -127,7 +127,7 @@ class StudentTCopulaConfigPy:
     def __post_init__(self) -> None:
         """Validate the number of degrees of freedom."""
         if int(self.nu) <= 0:
-            raise ValueError("StudentTCopulaConfigPy.nu doit être > 0")
+            raise ValueError("StudentTCopulaConfigPy.nu must be > 0")
 
     def to_cpp(self) -> Any:
         """Build the bound C++ ``StudentTCopulaConfig`` object.

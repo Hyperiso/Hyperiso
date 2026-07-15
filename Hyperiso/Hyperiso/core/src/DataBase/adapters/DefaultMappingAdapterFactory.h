@@ -55,7 +55,7 @@ public:
         }
 
         auto db = std::make_shared<MappingDatabase>(MappingDatabase(instanceName, jsonFilePath, loader));
-        if (!db) throw std::runtime_error("DefaultMappingAdapterFactory: DB introuvable");
+        if (!db) throw std::runtime_error("DefaultMappingAdapterFactory: database is unavailable");
 
         return std::make_shared<DefaultMappingDatabaseAdapter>(instanceName, db);
     }

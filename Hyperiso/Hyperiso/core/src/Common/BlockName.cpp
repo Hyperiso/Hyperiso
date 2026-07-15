@@ -35,7 +35,6 @@ std::string BlockName::to_string() const {
 }
 
 bool BlockName::operator==(const BlockName& other) const {
-    // intersection non vide
     for (const auto& name : block_names) {
         if (other.hasAlias(name)) return true;
     }
@@ -92,7 +91,6 @@ void BlockName::to_upper() {
 }
 
 bool BlockName::operator<(const BlockName& other) const {
-    // ordre stable : compare lexicographiquement les sets triés
     std::set<std::string> lhs_sorted(block_names.begin(), block_names.end());
     std::set<std::string> rhs_sorted(other.block_names.begin(), other.block_names.end());
     return lhs_sorted < rhs_sorted;

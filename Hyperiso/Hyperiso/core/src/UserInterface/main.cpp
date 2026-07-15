@@ -2,6 +2,7 @@
 #include <string>
 
 #include "Logger.h"
+#include "config.hpp"
 #include "WilsonHandler.h"
 #include "ObservableHandler.h"
 #include "StatisticHandler.h"
@@ -21,7 +22,8 @@ void print_usage() {
         << "  --model SM|THDM|MSSM|MARTY     Model, default SM\n"
         << "  --lha <path>                    LHA/FLHA input, default lha/si_input.flha\n"
         << "  --order LO|NLO|NNLO             QCD order, default NNLO\n"
-        << "  --help                          Show help\n\n"
+        << "  --help                          Show help\n"
+        << "  --version                       Show the HyperIso version\n\n"
         << "Examples:\n"
         << "  hyperiso-ui wilson summary --groups BCoefficients --coeffs C7,C9,C10\n"
         << "  hyperiso-ui observable summary --observables BR_Bs__mu_mu,BR_B__Xs_gamma\n"
@@ -32,6 +34,11 @@ void print_usage() {
 
 int main(int argc, char* argv[]) {
     Logger::getInstance()->setEnabled(true);
+
+    if (argc >= 2 && std::string(argv[1]) == "--version") {
+        std::cout << project_version << "\n";
+        return 0;
+    }
 
     if (argc < 2 || std::string(argv[1]) == "--help" || std::string(argv[1]) == "help") {
         print_usage();

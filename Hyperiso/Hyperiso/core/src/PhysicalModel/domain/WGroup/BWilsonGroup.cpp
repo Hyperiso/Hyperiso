@@ -45,10 +45,8 @@ std::unordered_map<WCoefId, scalar_t> BCoefficientGroup::base_1_LO_calculation (
     }
 
     // C10
-    // Ask Nazila : Pourquoi les N et NNLO dans le running de C10 à LO et pas séparé en plusieurs ordres ?
-    // Answer : Ask Siavash, need to understand if pb comes from litt or implementation.
-    // Answer : Fck around and find out
-  
+    // Ask Nazila : // Review why NLO and NNLO terms enter the C10 running initialized at LO rather than separate orders.
+    // Answer : Ask Siavash, need to understand if pb comes from litt or implementation.  
 
     Ci_run[9] = Ci_match[9];
     

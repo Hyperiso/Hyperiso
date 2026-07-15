@@ -10,7 +10,6 @@ static std::string obs_name(const ObservableId& obs) {
 }
 
 static bool has_specific_bin(const BinnedObservableId& obs) {
-    // Dans le core actuel, {0,0} est utilisé comme convention "unbinned/default".
     return obs.p.first != 0.0 || obs.p.second != 0.0;
 }
 

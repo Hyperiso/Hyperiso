@@ -21,7 +21,7 @@ from pyhyperiso.core.Statistic.MarginalConfig import (
 def _require(value, typ, name: str):
     """Validate a user-facing argument type and return the original value."""
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be {typ.__name__}, received {type(value)!r}.")
     return value
 
 
@@ -56,7 +56,7 @@ def _cpp_marginal_config(config: MarginalConfig):
             LikelihoodMarginalConfig,
         ),
     ):
-        raise TypeError(f"config marginale non supportée : {type(config)!r}.")
+        raise TypeError(f"unsupported marginal configuration: {type(config)!r}.")
     return config.to_cpp()
 
 
@@ -109,7 +109,7 @@ class MarginalDistribution:
             ValueError: If ``n`` is negative.
         """
         if int(n) < 0:
-            raise ValueError("n doit être >= 0.")
+            raise ValueError("n must be >= 0.")
         return [float(v) for v in self._cpp_obj.rvs(int(n))]
 
     def logpdf(self, x: float) -> float:
@@ -134,7 +134,7 @@ class MarginalDistribution:
         """
         p = float(p)
         if not 0.0 <= p <= 1.0:
-            raise ValueError("p doit être dans [0, 1].")
+            raise ValueError("p must be dans [0, 1].")
         return float(self._cpp_obj.ppf(p))
 
     def mean(self) -> float:

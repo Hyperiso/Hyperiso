@@ -1,4 +1,3 @@
-// test_scalar_unit.cpp
 #include <cassert>
 #include <iostream>
 #include <type_traits>
@@ -8,17 +7,14 @@
 #include <limits>
 #include "scalar.h"
 
-// Helper : récupère une réf. const vers la sous-partie base (complex_t) d'un scalar_t
 static inline const complex_t& as_c(const scalar_t& z) {
     return static_cast<const complex_t&>(z);
 }
 
-// Helper : norme complexe (double), sans passer par ta surcharge abs(scalar_t)->scalar_t
 static inline double cmag(const scalar_t& z) {
     return std::abs(as_c(z));
 }
 
-// Egalité approchée complexe (relative+absolue)
 static inline bool capprox(const scalar_t& a, const scalar_t& b, double eps=1e-12) {
     const double diff = std::abs(as_c(a) - as_c(b));
     const double scale = 1.0 + std::abs(as_c(a)) + std::abs(as_c(b));
@@ -31,32 +27,29 @@ static inline bool dapprox(double a, double b, double eps=1e-12) {
 int main() {
     std::cout << "[unit] début des tests scalar_t...\n";
 
-    // Traits & bases
     static_assert(std::is_base_of_v<complex_t, scalar_t>);
     static_assert(std::is_copy_constructible_v<scalar_t>);
     static_assert(std::is_move_constructible_v<scalar_t>);
     static_assert(std::is_copy_assignable_v<scalar_t>);
     static_assert(std::is_move_assignable_v<scalar_t>);
 
-    // Constructeurs
     {
-        scalar_t z0; // (0,0)
+        scalar_t z0;
         assert(dapprox(static_cast<double>(z0), 0.0));
         scalar_t z1(1.5, -2.0);
         assert(dapprox(as_c(z1).real(), 1.5) && dapprox(as_c(z1).imag(), -2.0));
 
         complex_t c(3.0, 4.0);
-        scalar_t z2(c);                   // ctor depuis complex_t
+        scalar_t z2(c);      
         assert(dapprox(as_c(z2).real(), 3.0) && dapprox(as_c(z2).imag(), 4.0));
 
-        scalar_t z3(z2);                  // copy
+        scalar_t z3(z2);
         assert(capprox(z2, z3));
 
-        scalar_t z4 = std::move(z3);      // move
+        scalar_t z4 = std::move(z3);
         assert(dapprox(as_c(z4).real(), 3.0) && dapprox(as_c(z4).imag(), 4.0));
     }
 
-    // Affectations
     {
         scalar_t a(2.0, 3.0), b;
         b = a;
@@ -66,23 +59,20 @@ int main() {
         assert(dapprox(as_c(b).real(), 7.0) && dapprox(as_c(b).imag(), -1.0));
     }
 
-    // Conversion vers double (retourne la partie réelle)
     {
         scalar_t z(5.0, 1e-9);
         double d = static_cast<double>(z);
         assert(dapprox(d, 5.0));
-        scalar_t z2(-3.0, 1.0); // imag non-négligeable (log éventuel), mais on vérifie juste la valeur
+        scalar_t z2(-3.0, 1.0); 
         assert(dapprox(static_cast<double>(z2), -3.0));
     }
 
-    // Una ire -
     {
         scalar_t z(1.0, -2.0);
         scalar_t neg = -z;
         assert(dapprox(as_c(neg).real(), -1.0) && dapprox(as_c(neg).imag(), 2.0));
     }
 
-    // Opérateurs +, -, *, / entre scalar_t
     {
         scalar_t a(1.0, 2.0), b(-3.0, 0.5);
         scalar_t s = a + b;
@@ -102,7 +92,6 @@ int main() {
         assert(dapprox(as_c(q).real(), ref.real()) && dapprox(as_c(q).imag(), ref.imag()));
     }
 
-    // Opérateurs composés avec double & complex
     {
         scalar_t z(1.0, 2.0);
         z += scalar_t(2.0, -1.0);
@@ -111,7 +100,7 @@ int main() {
         z -= std::complex<double>(1.0, 3.0);
         assert(capprox(z, scalar_t(2.0, -2.0)));
 
-        z *= std::complex<double>(0.0, 1.0); // *i => rotation
+        z *= std::complex<double>(0.0, 1.0);
         assert(capprox(z, scalar_t(2.0 * 0.0 - (-2.0)*1.0, 2.0*1.0 + (-2.0)*0.0))); // (2,-2) * i = (2i -2i^2)?? (x+iy)*i = -y + ix -> (2,-2)*i = 2 + 2i
         assert(capprox(z, scalar_t(2.0, 2.0)));
 
@@ -121,7 +110,6 @@ int main() {
         assert(dapprox(as_c(z).real(), ref.real()) && dapprox(as_c(z).imag(), ref.imag()));
     }
 
-    // Mélanges : scalar_t avec double (des deux côtés)
     {
         scalar_t z(1.2, -0.5);
         assert(capprox(z + 2.0, scalar_t(3.2, -0.5)));
@@ -132,12 +120,11 @@ int main() {
         assert(capprox(2.0 * z, scalar_t(2.4, -1.0)));
         assert(capprox(z / 2.0, scalar_t(0.6, -0.25)));
 
-        scalar_t q = 2.0 / z; // utilise l’overload non-template (double, scalar_t)
+        scalar_t q = 2.0 / z;
         complex_t ref = complex_t(2.0, 0.0) / as_c(z);
         assert(dapprox(as_c(q).real(), ref.real()) && dapprox(as_c(q).imag(), ref.imag()));
     }
 
-    // Mélanges : scalar_t avec std::complex<double> (des deux côtés)
     {
         scalar_t z(0.5, 1.0);
         std::complex<double> c(2.0, -3.0);
@@ -159,7 +146,6 @@ int main() {
         assert(dapprox(as_c(d1).real(), dr1.real()) && dapprox(as_c(d1).imag(), dr1.imag()));
     }
 
-    // pow overloads
     {
         scalar_t z(0.3, -0.7);
         scalar_t pcc = pow(z, scalar_t(1.2, -0.4));
@@ -170,12 +156,11 @@ int main() {
         complex_t ref2 = std::pow(as_c(z), 2.5);
         assert(dapprox(as_c(pcd).real(), ref2.real()) && dapprox(as_c(pcd).imag(), ref2.imag()));
 
-        scalar_t pci = pow(z, 3); // template <integral>
+        scalar_t pci = pow(z, 3);
         complex_t ref3 = std::pow(as_c(z), 3.0);
         assert(dapprox(as_c(pci).real(), ref3.real()) && dapprox(as_c(pci).imag(), ref3.imag()));
     }
 
-    // Fonctions math : sqrt/sin/cos/... + cas spéciaux abs/arg/norm (retour scalar_t)
     {
         scalar_t z(1.1, -0.9);
 
@@ -185,7 +170,6 @@ int main() {
             assert(dapprox(as_c(r).real(), ref.real()) && dapprox(as_c(r).imag(), ref.imag()));
         };
 
-        // Utilise des lambdas pour lever toute ambiguïté d'overload
         check_unary([](const complex_t& c){ return std::sqrt(c); },
                     [](const scalar_t& s){ return ::sqrt(s); });
         check_unary([](const complex_t& c){ return std::sin(c); },
@@ -211,7 +195,6 @@ int main() {
         check_unary([](const complex_t& c){ return std::atan(c); },
                     [](const scalar_t& s){ return ::atan(s); });
 
-        // abs/arg/norm retournent scalar_t(real, 0)
         {
             scalar_t a = abs(z);
             double aref = std::abs(as_c(z));
@@ -230,17 +213,15 @@ int main() {
         }
     }
 
-    // real/imag libres
     {
         scalar_t z(-2.3, 4.5);
         assert(dapprox(real(z), -2.3));
         assert(dapprox(imag(z), 4.5));
     }
 
-    // ADL (via "using std::sqrt" etc. dans scalar.h)
     {
         scalar_t z(0.2, 0.3);
-        scalar_t r = sqrt(z); // doit résoudre vers ta surcharge
+        scalar_t r = sqrt(z);
         complex_t ref = std::sqrt(as_c(z));
         assert(dapprox(as_c(r).real(), ref.real()) && dapprox(as_c(r).imag(), ref.imag()));
     }

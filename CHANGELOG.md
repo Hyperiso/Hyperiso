@@ -10,7 +10,7 @@ Semantic Versioning.
 - Additional platform wheels after Linux support is validated.
 - Expanded fuzzing and long-running numerical validation.
 
-## [1.0.0] - 2026-07-14
+## [1.0.0] - 2026-07-15
 
 ### Added
 

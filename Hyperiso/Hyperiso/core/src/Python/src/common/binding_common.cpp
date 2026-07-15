@@ -17,12 +17,6 @@
 
 using DH = DependenciesHelper;
 
-// #define BIND_ENUM_MAPPER(cls, type) \
-//     py::class_<cls, std::shared_ptr<cls>>(m, #cls) \
-//         .def_static("str", &cls::str, py::arg("value")) \
-//         .def_static("enum_elt", &cls::enum_elt, py::arg("name")) \
-//         .def_static("get_str", &cls::get_str) \
-//         .def_static("get_enum", &cls::get_enum);
 
 #define BIND_ENUM_MAPPER(cls, EnumT)                                          \
     py::class_<cls, std::shared_ptr<cls>>(m, #cls)                            \
@@ -987,7 +981,6 @@ void init_common(py::module &m) {
         .def_static("B_scalar_group",   &WCoefMapper::B_scalar_group,   py::return_value_policy::reference)
         .def_static("b_clnu_group",     &WCoefMapper::b_clnu_group,     py::return_value_policy::reference)
 
-        // FLHA legacy — ⬇️ DEUX overloads, on les disambiguë
         .def_static("flha_base",
             py::overload_cast<WCoef>(&WCoefMapper::flha_base),
             py::arg("coef"))
@@ -1001,22 +994,6 @@ void init_common(py::module &m) {
             py::overload_cast<const WCoefId&, QCDOrder, ContributionType>(&WCoefMapper::flha_full),
             py::arg("id"), py::arg("order"), py::arg("type"));
 
-
-
-    // py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
-    //     .def_static(
-    //         "str",
-    //         static_cast<std::string(*)(WGroup)>(&GroupMapper::str),
-    //         py::arg("group")
-    //     )
-    //     .def_static(
-    //         "str",
-    //         static_cast<std::string(*)(WGroup, ScaleType, WilsonBasis)>(&GroupMapper::str),
-    //         py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD
-    //     )
-    //     .def_static("enum_elt", &GroupMapper::enum_elt, py::arg("name"))
-    //     .def_static("get_str", &GroupMapper::get_str)
-    //     .def_static("get_enum", &GroupMapper::get_enum);
 
     py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
         // str(enum) et str(enum, scale, basis)
@@ -1048,13 +1025,6 @@ void init_common(py::module &m) {
             py::arg("external") = py::none());
 
 
-    // py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
-    //     .def_static("str", &ScaleTypeMapper::str, py::arg("type"))
-    //     .def_static("enum_elt", &ScaleTypeMapper::enum_elt, py::arg("name"))
-    //     .def_static("get_str", &ScaleTypeMapper::get_str)
-    //     .def_static("get_enum", &ScaleTypeMapper::get_enum)
-    //     .def_static("block", &ScaleTypeMapper::block, py::arg("type"));
-
     py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
         .def_static("str",        py::overload_cast<ScaleType>(&ScaleTypeMapper::str), py::arg("type"))
         .def_static("enum_elt",   &ScaleTypeMapper::enum_elt_legacy, py::arg("name"))
@@ -1066,13 +1036,6 @@ void init_common(py::module &m) {
         .def_static("id_of",      &ScaleTypeMapper::id_of, py::arg("name"))
         .def_static("canonical",  py::overload_cast<const ScaleTypeId&>(&ScaleTypeMapper::str), py::arg("id"));
 
-    // py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
-    //     .def_static("str", &DecayMapper::str, py::arg("type"))
-    //     .def_static("enum_elt", &DecayMapper::enum_elt, py::arg("name"))
-    //     .def_static("get_str", &DecayMapper::get_str)
-    //     .def_static("get_enum", &DecayMapper::get_enum)
-    //     .def_static("get_observables", &DecayMapper::get_observables, py::arg("decay"))
-    //     .def_static("get_decay", &DecayMapper::get_decay, py::arg("observable"));
 
     py::class_<CustomObservableSpec>(m, "CustomObservableSpec")
         .def(py::init<>())
@@ -1293,9 +1256,6 @@ The object is non-owning and should only be used during the callback call.
         .def("size", [](const BlockSrc& src) { return src.raw().size(); },
              R"pbdoc(Number of source blocks in this callback view.)pbdoc");
 
-    // py::class_<DependenciesHelper, std::shared_ptr<DependenciesHelper>>(m, "DependenciesHelper")
-    //     .def_static("get_allowed_parameters", &DependenciesHelper::get_allowed_parameters, py::arg("obs"))
-    //     .def_static("is_param_allowed", &DependenciesHelper::is_param_allowed, py::arg("obs"), py::arg("param"));
 
     py::class_<DependenciesHelper, std::shared_ptr<DH>>(m, "DependenciesHelper")
     // version avec Observables

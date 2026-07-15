@@ -19,7 +19,7 @@ from pyhyperiso.core.Common.SymbolId import ObservableId
 
 def _require_observable_id(value: ObservableId, name: str = "observable id") -> ObservableId:
     if not isinstance(value, ObservableId):
-        raise TypeError(f"{name} doit être un ObservableId Python, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be un ObservableId Python, received {type(value)!r}.")
     return value
 
 
@@ -60,7 +60,7 @@ class ObservableValue:
         _require_observable_id(self.id, "id")
         if self.bin is not None:
             if not (isinstance(self.bin, tuple) and len(self.bin) == 2):
-                raise TypeError("bin doit être None ou un tuple (low, high).")
+                raise TypeError("bin must be None ou un tuple (low, high).")
             object.__setattr__(self, "bin", (float(self.bin[0]), float(self.bin[1])))
         object.__setattr__(self, "value", float(self.value))
 
@@ -85,7 +85,7 @@ class ObservableValue:
             TypeError: If ``obs`` is not an ``Observables`` enum value.
         """
         if not isinstance(obs, Observables):
-            raise TypeError(f"obs doit être un Observables Python, reçu {type(obs)!r}.")
+            raise TypeError(f"obs must be un Observables Python, received {type(obs)!r}.")
         return cls(id=ObservableMapper.to_id(obs), value=float(value), bin=bin)
 
     @classmethod

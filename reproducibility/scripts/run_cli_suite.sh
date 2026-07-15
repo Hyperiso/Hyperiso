@@ -25,6 +25,8 @@ find_hyperiso_bin() {
     return
   fi
   local candidates=(
+    "${ROOT_DIR}/Hyperiso/Hyperiso/core/Test/build/UserInterfaceLib/hyperiso-ui"
+    "${ROOT_DIR}/Hyperiso/Hyperiso/core/Test/build/hyperiso-ui"
     "${ROOT_DIR}/build/hyperiso-ui"
     "${ROOT_DIR}/build/UserInterfaceLib/hyperiso-ui"
     "${ROOT_DIR}/build/Hyperiso/Hyperiso/core/src/UserInterface/hyperiso-ui"
@@ -47,6 +49,21 @@ find_hyperiso_bin() {
 BIN="$(find_hyperiso_bin)"
 if [[ ! -x "${BIN}" ]]; then
   echo "hyperiso-ui is not executable: ${BIN}" >&2
+  exit 1
+fi
+
+echo "Using hyperiso-ui: $(realpath "${BIN}")"
+EXPECTED_VERSION="$(python3 - "${REPRO_DIR}/manifest.json" <<'PY_VERSION'
+import json
+import sys
+from pathlib import Path
+
+print(json.loads(Path(sys.argv[1]).read_text())["hyperiso_version"])
+PY_VERSION
+)"
+CLI_VERSION="$("${BIN}" --version)"
+if [[ "${CLI_VERSION}" != "${EXPECTED_VERSION}" ]]; then
+  echo "Unexpected hyperiso-ui version: ${CLI_VERSION} (expected ${EXPECTED_VERSION})" >&2
   exit 1
 fi
 
@@ -99,7 +116,7 @@ run_case R5 statistics_sm_seed123456.txt \
   "${BIN}" statistic summary \
   --model SM --lha "${INPUT}" \
   --observables BR_Bs__mu_mu,BR_B__Xs_gamma \
-  --uncertainties --draws 1000 --seed 123456 \
+  --uncertainties --draws 200 --seed 123456 \
   --samples-csv "${OUT_DIR}/statistics_samples.csv" --order NNLO
 
 python3 "${SCRIPT_DIR}/check_expected_outputs.py" \

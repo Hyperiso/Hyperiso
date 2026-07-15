@@ -5,24 +5,6 @@ BaseLikelihood::BaseLikelihood(const ModelFn& model, std::shared_ptr<LikelihoodC
     this->model = model;
 }
 
-// double BaseLikelihood::nll(const std::vector<double>& theta) const {
-//     std::vector<double>p(theta.begin(), theta.begin() + p_dim);
-//     std::vector<double>eta(theta.begin() + p_dim, theta.end());
-
-//     std::vector<double>res = model(p, eta);
-//     for (size_t i = 0; i < res.size(); i++)
-//         res[i] -= this->ctx->exp_obs_values[i];
-    
-//     double ell_obs = this->ctx->exp_obs_dist->logpdf(res);
-//     double ell_nuis = this->ctx->nuisance_dist->logpdf(eta);
- 
-//     return -(ell_obs + ell_nuis);
-// }
-
-// std::size_t BaseLikelihood::dim() const {
-//     return this->ctx->nuisance_dist->dim() + this->p_dim;
-// }
-
 
 void BaseLikelihood::maybe_log_debug_eval(const std::vector<double>& theta,
                                           const std::vector<double>& p,
@@ -82,22 +64,6 @@ void BaseLikelihood::maybe_log_debug_eval(const std::vector<double>& theta,
     ++debug_eval_count_;
 }
 
-// double BaseLikelihood::nll(const std::vector<double>& theta) const {
-//     std::vector<double> p(theta.begin(), theta.begin() + p_dim);
-//     std::vector<double> eta(theta.begin() + p_dim, theta.end());
-
-//     std::vector<double> res = model(p, eta);
-//     for (size_t i = 0; i < res.size(); i++) {
-//         res[i] -= this->ctx->exp_obs_values[i];
-//     }
-
-//     double ell_obs  = this->ctx->exp_obs_dist->logpdf(res);
-//     double ell_nuis = this->ctx->nuisance_dist->logpdf(eta);
-//     double out = -(ell_obs + ell_nuis);
-
-//     maybe_log_debug_eval(theta, p, eta, res, ell_obs, ell_nuis, out);
-//     return out;
-// }
 
 double BaseLikelihood::nll(const std::vector<double>& theta) const {
     std::vector<double> p(theta.begin(), theta.begin() + p_dim);
@@ -132,11 +98,15 @@ double BaseLikelihood::nll(const std::vector<double>& theta) const {
         return out;
     }
     catch (const std::exception& e) {
-        std::cout << "[FITDBG] model/nll exception: " << e.what() << "\n";
+        if (debug_trace_enabled_) {
+            std::cerr << "[FIT DEBUG] model/nll exception: " << e.what() << "\n";
+        }
         return 1e100;
     }
     catch (...) {
-        std::cout << "[FITDBG] model/nll unknown exception\n";
+        if (debug_trace_enabled_) {
+            std::cerr << "[FIT DEBUG] model/nll unknown exception\n";
+        }
         return 1e100;
     }
 }
@@ -210,12 +180,6 @@ double BaseLikelihood::nll_from_split(
 
     return nll(theta);
 }
-
-// RealMatrix BaseLikelihood::observable_curvature(
-//     const std::vector<double>& r
-// ) const {
-//     return ctx->exp_obs_dist->curvature(r);
-// }
 
 RealMatrix BaseLikelihood::observable_curvature(
     const std::vector<double>& r

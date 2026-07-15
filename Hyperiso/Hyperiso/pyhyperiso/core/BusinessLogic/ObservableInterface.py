@@ -42,7 +42,7 @@ from pyhyperiso.core.BusinessLogic.LambdaDecay import LambdaDecayConfig
 
 def _require(value, typ, name: str):
     if not isinstance(value, typ):
-        raise TypeError(f"{name} doit être {typ.__name__}, reçu {type(value)!r}.")
+        raise TypeError(f"{name} must be {typ.__name__}, received {type(value)!r}.")
     return value
 
 
@@ -60,11 +60,11 @@ def _cpp_binned_observable_id(obs: BinnedObservableId):
 
 def _cpp_bin(bin_range: Sequence[float]) -> Tuple[float, float]:
     if not (isinstance(bin_range, (tuple, list)) and len(bin_range) == 2):
-        raise TypeError("bin doit être un tuple/list (q2_min, q2_max).")
+        raise TypeError("bin must be un tuple/list (q2_min, q2_max).")
     q2_min = float(bin_range[0])
     q2_max = float(bin_range[1])
     if q2_min >= q2_max:
-        raise ValueError("bin doit vérifier q2_min < q2_max.")
+        raise ValueError("bin must satisfy q2_min < q2_max.")
     return (q2_min, q2_max)
 
 
@@ -93,7 +93,7 @@ def _single_lha_code(code: LhaID) -> int:
     parts = code.get_parts()
     if len(parts) != 1:
         raise ValueError(
-            "set_param/get_param via ObservableInterface exige un LhaID à une seule entrée."
+            "set_param/get_param via ObservableInterface requires a single-entry LhaID."
         )
     return int(parts[0])
 
@@ -512,11 +512,9 @@ class ObservableInterface:
         """
         vals = self.compute_observable(obs)
         if not vals:
-            raise RuntimeError("compute_observable a renvoyé une liste vide.")
+            raise RuntimeError("compute_observable returned an empty list.")
         if len(vals) != 1:
-            raise RuntimeError(
-                "Observable binné : utilisez compute_observable() pour récupérer toutes les bins."
-            )
+            raise RuntimeError("Binned observable: use compute_observable() to retrieve all bins.")
         return vals[0].value
 
     def compute_observable_id_central(self, obs: ObservableId) -> float:
@@ -535,10 +533,10 @@ class ObservableInterface:
         """
         vals = self.compute_observable_id(obs)
         if not vals:
-            raise RuntimeError("compute_observable_id a renvoyé une liste vide.")
+            raise RuntimeError("compute_observable_id returned an empty list.")
         if len(vals) != 1:
             raise RuntimeError(
-                "Observable binné : utilisez compute_observable_id() pour récupérer toutes les bins."
+                "Binned observable: use compute_observable_id() to retrieve all bins."
             )
         return vals[0].value
 
@@ -707,7 +705,7 @@ class ObservableInterface:
         """
         _require(pid, ParamId, "pid")
         if pid.type is None:
-            raise ValueError("pid.type doit être défini pour set_param().")
+            raise ValueError("pid.type must be defined pour set_param().")
         _require(pid.type, ParameterType, "pid.type")
         self._cpp_obj.set_param(
             str(pid.block), _single_lha_code(pid.code), float(value), pid.type.value
@@ -730,7 +728,7 @@ class ObservableInterface:
         """
         _require(pid, ParamId, "pid")
         if pid.type is None:
-            raise ValueError("pid.type doit être défini pour get_param().")
+            raise ValueError("pid.type must be defined pour get_param().")
         _require(pid.type, ParameterType, "pid.type")
         return self._cpp_obj.get_param(str(pid.block), _single_lha_code(pid.code), pid.type.value)
 

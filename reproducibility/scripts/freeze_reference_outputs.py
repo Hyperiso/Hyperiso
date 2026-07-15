@@ -49,13 +49,31 @@ def main() -> int:
     except (OSError, subprocess.CalledProcessError):
         commit = "unknown"
 
+    previous_metadata_path = expected / "reference_metadata.json"
+    previous_metadata = {}
+    if previous_metadata_path.exists():
+        try:
+            previous_metadata = json.loads(previous_metadata_path.read_text())
+        except json.JSONDecodeError:
+            previous_metadata = {}
+
     metadata = {
         "suite": manifest["suite_name"],
         "hyperiso_version": version,
         "source_commit": commit,
         "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "normalization": "startup banner and machine-specific paths removed",
-        "files": {name: {"sha256": sha256(expected / name)} for name in sorted(set(files))},
+        "reference_origin": previous_metadata.get(
+            "reference_origin",
+            "outputs regenerated from the reviewed release build",
+        ),
+        "provenance_note": previous_metadata.get(
+            "provenance_note",
+            "Release CI rebuilds the final source and must match all frozen values before publication.",
+        ),
+        "files": {
+            name: {"sha256": sha256(expected / name)} for name in sorted(set(files))
+        },
     }
     (expected / "reference_metadata.json").write_text(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n"

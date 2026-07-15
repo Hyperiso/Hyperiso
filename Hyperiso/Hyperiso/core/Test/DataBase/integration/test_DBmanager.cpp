@@ -1,4 +1,3 @@
-// test_DBManager_integration.cpp
 #include "DBManager.h"
 #include <cassert>
 #include <filesystem>
@@ -84,10 +83,8 @@ static void test_yaml_read_modify_write_reload() {
     node->set("YAML_MODE", "meta", "type");
     node->set(999, "meta", "version");
 
-    // clé requise par DBManager::write_to_file
     node->set(1, "SMINPUTS");
 
-    // plus de redirection cout: le YAML est écrit dans output_file
     db.write_to_file(output_file, node);
 
     auto reloaded = db.read_from_file(output_file);
@@ -105,7 +102,6 @@ static double as_double_or_string(const DBNode::Value& v) {
     if (std::holds_alternative<BlockName>(v)) {
         return std::stod(std::get<BlockName>(v));
     }
-    // Si jamais c'est un noeud, on lève
     throw std::runtime_error("Expected numeric (double/string), got non-scalar");
 }
 
@@ -118,7 +114,6 @@ static double as_number(const DBNode::Value& v) {
     }
     if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
         auto sub = std::get<std::shared_ptr<DBNode>>(v);
-        // lecture directe de central_value (double ou string)
         auto cv = sub->get("central_value");
         if (std::holds_alternative<double>(cv)) {
             return std::get<double>(cv);
@@ -137,7 +132,7 @@ static void test_flha_read_and_extract_mass() {
     create_test_flha_file(path);
 
     DBManager db;
-    // Ton fichier a 2 colonnes => garde ces prototypes
+
     db.add_lha_prototype("MASS",  2, 1);
     db.add_lha_prototype("GAUGE", 2, 1);
 

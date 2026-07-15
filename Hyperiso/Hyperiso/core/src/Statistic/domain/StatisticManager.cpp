@@ -355,35 +355,6 @@ RealMatrix symmetrize_covariance_matrix(RealMatrix cov) {
     return cov;
 }
 
-// RealMatrix inverse_covariance_with_ridge(
-//     RealMatrix cov,
-//     double ridge_rel,
-//     double ridge_abs
-// ) {
-//     cov = symmetrize_covariance_matrix(std::move(cov));
-
-//     double trace = 0.0;
-//     for (std::size_t i = 0; i < cov.rows(); ++i) {
-//         trace += std::max(0.0, cov.at(i, i));
-//     }
-
-//     const double scale = cov.rows() > 0
-//         ? trace / static_cast<double>(cov.rows())
-//         : 1.0;
-
-//     const double ridge = std::max(
-//         ridge_abs,
-//         ridge_rel * std::max(scale, 1.0)
-//     );
-
-//     for (std::size_t i = 0; i < cov.rows(); ++i) {
-//         cov.at(i, i) += ridge;
-//     }
-
-//     cov = symmetrize_covariance_matrix(std::move(cov));
-//     return cov.inv();
-// }
-
 RealMatrix experimental_covariance_matrix(
     const std::vector<ExperimentObs>& obs_ids,
     const std::map<ExperimentObs, std::map<ExperimentObs, double>>& corr_obs,
@@ -467,7 +438,6 @@ RealMatrix inverse_covariance_with_ridge(
         sigma[i] = std::sqrt(vii);
     }
 
-    // Build dimensionless correlation matrix.
     RealMatrix corr(n, n);
     for (std::size_t i = 0; i < n; ++i) {
         for (std::size_t j = 0; j < n; ++j) {
@@ -477,7 +447,6 @@ RealMatrix inverse_covariance_with_ridge(
 
     corr = symmetrize_covariance_matrix(std::move(corr));
 
-    // Ridge in correlation space, dimensionless.
     const double ridge = std::max(ridge_rel, ridge_abs);
 
     for (std::size_t i = 0; i < n; ++i) {
@@ -488,7 +457,6 @@ RealMatrix inverse_covariance_with_ridge(
 
     RealMatrix corr_inv = corr.inv();
 
-    // Convert back: Cov^{-1} = D^{-1} Corr^{-1} D^{-1}
     RealMatrix cov_inv(n, n);
     for (std::size_t i = 0; i < n; ++i) {
         for (std::size_t j = 0; j < n; ++j) {
@@ -631,8 +599,6 @@ std::unique_ptr<JointDistribution> StatisticManager::build_nuisance_distribution
 }
 
 std::unique_ptr<JointDistribution> StatisticManager::build_exp_data_distribution() {
-    // Keep the experimental-data stream reproducible but decorrelated from the
-    // nuisance stream initialized with MC_seed.
     unsigned int seed = config.MC_seed ^ 0x9E3779B9u;
     std::map<ExperimentObs, MarginalType> exp_data_marginals;
 
@@ -824,17 +790,6 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         RealMatrix covariance_total =
             symmetrize_covariance_matrix(cov.covariance + covariance_exp);
 
-        // RealMatrix covariance_total =
-        //     symmetrize_covariance_matrix(covariance_exp);
-
-        //     for (std::size_t i = 0; i < covariance_total.rows(); ++i) {
-        //         for (std::size_t j = 0; j < covariance_total.cols(); ++j) {
-        //             if (i != j) {
-        //                 covariance_total.at(i, j) = 0.0;
-        //             }
-        //         }
-        //     }
-
         chi2_progress.step(
             4,
             "Total covariance assembled; inverting the regularized covariance matrix."
@@ -863,21 +818,6 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
             ctx->fp_defs.emplace_back(make_fit_param_def(p_ids[i], p0[i], sigma, config));
         }
 
-        // auto model_fn = [this, obs_ids, p_ids](
-        //     const std::vector<double>& p_vec,
-        //     const std::vector<double>& eta_vec) -> std::vector<double>
-        // {
-        //     if (!eta_vec.empty()) {
-        //         throw std::runtime_error("CHI2_MC_COVARIANCE model_fn expects empty eta vector");
-        //     }
-
-        //     auto pred_map = this->obs_int->predict_optimized(
-        //         zip(p_ids, p_vec),
-        //         std::map<ParamId, double>{}
-        //     );
-
-        //     return ordered_prediction_vector(obs_ids, pred_map);
-        // };
 
         const std::map<ParamId, double> eta0_map = zip(eta_ids, eta0);
 
@@ -889,9 +829,6 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
                 throw std::runtime_error("CHI2_MC_COVARIANCE model_fn expects empty eta vector");
             }
 
-            // Important : en mode chi2 zéro nuisance, on ne veut pas laisser
-            // les nuisances dans l'état du dernier tirage MC.
-            // On force explicitement les nuisances au point central eta0.
             const auto model_p = model_values_from_fit_coordinates(this->config, p_ids, p_vec);
             auto pred_map = this->obs_int->predict_optimized(
                 zip(p_ids, model_p),
@@ -1178,9 +1115,6 @@ const NuisanceSpec* StatisticManager::find_nuisance_spec(const ParamId& pid) con
         return &it->second;
     }
 
-    // JSON/YAML nuisance entries identify parameters by block/code only.
-    // Runtime dependency ids are usually typed, so retry with the canonical
-    // untyped key used by NuisanceReader.
     const ParamId untyped_pid{pid.block, pid.code};
     if (const auto it = merged_nuisance_specs_.find(untyped_pid);
         it != merged_nuisance_specs_.end()) {
@@ -1276,9 +1210,7 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
     std::map<ParamId, double> eta_specs_real_leaf;
     std::map<ParamId, double> delta_rel;
 
-    // 1) Préfiltre existant : relevance basée sur l'incertitude relative
     for (const auto& paramId : eta_infos_leaf) {
-        // On ne traite jamais les paramètres de fit comme nuisances
         if (cache.p_specs.contains(paramId)) {
             continue;
         }
@@ -1292,8 +1224,6 @@ std::map<ParamId, double> StatisticManager::get_all_obss_deps() {
         }
 
         if (fpeq(val, 0.0)) {
-            // Cas utile : valeur centrale nulle mais sigma non nulle.
-            // On le garde au moins jusqu'au filtre de sensibilité.
             eta_specs_real_leaf[paramId] = val;
             delta_rel[paramId] = std::numeric_limits<double>::infinity();
             continue;
@@ -1748,10 +1678,6 @@ LikelihoodScanGrid StatisticManager::scan_likelihood_around_current_point(
         p_ref = last_fit_raw_.p_hat;
         eta_ref = last_fit_raw_.eta_hat;
     } else if (!last_scan_p_.empty() && last_scan_eta_.size() == last_nuisance_ids_.size()) {
-        // prepare_likelihood_for_scan(...) stores the current central values in
-        // last_scan_p_/last_scan_eta_.  This lets lightweight scan examples run
-        // without first performing a full MLE. A later compute_MLE(...) or
-        // set_manual_scan_point(...) still overrides this default reference point.
         p_ref = last_scan_p_;
         eta_ref = last_scan_eta_;
     } else {

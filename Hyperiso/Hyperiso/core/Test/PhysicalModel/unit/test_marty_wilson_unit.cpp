@@ -97,8 +97,6 @@ int main() {
 
     MartyWilson mw(cfg);
 
-    // Le constructeur de MartyWilson déclenche déjà un calcul de découverte avec EW_SCALE=1.
-    // On vérifie le wiring proxy -> CSV -> dépendances, sans dépendre d'une seconde exécution.
     auto csv = slurp(tmp);
     assert(csv.find("Q_match,C7_real,C7_img") != std::string::npos);
     assert(csv.find("C7_real") != std::string::npos);

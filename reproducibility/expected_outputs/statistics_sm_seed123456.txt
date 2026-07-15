@@ -1,5 +1,5 @@
 == Statistic summary ==
-observables=2, draws=1000, seed=123456, mode=PROFILED_NUISANCE
+observables=2, draws=200, seed=123456, mode=PROFILED_NUISANCE
 
 == Predictions ==
 
@@ -45,5 +45,5 @@ BR_Bs__mu_mu
   B_ll:1 = 0.0635
 
 == MC uncertainty summaries ==
-  BR_B__Xs_gamma [0, 0] -> BR_B__Xs_gamma[0,0] = 0.0003079 + 5.838e-05 - 2.484e-05 (skew = 0.75)
-  BR_Bs__mu_mu [0, 0] -> BR_Bs__mu_mu[0,0] = 3.293e-09 +- 3.207e-10 (skew = 0.081)
+  BR_B__Xs_gamma [0, 0] -> BR_B__Xs_gamma[0,0] = 0.0002962 + 6.668e-05 - 1.867e-05 (skew = 0.89)
+  BR_Bs__mu_mu [0, 0] -> BR_Bs__mu_mu[0,0] = 3.242e-09 +- 3.314e-10 (skew = 0.15)

@@ -8,7 +8,7 @@ int main() {
     HyperisoMaster hyp = HyperisoMaster();
     HyperisoConfig config;
     config.model = Model::MARTY;
-    // config.flags[ExternalFlag::USE_MARTY] = true; // TODO : Théo not happy
+
     config.mty_model_name = "THDM";
     config.mty_model_path = std::string(project_tp_root.data()) + "MARTY/src/MARTY/src/marty/models/thdm.h";
 
@@ -25,19 +25,10 @@ int main() {
 
     LOG_INFO("------------- Matching blocks -------------");
 
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::MATCHING));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::MATCHING));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::MATCHING));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::CC_bc, ScaleType::MATCHING));
     bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING));
 
     LOG_INFO("------------- Hadronic blocks -------------");
 
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::B, ScaleType::HADRONIC, WilsonBasis::B_TRADITIONAL));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BPrime, ScaleType::HADRONIC));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::BScalar, ScaleType::HADRONIC));
-    // bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::CC_bc, ScaleType::HADRONIC));
     bp.log_block(ParameterType::WILSON, GroupMapper::str(WGroup::MESON_MIXING, ScaleType::HADRONIC));
 
     LOG_INFO("------------- Wilson Parameter blocks -------------");

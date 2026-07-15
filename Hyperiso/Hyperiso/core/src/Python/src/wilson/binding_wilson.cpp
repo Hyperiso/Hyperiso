@@ -22,19 +22,14 @@ scalar_t scalar_from_python(py::handle obj) {
         return py::getattr(obj, "_cpp_obj").cast<scalar_t>();
     }
 
-    // Most wrapper-level callbacks return either Scalar, complex or float.
-    // pybind11 has no py::complex handle type, so we use ordered casts instead
-    // of py::isinstance<...>().
     try {
         return obj.cast<scalar_t>();
     } catch (const py::cast_error&) {
-        // Continue with common Python numeric cases.
     }
 
     try {
         return scalar_t(obj.cast<std::complex<double>>());
     } catch (const py::cast_error&) {
-        // Continue with real scalars.
     }
 
     return scalar_t(obj.cast<double>());
@@ -69,17 +64,12 @@ std::function<std::unordered_map<WCoefId, scalar_t>(
 
 } // namespace
 
-// Initialisation des groupes de coefficients.
-// Kept as a submodule hook for backward compatibility with the old Python layout.
 void init_coefficient_groups(py::module &m) {}
 
-// Initialisation des coefficients Wilson.
 void init_wilson_coefficient(py::module &m) {}
 
-// Initialisation du manager Wilson.
 void init_coefficient_manager(py::module &m) {}
 
-// Initialisation des paramètres Wilson.
 void init_wilson_parameters(py::module &m) {}
 
 void init_custom_wilson_lambda(py::module &m) {

@@ -78,9 +78,6 @@ int main() {
 
 
     try {
-        // -------------------------
-        // 1) Source block SRC: x
-        // -------------------------
         auto src = std::make_shared<Block>();
         src->blockname = "SRC";
 
@@ -88,10 +85,6 @@ int main() {
         auto x = std::make_shared<Parameter>(x_id, 1.0, 0.0, 0.0);
         src->store(LhaID(1), x);
 
-        // -------------------------
-        // 2) DependentBlock DBLK: a = x + 10
-        //    DepUpdateFunc = void(const BlockSrc&, shared_ptr<DependentBlock>)
-        // -------------------------
         std::unordered_map<std::string, std::shared_ptr<Block>> blk_sources;
         blk_sources.emplace("SRC", src);
 
@@ -105,7 +98,6 @@ int main() {
                 auto a = std::make_shared<Parameter>(a_id, xv + 10.0, 0.0, 0.0);
                 self->store(LhaID(1), a);
             } else {
-                // IMPORTANT: ne pas store() ici (sinon ça n’écrase jamais)
                 self->retrieve(LhaID(1))->set_expected(xv + 10.0);
             }
         }
@@ -116,19 +108,15 @@ int main() {
         dblk->init();
         dblk->update();
 
-        // -------------------------
-        // 3) DependentParameter y = 2*a + 1, dépend de DBLK:1
-        //    DepParamUpdateFunc = void(const ParamSrc&, shared_ptr<DependentParameter>)
-        // -------------------------
         ParamId a_id = make_id(ParameterType::SM, "DBLK", 1);
         ParamId y_id = make_id(ParameterType::SM, "Y", 1);
 
         std::unordered_map<ParamId, std::shared_ptr<Parameter>> psources;
-        psources.emplace(a_id, dblk->retrieve(LhaID(1))); // NB: on pointe vers le param "a" courant
+        psources.emplace(a_id, dblk->retrieve(LhaID(1)));
 
         DepParamUpdateFunc y_recalc = DepParamUpdateFunc(
             [a_id](const ParamSrc& srcs, std::shared_ptr<DependentParameter> self) {
-                double av = srcs.get_val(a_id);       // via SourcesView
+                double av = srcs.get_val(a_id);  
                 self->set_expected(2.0 * av + 1.0);
             }
         );
@@ -137,20 +125,13 @@ int main() {
         y->init();
         y->update();
 
-        // petit bloc conteneur
         auto out = std::make_shared<Block>();
         out->blockname = "OUT";
         out->store(LhaID(1), y);
 
-        // -------------------------
-        // 4) Check initial: x=1 => a=11 => y=23
-        // -------------------------
         double y0 = out->retrieve(LhaID(1))->get_val();
         std::cout << "y0 = " << y0 << " (expect 23)\n";
 
-        // -------------------------
-        // 5) Change x => 2  => a=12 => y=25
-        // -------------------------
         src->assign(LhaID(1), 2.0);
         
         double a1 = dblk->retrieve(LhaID(1))->get_val();

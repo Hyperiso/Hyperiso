@@ -96,7 +96,7 @@ public:
                 if (i == j) {
                     if (sum <= 0.0) {
                         throw std::invalid_argument(
-                            "Matrix is not positive-définie (for Cholesky).");
+                            "Matrix is not positive-definite for Cholesky decomposition.");
                     }
                     L[i][j] = std::sqrt(sum);
                 } else {

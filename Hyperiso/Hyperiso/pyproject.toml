@@ -1,5 +1,5 @@
 [build-system]
-# scikit-build-core gère CMake + Ninja pour nous
+# scikit-build-core drives the CMake and Ninja build.
 requires = [
   "scikit-build-core>=0.10",
   "pybind11>=2.8.0",
@@ -7,7 +7,7 @@ requires = [
 build-backend = "scikit_build_core.build"
 
 [project]
-name = "pyhyperiso"                 # Nom du package PyPI (pip install pyhyperiso)
+name = "pyhyperiso"
 version = "1.0.0"
 description = "Hyperiso Python binding (C++ backend via pybind11)"
 readme = "README.md"
@@ -45,6 +45,7 @@ dev = [
   "ruff==0.15.21",
   "pre-commit>=3",
   "pyyaml>=6",
+  "cibuildwheel==4.1.0",
 ]
 
 [project.urls]
@@ -60,7 +61,7 @@ Changelog     = "https://github.com/Hyperiso/Hyperiso/blob/main/CHANGELOG.md"
 [tool.scikit-build]
 minimum-version = "0.10"
 
-# Paquet Python à inclure dans le wheel (dossier pyhyperiso/)
+# Python package included in the wheel.
 wheel.packages = ["pyhyperiso"]
 wheel.exclude = [
   "pyhyperiso/test/**",
@@ -68,8 +69,8 @@ wheel.exclude = [
   "pyhyperiso/requirements.txt",
 ]
 
-# Les tests et exemples restent dans le depot Git/CPC, mais ne sont pas
-# necessaires pour reconstruire le paquet Python depuis le sdist.
+# Tests and examples remain in the Git/CPC source archive but are not needed
+# to rebuild the Python distribution from its sdist.
 sdist.exclude = [
   "core/Test/**",
   "examples_cpp/**",
@@ -81,25 +82,25 @@ sdist.exclude = [
   "**/* copy.cpp",
 ]
 
-# Pour voir les commandes CMake/Ninja
+# Show CMake and Ninja commands in build logs.
 build.verbose = true
 
-# Sous-table CMake (une seule fois)
+# CMake configuration.
 [tool.scikit-build.cmake]
-# CMakeLists.txt du binding C++ (RELATIF à ce pyproject.toml)
+# Binding CMake project, relative to this pyproject.toml.
 source-dir = "core/src/Python"
 
-# Type de build par défaut
+# Default optimized build type.
 build-type = "Release"
 
-# Options CMake (via des "dotted keys")
+# CMake options.
 define.CMAKE_INTERPROCEDURAL_OPTIMIZATION = "OFF"
 
 # ----------------------------
 # cibuildwheel : wheels Linux multi-Python
 # ----------------------------
 [tool.cibuildwheel]
-# Wheels Linux pour les versions Python officiellement supportees
+# Linux wheels for the supported CPython versions.
 build = "cp310-* cp311-* cp312-*"
 skip = "pp* *-musllinux*"
 build-verbosity = 1
@@ -113,7 +114,7 @@ test-command = [
 CMAKE_BUILD_PARALLEL_LEVEL = "2"
 
 [tool.cibuildwheel.linux]
-archs = ["x86_64"]          # tu pourras ajouter "aarch64" plus tard
+archs = ["x86_64"]
 before-all = "yum install -y eigen3-devel gsl-devel"
 manylinux-x86_64-image = "manylinux_2_28"
 

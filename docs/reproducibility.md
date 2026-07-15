@@ -2,7 +2,7 @@
 
 HyperIso ships a fixed-seed CPC reference suite under `reproducibility/`.
 It contains one frozen FLHA input, five normalized CLI summaries and a
-1,000-row Monte-Carlo sample table.
+200-row Monte-Carlo sample table.
 
 Run the suite after building `hyperiso-ui` in `Release` mode:
 
@@ -19,7 +19,7 @@ HYPERISO_BIN=/path/to/hyperiso-ui \
 
 Reference outputs intentionally exclude the startup banner and absolute paths,
 so comparisons do not depend on the checkout location or user cache directory.
-The statistical case uses seed `123456`, one thread and 1,000 accepted draws.
+The statistical case uses seed `123456`, one thread and 200 accepted draws.
 
 References may be regenerated only for an intentional numerical update:
 

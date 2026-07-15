@@ -46,16 +46,11 @@ scalar_t C1_susy::compute_NNLO(const ParamSrc& src) {
         for (int ae = 0; ae < 6; ++ae) {
             for (int row : {14, 15}) {
                 double xsqa = pow(src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", {row, ae}) / mW, 2.0);
-                // if (4.0 * xsqa > 1.0) {
-                //     double angle = 2.0 * asin(0.5 / sqrt(xsqa));
-                //     C1squark_2 += -2.0 * pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
-                // }
                 double angle = 2.0 * asin(0.5 / sqrt(xsqa));
                 
                 C1squark_2 += -2.0 * pow(4.0 * xsqa - 1.0, 1.5) * Cl2(angle);
                 C1squark_2 += 8.0 * (xsqa - 1.0 / 3.0) * log(xsqa) + 16.0 * xsqa;
             }
-            // std::cout << "C1squark_2 : " << ae << " : "<< C1squark_2 << std::endl;
         }
     }
 
@@ -691,32 +686,17 @@ scalar_t C7_susy::compute_LO(const ParamSrc& src) {
     }
 
     complex_t C7H_0 = 1. / 3. * lu * lu * F7_1(yt) - lu * ld * F7_2(yt);
-    // std::cout << "yt " << yt << std::endl;
-    // std::cout << "lu " << lu << std::endl;
-    // std::cout << "ld " << ld << std::endl;
-    // std::cout << "mass_b_muW " << src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}) << std::endl;
-    // std::cout << "mass_top_muW " << src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", 6) << std::endl;
 
-    // std::cout << "C7SMeps_0 " << C7SMeps_0 << std::endl;
-    // std::cout << "C7Heps_0 " << C7Heps_0 << std::endl;
-    // std::cout << "C7Heps2_0 " << C7Heps2_0 << std::endl;
-    // std::cout << "C7charg_0 " << C7charg_0 << std::endl;
-    // std::cout << "C7_chargeps_0 " << C7_chargeps_0 << std::endl;
-    // std::cout << "C7H_0" << C7H_0 << std::endl;
-    // std::cout << "elem are : " << C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0 << std::endl; 
     return scalar_t(C7SMeps_0 + C7Heps_0 + C7Heps2_0 + C7charg_0 + C7_chargeps_0 + C7H_0);
 }
 
 scalar_t C7_susy::compute_NLO(const ParamSrc& src) {
-    // double xt      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
     double lu      = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 7);
     double ld      = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", 8);
     double yt      = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", 1);
     double Q_match = src.get_val(ParameterType::WILSON, "EW_SCALE", 1);;
     double mW      = src.get_val(ParameterType::SM, "MASS", 24);
     double mH      = src.get_val(ParameterType::BSM, "MASS", 37);
-    // double mH0     = src.get_val(ParameterType::BSM, "MASS", 35);
-    // double mh      = src.get_val(ParameterType::BSM, "MASS", 25);
     double mass_b_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {5, 1});
 
     complex_t C7charg_1 = 0.0;
@@ -1071,14 +1051,6 @@ scalar_t C8_susy::compute_LO(const ParamSrc& src) {
     }
 
     complex_t C8H_0 = 1. / 3. * lu * lu * F8_1(yt) - lu * ld * F8_2(yt);
-
-    // std::cout << "C8SMeps_0 " << C8SMeps_0 << std::endl;
-    // std::cout << "C8H_0 " << C8H_0 << std::endl;
-    // std::cout << "C8Heps_0 " << C8Heps_0 << std::endl;
-    // std::cout << "C8Heps2_0 " << C8Heps2_0 << std::endl;
-    // std::cout << "C8charg_0 " << C8charg_0 << std::endl;
-    // std::cout << "C8_chargeps_0" << C8_chargeps_0 << std::endl;
-    // std::cout << "elem are : " << C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0 << std::endl; 
     
     return scalar_t(C8SMeps_0 + C8Heps_0 + C8Heps2_0 + C8charg_0 + C8_chargeps_0 + C8H_0);
 }

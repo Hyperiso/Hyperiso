@@ -3,70 +3,272 @@ name: Release
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:
+      - "v*.*.*"
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  source-archive:
-    name: Source archive
+  validate:
+    name: Validate release commit
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-
-      - name: Create source archive
-        run: |
-          git archive --format tar.gz --prefix hyperiso-${GITHUB_REF_NAME}/ -o hyperiso-${GITHUB_REF_NAME}.tar.gz HEAD
-
-      - name: Upload source archive
-        uses: actions/upload-artifact@v4
         with:
-          name: hyperiso-source-${{ github.ref_name }}
-          path: hyperiso-${{ github.ref_name }}.tar.gz
-
-  python-wheel:
-    name: Python wheel
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: "3.11"
+          cache: pip
 
-      - name: Install build dependencies
+      - name: Install quality and system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev
-          python -m pip install --upgrade pip build
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev
+          python -m pip install --upgrade pip
+          python -m pip install pre-commit ruff==0.15.21 pyyaml
 
-      - name: Build distributions
-        run: python -m build ./Hyperiso/Hyperiso
+      - name: Validate version and repository metadata
+        run: |
+          python tools/check_version_consistency.py --tag "${GITHUB_REF_NAME}"
+          python tools/validate_metadata.py
+          pre-commit run --all-files
 
-      - name: Upload Python distributions
-        uses: actions/upload-artifact@v4
+      - name: Configure release build
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DENABLE_TESTS=ON \
+            -DBUILD_WITH_CLI=ON \
+            -DHYPERISO_BUILD_COMPARISON_TESTS=ON
+
+      - name: Build and test C++
+        run: |
+          cmake --build build --parallel 2
+          ctest --test-dir build --output-on-failure
+
+      - name: Verify frozen CPC references
+        run: |
+          HYPERISO_BIN="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
+          test -n "${HYPERISO_BIN}"
+          HYPERISO_BIN="${HYPERISO_BIN}" ./reproducibility/scripts/run_cli_suite.sh
+
+  sdist:
+    name: Build source distribution
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
         with:
-          name: pyhyperiso-dist-${{ github.ref_name }}
-          path: Hyperiso/Hyperiso/dist/*
+          python-version: "3.11"
+          cache: pip
+      - name: Build and validate sdist
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m build --sdist Hyperiso/Hyperiso --outdir dist
+          python -m twine check --strict dist/*
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sdist
+          path: dist/*
+          if-no-files-found: error
+
+  wheels:
+    name: Build manylinux wheels
+    needs: validate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Build wheels with cibuildwheel
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install cibuildwheel==4.1.0
+          python -m cibuildwheel Hyperiso/Hyperiso --output-dir wheelhouse
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wheels
+          path: wheelhouse/*
+          if-no-files-found: error
+
+  assemble:
+    name: Assemble immutable release artifacts
+    needs: [sdist, wheels]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/download-artifact@v4
+        with:
+          name: sdist
+          path: dist
+      - uses: actions/download-artifact@v4
+        with:
+          name: wheels
+          path: dist
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Validate and inventory distributions
+        run: |
+          python -m pip install twine
+          python -m twine check --strict dist/pyhyperiso-*.tar.gz dist/*.whl
+          git archive --format=tar.gz \
+            --prefix="hyperiso-${GITHUB_REF_NAME}/" \
+            -o "dist/hyperiso-${GITHUB_REF_NAME}.tar.gz" HEAD
+
+      - name: Generate SPDX SBOM
+        uses: anchore/sbom-action@v0.24.0
+        with:
+          path: .
+          format: spdx-json
+          output-file: dist/hyperiso-${{ github.ref_name }}.spdx.json
+          upload-artifact: false
+
+      - name: Write release manifest and checksums
+        run: |
+          python - <<'PY'
+          import json
+          import os
+          from pathlib import Path
+
+          files = sorted(
+              path.name
+              for path in Path("dist").iterdir()
+              if path.is_file() and path.name not in {"SHA256SUMS", "release-manifest.json"}
+          )
+          manifest = {
+              "tag": os.environ["GITHUB_REF_NAME"],
+              "commit": os.environ["GITHUB_SHA"],
+              "files": files,
+          }
+          Path("dist/release-manifest.json").write_text(
+              json.dumps(manifest, indent=2, sort_keys=True) + "\n"
+          )
+          PY
+          (
+            cd dist
+            find . -maxdepth 1 -type f ! -name SHA256SUMS -printf '%f\n' \
+              | sort \
+              | xargs sha256sum \
+              > SHA256SUMS
+          )
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-files
+          path: dist/*
+          if-no-files-found: error
+
+  publish-testpypi:
+    name: Publish to TestPyPI
+    needs: assemble
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/p/pyhyperiso
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist
+      - name: Select Python distributions
+        run: |
+          mkdir packages
+          cp dist/pyhyperiso-*.tar.gz dist/*.whl packages/
+      - name: Publish with Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/
+          packages-dir: packages
+
+  verify-testpypi:
+    name: Verify TestPyPI installation
+    needs: publish-testpypi
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Download and verify the TestPyPI wheel
+        env:
+          VERSION: "${{ github.ref_name }}"
+        run: |
+          VERSION="${VERSION#v}"
+          mkdir testpypi-wheel
+          for attempt in 1 2 3 4 5; do
+            if python -m pip download --no-deps --only-binary=:all: \
+              --index-url https://test.pypi.org/simple/ \
+              --dest testpypi-wheel "pyhyperiso==${VERSION}"; then
+              break
+            fi
+            if [ "${attempt}" -eq 5 ]; then exit 1; fi
+            sleep 20
+          done
+          python -m pip install numpy matplotlib
+          python -m pip install testpypi-wheel/*.whl
+          python - <<'PY'
+          import importlib.metadata
+          import pyhyperiso
+          from pyhyperiso.phyperiso import pyhyperiso as native
+
+          expected = importlib.metadata.version("pyhyperiso")
+          assert pyhyperiso.__version__ == expected
+          assert native.__version__ == expected
+          print(f"Verified pyhyperiso {expected} from TestPyPI")
+          PY
+
+  publish-pypi:
+    name: Publish to PyPI
+    needs: verify-testpypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi
+      url: https://pypi.org/p/pyhyperiso
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-files
+          path: dist
+      - name: Select Python distributions
+        run: |
+          mkdir packages
+          cp dist/pyhyperiso-*.tar.gz dist/*.whl packages/
+      - name: Publish the same artifacts with Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          packages-dir: packages
 
   github-release:
-    name: GitHub Release
+    name: Publish GitHub release
+    needs: publish-pypi
     runs-on: ubuntu-latest
-    needs: [source-archive, python-wheel]
+    permissions:
+      contents: write
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
-          path: release-artifacts
-
-      - name: Create release
+          name: release-files
+          path: dist
+      - name: Create immutable release
         uses: softprops/action-gh-release@v2
         with:
-          files: release-artifacts/**/*
+          files: dist/*
           generate_release_notes: true
-          draft: true
+          draft: false
+          fail_on_unmatched_files: true

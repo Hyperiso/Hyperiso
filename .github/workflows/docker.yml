@@ -42,7 +42,7 @@ jobs:
           load: true
 
       - name: CLI smoke test
-        run: docker run --rm hyperiso:dev hyperiso-ui --help || true
+        run: docker run --rm hyperiso:dev hyperiso-ui --help
 
       - name: Build Dash image
         uses: docker/build-push-action@v6

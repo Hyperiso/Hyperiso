@@ -62,8 +62,7 @@ Series<T>& DataFrame::operator[](const std::string& colName) {
 
 template <typename T>
 void DataFrame::describeColumn(const std::string& colName) const {
-    // auto series = std::make_shared<Series<T>>(colName);
-    const auto& series = getColumn<T>(colName);  // Récupérer la colonne
+    const auto& series = getColumn<T>(colName);
 
     std::cout << "Colonne: " << colName << std::endl;
     std::cout << "Count: " << series.size() << std::endl;
@@ -73,7 +72,7 @@ void DataFrame::describeColumn(const std::string& colName) const {
 
     auto quartiles = series.quartiles();
     std::cout << "25%: " << quartiles[0] << std::endl;
-    std::cout << "50%: " << quartiles[1] << std::endl;  // Median
+    std::cout << "50%: " << quartiles[1] << std::endl;
     std::cout << "75%: " << quartiles[2] << std::endl;
     std::cout << "Max: " << series.max() << std::endl;
     std::cout << std::endl;

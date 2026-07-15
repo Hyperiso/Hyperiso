@@ -1,4 +1,3 @@
-// test_lha_blocks_integration.cpp
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -27,7 +26,6 @@ static double as_number_from_value(const DBNode::Value& v) {
 int main() {
     std::cout << "== Running INTEGRATION tests for LhaBlock ==\n";
 
-    // 1) FMASS : valeur + échelle + schéma
     {
         LhaBlock blk(FMASS); // itemCount=4, valueIdx=1, scaleIdx=2, rgIdx=3
         blk.readData({
@@ -35,17 +33,14 @@ int main() {
             {"35", "200.0", "91.1876", "0"}
         });
 
-        // Accès par id (les ids sont tout sauf value/scale/rg -> ici {25} et {35})
         assert(blk.get(LhaID({25})) != nullptr);
         assert(blk.get(LhaID({35})) != nullptr);
 
-        // toDBNode : groupe FMASS, 2 entrées; pas de "scale" global (pas globalScale)
         auto n = blk.toDBNode();
         assert(n && !n->contains("scale"));
         auto g = n->getGroup({"FMASS"});
         assert(g.size() == 2);
 
-        // Valeurs présentes
         int seen = 0;
         for (auto& [k, v] : g) {
             double x = as_number_from_value(v);
@@ -55,9 +50,8 @@ int main() {
         assert(seen == 2);
     }
 
-    // 2) GAUGE : globalScale = true (selon Prototype GAUGE)
     {
-        LhaBlock blk(GAUGE); // itemCount=3, valueIdx=2, globalScale=true
+        LhaBlock blk(GAUGE);
         blk.readData({
             {"1000.0", "1", "0.3573"},
             {"1000.0", "2", "0.6464"},
@@ -80,9 +74,8 @@ int main() {
         assert(ok == 3);
     }
 
-    // 3) FCINFO : éléments string
     {
-        LhaBlock blk(FCINFO); // valueIdx par défaut (1)
+        LhaBlock blk(FCINFO);
         blk.readData({
             {"1", "GeneratorX"},
             {"2", "1.2.3"}
@@ -93,7 +86,6 @@ int main() {
         assert(g.size() == 2);
         int ok = 0;
         for (auto& [k, v] : g) {
-            // pour string, "central_value" est un BlockName (string)
             if (std::holds_alternative<std::shared_ptr<DBNode>>(v)) {
                 auto sub = std::get<std::shared_ptr<DBNode>>(v);
                 auto cv = sub->get("central_value");
@@ -106,6 +98,6 @@ int main() {
         assert(ok == 2);
     }
 
-    std::cout << "\n✅ All LhaBlock integration tests passed!\n";
+    std::cout << "\n All LhaBlock integration tests passed!\n";
     return 0;
 }

@@ -63,14 +63,6 @@ unsigned int fresh_seed() {
     return std::random_device{}();
 }
 
-// void init_abstract_config(py::module_& m) {
-//     // Utile si ce fichier est chargé seul. Si AbstractConfig est déjà exposée
-//     // ailleurs dans le même module, on évite une double déclaration.
-//     if (!py::hasattr(m, "AbstractConfig")) {
-//         py::class_<AbstractConfig>(m, "AbstractConfig");
-//     }
-// }
-
 MarginalConfig to_marginal_config(const py::handle& obj) {
     if (py::isinstance<FlatMarginalCfg>(obj)) {
         return obj.cast<FlatMarginalCfg>();
@@ -522,8 +514,6 @@ void init_fit_and_contours(py::module_& m) {
         .def_readwrite("primary_contour_method", &ContourOptions::primary_contour_method)
         .def_readwrite("fallback_contour_method", &ContourOptions::fallback_contour_method)
         .def_readwrite("resolution", &ContourOptions::resolution);
-        // on_progress n'est volontairement pas exposé ici : sa signature dépend
-        // de ContourObserver.h. Ajoute un binding dédié si tu veux un callback Python.
 
     py::class_<Contour>(m, "Contour")
         .def_property_readonly("paths", [](const Contour& contour) {

@@ -48,7 +48,7 @@ LhaElement<T>::LhaElement(const Prototype& prototype, const std::vector<std::str
 
     if (prototype.globalScale) {
         if (line.empty()) throw std::runtime_error("Global-scale block: empty line in " + prototype.blockName);
-        this->Q.emplace(std::stod(line.at(0))); // Q injecté en [0]
+        this->Q.emplace(std::stod(line.at(0)));
     } else if (sIdx != -1) {
         this->Q.emplace(std::stod(line.at(sIdx)));
     }
@@ -80,7 +80,6 @@ LhaID LhaElement<T>::encodeId(const Prototype& prototype, const std::vector<std:
         if (s.find_first_of(".eEdD") != std::string::npos) continue;
 
         try {
-            // std::cout << "truc: " <<  s << std::endl;
             sub_ids.emplace_back(std::stol(s));
         } catch (...) {
            LOG_WARN("Non-integer ID token in ", prototype.blockName, ": '", s, "'");

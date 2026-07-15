@@ -2,7 +2,7 @@
 
 These files are normalized CPC reference results. The startup banner and all
 machine-specific paths are intentionally excluded. `statistics_samples.csv`
-contains exactly 1,000 accepted serial Monte-Carlo samples generated with seed
+contains exactly 200 accepted serial Monte-Carlo samples generated with seed
 `123456`.
 
 Update the references only through:

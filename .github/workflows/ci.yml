@@ -42,7 +42,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential clang cmake ninja-build pkg-config libgsl-dev
+          sudo apt-get install -y build-essential clang cmake ninja-build pkg-config libgsl-dev libeigen3-dev
 
       - name: Configure
         env:
@@ -54,7 +54,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
             -DENABLE_TESTS=ON \
             -DBUILD_WITH_CLI=ON \
-            -DHYPERISO_BUILD_COMPARISON_TESTS=OFF
+            -DHYPERISO_BUILD_COMPARISON_TESTS=ON
 
       - name: Build
         run: cmake --build build --parallel 2
@@ -65,17 +65,14 @@ jobs:
       - name: Install smoke test
         run: |
           cmake --install build --prefix "$PWD/install"
-          test -d "$PWD/install"
+          test -n "$(find "$PWD/install" -type f -print -quit)"
 
       - name: CLI smoke test
         run: |
-          if [ -x build/UserInterfaceLib/hyperiso-ui ]; then
-            build/UserInterfaceLib/hyperiso-ui --help || true
-          elif command -v hyperiso-ui >/dev/null 2>&1; then
-            hyperiso-ui --help || true
-          else
-            echo "hyperiso-ui not found; check UserInterface build target layout"
-          fi
+          CLI="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
+          test -n "${CLI}"
+          test "$("${CLI}" --version)" = "1.0.0"
+          "${CLI}" --help >/dev/null
 
   examples-cpp:
     name: C++ examples against install
@@ -88,7 +85,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev
 
       - name: Build and install HyperIso
         run: |
