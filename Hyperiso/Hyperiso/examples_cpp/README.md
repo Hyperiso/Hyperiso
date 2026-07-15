@@ -37,6 +37,7 @@ cmake --build build-examples -j
 
 ```bash
 ./build-examples/core_base
+./build-examples/core_database_writer
 ./build-examples/wilson_base
 ./build-examples/observable_base
 ```
@@ -61,10 +62,11 @@ Statistic examples require the installed package to export `Hyperiso::StatisticL
 
 1. `Core/base_core_example.cpp`
 2. `Core/parameter_provider_example.cpp`
-3. `Wilson/base_wilson_example.cpp`
-4. `Observable/base_observable_example.cpp`
-5. `Statistic/base_statistic_example.cpp`
-6. Advanced `dev_examples` only after the public API workflow is clear.
+3. `Core/database_writer_example.cpp`
+4. `Wilson/base_wilson_example.cpp`
+5. `Observable/base_observable_example.cpp`
+6. `Statistic/base_statistic_example.cpp`
+7. Advanced `dev_examples` only after the public API workflow is clear.
 
 ## Expected behavior
 

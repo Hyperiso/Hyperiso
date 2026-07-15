@@ -15,6 +15,8 @@ Semantic Versioning.
 ### Added
 
 - Public C++20 core, command-line interface and Python bindings.
+- Public `DatabaseWriter`/`FileWriter` API for exporting the initialized Core
+  database to JSON, YAML, LHA, SLHA and FLHA, with block and parameter filters.
 - Standard Model, THDM, SUSY and MARTY-oriented Wilson-coefficient workflows.
 - Flavour-observable and statistical-analysis interfaces.
 - Fixed-seed CPC reproducibility suite with seven frozen reference cases, including archived THDM and SUSY spectra.
@@ -35,3 +37,8 @@ Semantic Versioning.
   Gaussian standard deviation.
 - Version metadata is synchronized at `1.0.0`.
 - Monte-Carlo CSV output is standards-compliant and deterministic.
+- Python bindings now select the const `MarginalConfigFactory::create`
+  overloads correctly with pybind11.
+- JSON and YAML database exports preserve complex parameter components through
+  the `imaginary_value` field; LHA-family exports generate `IM...` companion
+  blocks when complex values are stored directly.

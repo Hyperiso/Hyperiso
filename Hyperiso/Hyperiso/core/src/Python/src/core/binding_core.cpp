@@ -20,6 +20,7 @@
 #include "QEDProvider.h"
 #include "DependantBlockInfoProvider.h"
 #include "DependencyPruner.h"
+#include "FileWriter.h"
 
 namespace py = pybind11;
 
@@ -478,6 +479,67 @@ void init_core(py::module &m) {
         py::return_value_policy::move,
         "Return the names of all blocks for the given parameter type."
     );
+
+    py::class_<FileWriter>(
+        m,
+        "DatabaseWriter",
+        R"doc(Export the initialized Core parameter database.
+
+The output format is selected from the destination suffix. Supported suffixes
+are .json, .yaml, .yml, .lha, .slha and .flha. Exports can contain the whole
+database, selected blocks, or selected block/id parameters.)doc"
+    )
+        .def(py::init<>())
+        .def(
+            "write",
+            [](FileWriter& writer, const std::string& destination) {
+                writer.write(destination);
+            },
+            py::arg("destination"),
+            R"doc(Export the complete initialized database.
+
+Args:
+    destination: Output path. The filename suffix selects JSON, YAML or LHA.)doc"
+        )
+        .def(
+            "write_blocks",
+            [](FileWriter& writer,
+               const std::string& destination,
+               const std::vector<std::string>& block_names) {
+                std::vector<BlockName> names;
+                names.reserve(block_names.size());
+                for (const auto& name : block_names) {
+                    names.emplace_back(name);
+                }
+                writer.write_blocks(destination, names);
+            },
+            py::arg("destination"),
+            py::arg("block_names"),
+            R"doc(Export selected blocks from the initialized database.
+
+Args:
+    destination: Output path. The filename suffix selects the format.
+    block_names: Block names or aliases to export.)doc"
+        )
+        .def(
+            "write_parameters",
+            [](FileWriter& writer,
+               const std::string& destination,
+               const std::vector<ParamId>& parameter_ids) {
+                writer.write_parameters(destination, parameter_ids);
+            },
+            py::arg("destination"),
+            py::arg("parameter_ids"),
+            R"doc(Export selected parameters addressed by block and LHA id.
+
+Args:
+    destination: Output path. The filename suffix selects the format.
+    parameter_ids: ParamId objects identifying the entries to export.)doc"
+        );
+
+    // Backward/adapter-oriented name for callers working directly with the
+    // C++ abstraction. The Python wrapper uses the clearer DatabaseWriter name.
+    m.attr("FileWriter") = m.attr("DatabaseWriter");
 
     // py::enum_<CorrelationProvider::CorrelationType>(m, "CorrelationType")
     //     .value("STAT", CorrelationProvider::CorrelationType::STAT)

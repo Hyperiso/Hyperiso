@@ -101,7 +101,7 @@ except Exception:  # optional on older pyhyperiso builds
     DependencyPruner = None
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 from pyhyperiso.core.Core.HyperisoMaster import HyperisoMaster
-from pyhyperiso.core.Core.ParamaterProvider import ParameterProvider
+from pyhyperiso.core.Core.ParameterProvider import ParameterProvider
 from pyhyperiso.core.Core.ParameterSetter import ParameterSetter
 from pyhyperiso.core.Core.QCDProvider import QCDProvider
 from pyhyperiso.core.Core.QEDProvider import QEDProvider

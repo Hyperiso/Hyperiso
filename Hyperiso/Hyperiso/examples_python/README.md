@@ -30,6 +30,7 @@ python -m pip install matplotlib pandas numpy jupyter
 
 ```bash
 python Hyperiso/Hyperiso/examples_python/Core/base_core_example.py
+python Hyperiso/Hyperiso/examples_python/Core/database_writer_example.py
 python Hyperiso/Hyperiso/examples_python/Wilson/base_wilson_example.py
 python Hyperiso/Hyperiso/examples_python/Observable/base_observable_example.py
 ```
@@ -59,6 +60,8 @@ print(obs.compute_observable(Observables.BR_BS_MUMU))
 - Save scan metadata together with numerical outputs.
 - Prefer `Assets/lha/si_input.flha` for public SM smoke tests.
 - Use separate output directories and avoid writing generated files into the source tree.
+- Use `DatabaseWriter` to export the current Core database as JSON, YAML,
+  LHA, SLHA or FLHA, either completely or restricted to selected blocks/ids.
 
 ## Adding a new Python example
 

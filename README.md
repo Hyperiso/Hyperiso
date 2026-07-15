@@ -145,7 +145,7 @@ export CMAKE_PREFIX_PATH="$HOME/.local:$CMAKE_PREFIX_PATH"
 From the repository root:
 
 ```bash
-python -m pip install --upgrade pip build
+python -m pip install --upgrade pip
 python -m pip install ./Hyperiso/Hyperiso
 ```
 
@@ -154,6 +154,15 @@ For editable development:
 ```bash
 python -m pip install -e ./Hyperiso/Hyperiso
 ```
+
+For the complete development toolchain, including the standalone CMake
+requirements for the Python extension:
+
+```bash
+python -m pip install -e "./Hyperiso/Hyperiso[test,dev]"
+```
+
+Do not install the unrelated PyPI package `pybind`; HyperIso uses `pybind11`.
 
 When the package is published, the intended PyPI command is:
 
@@ -178,6 +187,20 @@ obs = ObservableInterface()
 obs.add_observable(Observables.BR_BS_MUMU, QCDOrder.NNLO)
 print(obs.compute_observable(Observables.BR_BS_MUMU))
 ```
+
+The initialized Core database can be exported directly from Python:
+
+```python
+from pyhyperiso.Core import DatabaseWriter
+
+writer = DatabaseWriter()
+writer.write("database.json")
+writer.write_blocks("inputs.yaml", ["SMINPUTS", "MASS"])
+```
+
+The filename suffix selects JSON, YAML, LHA, SLHA or FLHA. See
+`Hyperiso/Hyperiso/examples_python/Core/database_writer_example.py` for full
+and block/id-filtered exports.
 
 ### C++
 

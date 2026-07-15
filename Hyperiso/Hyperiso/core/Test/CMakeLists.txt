@@ -112,6 +112,7 @@ hyperiso_add_unit(testBlockUnit core Core/unit/test_block_unit.cpp LIBS CoreLib 
 hyperiso_add_integration(testBlockIntegration core Core/integration/test_block_integration.cpp LIBS CoreLib UtilsLib)
 hyperiso_add_unit(testBlockAccessorUnit core Core/unit/test_blockaccessor_unit.cpp LIBS CoreLib UtilsLib)
 hyperiso_add_integration(testBlockAccessorIntegration core Core/integration/test_blockaccessor_integration.cpp LIBS CoreLib UtilsLib)
+hyperiso_add_unit(testCoreFileWriterUnit core Core/unit/test_core_file_writer_unit.cpp LIBS CoreLib UtilsLib)
 hyperiso_add_unit(testCorrelationRepoUnit core Core/unit/test_correlationrepo_unit.cpp LIBS CoreLib UtilsLib)
 hyperiso_add_integration(testCorrelationRepoIntegration core Core/integration/test_correlationrepo_integration.cpp LIBS CoreLib UtilsLib)
 hyperiso_add_unit(testParameterRouterUnit core Core/unit/test_parameterrouter_unit.cpp LIBS CoreLib UtilsLib)

@@ -67,7 +67,7 @@ cmake -S Hyperiso/Hyperiso/core -B build-comparison \
 ## Install the Python package
 
 ```bash
-python -m pip install --upgrade pip build
+python -m pip install --upgrade pip
 python -m pip install ./Hyperiso/Hyperiso
 ```
 
@@ -76,6 +76,14 @@ Editable development install:
 ```bash
 python -m pip install -e ./Hyperiso/Hyperiso
 ```
+
+Complete development environment:
+
+```bash
+python -m pip install -e "./Hyperiso/Hyperiso[test,dev]"
+```
+
+HyperIso uses `pybind11`; the PyPI package named `pybind` is unrelated.
 
 Run Python tests:
 
@@ -99,7 +107,7 @@ cmake --build build-examples -j
 | Interface | Entry point |
 |---|---|
 | C++ API | headers and CMake targets exported by the C++ install. |
-| Python API | `pyhyperiso.Common`, `pyhyperiso.Core`, `pyhyperiso.Wilson`, `pyhyperiso.Observable`, `pyhyperiso.Statistic`. |
+| Python API | `pyhyperiso.Common`, `pyhyperiso.Core`, `pyhyperiso.Wilson`, `pyhyperiso.Observable`, `pyhyperiso.Statistic`; `pyhyperiso.Core.DatabaseWriter` exports the initialized database. |
 | CLI | `hyperiso-ui`, built with `-DBUILD_WITH_CLI=ON`. |
 | Dash GUI | `GHyperiso/HyperisoDashGUI`. |
 

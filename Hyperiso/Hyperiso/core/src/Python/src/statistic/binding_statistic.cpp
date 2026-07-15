@@ -239,13 +239,19 @@ void init_marginal_config_factory(py::module_& m) {
         }))
         .def(
             "create",
-            py::overload_cast<ParamId, MarginalType>(&MarginalConfigFactory::create),
+            py::overload_cast<ParamId, MarginalType>(
+                &MarginalConfigFactory::create,
+                py::const_
+            ),
             py::arg("pid"), py::arg("marginal"),
             "Create a MarginalConfig from a ParamId and a marginal type."
         )
         .def(
             "create",
-            py::overload_cast<ExperimentObs, MarginalType>(&MarginalConfigFactory::create),
+            py::overload_cast<ExperimentObs, MarginalType>(
+                &MarginalConfigFactory::create,
+                py::const_
+            ),
             py::arg("obs"), py::arg("marginal"),
             "Create a MarginalConfig from an ExperimentObs and a marginal type."
         );

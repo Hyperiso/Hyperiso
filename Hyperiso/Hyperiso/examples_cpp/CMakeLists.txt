@@ -51,6 +51,7 @@ endfunction()
 # -------------------------
 add_hyperiso_example(core_base Core/base_core_example.cpp ${HYPERISO_CORE_LIB})
 add_hyperiso_example(core_block_logger Core/block_logger_example.cpp ${HYPERISO_CORE_LIB})
+add_hyperiso_example(core_database_writer Core/database_writer_example.cpp ${HYPERISO_CORE_LIB})
 add_hyperiso_example(core_dependency_pruner Core/dependency_pruner_example.cpp ${HYPERISO_CORE_LIB})
 add_hyperiso_example(core_parameter_provider Core/parameter_provider_example.cpp ${HYPERISO_CORE_LIB})
 add_hyperiso_example(core_parameter_setter Core/parameter_setter_example.cpp ${HYPERISO_CORE_LIB})

@@ -11,6 +11,15 @@ static double value_to_double(const DBNode::Value& v, double fallback = 0.0)
     return fallback;
 }
 
+static scalar_t node_to_scalar(const std::shared_ptr<DBNode>& node)
+{
+    const double real_part = value_to_double(node->get("central_value"));
+    const double imaginary_part = node->contains("imaginary_value")
+        ? value_to_double(node->get("imaginary_value"))
+        : 0.0;
+    return scalar_t(real_part, imaginary_part);
+}
+
 void ParamBlockLoader::add_lha_prototype(BlockName blockName,
                                            size_t itemCount,
                                            size_t valueIdx,
@@ -101,7 +110,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                         continue;
                     }
 
-                    double val_central = std::get<double>(value);
+                    scalar_t val_central = node_to_scalar(node);
 
                     auto stat = node->contains("stat_error") ? node->get("stat_error") : DBNode::Value{0.0};
                     auto syst = node->contains("syst_error") ? node->get("syst_error") : DBNode::Value{0.0};
@@ -187,7 +196,7 @@ void ParamBlockLoader::load(std::shared_ptr<BlockAccessor> dest, fs::path src_fi
                 continue;
             }
 
-            double val_central = std::get<double>(value);
+            scalar_t val_central = node_to_scalar(node);
 
             auto stat = node->contains("stat_error") ? node->get("stat_error") : DBNode::Value{0.0};
             auto syst = node->contains("syst_error") ? node->get("syst_error") : DBNode::Value{0.0};

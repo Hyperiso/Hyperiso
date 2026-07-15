@@ -568,6 +568,54 @@ static void write_generic_block(std::ostream& os,
     os << "\n";
 }
 
+static std::map<BlockName, DBNode::Value> build_imaginary_group(
+    const std::map<BlockName, DBNode::Value>& group
+)
+{
+    std::map<BlockName, DBNode::Value> imaginary_group;
+    bool has_imaginary_entries = false;
+
+    for (const auto& [key, value] : group) {
+        if (key == BlockName("scale")) {
+            continue;
+        }
+
+        auto node = value_to_node_ptr(value);
+        if (!node || !node->contains("imaginary_value")) {
+            continue;
+        }
+
+        const double imaginary = value_to_double(node->get("imaginary_value"), 0.0);
+        if (imaginary == 0.0) {
+            continue;
+        }
+
+        auto imaginary_node = std::make_shared<DBNode>();
+        imaginary_node->set(imaginary, "central_value");
+        for (const auto& metadata_key : {
+                 BlockName("scale"),
+                 BlockName("bin_low"),
+                 BlockName("bin_high")
+             }) {
+            if (node->contains(metadata_key)) {
+                imaginary_node->set(node->get(metadata_key), metadata_key);
+            }
+        }
+
+        imaginary_group[key] = imaginary_node;
+        has_imaginary_entries = true;
+    }
+
+    if (has_imaginary_entries) {
+        const auto scale = group.find(BlockName("scale"));
+        if (scale != group.end()) {
+            imaginary_group[BlockName("scale")] = scale->second;
+        }
+    }
+
+    return imaginary_group;
+}
+
 static void write_flife_like(std::ostream& os,
                              const Prototype& proto,
                              const std::map<BlockName, DBNode::Value>& group)
@@ -618,6 +666,8 @@ void LhaParser::writeToFile(const std::string &filename,
         fwcoef_from_external = build_fwcoef_group_from_ewscale_blocks(root, prefixes, usedExternal);
     }
 
+    std::vector<BlockName> written_blocks;
+
     for (const auto& proto : allowed) {
         const auto bn = proto.blockName;
 
@@ -626,6 +676,8 @@ void LhaParser::writeToFile(const std::string &filename,
             if (BlockName(k) == bn) { present = true; break; }
         }
         if (!present) continue;
+
+        written_blocks.push_back(bn);
 
         auto group = root->getGroup({bn});
 
@@ -648,6 +700,70 @@ void LhaParser::writeToFile(const std::string &filename,
             write_flife_like(out, proto, group);
         } else {
             write_generic_block(out, proto, group);
+        }
+    }
+
+    // Preserve custom/runtime blocks as generic LHA blocks instead of silently
+    // dropping them because no built-in parsing prototype exists. Their entry
+    // ids are already serialized as underscore-separated DBNode keys by
+    // ParamBlockWriter, which write_generic_block expands into LHA columns.
+    auto root_keys = root->get_keys();
+    std::sort(root_keys.begin(), root_keys.end(), [](const BlockName& lhs, const BlockName& rhs) {
+        return lhs.canonical() < rhs.canonical();
+    });
+
+    for (const auto& block_name : root_keys) {
+        const bool already_written = std::any_of(
+            written_blocks.begin(),
+            written_blocks.end(),
+            [&](const BlockName& written) { return written == block_name; }
+        );
+        if (already_written) {
+            continue;
+        }
+
+        auto group = root->getGroup({block_name});
+        Prototype generic{block_name};
+        generic.globalScale = group.contains(BlockName("scale"));
+        write_generic_block(out, generic, group);
+    }
+
+    // LHA-family formats represent complex entries through companion IM...
+    // blocks. Generate those blocks when a parameter is stored directly as a
+    // complex scalar and no explicit companion block is already present.
+    for (const auto& block_name : root_keys) {
+        const std::string name = blockname_primary(block_name);
+        if (starts_with(name, "IM")) {
+            continue;
+        }
+
+        const BlockName imaginary_name("IM" + name);
+        const bool explicit_companion = std::any_of(
+            root_keys.begin(),
+            root_keys.end(),
+            [&](const BlockName& candidate) { return candidate == imaginary_name; }
+        );
+        if (explicit_companion) {
+            continue;
+        }
+
+        const auto imaginary_group = build_imaginary_group(root->getGroup({block_name}));
+        if (imaginary_group.empty()) {
+            continue;
+        }
+
+        Prototype imaginary_proto{imaginary_name};
+        if (const Prototype* known = find_proto(allowed, imaginary_name)) {
+            imaginary_proto = *known;
+        } else {
+            imaginary_proto.globalScale =
+                imaginary_group.contains(BlockName("scale"));
+        }
+
+        if (blockname_primary(imaginary_name) == "IMFWCOEF") {
+            write_fwcoef_like(out, imaginary_proto, imaginary_group, Qew, hasQew);
+        } else {
+            write_generic_block(out, imaginary_proto, imaginary_group);
         }
     }
 }

@@ -42,7 +42,11 @@ void ParamBlockWriter::write(std::shared_ptr<DBNode> dest, std::shared_ptr<Block
 
             auto node = std::make_shared<DBNode>();
 
-            node->set(static_cast<double>(p->get_val()), "central_value");
+            const scalar_t value = p->get_val();
+            node->set(value.real(), "central_value");
+            if (value.imag() != 0.0) {
+                node->set(value.imag(), "imaginary_value");
+            }
 
             {
                 auto [stat, syst] = p->get_std();
