@@ -705,7 +705,7 @@ class ObservableInterface:
         """
         _require(pid, ParamId, "pid")
         if pid.type is None:
-            raise ValueError("pid.type must be defined pour set_param().")
+            raise ValueError("pid.type must be defined for set_param().")
         _require(pid.type, ParameterType, "pid.type")
         self._cpp_obj.set_param(
             str(pid.block), _single_lha_code(pid.code), float(value), pid.type.value
@@ -728,7 +728,7 @@ class ObservableInterface:
         """
         _require(pid, ParamId, "pid")
         if pid.type is None:
-            raise ValueError("pid.type must be defined pour get_param().")
+            raise ValueError("pid.type must be defined before calling get_param().")
         _require(pid.type, ParameterType, "pid.type")
         return self._cpp_obj.get_param(str(pid.block), _single_lha_code(pid.code), pid.type.value)
 

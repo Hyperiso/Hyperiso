@@ -3,7 +3,7 @@
 
 #include "ParamWriter.h"
 #include "IncludeManager.hpp"
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 
 /**
  * @file LineProcessor.h
@@ -30,7 +30,7 @@
 class LineProcessor {
 private:
     IncludeManager includeManager;  ///< Manager for inserting extra includes.
-    FileWriter fileWriter;          ///< Helper to write argument and IO code.
+    MartyFileWriter fileWriter;          ///< Helper to write argument and IO code.
     bool done = false;              ///< Indicates whether further injection is disabled.
     bool forceMode;                 ///< If true, ignore the `//42` marker and keep injecting.
 
@@ -39,11 +39,11 @@ public:
      * @brief Constructs a LineProcessor with the given helpers and mode.
      *
      * @param includeManager Reference to an ::IncludeManager instance.
-     * @param filewriter     Reference to a ::FileWriter instance.
+     * @param filewriter     Reference to a ::MartyFileWriter instance.
      * @param forceMode      If true, the processor keeps modifying the file
      *                       even after encountering the `//42` marker.
      */
-    LineProcessor(IncludeManager& includeManager, FileWriter& filewriter, bool forceMode);
+    LineProcessor(IncludeManager& includeManager, MartyFileWriter& filewriter, bool forceMode);
 
     /**
      * @brief Processes a single line of input and writes to the output file.

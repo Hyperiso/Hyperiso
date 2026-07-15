@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <iostream>
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 #include "FileNameManager.h"
 
 namespace fs = std::filesystem;
@@ -13,7 +13,7 @@ static std::string read_all(const fs::path& p){
 }
 
 int main() {
-    std::cout << "== FileWriter UNIT ==\n";
+    std::cout << "== MartyFileWriter UNIT ==\n";
 
     const fs::path root = fs::temp_directory_path() / "fnm_fw_unit";
     const std::string templ = (root / "templ").string() + "/";
@@ -25,7 +25,7 @@ int main() {
 
     auto mgr = FileNameManager::getInstance("C7","SM");
 
-    FileWriter fw("C7","SM");
+    MartyFileWriter fw("C7","SM");
     const fs::path out = root / "snippet.cpp";
     {
         std::ofstream ofs(out);

@@ -43,7 +43,7 @@ add_library(MartyInterfaceLib STATIC
     MartyInterface.cpp
     TemplateManager.cpp
     NumericalScriptProcessing/Extractor.cpp
-    NumericalScriptProcessing/FileWriter.cpp
+    NumericalScriptProcessing/MartyFileWriter.cpp
     NumericalScriptProcessing/Interpreter.cpp
     NumericalScriptProcessing/SMParamSetter.cpp
     NumericalScriptProcessing/LineProcessor.cpp

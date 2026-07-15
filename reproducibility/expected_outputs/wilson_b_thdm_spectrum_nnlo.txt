@@ -2,7 +2,7 @@
 order=NNLO, qmatch=81, q=81
 
 Group: BCoefficients
-  C7  matching=(0.000800479,0)  running=(0.000800479,0)
-  C8  matching=(0.000870486,0)  running=(0.000870486,0)
-  C9  matching=(-0.000277854,0)  running=(-0.000277854,0)
-  C10  matching=(-0.00488796,0)  running=(-0.00488796,0)
+  C7  matching=(0.000800431,0)  running=(0.000795987,0)
+  C8  matching=(0.000870192,0)  running=(0.000868799,0)
+  C9  matching=(-0.000277916,0)  running=(-0.000277916,0)
+  C10  matching=(-0.00488018,0)  running=(-0.00488018,0)

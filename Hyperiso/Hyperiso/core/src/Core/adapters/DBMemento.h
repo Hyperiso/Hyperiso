@@ -82,10 +82,10 @@ private:
      * This is typically implemented as a deep copy of all blocks and
      * parameters.
      *
-     * @param reciever Target BlockAccessor reference to overwrite.
+     * @param receiver Target BlockAccessor reference to overwrite.
      * @param source   Shared pointer to the source BlockAccessor snapshot.
      */
-    static void Overwrite(std::shared_ptr<BlockAccessor>& reciever, std::shared_ptr<BlockAccessor> source);
+    static void Overwrite(std::shared_ptr<BlockAccessor>& receiver, std::shared_ptr<BlockAccessor> source);
 
     /// Internal stack of snapshots.
     std::stack<std::shared_ptr<BlockAccessor>> snapshots;

@@ -100,8 +100,8 @@ std::shared_ptr<Block> ParamOptimizer::find_block_(const BlockName& name) const 
             else if (found.get() != b.get()) ambiguous = true;
         }
     }
-    if (!found) throw std::invalid_argument("ParamOptimizer: block introuvable: " + name);
-    if (ambiguous) throw std::invalid_argument("ParamOptimizer: block '" + name + "' trouvé dans plusieurs scopes.");
+    if (!found) throw std::invalid_argument("ParamOptimizer: block not found: " + name);
+    if (ambiguous) throw std::invalid_argument("ParamOptimizer: block '" + name + "' was found in multiple scopes.");
     return found;
 }
 

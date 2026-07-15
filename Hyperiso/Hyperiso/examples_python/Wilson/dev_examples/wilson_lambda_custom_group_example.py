@@ -3,7 +3,11 @@
 from pyhyperiso.Common import Model, QCDOrder, ContributionType, WilsonBasis, ParameterType, ParamId
 from pyhyperiso.Common import GroupMapper, WCoefMapper
 from pyhyperiso.Core import HyperisoConfig, HyperisoMaster
-from pyhyperiso.Wilson import WilsonInterface, CustomWilsonCoefficientConfig, CustomWilsonGroupConfig
+from pyhyperiso.Wilson import (
+    WilsonInterface,
+    CustomWilsonCoefficientConfig,
+    CustomWilsonGroupConfig,
+)
 
 
 def scalar_real(x):
@@ -12,7 +16,6 @@ def scalar_real(x):
 
 
 if __name__ == "__main__":
-
     config = HyperisoConfig(model=Model.SM)
     hyp = HyperisoMaster()
     hyp.init(lha_file="lha/si_input.flha", config=config)
@@ -63,4 +66,7 @@ if __name__ == "__main__":
     wilson.add_custom_group(wc_group)
 
     print("C_PY_DEV_1 matching LO =", wilson.get_M(group, c1, QCDOrder.LO, ContributionType.SM))
-    print("C_PY_DEV_2 running LO  =", wilson.get_R(group, c2, QCDOrder.LO, ContributionType.SM, WilsonBasis.STANDARD))
+    print(
+        "C_PY_DEV_2 running LO  =",
+        wilson.get_R(group, c2, QCDOrder.LO, ContributionType.SM, WilsonBasis.STANDARD),
+    )

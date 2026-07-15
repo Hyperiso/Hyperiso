@@ -19,16 +19,16 @@ placeholder numerical values.
 
 ## Experimental or validation-sensitive areas
 
-- SUSY/NMSSM paths contain calculations that still require broader benchmark
-  coverage. They are available for expert validation but are not part of the five
-  frozen CPC reference cases.
+- R7 validates a selected SUSY B-sector coefficient benchmark from an archived
+  spectrum. Broader SUSY/NMSSM paths, especially neutral-meson mixing and less-used
+  operator groups, still require additional independent benchmark coverage.
 - `FWCOEF` parsing remains less extensively exercised than the standard Wilson
   input paths.
 - The neutral-meson-mixing implementation contains a literature-matching shift
   inherited from the validated implementation. Its provenance must be discussed in
   the accompanying scientific documentation before changing it.
 - Student-t copula and some extended covariance/correlation paths are not part of
-  the 1.0.0 reproducibility gate.
+  the seven-case 1.0.0 reproducibility gate.
 
 ## Platform support
 

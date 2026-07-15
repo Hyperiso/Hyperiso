@@ -20,7 +20,7 @@
  * @brief Write parameter blocks from a BlockAccessor into a file (LHA, JSON and YAML format).
  *
  * This file defines the FileWriter class, which specializes the IDataWriter interface
- * to write parameter blocks into a file with differents formats (.json, .yaml, .lha, .slha and .flha).
+ * to write parameter blocks into a file in different formats (.json, .yaml, .lha, .slha and .flha).
  */
 
 /**

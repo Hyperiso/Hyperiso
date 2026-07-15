@@ -1,6 +1,6 @@
 """Example: define a custom decay and observable from Python lambdas."""
 
-from pyhyperiso.Common import Model, QCDOrder, ContributionType, WilsonBasis
+from pyhyperiso.Common import Model, QCDOrder, ContributionType
 from pyhyperiso.Common import GroupMapper, WCoefMapper, ObservableMapper
 from pyhyperiso.Core import HyperisoConfig, HyperisoMaster
 from pyhyperiso.Wilson import CustomWilsonCoefficientConfig, CustomWilsonGroupConfig
@@ -13,7 +13,6 @@ def scalar_real(x):
 
 
 if __name__ == "__main__":
-
     config = HyperisoConfig(model=Model.SM)
     hyp = HyperisoMaster()
     hyp.init(lha_file="lha/si_input.flha", config=config)

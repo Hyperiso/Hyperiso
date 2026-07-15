@@ -17,7 +17,7 @@ Semantic Versioning.
 - Public C++20 core, command-line interface and Python bindings.
 - Standard Model, THDM, SUSY and MARTY-oriented Wilson-coefficient workflows.
 - Flavour-observable and statistical-analysis interfaces.
-- Fixed-seed CPC reproducibility suite with five frozen reference cases.
+- Fixed-seed CPC reproducibility suite with seven frozen reference cases, including archived THDM and SUSY spectra.
 - Linux wheels built with cibuildwheel and Trusted Publishing workflows.
 - Third-party licensing and provenance notices.
 

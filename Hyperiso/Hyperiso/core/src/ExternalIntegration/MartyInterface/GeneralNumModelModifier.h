@@ -13,7 +13,7 @@
 #include "IncludeManager.hpp"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 #include "FileNameManager.h"
 
 /**
@@ -52,7 +52,7 @@ private:
     
     Interpreter                 interpreter;
     std::unique_ptr<SMParamSetter> paramSetter;
-    FileWriter                  fileWriter;
+    MartyFileWriter                  fileWriter;
     LineProcessor               lineProcessor;
     ModelWriter                 modelWriter;
     ParamWriter                 paramWriter;

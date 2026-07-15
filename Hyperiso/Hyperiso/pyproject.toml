@@ -13,11 +13,14 @@ description = "Hyperiso Python binding (C++ backend via pybind11)"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
 authors = [
-  { name = "Théo Reymermier" },
+  { name = "Théo Reymermier", email = "t.reymermier@ip2i.in2p3.fr" },
   { name = "Niels Fardeau" },
 ]
+maintainers = [
+  { name = "Théo Reymermier", email = "t.reymermier@ip2i.in2p3.fr" },
+]
 license = "GPL-3.0-or-later"
-license-files = ["LICENSES/*", "THIRD_PARTY_NOTICES.md"]
+license-files = ["LICENSES/GPL-3.0-or-later.txt", "THIRD_PARTY_NOTICES.md"]
 
 dependencies = [
   "numpy>=1.23",
@@ -80,6 +83,13 @@ sdist.exclude = [
   "**/*.bak",
   "**/*.zip",
   "**/* copy.cpp",
+  "core/src/**/app/**",
+  "core/src/**/*.ipynb",
+  "core/src/Math/app/cpp_test_out/**",
+  "**/*.npy",
+  "**/*.png",
+  "pyhyperiso/assets/default/*_old.json",
+  "pyhyperiso/assets/default/*_bad.json",
 ]
 
 # Show CMake and Ninja commands in build logs.

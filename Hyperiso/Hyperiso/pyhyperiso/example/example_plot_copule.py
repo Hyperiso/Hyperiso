@@ -154,7 +154,7 @@ def make_gaussian_copula(R: Matrix, seed: int):
         return CF.gaussian(R, seed=seed)
     if hasattr(CF, "create"):
         return CF.create(CopulaKind.GAUSSIAN, cfg, seed=seed)
-    return CF.create_gaussian(cfg, seed) 
+    return CF.create_gaussian(cfg, seed)
 
 
 def make_student_t_copula(R: Matrix, nu: int, seed: int):

@@ -42,7 +42,7 @@ def compile_cpp_if_needed(bin_path: Path, cpp_path: Path) -> None:
         return
     if not cpp_path or not cpp_path.exists():
         raise FileNotFoundError(
-            f"Binaire introuvable ({bin_path}) et source C++ non trouvée ({cpp_path}). "
+            f"Executable not found ({bin_path}) and C++ source not found ({cpp_path}). "
             f"Passe --cpp <chemin/vers/correlated_rng.cpp> ou --bin <chemin/vers/binaire>."
         )
     print(f"[INFO] Compilation de {cpp_path} → {bin_path} ...")
@@ -198,7 +198,7 @@ def main():
 
     if not bin_path.exists():
         raise FileNotFoundError(
-            f"Binaire introuvable: {bin_path}\n"
+            f"Executable not found: {bin_path}\n"
             f"→ Compile-le (g++ -std=c++17 -O2 correlated_rng.cpp -o correlated_rng)\n"
             f"ou passe --cpp pour compiler automatiquement."
         )

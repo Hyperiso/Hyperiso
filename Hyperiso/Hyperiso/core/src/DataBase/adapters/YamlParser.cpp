@@ -191,7 +191,7 @@ double YAMLParser::parseNumber(const std::string& value) const {
     try {
         return std::stod(value);
     } catch (const std::exception&) {
-        throw std::runtime_error("Format de nombre invalide : " + value);
+        throw std::runtime_error("Invalid numeric format: " + value);
     }
 }
 

@@ -170,39 +170,3 @@ void readParams(std::ifstream& inputFile,
     }
 }
 
-
-
-
-// int main() {
-//     std::string C1 = "C1";
-//     std::string C7 = "C7";
-//     std::string C9 = "C9";
-
-//     std::complex<double> valueC1_1(1.1, 0.1);
-//     std::complex<double> valueC1_2(1.2, 0.2);
-
-//     std::complex<double> valueC7_1(7.1, -0.7);
-//     std::complex<double> valueC7_2(7.2, -0.8);
-
-//     std::complex<double> valueC9_1(9.1, 0.9); 
-
-//     std::cout << "Test 1: Ajout du coefficient C1 à Q_match = 100\n";
-//     writeWilsonCoefficients(C1, valueC1_1, 100);
-
-//     std::cout << "Test 2: Ajout du coefficient C1 à Q_match = 200\n";
-//     writeWilsonCoefficients(C1, valueC1_2, 200);
-
-//     std::cout << "Test 3: Ajout du coefficient C7 à Q_match = 100\n";
-//     writeWilsonCoefficients(C7, valueC7_1, 100);
-
-//     std::cout << "Test 4: Ajout du coefficient C7 à Q_match = 300\n";
-//     writeWilsonCoefficients(C7, valueC7_2, 300);
-
-//     std::cout << "Test 5: Ajout du coefficient C9 à Q_match = 150\n";
-//     writeWilsonCoefficients(C9, valueC9_1, 150);
-
-//     writeWilsonCoefficients("C10", {42,42}, 500);
-//     std::cout << "Test terminé. Consultez le fichier SM_wilson.csv pour vérifier les résultats.\n";
-
-//     return 0;
-// }

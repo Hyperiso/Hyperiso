@@ -13,7 +13,7 @@ std::shared_ptr<MappingDatabaseProxy> MappingDatabaseProxy::fromFactory(
 
 MappingDatabaseProxy::MappingDatabaseProxy(std::shared_ptr<IMappingDatabaseAdapter> adapter)
     : adapter_(std::move(adapter)) {
-    if (!adapter_) throw std::runtime_error("MappingDatabaseProxy: adapter nul");
+    if (!adapter_) throw std::runtime_error("MappingDatabaseProxy: adapter is null");
 }
 
 std::unordered_map<std::string, InterpretedParam>

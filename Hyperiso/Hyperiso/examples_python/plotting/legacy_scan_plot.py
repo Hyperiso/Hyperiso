@@ -20,7 +20,6 @@ from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig
 from pyhyperiso.core.Statistic.GaussianSummary import GaussianSummary
 
 
-
 def _scalar_to_float(x: Any) -> float:
     if hasattr(x, "value"):
         return float(x.value)
@@ -123,7 +122,6 @@ def normalize_summaries_keys(
     return out
 
 
-
 def anomalies_plot(
     flip: bool = True,
 ):
@@ -156,7 +154,7 @@ def anomalies_plot(
     summaries = normalize_summaries_keys(summaries_raw)
 
     labels: List[str] = [""]
-    points = [] 
+    points = []
 
     def add_nonbinned(obs: Observables, latex_label: str):
         obs_2 = BinnedObservableId(ObservableMapper().to_id(obs))
@@ -233,9 +231,8 @@ def main():
         mty_model_name="MSSM_UFO",
     )
 
-    lha_file_path = "lha/si_input.flha" 
+    lha_file_path = "lha/si_input.flha"
     hyp.init(lha_file=lha_file_path, config=config)
-
 
     anomalies_plot(
         flip=True,

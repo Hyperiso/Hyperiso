@@ -1142,7 +1142,7 @@ scalar_t polylog(size_t n, size_t m, double x) {
     if (x == 1.0) {
         z = s1[n][m];
     } else if ((x > 2.0) || (x < -1.0)) {
-        // Logique pour x > 2 ou x < -1
+        // Branch for x > 2 or x < -1
         double x1 = 1.0 / x;
         double h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
         double alfa = h + h;
@@ -1187,7 +1187,7 @@ scalar_t polylog(size_t n, size_t m, double x) {
 
         z = sgn[n] *1.* sk + sgn[m]*1. * (sj + v[n + m]);
     } else if (x>hf) {
-        // Logique pour x > 0.5
+        // Branch for x > 0.5
         double x1 = 1.0 - x;
         double h = 4.0 / 3.0 * x1 + 1.0 / 3.0;
         double alfa = h + h;
@@ -1232,7 +1232,7 @@ scalar_t polylog(size_t n, size_t m, double x) {
 
         z = sk + sgn[m] * u[n] * v[m];
     } else {
-        // Logique pour les autres cas
+        // Branch for the remaining cases
         size_t le = index[10 * n + m - 10];
         double h = 4.0 / 3.0 * x + 1.0 / 3.0;
         double alfa = h + h;

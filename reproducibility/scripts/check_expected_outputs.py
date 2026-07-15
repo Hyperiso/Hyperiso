@@ -120,12 +120,19 @@ def compare_text(
                     f"line {line_no} value {value_no} is non-finite: "
                     f"expected {expected}, got {obtained}"
                 )
-            elif not math.isclose(obtained, expected, rel_tol=rel_tol, abs_tol=abs_tol):
-                errors.append(
-                    f"line {line_no} value {value_no} differs: expected {expected:.17g}, "
-                    f"got {obtained:.17g}, |diff|={abs(expected - obtained):.3g}, "
-                    f"abs_tol={abs_tol:.3g}, rel_tol={rel_tol:.3g}"
+            else:
+                effective_abs_tol = max(
+                    abs_tol, serialization_abs_tol(ref_match.group(0))
                 )
+                if not math.isclose(
+                    obtained, expected, rel_tol=rel_tol, abs_tol=effective_abs_tol
+                ):
+                    errors.append(
+                        f"line {line_no} value {value_no} differs: "
+                        f"expected {expected:.17g}, got {obtained:.17g}, "
+                        f"|diff|={abs(expected - obtained):.3g}, "
+                        f"abs_tol={effective_abs_tol:.3g}, rel_tol={rel_tol:.3g}"
+                    )
     return errors
 
 
@@ -189,11 +196,12 @@ def read_csv(
 
 
 def serialization_abs_tol(value: str) -> float:
-    """Return half the decimal unit represented by a frozen CSV field.
+    """Return half the decimal unit represented by a frozen numeric token.
 
-    Older references were serialized with six significant digits. A newer writer
-    may preserve the full double without changing the underlying calculation.
-    This tolerance accepts only the rounding interval encoded by the frozen text.
+    Reference text is compared at the precision it actually records. This allows
+    values on opposite sides of the final printed digit to compare equal without
+    weakening the physical absolute or relative tolerances. Full-precision CSV
+    fields consequently receive a negligible serialization tolerance.
     """
     try:
         decimal_value = Decimal(value)

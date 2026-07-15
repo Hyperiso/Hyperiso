@@ -24,7 +24,7 @@ void MappingDatabase::load(const std::string& jsonFilePath,
     try {
         paramsMap = loader->loadFromFile(jsonFilePath);
     } catch (const std::exception& e) {
-        std::cerr << "Echec chargement mapping depuis " << jsonFilePath
+        std::cerr << "Failed to load mapping from " << jsonFilePath
                   << " : " << e.what() << std::endl;
         paramsMap.clear();
     }

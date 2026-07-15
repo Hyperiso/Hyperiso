@@ -16,7 +16,7 @@ SPEC.loader.exec_module(checker)
 
 
 class CsvReferenceComparisonTests(unittest.TestCase):
-    def test_serialization_tolerance_matches_frozen_precision(self) -> None:
+    def test_serialization_tolerance_matches_recorded_precision(self) -> None:
         self.assertAlmostEqual(
             checker.serialization_abs_tol("0.000313876"), 5e-10, places=15
         )
@@ -24,7 +24,7 @@ class CsvReferenceComparisonTests(unittest.TestCase):
             checker.serialization_abs_tol("2.78341e-09"), 5e-15, places=20
         )
 
-    def test_full_precision_writer_matches_rounded_frozen_reference(self) -> None:
+    def test_full_precision_csv_matches_with_declared_numeric_tolerance(self) -> None:
         spec = {
             "columns": ["BR_B__Xs_gamma [0, 0]", "BR_Bs__mu_mu [0, 0]"],
             "rows": 1,
@@ -36,15 +36,15 @@ class CsvReferenceComparisonTests(unittest.TestCase):
             reference = root / "reference.csv"
             output = root / "output.csv"
             for path, row in (
-                (reference, ["0.000313876", "2.78341e-09"]),
-                (output, ["0.00031387579123833616", "2.7834103e-09"]),
+                (reference, ["0.00031387579123833616", "2.7834103000000001e-09"]),
+                (output, ["0.00031387579123833620", "2.7834103000000005e-09"]),
             ):
                 with path.open("w", newline="") as handle:
                     writer = csv.writer(handle, lineterminator="\n")
                     writer.writerow(spec["columns"])
                     writer.writerow(row)
 
-            errors = checker.compare_csv(reference, output, spec, 0.0, 1e-8)
+            errors = checker.compare_csv(reference, output, spec, 0.0, 1e-12)
             self.assertEqual(errors, [])
 
     def test_reference_outside_rounding_interval_fails(self) -> None:

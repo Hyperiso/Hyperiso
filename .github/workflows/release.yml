@@ -35,6 +35,7 @@ jobs:
         run: |
           python tools/check_version_consistency.py --tag "${GITHUB_REF_NAME}"
           python tools/validate_metadata.py
+          python tools/check_release_provenance.py --tag "${GITHUB_REF_NAME}"
           pre-commit run --all-files
 
       - name: Build API documentation

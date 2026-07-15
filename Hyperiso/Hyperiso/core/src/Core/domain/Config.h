@@ -14,7 +14,7 @@ enum class ExternalFlag {
     IS_LHA_SPECTRUM,            ///< Input LHA file already contains a spectrum.
     HAS_WILSON_INPUT,           ///< User provided Wilson coefficient input.
     HAS_TH_OBSERVABLE_INPUT,    ///< User provided theoretical observable input
-    HYP_AS_SM_MARTY             ///< If true, use Hyperiso as SM values for Wilson Coeficients (up to NNLO).
+    HYP_AS_SM_MARTY             ///< If true, use Hyperiso as SM values for Wilson coefficients (up to NNLO).
 };
 
 /**

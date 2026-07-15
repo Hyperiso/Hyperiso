@@ -30,9 +30,7 @@ def normalize(text: str) -> str:
     if nonfinite:
         preview = "\n".join(f"  {line}" for line in nonfinite[:10])
         suffix = "\n  ..." if len(nonfinite) > 10 else ""
-        raise ValueError(
-            f"CLI output contains NaN or infinity:\n{preview}{suffix}"
-        )
+        raise ValueError(f"CLI output contains NaN or infinity:\n{preview}{suffix}")
     try:
         start = next(
             index for index, line in enumerate(lines) if SUMMARY_RE.fullmatch(line)

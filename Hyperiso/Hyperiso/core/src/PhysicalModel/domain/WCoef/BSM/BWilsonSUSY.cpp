@@ -1990,9 +1990,9 @@ CP9_susy::CP9_susy() : WilsonCoefficient("CP9_SUSY", GroupMapper::str(WGroup::BP
             // {ParameterType::WILSON, "WPARAM_MATCH_SM", {2,1}},  // xt
             {ParameterType::WILSON, "WPARAM_MATCH_SM", {5,1}},  // mass_b_muW
             {ParameterType::WILSON, "WPARAM_MATCH_SM", 6},  // mass_top_muW
-            {ParameterType::WILSON, "WPARAM_SI_SM", 3},     // pour C10pH
+            {ParameterType::WILSON, "WPARAM_SI_SM", 3},     // used by C10pH
             {ParameterType::WILSON, "WPARAM_SI_SM", 4},     // sw2
-            {ParameterType::SM, "MASS", 3},                 // masse dans C9pH et C10pH
+            {ParameterType::SM, "MASS", 3},                 // mass used by C9pH and C10pH
             {ParameterType::SM, "MASS", 24},                // mW
             {ParameterType::SM, "GAUGE", 2},                // g2
             {ParameterType::BSM, "MASS", 37},               // mH
@@ -2744,7 +2744,7 @@ CQ1_susy::CQ1_susy(WCoef coef) : WilsonCoefficient(WCoefMapper::str(coef) + "_SU
         }
     }
 
-    // UMIX / VMIX avec paires (2,0), (2,1), ..., (2,9)
+    // UMIX / VMIX with index pairs (2,0), (2,1), ..., (2,9)
     for (int i = 1; i < 3; ++i) {
         sources.insert({ParameterType::BSM, "UMIX", {1, i}});
         sources.insert({ParameterType::BSM, "VMIX", {1, i}});

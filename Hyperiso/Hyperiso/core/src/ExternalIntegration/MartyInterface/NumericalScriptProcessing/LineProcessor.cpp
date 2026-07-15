@@ -1,6 +1,6 @@
 #include "LineProcessor.h"
 
-LineProcessor::LineProcessor(IncludeManager& includeManager, FileWriter& filewriter, bool forceMode)
+LineProcessor::LineProcessor(IncludeManager& includeManager, MartyFileWriter& filewriter, bool forceMode)
     : includeManager(includeManager),fileWriter(filewriter), forceMode(forceMode) {}
 
 void LineProcessor::processLine(std::ofstream& outputFile, const std::string& currentLine) {

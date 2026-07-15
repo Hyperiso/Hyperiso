@@ -331,14 +331,14 @@ double C10Z2tri(double x);
 double F0SP(double xt);
 
 /**
- * @brief Wilson special funtion S0 depending on xt.
+ * @brief Wilson special function S0 depending on xt.
  * @param xt Input parameter.
  * @return Value of S0(xt).
  */
 double S0(double x);
 
 /**
- * @brief Wilson special funtion D0 depending on 4 parameters.
+ * @brief Wilson special function D0 depending on 4 parameters.
  * @param w Input parameter.
  * @param x Input parameter.
  * @param y Input parameter.
@@ -349,7 +349,7 @@ double D0(double w, double x, double y, double z);
 
 
 /**
- * @brief Wilson special funtion D2p depending on 4 parameters.
+ * @brief Wilson special function D2p depending on 4 parameters.
  * @param w Input parameter.
  * @param x Input parameter.
  * @param y Input parameter.
@@ -360,7 +360,7 @@ double D2p(double w, double x, double y, double z);
 
 
 /**
- * @brief Wilson special funtion getDelta.
+ * @brief Wilson special function getDelta.
  * @param delta Input parameter.
  * @param Z Input parameter.
  * @param M Input parameter.
@@ -374,21 +374,21 @@ double D2p(double w, double x, double y, double z);
 void getDelta(scalar_t delta[6][6],scalar_t Z[6][6],double M[6],double m_av,scalar_t delta_LL[3][3],scalar_t delta_LR[3][3],scalar_t delta_RL[3][3],scalar_t delta_RR[3][3]);
 
 /**
- * @brief Wilson special funtion h3 depending on x.
+ * @brief Wilson special function h3 depending on x.
  * @param x Input parameter.
  * @return Value of h3(x).
  */
 double h3(double x);
 
 /**
- * @brief Wilson special funtion h1 depending on x.
+ * @brief Wilson special function h1 depending on x.
  * @param x Input parameter.
  * @return Value of h1(x).
  */
 double h1(double x);
 
 /**
- * @brief Wilson special funtion h4 depending on x and y.
+ * @brief Wilson special function h4 depending on x and y.
  * @param x Input parameter.
  * @param y Input parameter.
  * @return Value of h4(x,y).
@@ -396,7 +396,7 @@ double h1(double x);
 double h4(double x, double y);
 
 /**
- * @brief Wilson special funtion f depending on x.
+ * @brief Wilson special function f depending on x.
  * @param x Input parameter.
  * @return Value of f(x).
  */

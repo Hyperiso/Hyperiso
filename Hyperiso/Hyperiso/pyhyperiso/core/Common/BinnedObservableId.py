@@ -70,7 +70,7 @@ class BinnedObservableId:
 
         self.p = (low, high)
 
-        s_cpp = self.s._to_cpp() 
+        s_cpp = self.s._to_cpp()
 
         if low == 0.0 and high == 0.0:
             self._cpp_obj = common.BinnedObservableId(s_cpp)

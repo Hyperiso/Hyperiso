@@ -6,12 +6,12 @@ JsonParamMappingAdapter::loadFromFile(const std::string& filePath) const {
     std::unordered_map<std::string, InterpretedParam> out;
 
     if (!parser_) {
-        throw std::runtime_error("JsonParamMappingAdapter: parser nul");
+        throw std::runtime_error("JsonParamMappingAdapter: parser is null");
     }
 
     auto root = parser_->readFromFile(filePath);
     if (!root) {
-        throw std::runtime_error("JsonParamMappingAdapter: DBNode root nul");
+        throw std::runtime_error("JsonParamMappingAdapter: root DBNode is null");
     }
 
     auto keys = root->get_keys();

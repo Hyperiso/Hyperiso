@@ -20,15 +20,11 @@ using DH = DependenciesHelper;
 
 #define BIND_ENUM_MAPPER(cls, EnumT)                                          \
     py::class_<cls, std::shared_ptr<cls>>(m, #cls)                            \
-        /* str(EnumT) -> canonical string */                                  \
         .def_static("str",                                                    \
             py::overload_cast<EnumT>(&cls::str), py::arg("value"))            \
-        /* enum_elt(name) -> EnumT (legacy-like) */                           \
         .def_static("enum_elt", &cls::enum_elt_legacy, py::arg("name"))       \
-        /* builtins lists (comme avant) */                                    \
         .def_static("get_str",  &cls::get_str)                                \
         .def_static("get_enum", &cls::get_enum)                               \
-        /* runtime: builtins + customs */                                     \
         .def_static("get_str_all", &cls::get_str_all);
 
 namespace py = pybind11;
@@ -45,8 +41,7 @@ void bind_symbol_id(py::module_& m, const char* py_name)
         .def("__repr__", [py_name](const IdT& id){
             return std::string("<") + py_name + " '" + id.str() + "'>";
         })
-        // Keep Python equality/hash consistent with SymbolId's C++ semantics
-        // (case-insensitive through normalize_key()).
+
         .def("__hash__", [](const IdT& id){
             return std::hash<IdT>{}(id);
         })
@@ -803,52 +798,23 @@ void init_common(py::module &m) {
         .value("COMBINED", UncertaintyType::COMBINED)
         .export_values();
 
-    // py::class_<ParamId>(m, "ParamId")
-    //     .def(py::init<ParameterType, std::string, int>())
-    //     .def_readwrite("type", &ParamId::type)
-    //     .def_readwrite("block", &ParamId::block)
-    //     .def_readwrite("code", &ParamId::code);
-
     
 
-    // py::class_<QCDHelper, std::shared_ptr<QCDHelper>>(m, "QCDHelper")
-    //     .def_static(
-    //         "mass_b_1S", &QCDHelper::mass_b_1S
-    //     );
-    
-    // BIND_ENUM_MAPPER(ObservableMapper, Observables)
     BIND_ENUM_MAPPER(OrderMapper, QCDOrder)
-    // BIND_ENUM_MAPPER(GroupMapper, WGroup)
-    // BIND_ENUM_MAPPER(WCoefMapper, WCoef)
+
     BIND_ENUM_MAPPER(ParameterTypeMapper, ParameterType)
     BIND_ENUM_MAPPER(ModelMapper, Model)
     BIND_ENUM_MAPPER(WilsonBasisMapper, WilsonBasis)
     BIND_ENUM_MAPPER(ContributionTypeMapper, ContributionType)
     BIND_ENUM_MAPPER(MassTypeMapper, MassType)
-    // BIND_ENUM_MAPPER(ScaleTypeMapper, ScaleType)
-    // BIND_ENUM_MAPPER(DecayMapper, Decays)
-
-
-    // py::class_<ObservableId>(m, "ObservableId")
-    //     .def(py::init<>())
-    //     .def("__str__", &ObservableId::str)
-    //     .def("str", &ObservableId::str)
-    //     .def("__repr__", [](const ObservableId& id){
-    //         return "<ObservableId '" + id.str() + "'>";
-    //     })
-    //     .def("__hash__", [](const ObservableId& id){
-    //         return py::hash(py::str(id.str()));
-    //     });
 
     bind_symbol_id<ObservableId>(m, "_CppObservableId");
     bind_symbol_id<DecayId>(m, "_CppDecayId");
     bind_symbol_id<WGroupId>(m, "_CppWGroupId");
     bind_symbol_id<WCoefId>(m, "_CppWCoefId");
-    // Backward-compatible aliases for users who imported the raw C++ ids.
     m.attr("WGroupId") = m.attr("_CppWGroupId");
     m.attr("WCoefId") = m.attr("_CppWCoefId");
     py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
-        // Legacy builtin enum API.
         .def_static("str",
             py::overload_cast<Observables>(&ObservableMapper::str),
             py::arg("obs"))
@@ -858,7 +824,6 @@ void init_common(py::module &m) {
         .def_static("get_enum",        &ObservableMapper::get_enum)
         .def_static("get_str_all",     &ObservableMapper::get_str_all)
 
-        // Dynamic id API.
         .def_static("to_id",
             py::overload_cast<Observables>(&ObservableMapper::to_id),
             py::arg("obs"))
@@ -868,7 +833,6 @@ void init_common(py::module &m) {
             py::overload_cast<const ObservableId&>(&ObservableMapper::str),
             py::arg("id"))
 
-        // FLHA API.
         .def_static("from_flha",    &ObservableMapper::from_flha, py::arg("lha"))
         .def_static("flha",
             py::overload_cast<const ObservableId&>(&ObservableMapper::flha),
@@ -877,8 +841,6 @@ void init_common(py::module &m) {
             py::overload_cast<const Observables&>(&ObservableMapper::flha),
             py::arg("obs"))
 
-        // Custom observable registration.
-        // Python signature: register_custom(canonical, parent_decay, aliases=[], ext=None)
         .def_static("register_custom",
             [](const std::string& canonical,
                const std::string& parent_decay,
@@ -930,28 +892,9 @@ void init_common(py::module &m) {
             py::arg("parent_decay"),
             py::arg("aliases") = std::vector<std::string>{},
             py::arg("ext") = py::none());
-    // py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
-    //     .def_static("str", &WCoefMapper::str, py::arg("coef"))
-    //     .def_static("enum_elt", &WCoefMapper::enum_elt, py::arg("name"))
-    //     .def_static("get_str", &WCoefMapper::get_str)
-    //     .def_static("get_enum", &WCoefMapper::get_enum)
-    //     .def_static("get_group", &WCoefMapper::get_group, py::arg("group"))
-    //     .def_static("flha_base", &WCoefMapper::flha_base, py::arg("coef"))
-    //     .def_static("flha_full", &WCoefMapper::flha_full, py::arg("coef"), py::arg("order"), py::arg("type"))
-    //     .def_static("from_flha", &WCoefMapper::from_flha, py::arg("content"), py::arg("structure"))
-    //     .def_static("n_wilsons", &WCoefMapper::n_wilsons)
-    //     .def_static("mapping", &WCoefMapper::mapping, py::return_value_policy::reference)
-    //     .def_static("inverse_mapping", &WCoefMapper::inverse_mapping, py::return_value_policy::reference)
-    //     .def_static("flha_mapping", &WCoefMapper::flha_mapping, py::return_value_policy::reference)
-    //     .def_static("inverse_flha_mapping", &WCoefMapper::inverse_flha_mapping, py::return_value_policy::reference)
-    //     .def_static("B_group", &WCoefMapper::B_group, py::return_value_policy::reference)
-    //     .def_static("B_prime_group", &WCoefMapper::B_prime_group, py::return_value_policy::reference)
-    //     .def_static("B_scalar_group", &WCoefMapper::B_scalar_group, py::return_value_policy::reference)
-    //     // .def_static("B_lnu_group", &WCoefMapper::B_lnu_group, py::return_value_policy::reference)
-    //     .def_static("b_clnu_group", &WCoefMapper::b_clnu_group, py::return_value_policy::reference);
+
 
     py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
-        // legacy: str(enum) + enum_elt(name)->Enum
         .def_static("str",
             py::overload_cast<WCoef>(&WCoefMapper::str),
             py::arg("coef"))
@@ -960,7 +903,6 @@ void init_common(py::module &m) {
         .def_static("get_enum",   &WCoefMapper::get_enum)
         .def_static("get_str_all",&WCoefMapper::get_str_all)
 
-        // runtime id API
         .def_static("id_of",        &WCoefMapper::id_of,        py::arg("name"))
         .def_static("to_id",        &WCoefMapper::to_id,        py::arg("name"))
         .def_static("canonical",
@@ -974,7 +916,6 @@ void init_common(py::module &m) {
             },
             py::arg("canonical"), py::arg("aliases") = std::vector<std::string>{}, py::arg("flha"))
 
-        // groupes legacy
         .def_static("get_group",        &WCoefMapper::get_group,        py::arg("group"))
         .def_static("B_group",          &WCoefMapper::B_group,          py::return_value_policy::reference)
         .def_static("B_prime_group",    &WCoefMapper::B_prime_group,    py::return_value_policy::reference)
@@ -996,18 +937,15 @@ void init_common(py::module &m) {
 
 
     py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
-        // str(enum) et str(enum, scale, basis)
         .def_static("str", py::overload_cast<WGroup>(&GroupMapper::str), py::arg("group"))
         .def_static("str", py::overload_cast<WGroup, ScaleType, WilsonBasis>(&GroupMapper::str),
                     py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD)
 
-        // legacy enum_elt(name)->WGroup + listes
         .def_static("enum_elt",     &GroupMapper::enum_elt_legacy,  py::arg("name"))
         .def_static("get_str",      &GroupMapper::get_str)
         .def_static("get_enum",     &GroupMapper::get_enum)
         .def_static("get_str_all",  &GroupMapper::get_str_all)
         .def_static("to_id",        &GroupMapper::to_id,        py::arg("name"))
-        // (optionnel) runtime id API
         .def_static("id_of",     &GroupMapper::id_of,     py::arg("name"))
         .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"))
         .def_static("str_id", py::overload_cast<const WGroupId&, ScaleType, WilsonBasis>(&GroupMapper::str),
@@ -1032,7 +970,6 @@ void init_common(py::module &m) {
         .def_static("get_enum",   &ScaleTypeMapper::get_enum)
         .def_static("get_str_all",&ScaleTypeMapper::get_str_all)
         .def_static("block",      &ScaleTypeMapper::block, py::arg("type"))
-        // (optionnel) runtime id:
         .def_static("id_of",      &ScaleTypeMapper::id_of, py::arg("name"))
         .def_static("canonical",  py::overload_cast<const ScaleTypeId&>(&ScaleTypeMapper::str), py::arg("id"));
 
@@ -1057,7 +994,6 @@ void init_common(py::module &m) {
         .def_readwrite("ext",       &CustomObservableSpec::ext);
 
     py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
-        // Legacy builtin enum API.
         .def_static("str",
             py::overload_cast<Decays>(&DecayMapper::str),
             py::arg("decay"))
@@ -1067,7 +1003,6 @@ void init_common(py::module &m) {
         .def_static("get_enum",        &DecayMapper::get_enum)
         .def_static("get_str_all",     &DecayMapper::get_str_all)
 
-        // Dynamic id API.
         .def_static("to_id",
             py::overload_cast<Decays>(&DecayMapper::to_id),
             py::arg("decay"))
@@ -1080,7 +1015,6 @@ void init_common(py::module &m) {
         .def_static("external_of",   &DecayMapper::external_of,   py::arg("id"))
         .def_static("set_external",  &DecayMapper::set_external,  py::arg("id"), py::arg("lha"))
 
-        // Decay <-> observable relations.
         .def_static("get_observables",
             py::overload_cast<Decays>(&DecayMapper::get_observables),
             py::arg("decay"))
@@ -1104,8 +1038,6 @@ void init_common(py::module &m) {
         .def_static("has_observables",       &DecayMapper::has_observables,       py::arg("decay"))
         .def_static("require_observables",   &DecayMapper::require_observables,   py::arg("decay"))
 
-        // Custom decay registration. Python signature:
-        // register_custom_with_observables(canonical, observables, aliases=[])
         .def_static("register_custom_with_observables",
             [](const std::string& canonical,
                const std::vector<CustomObservableSpec>& observables,
@@ -1210,7 +1142,7 @@ void init_common(py::module &m) {
         std::ostringstream oss;
         oss << "<ParamId: " << pid.block << ":" << pid.code;
         if (pid.type.has_value()) {
-            oss << ", type=" << static_cast<int>(pid.type.value()); // adapt if enum is bound
+            oss << ", type=" << static_cast<int>(pid.type.value());
         } else {
             oss << ", type=None";
         }
@@ -1258,26 +1190,22 @@ The object is non-owning and should only be used during the callback call.
 
 
     py::class_<DependenciesHelper, std::shared_ptr<DH>>(m, "DependenciesHelper")
-    // version avec Observables
     .def_static(
         "get_allowed_parameters",
         py::overload_cast<Observables>(&DH::get_allowed_parameters),
         py::arg("obs")
     )
-    // autre nom python pour la version ObservableId
     .def_static(
         "get_allowed_parameters_from_id",
         py::overload_cast<ObservableId>(&DH::get_allowed_parameters),
         py::arg("obs_id")
     )
-    // version avec Observables
     .def_static(
         "is_param_allowed",
         py::overload_cast<Observables, ParamId>(&DH::is_param_allowed),
         py::arg("obs"),
         py::arg("param")
     )
-    // autre nom pour ObservableId
     .def_static(
         "is_param_allowed_from_id",
         py::overload_cast<ObservableId, ParamId>(&DH::is_param_allowed),
@@ -1322,7 +1250,6 @@ The object is non-owning and should only be used during the callback call.
         .def(py::init<int, double, MassType, MassType>(), py::arg("pdg_id"), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
         .def_readwrite("pdg_id", &MassConfig::pdg_id);
 
-    // BinnedObservableId (assume ObservableId + LhaID already bound)
     py::class_<BinnedObservableId>(m, "BinnedObservableId")
         .def(py::init<>())
         .def(py::init<ObservableId>(), py::arg("id"))
@@ -1339,11 +1266,9 @@ The object is non-owning and should only be used during the callback call.
         .def(py::self == py::self)
         .def(py::self < py::self);
 
-    // Let Python hash() use your std::hash specialization
-    py::implicitly_convertible<ObservableId, BinnedObservableId>(); // optional, keeps BinnedObservableId(id) ergonomics
-    py::class_<std::unordered_map<BinnedObservableId, double>>(m, "BinnedObservableIdDoubleMap"); // only if you need it
+    py::implicitly_convertible<ObservableId, BinnedObservableId>();
+    py::class_<std::unordered_map<BinnedObservableId, double>>(m, "BinnedObservableIdDoubleMap");
 
-    // Custom __hash__ (recommended even if std::hash exists, makes it explicit in Python)
     m.attr("BinnedObservableId").attr("__hash__") = py::cpp_function(
         [](BinnedObservableId const& x) -> std::size_t { return std::hash<BinnedObservableId>{}(x); },
         py::is_method(m.attr("BinnedObservableId"))

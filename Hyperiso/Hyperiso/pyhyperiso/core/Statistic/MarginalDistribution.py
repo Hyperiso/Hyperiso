@@ -134,7 +134,7 @@ class MarginalDistribution:
         """
         p = float(p)
         if not 0.0 <= p <= 1.0:
-            raise ValueError("p must be dans [0, 1].")
+            raise ValueError("p must lie in [0, 1].")
         return float(self._cpp_obj.ppf(p))
 
     def mean(self) -> float:

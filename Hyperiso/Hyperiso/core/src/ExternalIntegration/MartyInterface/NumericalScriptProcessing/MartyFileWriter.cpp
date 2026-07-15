@@ -1,4 +1,4 @@
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 
 #include <unordered_set>
 
@@ -23,14 +23,14 @@ bool should_read_marty_split_sm_components(const std::string& wilson) {
 }
 }
 
-FileWriter::FileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation) :
+MartyFileWriter::MartyFileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation) :
     wilson(wilson), model(model), bsm_split_generation(bsm_split_generation) {}
 
-bool FileWriter::should_set_mudim() const {
+bool MartyFileWriter::should_set_mudim() const {
     return wilsons_without_mudim().find(this->wilson) == wilsons_without_mudim().end();
 }
 
-void FileWriter::add_output_writer(std::ofstream& outputFile) {
+void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
     outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
 
     if (should_set_mudim()) {
@@ -122,7 +122,7 @@ void FileWriter::add_output_writer(std::ofstream& outputFile) {
 
 }
 
-void FileWriter::add_argpars(std::ofstream& outputFile) {
+void MartyFileWriter::add_argpars(std::ofstream& outputFile) {
     
     outputFile << "\tdouble Q_match = 80.379;\n";
     outputFile << "\tfor (int i = 1; i < argc; i++) {\n";
@@ -139,7 +139,7 @@ void FileWriter::add_argpars(std::ofstream& outputFile) {
     
 }
 
-void FileWriter::add_input_reader(std::ofstream& outputFile) {
+void MartyFileWriter::add_input_reader(std::ofstream& outputFile) {
     outputFile << "\tparam_t param;\n";
 
     outputFile << "\tstd::string ParamFilePath = \"" << FileNameManager::getInstance(this->wilson, this->model)->getParamFileName() << "\";\n";

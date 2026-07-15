@@ -47,8 +47,8 @@ namespace fs = std::filesystem;
  * @ingroup DataLoadersModule
  * @brief Abstract interface for writing data into an object.
  *
- * @tparam T Type of object into which the data will be writed.
- *  * @tparam P Type of object from which the data will be writed.
+ * @tparam T Type of object into which the data will be written.
+ *  * @tparam P Type of object from which the data will be written.
  */
 template<typename T, typename P>
 class IDataWriter {

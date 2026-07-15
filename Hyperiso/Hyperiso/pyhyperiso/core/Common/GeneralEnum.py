@@ -18,6 +18,7 @@ from pyhyperiso.phyperiso.pyhyperiso.common import UncertaintyType as _CppUncert
 
 class Model(Enum):
     """Supported physics-model selectors."""
+
     SM = _CppModel.SM
     SUSY = _CppModel.SUSY
     THDM = _CppModel.THDM
@@ -26,6 +27,7 @@ class Model(Enum):
 
 class ParameterType(Enum):
     """Parameter storage domains."""
+
     SM = _CppParameterType.SM
     BSM = _CppParameterType.BSM
     FLAVOR = _CppParameterType.FLAVOR
@@ -37,6 +39,7 @@ class ParameterType(Enum):
 
 class QCDOrder(Enum):
     """Perturbative QCD orders."""
+
     NONE = _CppQCDOrder.NONE
     LO = _CppQCDOrder.LO
     NLO = _CppQCDOrder.NLO
@@ -45,6 +48,7 @@ class QCDOrder(Enum):
 
 class WCoeff(Enum):
     """Legacy Wilson-coefficient identifiers."""
+
     C1 = _CppWCoef.C1
     C2 = _CppWCoef.C2
     C3 = _CppWCoef.C3
@@ -160,6 +164,7 @@ class WCoeff(Enum):
 
 class WGroup(Enum):
     """Legacy Wilson-coefficient group identifiers."""
+
     B = _CppWGroup.B
     BPrime = _CppWGroup.BPrime
     BScalar = _CppWGroup.BScalar
@@ -168,6 +173,7 @@ class WGroup(Enum):
 
 class WilsonBasis(Enum):
     """Supported Wilson-operator bases."""
+
     STANDARD = _CppWilsonBasis.STANDARD
     TRADITIONAL = _CppWilsonBasis.TRADITIONAL
 
@@ -712,6 +718,7 @@ class Observables(Enum):
 
 class Decays(Enum):
     """Decay-family identifiers."""
+
     B__D_l_nu = _CppDecays.B__D_l_nu
     B__Dstar_l_nu = _CppDecays.B__Dstar_l_nu
     B__Kstar_gamma = _CppDecays.B__Kstar_gamma
@@ -733,18 +740,21 @@ class Decays(Enum):
 
 class MassType(Enum):
     """Mass-scheme selectors."""
+
     POLE = _CppMassType.POLE
     MSBAR = _CppMassType.MSBAR
 
 
 class ScaleType(Enum):
     """Scale selectors used by Wilson requests."""
+
     MATCHING = _CppScaleType.MATCHING
     HADRONIC = _CppScaleType.HADRONIC
 
 
 class ContributionType(Enum):
     """Standard-Model, BSM or total contribution selectors."""
+
     SM = _CppContributionType.SM
     BSM = _CppContributionType.BSM
     TOTAL = _CppContributionType.TOTAL
@@ -752,6 +762,7 @@ class ContributionType(Enum):
 
 class DataType(Enum):
     """Parameter value and uncertainty components."""
+
     VALUE = _CppDataType.VALUE
     STD_STAT = _CppDataType.STD_STAT
     STD_SYST = _CppDataType.STD_SYST
@@ -760,6 +771,7 @@ class DataType(Enum):
 
 class UncertaintyType(Enum):
     """Uncertainty-propagation modes."""
+
     STAT = _CppUncertaintyType.STAT
     SYST = _CppUncertaintyType.SYST
     COMBINED = _CppUncertaintyType.COMBINED

@@ -5,7 +5,7 @@ from typing import Optional, Tuple, Dict, Any, List
 import numpy as np
 import matplotlib.pyplot as plt
 
-from pyhyperiso.core.Common.GeneralEnum import Observables, QCDOrder, ParameterType, DataType, Model
+from pyhyperiso.core.Common.GeneralEnum import Observables, QCDOrder, ParameterType, Model
 from pyhyperiso.core.Common.ParamId import ParamId, LhaID
 from pyhyperiso.core.Common.SymbolId import ObservableId
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
@@ -24,7 +24,6 @@ def _scalar_to_float(x: Any) -> float:
     if hasattr(x, "value"):
         return float(x.value)
     return float(x)
-
 
 
 @dataclass
@@ -96,7 +95,7 @@ def mu_points(exp: Point, theo: Point, flip: bool = True):
 
     if exp.significance is not None:
         newE.obs = float(exp.significance)
-        if (not flip and exp.obs < theo.obs):
+        if not flip and exp.obs < theo.obs:
             newE.obs = -newE.obs
 
     return newE, newT
@@ -105,11 +104,15 @@ def mu_points(exp: Point, theo: Point, flip: bool = True):
 def draw_two_points(ax, y: float, exp_and_theo):
     yo = 0.04
     exp_pt, theo_pt = exp_and_theo
-    ax.errorbar(y=y - yo, x=theo_pt.obs, xerr=theo_pt.totError(), color="orange", marker="d", linestyle="")
+    ax.errorbar(
+        y=y - yo, x=theo_pt.obs, xerr=theo_pt.totError(), color="orange", marker="d", linestyle=""
+    )
     ax.errorbar(y=y + yo, x=exp_pt.obs, xerr=exp_pt.totError(), color="b", marker="o", linestyle="")
 
 
-def normalize_summaries_keys(summaries: Dict[Any, GaussianSummary]) -> Dict[BinnedObservableId, GaussianSummary]:
+def normalize_summaries_keys(
+    summaries: Dict[Any, GaussianSummary],
+) -> Dict[BinnedObservableId, GaussianSummary]:
     out: Dict[BinnedObservableId, GaussianSummary] = {}
     for k, v in summaries.items():
         if isinstance(k, BinnedObservableId):
@@ -128,11 +131,15 @@ def anomalies_plot(
         Observables.BR_BD_MUMU,
         Observables.BR_BU_TAU_NU,
         Observables.R_D,
-        Observables.R_DSTAR
+        Observables.R_DSTAR,
     ]
     selected = [BinnedObservableId(ObservableMapper.to_id(x)) for x in selected]
-    
-    selected.append(BinnedObservableId(ObservableId(ObservableMapper.str(Observables.DBR_DQ2_B__K_MU_MU)), (1.1, 6)))
+
+    selected.append(
+        BinnedObservableId(
+            ObservableId(ObservableMapper.str(Observables.DBR_DQ2_B__K_MU_MU)), (1.1, 6)
+        )
+    )
     stat_cfg = StatisticConfig(
         obss={o: QCDOrder.NNLO for o in selected},
         p_specs=[],
@@ -142,7 +149,7 @@ def anomalies_plot(
     stat_interface = StatisticInterface(stat_cfg)
 
     exp_provider = PyParameterProvider(ParameterType.OBSERVABLE)
-    
+
     summaries_raw = stat_interface.compute_uncertainties()
     print("raw : ", summaries_raw)
     summaries = normalize_summaries_keys(summaries_raw)
@@ -157,14 +164,13 @@ def anomalies_plot(
 
         print(obs)
         print("the sum : ", summaries)
-        
-        bid = BinnedObservableId(ObservableMapper.to_id(obs))   # (0,0) par défaut
+
+        bid = BinnedObservableId(ObservableMapper.to_id(obs))  # (0,0) par défaut
         theo_val = summaries[bid].mu
         print(theo_val)
         # THEO uncertainty id
         gid: ObservableId = ObservableMapper.id_of(ObservableMapper.str(obs))
         gobs_2 = BinnedObservableId(gid)
-        glhaid: LhaID = gobs_2.flha()
         if gobs_2 not in summaries:
             keys_preview = list(summaries.keys())[:10]
             raise KeyError(
@@ -229,8 +235,7 @@ def main():
     lha_file_path = "lha/si_input.flha"  # <-- adapte
     hyp.init(lha_file=lha_file_path, config=config)
 
-
-    fig = anomalies_plot(
+    anomalies_plot(
         flip=True,
     )
 

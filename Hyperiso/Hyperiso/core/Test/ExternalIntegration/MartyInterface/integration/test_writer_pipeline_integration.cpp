@@ -12,7 +12,7 @@
 #include "IncludeManager.hpp"
 #include "LineProcessor.h"
 #include "ModelWriter.h"
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 #include "SMParamSetter.h"
 #include "IMartyParameterProxy.h"
 #include "IInterpreterPortsFactory.h"

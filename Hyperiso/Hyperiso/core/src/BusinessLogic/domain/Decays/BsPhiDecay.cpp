@@ -45,11 +45,6 @@ void BsPhiDecay::load_params() {
     cache.q2_high = (*p)(ParamId{ParameterType::DECAY, "B_phi", {15, 2}}, DataType::VALUE);
     cache.ys = (*p)(ParamId{ParameterType::DECAY, "B_ll", 1}, DataType::VALUE);
     // ASK : hardcoded in SI
-    // double beta_s = std::arg(-std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}})) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}) 
-    //                         / (std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 2}})) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}})));
-    // cache.phi_s = 2 * beta_s;
-    // cache.up = std::exp(I * cache.phi_s);
-    // cache.um = std::exp(-I * cache.phi_s);
 
     cache.phi_s = 0.04;
     cache.up = 1. + cache.phi_s * I;
@@ -67,83 +62,6 @@ void BsPhiDecay::load_params() {
     }
 
     load_cfg_dep_params();
-
-    // #########################################
-    // #                DEBUG                  #
-    // #########################################
-
-    // printf("y_s = %.4e\n", cache.ys);
-	// printf("up = %.4e + %.4e i\n", real(cache.up), imag(cache.up));
-	// printf("um = %.4e + %.4e i\n", real(cache.um), imag(cache.um));
-
-    // double q2 = 15.0; 
-    // double u = 0.5;
-    // complex_t Tperpp = cache.qcdf_calculator.T_perp_p(q2, false);
-    // complex_t Tperpm = cache.qcdf_calculator.T_perp_m(q2, false);
-    // complex_t Tparm = cache.qcdf_calculator.T_par_m(q2, false);
-
-    // printf("T_perp_p(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpp), std::imag(Tperpp));
-    // printf("T_perp_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tperpm), std::imag(Tperpm));
-    // printf("T_par_m(s = %.3f) = %.4e + %.4e i\n", q2, std::real(Tparm), std::imag(Tparm));
-    // exit(0);
-
-    // complex_t ALperp = A_perp(q2, -1, false);
-    // complex_t ARperp = A_perp(q2, 1, false);
-    // complex_t ALpar = A_par(q2, -1, false);
-    // complex_t ARpar = A_par(q2, 1, false);
-    // complex_t AL0 = A_0(q2, -1, false);
-    // complex_t AR0 = A_0(q2, 1, false);
-    // complex_t At = A_t(q2, false);
-    // complex_t AS = A_S(q2, false);
-
-    // complex_t ALperp = A_perp(q2, -1, true);
-    // complex_t ARperp = A_perp(q2, 1, true);
-    // complex_t ALpar = A_par(q2, -1, true);
-    // complex_t ARpar = A_par(q2, 1, true);
-    // complex_t AL0 = A_0(q2, -1, true);
-    // complex_t AR0 = A_0(q2, 1, true);
-    // complex_t At = A_t(q2, true);
-    // complex_t AS = A_S(q2, true);
-
-    // printf("A_L_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALperp), std::imag(ALperp));
-	// printf("A_R_perp(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARperp), std::imag(ARperp));
-	// printf("A_L_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ALpar), std::imag(ALpar));
-	// printf("A_R_par(s = %.3f) = %.4e + %.4e i\n", q2, std::real(ARpar), std::imag(ARpar));
-	// printf("A_L_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AL0), std::imag(AL0));
-	// printf("A_R_0(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AR0), std::imag(AR0));
-	// printf("A_t(s = %.3f) = %.4e + %.4e i\n", q2, std::real(At), std::imag(At));
-	// printf("A_S(s = %.3f) = %.4e + %.4e i\n", q2, std::real(AS), std::imag(AS));
-    // exit(0);
-    
-    // printf("J_1c(s = %.3f) = %.4e\n", q2, J1c(q2, false));
-    // printf("J_1s(s = %.3f) = %.4e\n", q2, J1s(q2, false));
-    // printf("J_2c(s = %.3f) = %.4e\n", q2, J2c(q2, false));
-    // printf("J_2s(s = %.3f) = %.4e\n", q2, J2s(q2, false));
-    // printf("J_3(s = %.3f) = %.4e\n", q2, J3(q2, false));
-    // printf("J_4(s = %.3f) = %.4e\n", q2, J4(q2, false));
-    // printf("J_5(s = %.3f) = %.4e\n", q2, J5(q2, false));
-    // printf("J_6c(s = %.3f) = %.4e\n", q2, J6c(q2, false));
-    // printf("J_6s(s = %.3f) = %.4e\n", q2, J6s(q2, false));
-    // printf("J_7(s = %.3f) = %.4e\n", q2, J7(q2, false));
-    // printf("J_8(s = %.3f) = %.4e\n", q2, J8(q2, false));
-    // printf("J_9(s = %.3f) = %.4e\n", q2, J9(q2, false));
-
-    // printf("h_1c(s = %.3f) = %.4e\n", q2, h1c(q2));
-    // printf("h_1s(s = %.3f) = %.4e\n", q2, h1s(q2));
-    // printf("h_2c(s = %.3f) = %.4e\n", q2, h2c(q2));
-    // printf("h_2s(s = %.3f) = %.4e\n", q2, h2s(q2));
-    // printf("h_3(s = %.3f) = %.4e\n", q2, h3(q2));
-    // printf("h_4(s = %.3f) = %.4e\n", q2, h4(q2));
-    // printf("h_5(s = %.3f) = %.4e\n", q2, h5(q2));
-    // printf("h_6c(s = %.3f) = %.4e\n", q2, h6c(q2));
-    // printf("h_6s(s = %.3f) = %.4e\n", q2, h6s(q2));
-    // printf("h_7(s = %.3f) = %.4e\n", q2, h7(q2));
-    // printf("h_8(s = %.3f) = %.4e\n", q2, h8(q2));
-    // printf("h_9(s = %.3f) = %.4e\n", q2, h9(q2));
-
-    // printf("s_8(s = %.3f) = %.4e\n", q2, s8(q2));
-    // printf("s_9(s = %.3f) = %.4e\n", q2, s9(q2));
-    // exit(0);
 }
 
 void BsPhiDecay::fill_wilson_cache() {
@@ -152,8 +70,6 @@ void BsPhiDecay::fill_wilson_cache() {
     auto b_wilsons  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
     auto bq_wilsons = w_proxy->getAFR(WGroup::BScalar, this->w_config.order);
-
-    // All BPrime coefficients are cached because CPQ1/CPQ2 are lepton-specific.
 
     for (const auto& [id, val] : b_wilsons) {
         cache.C[id] = val;
@@ -382,13 +298,6 @@ complex_t BsPhiDecay::A_perp_low(double q2, double sign, bool bar) {
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
 
-    // printf("----------- A_%c_perp_low(s = %.3f) -----------\n", sign == -1 ? 'L' : 'R', q2);
-    // printf("prefactor = %.4e + %.4e i\n", real(N(q2, bar) * std::sqrt(2 * lambda(q2))), imag(N(q2, bar) * std::sqrt(2 * lambda(q2))));
-    // printf("F = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("m_b_local = %.4e\n", m_b_local);
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
-
     return (N(q2, bar) * std::sqrt(2 * lambda(q2)) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
 
@@ -418,13 +327,6 @@ complex_t BsPhiDecay::A_par_low(double q2, double sign, bool bar) {
         delta_A = delta_A_par(q2, sign, bar);
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
-
-    // printf("----------- A_%c_par_low(s = %.3f) -----------\n", sign == -1 ? 'L' : 'R', q2);
-    // printf("prefactor = %.4e + %.4e i\n", real(-N(q2, bar) * std::sqrt(2.) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi)), imag(-N(q2, bar) * std::sqrt(2.) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi)));
-    // printf("F = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("m_b_local = %.4e\n", m_b_local);
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
 
     return (-N(q2, bar) * std::sqrt(2.) * (cache.m_Bs * cache.m_Bs - cache.m_phi * cache.m_phi) * (F + 2. * m_b_local * F_T / q2) + delta_A) * had_err_factor;
 }
@@ -457,13 +359,6 @@ complex_t BsPhiDecay::A_0_low(double q2, double sign, bool bar) {
         delta_A = delta_A_0(q2, sign, bar);
         m_b_local = cache.m_b_PS + cache.alpha_s_mu_b * cache.Delta_M / (3 * PI);
     }
-
-    // printf("----------- A_%c_0_low(s = %.3f) -----------\n", sign == -1 ? 'L' : 'R', q2);
-    // printf("prefactor = %.4e + %.4e i\n", real(-N(q2, bar) / (2. * cache.m_phi * std::sqrt(q2))), imag(-N(q2, bar) / (2. * cache.m_phi * std::sqrt(q2))));
-    // printf("F = %.4e + %.4e i\n", real(F), imag(F));
-    // printf("m_b_local = %.4e\n", m_b_local);
-    // printf("F_T = %.4e + %.4e i\n", real(F_T), imag(F_T));
-    // printf("delta_A = %.4e + %.4e i\n", real(delta_A), imag(delta_A));
 
     return (-N(q2, bar) / (2. * cache.m_phi * std::sqrt(q2)) * (F + 2. * m_b_local * F_T) + delta_A) * had_err_factor;
 }
@@ -546,13 +441,6 @@ complex_t BsPhiDecay::A_perp_high(double q2, double sign, bool bar) {
     complex_t C9 = C9_eff(q2, bar) + (!bar ? std::conj(cache.C[WCoef::CP9]) : cache.C[WCoef::CP9]);
     complex_t C10 = cache.C[WCoef::C10] + cache.C[WCoef::CP10];
     if (!bar) C10 = std::conj(C10);
-
-    // printf("C7_eff = %.4e + %.4e i\n", real(C7), imag(C7));
-    // printf("C9_eff = %.4e + %.4e i\n", real(C9), imag(C9));
-    // printf("C10_eff = %.4e + %.4e i\n", real(C10), imag(C10));
-    // printf("f_perp = %.4e\n", cache.ff_calculator.get(BV_FF::F_PERP, q2));
-    // printf("N = %.4e + %.4e i\n", real(N(q2, bar)), imag(N(q2, bar)));
-    // printf("pref T = %.4e\n", 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2);
 
     return N(q2, bar) * (C9 + sign * C10 + 2. * cache.kappa * cache.m_b_m_b * cache.m_Bs / q2 * C7) * cache.ff_calculator.get(BV_FF::F_PERP, q2) * (1. + cache.A_had_err_high[size_t (0.5 * (1 + sign))]);
 }
@@ -820,14 +708,6 @@ double BsPhiDecay::s9(double q2) {
 }
 
 void BsPhiDecay::compute_binned_J_i() {
-    // One pass per bin:
-    // - evaluate all transversity amplitudes once for the direct mode (bar=false)
-    //   and once for the CP-conjugate mode (bar=true)
-    // - derive J_i, h_i and s_i from those amplitudes
-    // - accumulate every needed binned integral together with a fixed GL24 quadrature
-    //
-    // This removes the previous pattern of 15 independent adaptive integrals per bin,
-    // each of which was recomputing the same amplitudes many times.
     static constexpr std::array<double, 24> GL24_X {{
         -0.99518721999702131, -0.97472855597130947, -0.93827455200273280, -0.88641552700440107,
         -0.82000198597390295, -0.74012419157855436, -0.64809365193697555, -0.54542147138883956,

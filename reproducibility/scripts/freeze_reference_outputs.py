@@ -61,14 +61,23 @@ def main() -> int:
 
     def command_version(*command: str) -> str:
         try:
-            return subprocess.check_output(
-                list(command), text=True, stderr=subprocess.STDOUT
-            ).splitlines()[0].strip()
+            return (
+                subprocess.check_output(
+                    list(command), text=True, stderr=subprocess.STDOUT
+                )
+                .splitlines()[0]
+                .strip()
+            )
         except (OSError, subprocess.CalledProcessError, IndexError):
             return "unavailable"
 
     binary = os.environ.get("HYPERISO_BIN")
     binary_path = Path(binary).resolve() if binary else None
+    timings_path = outputs / "run_timings.json"
+    case_timings = (
+        json.loads(timings_path.read_text()) if timings_path.is_file() else {}
+    )
+
     metadata = {
         "suite": manifest["suite_name"],
         "hyperiso_version": version,
@@ -76,6 +85,7 @@ def main() -> int:
         "source_tag": os.environ.get("GITHUB_REF_NAME", "unreleased"),
         "generated_utc": dt.datetime.now(dt.timezone.utc).isoformat(),
         "normalization": "startup banner and machine-specific paths removed",
+        "case_timings_seconds": case_timings,
         "reference_origin": previous_metadata.get(
             "reference_origin",
             "outputs regenerated from the reviewed release build",
@@ -87,9 +97,7 @@ def main() -> int:
             "compiler": command_version("c++", "--version"),
             "cmake": command_version("cmake", "--version"),
             "gsl": command_version("pkg-config", "--modversion", "gsl"),
-            "eigen": command_version(
-                "pkg-config", "--modversion", "eigen3"
-            ),
+            "eigen": command_version("pkg-config", "--modversion", "eigen3"),
             "build_type": os.environ.get("CMAKE_BUILD_TYPE", "Release"),
             "thread_count": int(os.environ.get("HYPERISO_REPRO_THREADS", "1")),
             "binary": str(binary_path) if binary_path else "not recorded",

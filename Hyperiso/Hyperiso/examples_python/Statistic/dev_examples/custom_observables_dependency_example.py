@@ -14,7 +14,6 @@ def scalar_real(x):
 
 
 if __name__ == "__main__":
-
     config = HyperisoConfig(model=Model.SM)
     hyp = HyperisoMaster()
     hyp.init(lha_file="lha/si_input.flha", config=config)

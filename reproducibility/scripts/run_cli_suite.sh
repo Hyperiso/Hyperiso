@@ -18,6 +18,8 @@ OUT_DIR="${REPRO_DIR}/outputs"
 EXP_DIR="${REPRO_DIR}/expected_outputs"
 INPUT="${REPRO_DIR}/inputs/sm_reference.flha"
 mkdir -p "${OUT_DIR}" "${EXP_DIR}"
+TIMINGS_FILE="${OUT_DIR}/run_timings.json"
+printf '{}\n' > "${TIMINGS_FILE}"
 
 find_hyperiso_bin() {
   if [[ -n "${HYPERISO_BIN:-}" ]]; then
@@ -71,10 +73,11 @@ run_case() {
   local id="$1"
   local outfile="$2"
   shift 2
-  local raw_stdout raw_stderr
+  local raw_stdout raw_stderr start_ns end_ns
   raw_stdout="$(mktemp)"
   raw_stderr="$(mktemp)"
   echo "[${id}] $*"
+  start_ns="$(date +%s%N)"
   if ! "$@" >"${raw_stdout}" 2>"${raw_stderr}"; then
     cat "${raw_stdout}" >&2
     cat "${raw_stderr}" >&2
@@ -88,6 +91,17 @@ run_case() {
     return 1
   fi
   python3 "${SCRIPT_DIR}/normalize_cli_output.py" "${raw_stdout}" "${OUT_DIR}/${outfile}"
+  end_ns="$(date +%s%N)"
+  python3 - "${TIMINGS_FILE}" "${id}" "${start_ns}" "${end_ns}" <<'PY_TIMING'
+import json
+import sys
+from pathlib import Path
+
+path = Path(sys.argv[1])
+data = json.loads(path.read_text())
+data[sys.argv[2]] = round((int(sys.argv[4]) - int(sys.argv[3])) / 1_000_000_000, 6)
+path.write_text(json.dumps(data, indent=2, sort_keys=True) + "\n")
+PY_TIMING
   rm -f "${raw_stdout}" "${raw_stderr}"
   cat "${OUT_DIR}/${outfile}"
 }

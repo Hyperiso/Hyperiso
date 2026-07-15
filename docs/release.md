@@ -60,6 +60,25 @@ HYPERISO_BIN="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)" \
 
 Review every numerical diff and `reference_metadata.json` before committing.
 
+## Freeze final numerical provenance
+
+After all code changes are committed and the Release build has passed locally, regenerate the frozen references with the exact CLI that will be released:
+
+```bash
+GITHUB_REF_NAME=v1.0.0 \
+HYPERISO_BIN=/absolute/path/to/hyperiso-ui \
+CMAKE_BUILD_TYPE=Release \
+./reproducibility/scripts/run_cli_suite.sh --update-expected
+```
+
+Review and commit `reproducibility/expected_outputs/` and `reference_metadata.json`. The numerical values should not change at this stage; the purpose is to record the real Git checkout, binary hash, compiler, dependency versions and per-case timings. Build the binary from the recorded commit, then make one final commit containing only the frozen files under `reproducibility/expected_outputs/`. The tag workflow rejects any other code change after the recorded build commit. Do not tag while provenance fields are incomplete.
+
+Validate the freeze before tagging:
+
+```bash
+python tools/check_release_provenance.py --tag v1.0.0
+```
+
 ## Tagging and publishing
 
 ```bash
@@ -69,7 +88,7 @@ git push origin v1.0.0
 
 The release workflow then:
 
-1. reruns quality, C++ tests and all five frozen references;
+1. reruns quality, C++ tests and all seven frozen references;
 2. builds one sdist and CPython 3.10–3.12 manylinux wheels;
 3. checks the distributions and wheel platform metadata;
 4. publishes those exact files to TestPyPI through OIDC;

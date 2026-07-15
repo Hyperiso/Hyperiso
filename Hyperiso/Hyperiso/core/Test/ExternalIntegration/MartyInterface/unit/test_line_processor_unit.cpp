@@ -7,7 +7,7 @@
 
 #include "LineProcessor.h"
 #include "ModelWriter.h"
-#include "FileWriter.h"
+#include "MartyFileWriter.h"
 #include "IncludeManager.hpp"
 #include "FileNameManager.h"
 
@@ -44,7 +44,7 @@ int main(){
     }
 
     IncludeManager im;
-    FileWriter fw("W1","SM");
+    MartyFileWriter fw("W1","SM");
     LineProcessor lp(im, fw, /*forceMode*/false);
     ParamWriter pw;
     ModelWriter mw(lp, pw);

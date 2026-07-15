@@ -1,6 +1,6 @@
 
-#ifndef FILE_WRITER_H
-#define FILE_WRITER_H
+#ifndef MARTY_FILE_WRITER_H
+#define MARTY_FILE_WRITER_H
 
 #include <fstream>
 #include <string>
@@ -8,10 +8,10 @@
 #include "FileNameManager.h"
 
 /**
- * @file FileWriter.h
+ * @file MartyFileWriter.h
  * @brief Declares utilities to generate C++ code for MARTY wrappers.
  *
- * This header defines the ::FileWriter class, which is responsible for
+ * This header defines the ::MartyFileWriter class, which is responsible for
  * emitting small code fragments into a generated C++ file:
  *  - argument parsing for matching scales,
  *  - input parameter reading,
@@ -19,23 +19,23 @@
  */
 
 /**
- * @class FileWriter
+ * @class MartyFileWriter
  * @ingroup CodeGenerationModule
  * @brief Emits C++ helper code to handle CLI, IO and Wilson output.
  *
- * FileWriter writes small C++ snippets into a given `std::ofstream`,
+ * MartyFileWriter writes small C++ snippets into a given `std::ofstream`,
  * tailored for a specific `(wilson, model)` combination. It does not own
  * the stream; the caller is responsible for opening and closing the file.
  */
-class FileWriter {
+class MartyFileWriter {
 public:
     /**
-     * @brief Constructs a FileWriter for a given (wilson, model) pair.
+     * @brief Constructs a MartyFileWriter for a given (wilson, model) pair.
      *
      * @param wilson  Wilson basis or identifier (used in filenames and in code).
      * @param model   Physics model name (used in filenames and in code).
      */
-    FileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation = false);
+    MartyFileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation = false);
 
     /**
      * @brief Writes C++ code that handles writing Wilson coefficients to a CSV.
