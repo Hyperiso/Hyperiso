@@ -15,11 +15,24 @@ NONFINITE_RE = re.compile(r"(?i)(?<![A-Za-z_])(?:nan|[-+]?inf(?:inity)?)(?![A-Za
 
 def normalize(text: str) -> str:
     cleaned = ANSI_RE.sub("", text)
-    if DIAGNOSTIC_RE.search(cleaned):
-        raise ValueError("CLI output contains a warning, error or fatal diagnostic")
-    if NONFINITE_RE.search(cleaned):
-        raise ValueError("CLI output contains NaN or infinity")
     lines = [line.rstrip() for line in cleaned.splitlines()]
+
+    diagnostics = [line for line in lines if DIAGNOSTIC_RE.search(line)]
+    if diagnostics:
+        preview = "\n".join(f"  {line}" for line in diagnostics[:10])
+        suffix = "\n  ..." if len(diagnostics) > 10 else ""
+        raise ValueError(
+            "CLI output contains a warning, error or fatal diagnostic:\n"
+            f"{preview}{suffix}"
+        )
+
+    nonfinite = [line for line in lines if NONFINITE_RE.search(line)]
+    if nonfinite:
+        preview = "\n".join(f"  {line}" for line in nonfinite[:10])
+        suffix = "\n  ..." if len(nonfinite) > 10 else ""
+        raise ValueError(
+            f"CLI output contains NaN or infinity:\n{preview}{suffix}"
+        )
     try:
         start = next(
             index for index, line in enumerate(lines) if SUMMARY_RE.fullmatch(line)

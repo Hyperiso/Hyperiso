@@ -40,19 +40,6 @@ const std::shared_ptr<Block>& BlockSrc::block(std::string_view name) const {
 }
 
 std::shared_ptr<Parameter> BlockSrc::get_param(std::string_view blk, const LhaID& code) const {
-    // auto& b = block(blk);
-    // if (!b->contains(code)) {
-    //     std::cout << "here ?" << std::endl;
-    //     std::vector<std::string> ids;
-    //     for (auto& id : b->getAllIDs()) ids.push_back(to_string(id));
-    //     std::ostringstream oss;
-    //     oss << "Missing parameter " << to_string(code)
-    //         << " in Block '" << blk << "'";
-    //     if (!ctx_.empty()) oss << " (context: " << ctx_ << ")";
-    //     oss << ". Available IDs: [" << join(ids) << "].";
-    //     throw std::invalid_argument(oss.str());
-    // }
-    // return b->retrieve(code);
     auto& b = block(blk);
     return b->retrieve(code);
 }
@@ -83,15 +70,15 @@ scalar_t BlockSrc::get_val(std::string_view blk, std::initializer_list<int> code
     return get_val(blk, LhaID{std::move(v)});
 }
 
-double BlockSrc::get_val(std::string_view blk, const LhaID& code) const {
+scalar_t BlockSrc::get_val(std::string_view blk, const LhaID& code) const {
     return get_param(blk, code)->get_val();
 }
 
-double BlockSrc::get_val(std::string_view blk, int code) const {
+scalar_t BlockSrc::get_val(std::string_view blk, int code) const {
     return get_param(blk, LhaID(code))->get_val();
 }
 
-double BlockSrc::get_val(std::string_view blk, std::pair<int,int> code) const {
+scalar_t BlockSrc::get_val(std::string_view blk, std::pair<int,int> code) const {
     return get_param(blk, LhaID(code.first, code.second))->get_val();
 }
 

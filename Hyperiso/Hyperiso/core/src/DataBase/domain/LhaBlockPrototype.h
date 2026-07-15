@@ -51,6 +51,10 @@ const Prototype SMINPUTS = Prototype{"SMINPUTS"};
 const Prototype VCKMIN = Prototype{"VCKMIN"};   /**< SLHA2 */
 const Prototype UPMNSIN = Prototype{"UPMNSIN"}; /**< SLHA2 */
 const Prototype MINPAR = Prototype{"MINPAR"};
+// Common blocks emitted by 2HDMC spectrum files.
+const Prototype THDM = Prototype{"THDM"};
+const Prototype MGCKM = Prototype{"MGCKM", 3, 2};
+const Prototype MGUSER = Prototype{"MGUSER"};
 const Prototype EXTPAR = Prototype{"EXTPAR"};
 const Prototype MASS = Prototype{"MASS"};
 // Neutralino mixing matrices are also frequently written with a global Q=
@@ -82,7 +86,7 @@ const Prototype YD = Prototype{{"YD", "DCOUPL"}, 4, 3, -1, -1, -1, true};
 const Prototype YE = Prototype{{"YE", "LCOUPL", "YL"}, 4, 3, -1, -1, -1, true};
 
 const std::unordered_set<Prototype> LHA_BLOCKS = {MODSEL, SMINPUTS, VCKMIN, UPMNSIN, MASS, GAUGE};
-const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, NMIX, NMNMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX, NMSSMRUN}; // MAJ : SPINFO/FCINFO pb (values are string)
+const std::unordered_set<Prototype> SLHA_BLOCKS = {MINPAR, EXTPAR, THDM, MGCKM, MGUSER, NMIX, NMNMIX, UMIX, VMIX, STOPMIX, SBOTMIX, STAUMIX, ALPHA, HMIX, MSOFT, AU, AD, AE, YU, YD, YE, NMHMIX, NMAMIX, NMSSMRUN}; // SPINFO/FCINFO contain free-form strings and are skipped by the parser.
 
 // FLHA Block prototypes
 const Prototype FCINFO = Prototype{"FCINFO"};

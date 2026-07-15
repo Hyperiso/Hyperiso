@@ -71,7 +71,7 @@ void SUSYParameterHelper::init_epsilon_block() {
 
         const auto mass_block = src.block("MASS");
         const auto mass_if_present = [&](int pdg) {
-            return mass_block->contains(LhaID(pdg)) ? src.get_val("MASS", pdg) : 0.0;
+            return mass_block->contains(LhaID(pdg)) ? src.get_val("MASS", pdg) : scalar_t(.0);
         };
 
         std::vector<double> m_neutralino = {

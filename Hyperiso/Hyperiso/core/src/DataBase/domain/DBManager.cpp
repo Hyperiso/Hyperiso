@@ -23,9 +23,16 @@ void DBManager::add_default_lha_prototypes(fs::path file_path) {
 
     for (const auto& p : LHA_BLOCKS) insert_if_absent(p);
 
-    if (input_extension == ".slha" || input_extension == ".lha") {
+    if (input_extension == ".slha") {
         for (const auto& p : SLHA_BLOCKS) insert_if_absent(p);
     } else if (input_extension == ".flha") {
+        for (const auto& p : FLHA_BLOCKS) insert_if_absent(p);
+    } else if (input_extension == ".lha") {
+        // The generic .lha extension is used by both SLHA-like spectrum
+        // generators (including 2HDMC) and FLHA files.  Accept both
+        // standard prototype sets so valid mixed-format metadata such as
+        // FMODSEL does not generate unsupported-block warnings.
+        for (const auto& p : SLHA_BLOCKS) insert_if_absent(p);
         for (const auto& p : FLHA_BLOCKS) insert_if_absent(p);
     }
 } 

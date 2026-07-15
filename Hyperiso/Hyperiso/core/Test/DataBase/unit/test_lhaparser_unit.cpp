@@ -24,7 +24,7 @@ int main() {
 
     LhaParser p;
     std::unordered_set<Prototype> protos = {
-        GAUGE, MASS, FMASS, NMIX, NMNMIX
+        GAUGE, MASS, FMASS, NMIX, NMNMIX, FMODSEL, THDM, MGCKM, MGUSER
     };
     p.set_prototypes(protos);
 
@@ -43,6 +43,14 @@ int main() {
         "BLOCK NMIX\n"
         "  5  3 -1.50000000E-01\n"
         "  5  4  3.50000000E-01\n"
+        "BLOCK FMODSEL\n"
+        "  1  34\n"
+        "BLOCK THDM\n"
+        "  1  1\n"
+        "BLOCK MGCKM\n"
+        "  3  2  4.04000000E-02\n"
+        "BLOCK MGUSER\n"
+        "  1  2.50000000E-06\n"
         "# end\n";
 
     auto root = p.parse(src);
@@ -79,6 +87,22 @@ int main() {
     assert(std::abs(as_num(N->get("5_3")) + 0.15) < 1e-12);
     assert(std::abs(as_num(N->get("5_4")) - 0.35) < 1e-12);
     assert(std::abs(std::get<double>(N->get("scale")) + 1.0) < 1e-12);
+
+    assert(root->contains("FMODSEL"));
+    auto FMOD = std::get<std::shared_ptr<DBNode>>(root->get("FMODSEL"));
+    assert(std::abs(as_num(FMOD->get("1")) - 34.0) < 1e-12);
+
+    assert(root->contains("THDM"));
+    auto TH = std::get<std::shared_ptr<DBNode>>(root->get("THDM"));
+    assert(std::abs(as_num(TH->get("1")) - 1.0) < 1e-12);
+
+    assert(root->contains("MGCKM"));
+    auto CKM = std::get<std::shared_ptr<DBNode>>(root->get("MGCKM"));
+    assert(std::abs(as_num(CKM->get("3_2")) - 0.0404) < 1e-12);
+
+    assert(root->contains("MGUSER"));
+    auto MGU = std::get<std::shared_ptr<DBNode>>(root->get("MGUSER"));
+    assert(std::abs(as_num(MGU->get("1")) - 2.5e-6) < 1e-15);
 
     std::cout << "\n LhaParser unit tests passed!\n";
     return 0;

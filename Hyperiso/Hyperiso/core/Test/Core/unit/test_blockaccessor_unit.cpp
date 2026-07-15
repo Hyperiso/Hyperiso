@@ -7,6 +7,7 @@
 #include "BlockAccessor.h"
 #include "Block.h"
 #include "Parameter.h"
+#include "SourcesView.h"
 #include "Include.h"
 
 static std::shared_ptr<Parameter> mkp(const std::string& blk, long code, double v){
@@ -119,6 +120,38 @@ int main() {
     assert(sub->contains("GAUGE"));
     assert(!sub->contains("MASS"));
     assert(std::abs(sub->getValue("GAUGE", k1) - 2.75) < 1e-12);
+
+    // BlockSrc must preserve complex values for every identifier overload.
+    // This is required for CKM entries used by the SUSY Wilson pipeline.
+    {
+        auto ckm = std::make_shared<Block>();
+        ckm->blockname = "VCKM";
+        const LhaID vub_id(0, 2);
+        const scalar_t vub(0.00157298, -0.00349015);
+        ckm->store_or_assign(
+            vub_id,
+            std::make_shared<Parameter>(
+                ParamId{ParameterType::SM, "VCKM", vub_id},
+                vub,
+                0.0,
+                0.0
+            )
+        );
+
+        const std::unordered_map<std::string, std::shared_ptr<Block>> blocks = {
+            {"VCKM", ckm}
+        };
+        const BlockSrc src(blocks, "complex BlockSrc unit test");
+
+        const scalar_t from_list = src.get_val("VCKM", {0, 2});
+        const scalar_t from_id = src.get_val("VCKM", vub_id);
+        const scalar_t from_pair = src.get_val("VCKM", std::pair<int, int>{0, 2});
+
+        for (const scalar_t value : {from_list, from_id, from_pair}) {
+            assert(std::abs(value.real() - vub.real()) < 1e-15);
+            assert(std::abs(value.imag() - vub.imag()) < 1e-15);
+        }
+    }
 
     std::cout << "\n BlockAccessor unit suite passed.\n";
     return 0;

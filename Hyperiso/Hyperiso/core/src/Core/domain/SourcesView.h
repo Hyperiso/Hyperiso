@@ -194,27 +194,27 @@ public:
      *
      * @param blk  Name of the block.
      * @param code LhaID of the parameter.
-     * @return The current parameter value as double.
+     * @return The current parameter value, including any imaginary component.
      */
-    double get_val(std::string_view blk, const LhaID& code) const;
+    scalar_t get_val(std::string_view blk, const LhaID& code) const;
 
     /**
      * @brief Helper: get value from an integer code.
      *
      * @param blk  Name of the block.
      * @param code Integer PDG-like code.
-     * @return The current parameter value as double.
+     * @return The current parameter value, including any imaginary component.
      */
-    double get_val(std::string_view blk, int code) const;
+    scalar_t get_val(std::string_view blk, int code) const;
 
     /**
      * @brief Helper: get value from a pair of integers.
      *
      * @param blk  Name of the block.
      * @param code Pair of indices.
-     * @return The current parameter value as double.
+     * @return The current parameter value, including any imaginary component.
      */
-    double get_val(std::string_view blk, std::pair<int,int> code) const;
+    scalar_t get_val(std::string_view blk, std::pair<int,int> code) const;
     
     /**
      * @brief Returns the underlying map reference.
