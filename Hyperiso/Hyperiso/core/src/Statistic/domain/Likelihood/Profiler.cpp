@@ -128,8 +128,6 @@ ProfileResult Profiler::profile_laplace_nuisance(
         throw std::runtime_error("Inconsistent p/eta dimensions in likelihood");
     }
 
-    // This fast profiler is meant for 2D slice contours: p is fixed and eta is profiled.
-    // If the requested strategy also frees a fit parameter, fall back to full Minuit.
     for (std::size_t i : pr.free_params) {
         if (i < p_dim) {
             throw std::runtime_error(
@@ -148,9 +146,7 @@ ProfileResult Profiler::profile_laplace_nuisance(
     }
 
     LaplaceProfileOptions opts;
-    // These defaults are intentionally conservative:
-    // - auto-detect at most a few non-stationary nuisance directions;
-    // - correct them with cheap damped Newton steps, not an inner Minuit.
+
     opts.stationarity_threshold = 5e-2;
     opts.max_refined_eta = 4;
     opts.max_refinement_iters = 2;
@@ -230,20 +226,17 @@ ProfileResult Profiler::profile_minuit(std::shared_ptr<ILikelihood> base, const 
         return minimizer->minimize_with_fixed(f, defs, local_opt, fixed_idx, fixed_vals);
     };
 
-    // 1) warm start courant
     fit_app::BackendFitResult r1 = try_one(pr.start.empty() ? central_seed : pr.start, 2, 30000, 0.2);
     best_raw = r1;
     best_raw_set = true;
 
     if (!acceptable_for_profile(r1)) {
-        // 2) restart depuis le seed global/central
         fit_app::BackendFitResult r2 = try_one(central_seed, 2, 60000, 0.2);
         if ((!best_raw_set) || (std::isfinite(r2.diagnostics.fmin) && r2.diagnostics.fmin < best_raw.diagnostics.fmin)) {
             best_raw = r2;
             best_raw_set = true;
         }
 
-        // 3) dernier essai plus permissif
         if (!acceptable_for_profile(best_raw)) {
             fit_app::BackendFitResult r3 = try_one(central_seed, 1, 100000, 0.5);
             if (std::isfinite(r3.diagnostics.fmin) && r3.diagnostics.fmin < best_raw.diagnostics.fmin) {

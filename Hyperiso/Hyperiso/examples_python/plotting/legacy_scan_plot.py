@@ -12,9 +12,9 @@ from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 
 from pyhyperiso.core.Core.HyperisoMaster import PyHyperisoMaster
 from pyhyperiso.core.Core.HyperisoConfig import PyHyperisoConfig, ExternalFlag
-from pyhyperiso.core.Core.ParamaterProvider import PyParameterProvider
+from pyhyperiso.core.Core.ParameterProvider import PyParameterProvider
 
-from pyhyperiso.core.Common.Mapper import ObservableMapper  # <-- ton mapper static
+from pyhyperiso.core.Common.Mapper import ObservableMapper
 from pyhyperiso.core.Statistic.StatisticInterface import StatisticInterface
 from pyhyperiso.core.Statistic.StatisticConfig import StatisticConfig
 from pyhyperiso.core.Statistic.GaussianSummary import GaussianSummary

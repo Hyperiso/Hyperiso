@@ -81,8 +81,7 @@ void BKstarGammaDecay::fill_wilson_cache() {
         cache.C[id] = bp_wilsons.at(id);
     }
 
-    // LOG_INFO(cache.mu_b);
-    // LOG_INFO(cache.mu_h);
+
     this->w_proxy->set_basis(WilsonBasis::B_TRADITIONAL);
     auto b_wilsons_trad  = w_proxy->getAFR(WGroup::B, this->w_config.order);
     auto bp_wilsons_trad = w_proxy->getAFR(WGroup::BPrime, this->w_config.order);
@@ -98,8 +97,6 @@ void BKstarGammaDecay::fill_wilson_cache() {
     cache.C2_h = w_proxy->getFR(WGroup::B, WCoef::C2, w_config.order);
     cache.C8_h = w_proxy->getFR(WGroup::B, WCoef::C8, w_config.order) + w_proxy->getFR(WGroup::BPrime, WCoef::CP8, w_config.order);
 
-    // printf("C2(mu_h) = %.5e\n", std::real(cache.C2_h));
-    // printf("C8(mu_h) = %.5e\n", std::real(cache.C8_h));
 
     ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, cache.mu_b);
     this->w_proxy->set_basis(WilsonBasis::B_STANDARD);
@@ -129,43 +126,6 @@ void BKstarGammaDecay::load_cfg_dependent_params() {
     cache.m_Ks = (*p)(ParamId{ParameterType::FLAVOR, "FMASS", cfg.charge == Charge::B_0 ? 313 : 323}, DataType::VALUE);
     cache.N_prime = -(*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE) * cache.m_B * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE) * cache.alpha_em / (PI * RT2);
 
-    // printf(cfg.charge == Charge::B_0 ? "BR(B0 > K*0 gamma)\n" : "BR(B > K* gamma)\n");
-    // printf("mu_b = %.4e\n", cache.mu_b);
-    // printf("mu_h = %.4e\n", cache.mu_h);
-    // printf("alpha_em = %.4e\n", cache.alpha_em);
-    // printf("m_b(m_b) = %.4e\n", cache.m_b_m_b);
-    // printf("tau_B = %.4e\n", cache.tau_B);
-    // printf("m_B = %.4e\n", cache.m_B);
-    // printf("m_K* = %.4e\n", cache.m_Ks);
-    // printf("N' = %.4e + %.4e i\n", cache.N_prime.real(), cache.N_prime.imag());
-    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
-    // printf("z = %.4e\n", cache.z);
-    // printf("f_K*_par = %.4e\n", cache.f_Ks_par);
-    // printf("f_K*_perp = %.4e\n", cache.f_Ks_perp);
-    // printf("f_B = %.4e\n", cache.f_B);
-    // printf("lambda_B = %.4e\n", cache.lambda_B);
-    // printf("L_b = %.4e\n", cache.L_b);
-    // printf("alpha_s(mu_b) = %.4e\n", cache.alpha_s_mu_b);
-    // printf("alpha_s(mu_h) = %.4e\n", cache.alpha_s_mu_h);
-    // printf("mu_0 = %.4e\n", cache.mu_0);
-
-    // complex_t HVp = H_V(1, false);
-    // complex_t HVm = H_V(-1, false);
-    // complex_t HVpbar = H_V(1, true);
-    // complex_t HVmbar = H_V(-1, true);
-    // complex_t T_perp_p = cache.qcdf_calculator.T_perp_p(0.0, false);
-    // complex_t T_perp_m = cache.qcdf_calculator.T_perp_m(0.0, false);
-    // complex_t pref = 2. * I * cache.N_prime * cache.m_b_m_b * (std::pow(cache.m_B, 2) - std::pow(cache.m_Ks, 2)) / (cache.m_B * std::sqrt(4 * PI * cache.alpha_em));
-    // printf("T_perp_p = %.4e + %.4e i\n", T_perp_p.real(), T_perp_p.imag());
-    // printf("T_perp_m = %.4e + %.4e i\n", T_perp_m.real(), T_perp_m.imag());
-    // printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
-    
-    // printf("pref = %.4e + %.4e i\n", pref.real(), pref.imag());
-
-    // printf("HV+ = %.4e + %.4e i\n", HVp.real(), HVp.imag());
-    // printf("HV- = %.4e + %.4e i\n", HVm.real(), HVm.imag());
-    // printf("HV+bar = %.4e + %.4e i\n", HVpbar.real(), HVpbar.imag());
-    // printf("HV-bar = %.4e + %.4e i\n", HVmbar.real(), HVmbar.imag());
 }
 
 void BKstarGammaDecay::set_cfg_flags(BKstarGammaConfig::B_Charge charge) {
@@ -185,22 +145,11 @@ complex_t BKstarGammaDecay::H_V(double sign, bool bar) {
 
     complex_t C7 = -sign * (sign == 1 ? cache.C[WCoef::CP7] : cache.C[WCoef::C7]); 
 
-    // printf("----- H_V(%.1f) -----\n", sign);
-    // printf("HV pref = %.4e + %.4e i\n", real(pref), imag(pref));
-	// printf("C7eff = %.4e + %.4e i\n", real(C7), imag(C7));
-	// printf("T1(0) = %.4e + %.4e i\n", real(T1_0), imag(T1_0));
-	// printf("T_perp_m = %.4e + %.4e i\n", real(T_perp_m), imag(T_perp_m));
-	// printf("T_perp_p = %.4e + %.4e i\n", real(T_perp_p), imag(T_perp_p));
-
     return pref * (C7 * T1_0 + (T_perp_m - sign * T_perp_p) / 2.0);
 }
 
 complex_t BKstarGammaDecay::K1() {
     double F_p = cache.qcdf_calculator.F_perp(0.0);
-
-    // printf("F_perp = %.4e\n", F_p);
-    // printf("G_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.G_perp()), std::imag(cache.qcdf_calculator.G_perp()));
-    // printf("X_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.X_perp(0.0)), std::imag(cache.qcdf_calculator.X_perp(0.0)));
 
     return -(cache.C_trad[WCoef::C6] + cache.C_trad[WCoef::C5] / cache.Nc) * F_p
            + cache.C_F * cache.alpha_s_mu_b / (4 * cache.Nc * PI) * (
@@ -214,10 +163,6 @@ complex_t BKstarGammaDecay::K1() {
 }
 
 complex_t BKstarGammaDecay::K2(int q) {
-    // printf("H_perp = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_perp()), std::imag(cache.qcdf_calculator.H_perp()));
-    // printf("log(mu_b / mu_0) = %.4e\n", log(cache.mu_b / cache.mu_0));
-    // printf("log(mu_b / mb_1S) = %.4e\n", cache.L_b);
-
     complex_t k2 = cache.C_trad[WCoef::C4] + cache.C_trad[WCoef::C3] / cache.Nc 
                     + cache.C_F * cache.alpha_s_mu_b / (4 * cache.Nc * PI) * (
                         cache.C_trad[WCoef::C2] * ((2 - 4 * cache.L_b) / 3. - cache.qcdf_calculator.H_perp()) 
@@ -243,36 +188,13 @@ double BKstarGammaDecay::delta_0() {
     complex_t a7c = cache.C_trad[WCoef::C7] + cache.alpha_s_mu_b * cache.C_F * (cache.C_trad[WCoef::C2] * BV::G2(cache.z, cache.L_b) + cache.C_trad[WCoef::C8] * BV::G8(cache.L_b)) / (4. * PI) 
                     + cache.alpha_s_mu_h * cache.C_F * (cache.C8_h * cache.qcdf_calculator.H_8() + cache.C2_h * cache.qcdf_calculator.H_2()) / (4 * PI);
 
-    // printf("H8a7 = %.4e\n", cache.qcdf_calculator.H_8());
-	// printf("H2a7 = %.4e + %.4e i\n", std::real(cache.qcdf_calculator.H_2()), std::imag(cache.qcdf_calculator.H_2()));
-	// printf("G8a7 = %.4e + %.4e i\n", std::real(BV::G8(cache.L_b)), std::imag(BV::G8(cache.L_b)));
-	// printf("G2a7 = %.4e + %.4e i\n", std::real(BV::G2(cache.z, cache.L_b)), std::imag(BV::G2(cache.z, cache.L_b)));
-    //TODO :: warning test theo
-    // LOG_INFO("T1(0) =", cache.ff_calculator.get(BV_FF::T1, 0.0));
     double T1_iso = (*p)(ParamId{ParameterType::DECAY, "B_Ks", 16}, DataType::VALUE);
-    // complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * cache.ff_calculator.get(BV_FF::T1, 0.0) * a7c);
 
     complex_t pref = 4. * PI2 * cache.f_B / (cache.m_b_mu_b * T1_iso * a7c);
     complex_t t1 = cache.f_Ks_perp * K1() / cache.m_b_mu_b;
     complex_t f2 = cache.f_Ks_par * cache.m_Ks / (6. * cache.lambda_B * cache.m_B);
     complex_t bd = -pref * (t1 + f2 * K2(1));
     complex_t bu = 2. * pref * (t1 + f2 * K2(2));
-
-    // printf("f_B = %.4e\n", cache.f_B);
-    // printf("m_b(mu_b) = %.4e\n", cache.m_b_mu_b);
-    // printf("T_1(0) = %.4e\n", cache.ff_calculator.get(BV_FF::T1, 0.0));
-    // printf("f_K*_perp = %.4e\n", cache.f_Ks_perp);
-    // printf("f_K*_par = %.4e\n", cache.f_Ks_par);
-    // printf("m_K* = %.4e\n", cache.m_Ks);
-    // printf("lambda_B = %.4e\n", cache.lambda_B);
-    // printf("m_B = %.4e\n", cache.m_B);
-
-    // printf("K1 = %.4e + %.4e i\n", std::real(K1()), std::imag(K1()));
-    // printf("K2u = %.4e + %.4e i\n", std::real(K2(2)), std::imag(K2(2)));
-    // printf("K2d = %.4e + %.4e i\n", std::real(K2(1)), std::imag(K2(1)));
-    // printf("a7c = %.4e + %.4e i\n", std::real(a7c), std::imag(a7c));
-    // printf("bu = %.4e + %.4e i\n", std::real(bu), std::imag(bu));
-    // printf("bd = %.4e + %.4e i\n", std::real(bd), std::imag(bd));
 
     return std::real(bd - bu);
 }

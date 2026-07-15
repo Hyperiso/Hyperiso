@@ -3006,7 +3006,7 @@ scalar_t CQ1_susy::compute_LO(const ParamSrc& src, int lepton_mass_slot) {
     // std::cout << "CQ1H_0 " << CQ1H_0.real() << std::endl;
     /* NMSSM */
 
-    // TODO : Ask Nazila (a priori in block NMSSMRUN but check) 
+    // v1.1 : Ask Nazila (a priori in block NMSSMRUN but check) 
     double lambdaNMSSM = 1;
     double lambdaSNMSSM = 1;
     double AlambdaNSSM = 1;
