@@ -804,6 +804,13 @@ def layout():
                                             ],
                                         ),
                                         contour_controls(),
+                                        html.Div(
+                                            "Before fitting, HyperIso checks that every selected fit "
+                                            "parameter changes at least one configured observable. "
+                                            "A numerically flat parameter blocks the fit and is reported "
+                                            "instead of producing an ill-defined result.",
+                                            className="info-box",
+                                        ),
                                         html.Button(
                                             "Run χ² fit / contour",
                                             id="stat-fit-btn",

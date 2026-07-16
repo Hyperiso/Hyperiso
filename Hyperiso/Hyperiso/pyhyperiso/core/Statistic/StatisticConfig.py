@@ -226,6 +226,12 @@ class AdvancedStatisticConfig:
     nuisance_sensitivity_seed: int = 12345
     nuisance_sensitivity_keep_on_failure: bool = True
 
+    fit_parameter_sensitivity_check: bool = True
+    fit_parameter_sensitivity_probe_fraction: float = 0.05
+    fit_parameter_sensitivity_rel_cutoff: float = 1e-10
+    fit_parameter_sensitivity_abs_cutoff: float = 1e-12
+    fit_parameter_sensitivity_keep_on_failure: bool = True
+
     MLE_trace_first_evals: bool = False
     MLE_trace_max_evals: int = 25
     MLE_allow_profile_hessian_fallback: bool = True
@@ -270,6 +276,19 @@ class AdvancedStatisticConfig:
         cpp.nuisance_sensitivity_context_sigma = float(self.nuisance_sensitivity_context_sigma)
         cpp.nuisance_sensitivity_seed = int(self.nuisance_sensitivity_seed)
         cpp.nuisance_sensitivity_keep_on_failure = bool(self.nuisance_sensitivity_keep_on_failure)
+        cpp.fit_parameter_sensitivity_check = bool(self.fit_parameter_sensitivity_check)
+        cpp.fit_parameter_sensitivity_probe_fraction = float(
+            self.fit_parameter_sensitivity_probe_fraction
+        )
+        cpp.fit_parameter_sensitivity_rel_cutoff = float(
+            self.fit_parameter_sensitivity_rel_cutoff
+        )
+        cpp.fit_parameter_sensitivity_abs_cutoff = float(
+            self.fit_parameter_sensitivity_abs_cutoff
+        )
+        cpp.fit_parameter_sensitivity_keep_on_failure = bool(
+            self.fit_parameter_sensitivity_keep_on_failure
+        )
         cpp.MLE_trace_first_evals = bool(self.MLE_trace_first_evals)
         cpp.MLE_trace_max_evals = int(self.MLE_trace_max_evals)
         cpp.MLE_allow_profile_hessian_fallback = bool(self.MLE_allow_profile_hessian_fallback)

@@ -973,6 +973,202 @@ Contour StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, s
     return cl;
 }
 
+void StatisticManager::validate_fit_parameter_sensitivity() {
+    if (!config.advanced.fit_parameter_sensitivity_check || cache.p_specs.empty()) {
+        return;
+    }
+
+    if (cache.exp_obs.empty()) {
+        throw std::invalid_argument(
+            "Fit parameter sensitivity check failed: no experimental observable is "
+            "available for the current observable/experiment selection."
+        );
+    }
+
+    const auto unzipped_exp_obs = unzip(cache.exp_obs);
+    const std::vector<ExperimentObs> obs_ids = unzipped_exp_obs.ids;
+    const std::vector<double> exp_obs_vals = unzipped_exp_obs.vals;
+    const std::map<ParamId, double> p_central = cache.p_specs;
+    const std::map<ParamId, double> eta_central = cache.eta_specs_real;
+
+    struct RestoreModelStateGuard {
+        StatisticManager* self = nullptr;
+        std::map<ParamId, double> p;
+        std::map<ParamId, double> eta;
+
+        ~RestoreModelStateGuard() {
+            if (self == nullptr) {
+                return;
+            }
+            try {
+                self->obs_int->predict_optimized(p, eta);
+            } catch (const std::exception& e) {
+                std::cout << "[FIT] WARNING: failed to restore central model state after "
+                             "fit-parameter sensitivity checks: "
+                          << e.what() << std::endl;
+            } catch (...) {
+                std::cout << "[FIT] WARNING: failed to restore central model state after "
+                             "fit-parameter sensitivity checks: unknown exception"
+                          << std::endl;
+            }
+        }
+    } restore_guard{this, p_central, eta_central};
+
+    std::vector<double> baseline_pred;
+    try {
+        const auto baseline_pred_map =
+            obs_int->predict_optimized(p_central, eta_central);
+        baseline_pred = ordered_prediction_vector(obs_ids, baseline_pred_map);
+        if (std::any_of(baseline_pred.begin(), baseline_pred.end(),
+                        [](double value) { return !std::isfinite(value); })) {
+            throw std::runtime_error(
+                "non-finite observable prediction at the central fit point"
+            );
+        }
+    } catch (const std::exception& e) {
+        if (config.advanced.fit_parameter_sensitivity_keep_on_failure) {
+            LOG_WARN(
+                "Fit-parameter sensitivity baseline could not be evaluated; "
+                "continuing conservatively. Reason:", e.what()
+            );
+            return;
+        }
+        throw std::runtime_error(
+            std::string("Fit-parameter sensitivity baseline failed: ") + e.what()
+        );
+    }
+
+    const double probe_fraction = std::clamp(
+        config.advanced.fit_parameter_sensitivity_probe_fraction,
+        1e-6,
+        0.5
+    );
+    const bool verbose = config.print_fit_summary || config.print_debug;
+    std::vector<ParamId> inactive;
+
+    for (const auto& [pid, nominal_model_value] : p_central) {
+        const double fit_center =
+            nominal_model_value + fit_parameter_offset(config, pid);
+        const double sigma =
+            std::abs(pspp->get_param(pid)->get_combined_std().real());
+        const fit_app::ParameterDefinition def =
+            make_fit_param_def(pid, fit_center, sigma, config);
+
+        double step = def.step_hint;
+        if (def.limits.has_value()) {
+            const auto [low, high] = def.limits.value();
+            step = std::max(step, probe_fraction * (high - low));
+        }
+        if (!std::isfinite(step) || !(step > 0.0)) {
+            step = std::max(1e-3, 0.01 * std::max(1.0, std::abs(fit_center)));
+        }
+
+        double fit_minus = fit_center - step;
+        double fit_plus = fit_center + step;
+        if (def.limits.has_value()) {
+            const auto [low, high] = def.limits.value();
+            fit_minus = std::clamp(fit_minus, low, high);
+            fit_plus = std::clamp(fit_plus, low, high);
+        }
+
+        double best_abs_shift = 0.0;
+        double best_rel_shift = 0.0;
+        bool evaluated = false;
+        bool evaluation_failed = false;
+        std::string failure_reason;
+
+        const auto probe = [&](double fit_value) {
+            if (!std::isfinite(fit_value) ||
+                std::abs(fit_value - fit_center) < 1e-14) {
+                return;
+            }
+
+            auto p_probe = p_central;
+            p_probe[pid] = fit_value - fit_parameter_offset(config, pid);
+
+            const auto pred_map = obs_int->predict_optimized(p_probe, eta_central);
+            const std::vector<double> pred =
+                ordered_prediction_vector(obs_ids, pred_map);
+
+            evaluated = true;
+            for (std::size_t i = 0; i < baseline_pred.size(); ++i) {
+                if (!std::isfinite(pred[i]) || !std::isfinite(exp_obs_vals[i])) {
+                    throw std::runtime_error(
+                        "non-finite observable value during fit-parameter probe"
+                    );
+                }
+                const double abs_shift = std::abs(pred[i] - baseline_pred[i]);
+                const double scale = std::max({
+                    std::abs(baseline_pred[i]),
+                    std::abs(exp_obs_vals[i]),
+                    config.advanced.nuisance_sensitivity_scale_floor
+                });
+                best_abs_shift = std::max(best_abs_shift, abs_shift);
+                best_rel_shift = std::max(best_rel_shift, abs_shift / scale);
+            }
+        };
+
+        try {
+            probe(fit_minus);
+            probe(fit_plus);
+        } catch (const std::exception& e) {
+            evaluation_failed = true;
+            failure_reason = e.what();
+        } catch (...) {
+            evaluation_failed = true;
+            failure_reason = "unknown exception";
+        }
+
+        if (evaluation_failed || !evaluated) {
+            if (config.advanced.fit_parameter_sensitivity_keep_on_failure) {
+                LOG_WARN(
+                    "Fit-parameter sensitivity probe failed for", param_name(pid),
+                    "; keeping the parameter conservatively. Reason:",
+                    evaluation_failed ? failure_reason : "no valid probe point"
+                );
+                continue;
+            }
+            inactive.push_back(pid);
+            continue;
+        }
+
+        const bool sensitive =
+            best_abs_shift >= config.advanced.fit_parameter_sensitivity_abs_cutoff ||
+            best_rel_shift >= config.advanced.fit_parameter_sensitivity_rel_cutoff;
+
+        if (verbose) {
+            std::cout << "[FIT] fit-parameter sensitivity " << pid
+                      << " : max_abs_shift=" << best_abs_shift
+                      << ", max_rel_shift=" << best_rel_shift
+                      << " -> " << (sensitive ? "active" : "inactive")
+                      << std::endl;
+        }
+
+        if (!sensitive) {
+            inactive.push_back(pid);
+        }
+    }
+
+    if (inactive.empty()) {
+        return;
+    }
+
+    std::ostringstream oss;
+    oss << "Fit parameter sensitivity check failed: the selected observables are "
+           "numerically insensitive to ";
+    for (std::size_t i = 0; i < inactive.size(); ++i) {
+        if (i != 0) {
+            oss << ", ";
+        }
+        oss << inactive[i];
+    }
+    oss << ". Add observables that depend on these parameters, declare the missing "
+           "observable dependencies, or choose different fit parameters.";
+
+    LOG_WARN(oss.str());
+    throw std::invalid_argument(oss.str());
+}
+
 void StatisticManager::print_cache()
 {
     if (!(config.print_cache_summary || config.print_debug)) {
@@ -1047,6 +1243,7 @@ void StatisticManager::update_cache(const std::vector<ParamId>& p_specs) {
 
     cache.SigmaEta = this->get_all_correlations();
     cache.exp_obs = this->get_obs_exp();
+    validate_fit_parameter_sensitivity();
     cache.SigmaObs = this->get_all_obs_correlations();
 
     std::ofstream fs;

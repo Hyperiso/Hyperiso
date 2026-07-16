@@ -2519,6 +2519,9 @@ def make_stat_config(
     advanced.nuisance_sensitivity_pruning = bool(nuisance_pruning)
     advanced.nuisance_sensitivity_contexts = int(supplied(nuisance_contexts, 2))
     advanced.nuisance_sensitivity_seed = int(supplied(nuisance_seed, 12345))
+    # Fits with a numerically flat parameter are ill-posed.  Keep the backend
+    # guard enabled explicitly so the GUI fails before MC/contour work begins.
+    advanced.fit_parameter_sensitivity_check = True
     cfg.progress_monitor = progress_monitor
     # Dynamic attributes consumed by the existing StatisticInterface wrapper.
     cfg.p_specs = []
@@ -2890,7 +2893,21 @@ def run_fit_and_contours(
     }
     with RUNTIME.lock:
         RUNTIME.stat = build_stat_interface(**stat_kwargs)
-        fit = RUNTIME.stat.compute_MLE(p_specs)
+        try:
+            fit = RUNTIME.stat.compute_MLE(p_specs)
+        except Exception as exc:
+            message = str(exc)
+            if "Fit parameter sensitivity check failed" in message:
+                labels = ", ".join(
+                    str(row.get("parameter") or p_spec_row_key(row))
+                    for row, _ in row_pid_pairs
+                )
+                raise ValueError(
+                    "Fit blocked: at least one selected fit parameter does not "
+                    "measurably affect the configured observables. "
+                    f"Selected parameters: {labels}. Backend details: {message}"
+                ) from exc
+            raise
         p_rows, eta_rows, corr_rows = fit_result_rows(fit, rows)
 
         contour_paths: list[dict] = []

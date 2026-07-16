@@ -19,6 +19,8 @@ Semantic Versioning.
   database to JSON, YAML, LHA, SLHA and FLHA, with block and parameter filters.
 - Standard Model, THDM, SUSY and MARTY-oriented Wilson-coefficient workflows.
 - Flavour-observable and statistical-analysis interfaces.
+- Fit-parameter sensitivity validation that blocks ill-posed fits and contours when
+  selected observables are numerically insensitive to a requested parameter.
 - Fixed-seed CPC reproducibility suite with seven frozen reference cases, including archived THDM and SUSY spectra.
 - Linux wheels built with cibuildwheel and Trusted Publishing workflows.
 - Third-party licensing and provenance notices.

@@ -633,7 +633,12 @@ options that are useful for expert workflows but too specialized for the basic
         .def_readwrite("nuisance_sensitivity_contexts", &AdvancedStatisticConfig::nuisance_sensitivity_contexts)
         .def_readwrite("nuisance_sensitivity_context_sigma", &AdvancedStatisticConfig::nuisance_sensitivity_context_sigma)
         .def_readwrite("nuisance_sensitivity_seed", &AdvancedStatisticConfig::nuisance_sensitivity_seed)
-        .def_readwrite("nuisance_sensitivity_keep_on_failure", &AdvancedStatisticConfig::nuisance_sensitivity_keep_on_failure);
+        .def_readwrite("nuisance_sensitivity_keep_on_failure", &AdvancedStatisticConfig::nuisance_sensitivity_keep_on_failure)
+        .def_readwrite("fit_parameter_sensitivity_check", &AdvancedStatisticConfig::fit_parameter_sensitivity_check)
+        .def_readwrite("fit_parameter_sensitivity_probe_fraction", &AdvancedStatisticConfig::fit_parameter_sensitivity_probe_fraction)
+        .def_readwrite("fit_parameter_sensitivity_rel_cutoff", &AdvancedStatisticConfig::fit_parameter_sensitivity_rel_cutoff)
+        .def_readwrite("fit_parameter_sensitivity_abs_cutoff", &AdvancedStatisticConfig::fit_parameter_sensitivity_abs_cutoff)
+        .def_readwrite("fit_parameter_sensitivity_keep_on_failure", &AdvancedStatisticConfig::fit_parameter_sensitivity_keep_on_failure);
 
 
     py::class_<StatisticProgressEvent>(m, "StatisticProgressEvent")

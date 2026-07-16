@@ -89,6 +89,12 @@ struct AdvancedStatisticConfig {
     unsigned nuisance_sensitivity_seed = 12345;                          ///< RNG seed used to build sensitivity-pruning contexts.
     bool nuisance_sensitivity_keep_on_failure = true;                    ///< Keeps a nuisance if its sensitivity probe fails.
 
+    bool fit_parameter_sensitivity_check = true;                         ///< Reject fit parameters that do not measurably change any selected observable.
+    double fit_parameter_sensitivity_probe_fraction = 0.05;              ///< Minimum probe size as a fraction of explicit/default fit bounds.
+    double fit_parameter_sensitivity_rel_cutoff = 1e-10;                 ///< Relative observable shift required to regard a fit parameter as active.
+    double fit_parameter_sensitivity_abs_cutoff = 1e-12;                 ///< Absolute observable shift required to regard a fit parameter as active.
+    bool fit_parameter_sensitivity_keep_on_failure = true;               ///< Keeps a fit parameter when its sensitivity probe cannot be evaluated safely.
+
     bool MLE_trace_first_evals = false;                                  ///< Enables debug tracing of the first likelihood evaluations.
     std::size_t MLE_trace_max_evals = 25;                                ///< Maximum number of likelihood evaluations printed when tracing is enabled.
     bool MLE_allow_profile_hessian_fallback = true;                      ///< Allows numerical profile-Hessian covariance fallback if backend covariance fails.
@@ -473,6 +479,16 @@ private:
      */                                                                
     MarginalConfig make_nuisance_marginal_config(const ParamId& pid,
                                                  MarginalType mt) const;
+
+    /**
+     * @brief Verifies that every cached fit parameter changes at least one selected observable.
+     *
+     * The probe is performed before likelihood construction, using the active
+     * experimental-observable set and the current nuisance central values.
+     * Parameters that are numerically flat at the configured probe scale make
+     * a fit ill-posed and are rejected with an actionable error.
+     */
+    void validate_fit_parameter_sensitivity();
 
     /** @brief Combined experiment-name and explicit-observable filter. */
     bool accepts_experiment_observable(const ExperimentObs& exp_obs) const;
