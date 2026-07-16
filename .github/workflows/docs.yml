@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
 jobs:
   doxygen:
     name: Doxygen
@@ -30,6 +34,7 @@ jobs:
           doxygen Doxyfile
           test -s html/index.html
           test "$(find html -type f | wc -l)" -gt 20
+          touch html/.nojekyll
 
       - name: Upload documentation artifact
         uses: actions/upload-artifact@v4
@@ -37,3 +42,25 @@ jobs:
           name: hyperiso-doxygen-html
           path: Hyperiso/Docs/html
           if-no-files-found: error
+
+      - name: Upload GitHub Pages artifact
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: Hyperiso/Docs/html
+
+  deploy:
+    name: Deploy GitHub Pages
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: doxygen
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy documentation
+        id: deployment
+        uses: actions/deploy-pages@v4
