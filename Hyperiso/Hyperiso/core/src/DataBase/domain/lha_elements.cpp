@@ -127,3 +127,9 @@ std::shared_ptr<AbstractElement> LhaElementFactory::createElement(const Prototyp
         return std::make_shared<LhaElement<double>>(prototype, line);
     }
 }
+
+// The template definitions live in this translation unit.  Export the concrete
+// specializations used by the parser and public API so every compiler emits the
+// symbols needed by callers in other translation units.
+template class LhaElement<double>;
+template class LhaElement<std::string>;

@@ -6,6 +6,7 @@
 #include <vector>
 
 #include "GeneralModelModifier.h"
+#include "MartyRuntimeConfig.h"
 
 namespace fs = std::filesystem;
 
@@ -28,6 +29,15 @@ int main() {
     const fs::path root = fs::temp_directory_path() / "gmm_integ";
     const fs::path zprime_hdr = root / "models" / "zprime.hpp";
     const fs::path thdm_hdr   = root / "models" / "thdm.hpp";
+    const fs::path marty_install = root / "marty_install";
+
+    // This test validates generated source text, not the MARTY library itself.
+    // Supply the minimal install layout required by the runtime resolver so the
+    // normal C++ CI matrix remains independent of the optional MARTY build.
+    write_file(marty_install / "include" / "marty.h", "// test stub\n");
+    write_file(marty_install / "lib" / "libmarty.a", "");
+    const auto marty = MartyRuntimeConfig::set_external_install_path(marty_install);
+    assert(marty.valid);
 
     write_file(zprime_hdr, "class ZPrime_Model : public mty::Model {};\n");
     write_file(thdm_hdr,   "template <int N>\nclass THDM_Model : public mty::Model {};\n");
@@ -76,6 +86,7 @@ int main() {
         assert(s.find("flag_THDM = 0;") != std::string::npos);
     }
 
+    MartyRuntimeConfig::clear_external_install_path();
     std::cout << "INTEGRATION OK\n";
     return 0;
 }

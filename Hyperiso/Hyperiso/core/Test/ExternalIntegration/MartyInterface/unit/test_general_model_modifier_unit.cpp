@@ -5,6 +5,7 @@
 #include <stdexcept>
 #include <iostream>
 #include "GeneralModelModifier.h"
+#include "MartyRuntimeConfig.h"
 
 namespace fs = std::filesystem;
 
@@ -21,6 +22,15 @@ int main() {
     const fs::path root = fs::temp_directory_path() / "gmm_unit";
     const fs::path thdm_hdr = root / "models" / "thdm.hpp";
     const fs::path zprime_hdr = root / "models" / "zprime.hpp";
+    const fs::path marty_install = root / "marty_install";
+
+    // GeneralModelModifier validates the MARTY runtime path eagerly.  These
+    // tests exercise source rewriting only, so provide a minimal fake install
+    // tree instead of requiring the full third-party dependency in standard CI.
+    write_file(marty_install / "include" / "marty.h", "// test stub\n");
+    write_file(marty_install / "lib" / "libmarty.a", "");
+    const auto marty = MartyRuntimeConfig::set_external_install_path(marty_install);
+    assert(marty.valid);
 
     write_file(thdm_hdr,
         "template <int N>\n"
@@ -84,6 +94,7 @@ int main() {
         assert(s.find("// nothing") != std::string::npos);
     }
 
+    MartyRuntimeConfig::clear_external_install_path();
     std::cout << "UNIT OK\n";
     return 0;
 }
