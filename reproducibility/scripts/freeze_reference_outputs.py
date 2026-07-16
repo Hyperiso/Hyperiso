@@ -78,6 +78,19 @@ def main() -> int:
         json.loads(timings_path.read_text()) if timings_path.is_file() else {}
     )
 
+    input_metadata = {}
+    previous_inputs = previous_metadata.get("inputs", {})
+    for path in sorted((repro / "inputs").iterdir()):
+        if not path.is_file():
+            continue
+        item = {
+            key: value
+            for key, value in previous_inputs.get(path.name, {}).items()
+            if key != "sha256"
+        }
+        item["sha256"] = sha256(path)
+        input_metadata[path.name] = item
+
     metadata = {
         "suite": manifest["suite_name"],
         "hyperiso_version": version,
@@ -116,6 +129,7 @@ def main() -> int:
         "files": {
             name: {"sha256": sha256(expected / name)} for name in sorted(set(files))
         },
+        "inputs": input_metadata,
     }
     (expected / "reference_metadata.json").write_text(
         json.dumps(metadata, indent=2, sort_keys=True) + "\n"

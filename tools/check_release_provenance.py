@@ -144,13 +144,26 @@ def main() -> int:
         if sha256(path) != info.get("sha256"):
             errors.append(f"SHA-256 mismatch for frozen file: {name}")
 
-    for name, info in metadata.get("inputs", {}).items():
-        path = root / "reproducibility/inputs" / name
-        if not path.is_file():
-            errors.append(f"missing frozen input: {name}")
-            continue
-        if sha256(path) != info.get("sha256"):
-            errors.append(f"SHA-256 mismatch for frozen input: {name}")
+    inputs_dir = root / "reproducibility/inputs"
+    input_metadata = metadata.get("inputs")
+    expected_inputs = {path.name for path in inputs_dir.iterdir() if path.is_file()}
+    if not isinstance(input_metadata, dict):
+        errors.append("inputs must contain SHA-256 metadata for every frozen input")
+    else:
+        recorded_inputs = set(input_metadata)
+        if recorded_inputs != expected_inputs:
+            missing = sorted(expected_inputs - recorded_inputs)
+            extra = sorted(recorded_inputs - expected_inputs)
+            if missing:
+                errors.append("missing frozen input metadata: " + ", ".join(missing))
+            if extra:
+                errors.append("unexpected frozen input metadata: " + ", ".join(extra))
+        for name, info in input_metadata.items():
+            path = inputs_dir / name
+            if not path.is_file():
+                continue
+            if sha256(path) != info.get("sha256"):
+                errors.append(f"SHA-256 mismatch for frozen input: {name}")
 
     if errors:
         print("Release provenance validation failed:", file=sys.stderr)
