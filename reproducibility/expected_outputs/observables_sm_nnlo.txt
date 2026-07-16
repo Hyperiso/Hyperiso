@@ -1,0 +1,8 @@
+== Observable summary ==
+order=NNLO
+
+BR_B__Xs_gamma
+  BR_B__Xs_gamma = 0.00032967
+
+BR_Bs__mu_mu
+  BR_Bs__mu_mu = 3.2711e-09

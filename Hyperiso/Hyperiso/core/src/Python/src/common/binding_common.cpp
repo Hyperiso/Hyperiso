@@ -1,0 +1,1277 @@
+#include <pybind11/pybind11.h>
+#include <pybind11/stl.h>
+#include <pybind11/operators.h>
+#include <pybind11/complex.h>
+#include <pybind11/functional.h>
+#include "GeneralEnum.h"
+#include "EnumMapper.h"
+#include "Map.h"
+#include "Include.h"
+#include "Configs.h"
+#include "observable_ids.hpp"
+#include "decay_ids.hpp"
+#include "BinnedObservableId.h"
+#include "SourcesView.h"
+#include <optional>
+#include <stdexcept>
+
+using DH = DependenciesHelper;
+
+
+#define BIND_ENUM_MAPPER(cls, EnumT)                                          \
+    py::class_<cls, std::shared_ptr<cls>>(m, #cls)                            \
+        .def_static("str",                                                    \
+            py::overload_cast<EnumT>(&cls::str), py::arg("value"))            \
+        .def_static("enum_elt", &cls::enum_elt_legacy, py::arg("name"))       \
+        .def_static("get_str",  &cls::get_str)                                \
+        .def_static("get_enum", &cls::get_enum)                               \
+        .def_static("get_str_all", &cls::get_str_all);
+
+namespace py = pybind11;
+
+template <class IdT>
+void bind_symbol_id(py::module_& m, const char* py_name)
+{
+    py::class_<IdT>(m, py_name)
+        .def(py::init<>())
+        .def(py::init<std::string>(), py::arg("name"))
+        .def_property_readonly("name", [](const IdT& id){ return id.str(); })
+        .def("str", [](const IdT& id){ return id.str(); })
+        .def("__str__", [](const IdT& id){ return id.str(); })
+        .def("__repr__", [py_name](const IdT& id){
+            return std::string("<") + py_name + " '" + id.str() + "'>";
+        })
+
+        .def("__hash__", [](const IdT& id){
+            return std::hash<IdT>{}(id);
+        })
+        .def("__eq__", [](const IdT& a, const IdT& b){
+            return a == b;
+        });
+}
+
+static std::optional<LhaID> optional_lhaid_from_py(py::object obj)
+{
+    if (obj.is_none()) {
+        return std::nullopt;
+    }
+    return obj.cast<LhaID>();
+}
+
+void init_common(py::module &m) {
+
+    py::enum_<Model>(m, "Model")
+    .value("SM", Model::SM)
+    .value("SUSY", Model::SUSY)
+    .value("THDM", Model::THDM)
+    .value("MARTY", Model::MARTY)
+    .export_values();
+
+    py::enum_<ParameterType>(m, "ParameterType")
+        .value("SM", ParameterType::SM)
+        .value("BSM", ParameterType::BSM)
+        .value("FLAVOR", ParameterType::FLAVOR)
+        .value("WILSON", ParameterType::WILSON)
+        .value("DECAY", ParameterType::DECAY)
+        .value("PASSTHROUGH", ParameterType::PASSTHROUGH)
+        .value("OBSERVABLE", ParameterType::OBSERVABLE)
+        .export_values();
+        
+    
+
+    py::enum_<Observables>(m, "Observables")
+        .value("TEST", Observables::TEST)
+        .value("BR_BS_MUMU", Observables::BR_BS_MUMU)
+        .value("BR_BS_MUMU_UNTAG", Observables::BR_BS_MUMU_UNTAG)
+        .value("BR_BD_MUMU", Observables::BR_BD_MUMU)
+        .value("BR_BS_EE", Observables::BR_BS_EE)
+        .value("BR_BS_EE_UNTAG", Observables::BR_BS_EE_UNTAG)
+        .value("BR_BD_EE", Observables::BR_BD_EE)
+        .value("R_TAU_NU", Observables::R_TAU_NU)
+        .value("BR_BU_TAU_NU", Observables::BR_BU_TAU_NU)
+        .value("IA_B0__KSTAR0_GAMMA", Observables::IA_B0__KSTAR0_GAMMA)
+        .value("BR_B0__KSTAR0_GAMMA", Observables::BR_B0__KSTAR0_GAMMA)
+        .value("IA_B__KSTAR_GAMMA", Observables::IA_B__KSTAR_GAMMA)
+        .value("BR_B__KSTAR_GAMMA", Observables::BR_B__KSTAR_GAMMA)
+        .value("BR_B_XS_GAMMA", Observables::BR_B_XS_GAMMA)
+        .value("BR_B__D0_TAU_NU", Observables::BR_B__D0_TAU_NU)
+        .value("A_FB_B__D0_TAU_NU", Observables::A_FB_B__D0_TAU_NU)
+        .value("P_TAU_B__D0_TAU_NU", Observables::P_TAU_B__D0_TAU_NU)
+        .value("R_D0", Observables::R_D0)
+        .value("BR_B0__D_TAU_NU", Observables::BR_B0__D_TAU_NU)
+        .value("A_FB_B0__D_TAU_NU", Observables::A_FB_B0__D_TAU_NU)
+        .value("P_TAU_B0__D_TAU_NU", Observables::P_TAU_B0__D_TAU_NU)
+        .value("R_D", Observables::R_D)
+        .value("BR_B__DSTAR0_TAU_NU", Observables::BR_B__DSTAR0_TAU_NU)
+        .value("A_FB_B__DSTAR0_TAU_NU", Observables::A_FB_B__DSTAR0_TAU_NU)
+        .value("P_TAU_B__DSTAR0_TAU_NU", Observables::P_TAU_B__DSTAR0_TAU_NU)
+        .value("P_D_B__DSTAR0_TAU_NU", Observables::P_D_B__DSTAR0_TAU_NU)
+        .value("R_DSTAR0", Observables::R_DSTAR0)
+        .value("BR_B0__DSTAR_TAU_NU", Observables::BR_B0__DSTAR_TAU_NU)
+        .value("A_FB_B0__DSTAR_TAU_NU", Observables::A_FB_B0__DSTAR_TAU_NU)
+        .value("P_TAU_B0__DSTAR_TAU_NU", Observables::P_TAU_B0__DSTAR_TAU_NU)
+        .value("P_D_B0__DSTAR_TAU_NU", Observables::P_D_B0__DSTAR_TAU_NU)
+        .value("R_DSTAR", Observables::R_DSTAR)
+        .value("BR_B__Xs_e_e", Observables::BR_B__Xs_e_e)
+        .value("BR_B__Xs_mu_mu", Observables::BR_B__Xs_mu_mu)
+        .value("BR_B__Xs_tau_tau", Observables::BR_B__Xs_tau_tau)
+        .value("A_FB_B__Xs_e_e", Observables::A_FB_B__Xs_e_e)
+        .value("A_FB_B__Xs_mu_mu", Observables::A_FB_B__Xs_mu_mu)
+        .value("A_FB_B__Xs_tau_tau", Observables::A_FB_B__Xs_tau_tau)
+        .value("DGAMMA_DQ2_B__KSTAR_E_E", Observables::DGAMMA_DQ2_B__KSTAR_E_E)
+        .value("DBR_DQ2_B__KSTAR_E_E", Observables::DBR_DQ2_B__KSTAR_E_E)
+        .value("A_FB_B__KSTAR_E_E", Observables::A_FB_B__KSTAR_E_E)
+        .value("A_FB_CPV_B__KSTAR_E_E", Observables::A_FB_CPV_B__KSTAR_E_E)
+        .value("Q0_A_FB_B__KSTAR_E_E", Observables::Q0_A_FB_B__KSTAR_E_E)
+        .value("A_CP_B__KSTAR_E_E", Observables::A_CP_B__KSTAR_E_E)
+        .value("F_L_B__KSTAR_E_E", Observables::F_L_B__KSTAR_E_E)
+        .value("F_T_B__KSTAR_E_E", Observables::F_T_B__KSTAR_E_E)
+        .value("A_T_1_B__KSTAR_E_E", Observables::A_T_1_B__KSTAR_E_E)
+        .value("A_T_2_B__KSTAR_E_E", Observables::A_T_2_B__KSTAR_E_E)
+        .value("A_T_3_B__KSTAR_E_E", Observables::A_T_3_B__KSTAR_E_E)
+        .value("A_T_4_B__KSTAR_E_E", Observables::A_T_4_B__KSTAR_E_E)
+        .value("A_T_5_B__KSTAR_E_E", Observables::A_T_5_B__KSTAR_E_E)
+        .value("A_T_RE_B__KSTAR_E_E", Observables::A_T_RE_B__KSTAR_E_E)
+        .value("A_T_RE_CPV_B__KSTAR_E_E", Observables::A_T_RE_CPV_B__KSTAR_E_E)
+        .value("A_IM_B__KSTAR_E_E", Observables::A_IM_B__KSTAR_E_E)
+        .value("ALPHA_K_B__KSTAR_E_E", Observables::ALPHA_K_B__KSTAR_E_E)
+        .value("H_T_1_B__KSTAR_E_E", Observables::H_T_1_B__KSTAR_E_E)
+        .value("H_T_2_B__KSTAR_E_E", Observables::H_T_2_B__KSTAR_E_E)
+        .value("H_T_3_B__KSTAR_E_E", Observables::H_T_3_B__KSTAR_E_E)
+        .value("P_1_B__KSTAR_E_E", Observables::P_1_B__KSTAR_E_E)
+        .value("P_2_B__KSTAR_E_E", Observables::P_2_B__KSTAR_E_E)
+        .value("P_3_B__KSTAR_E_E", Observables::P_3_B__KSTAR_E_E)
+        .value("P_4_B__KSTAR_E_E", Observables::P_4_B__KSTAR_E_E)
+        .value("P_5_B__KSTAR_E_E", Observables::P_5_B__KSTAR_E_E)
+        .value("P_6_B__KSTAR_E_E", Observables::P_6_B__KSTAR_E_E)
+        .value("P_8_B__KSTAR_E_E", Observables::P_8_B__KSTAR_E_E)
+        .value("P_PRIME_4_B__KSTAR_E_E", Observables::P_PRIME_4_B__KSTAR_E_E)
+        .value("P_PRIME_5_B__KSTAR_E_E", Observables::P_PRIME_5_B__KSTAR_E_E)
+        .value("P_PRIME_6_B__KSTAR_E_E", Observables::P_PRIME_6_B__KSTAR_E_E)
+        .value("P_PRIME_8_B__KSTAR_E_E", Observables::P_PRIME_8_B__KSTAR_E_E)
+        .value("S_1C_B__KSTAR_E_E", Observables::S_1C_B__KSTAR_E_E)
+        .value("S_2C_B__KSTAR_E_E", Observables::S_2C_B__KSTAR_E_E)
+        .value("S_2S_B__KSTAR_E_E", Observables::S_2S_B__KSTAR_E_E)
+        .value("S_3_B__KSTAR_E_E", Observables::S_3_B__KSTAR_E_E)
+        .value("S_4_B__KSTAR_E_E", Observables::S_4_B__KSTAR_E_E)
+        .value("S_5_B__KSTAR_E_E", Observables::S_5_B__KSTAR_E_E)
+        .value("S_6C_B__KSTAR_E_E", Observables::S_6C_B__KSTAR_E_E)
+        .value("S_7_B__KSTAR_E_E", Observables::S_7_B__KSTAR_E_E)
+        .value("S_8_B__KSTAR_E_E", Observables::S_8_B__KSTAR_E_E)
+        .value("S_9_B__KSTAR_E_E", Observables::S_9_B__KSTAR_E_E)
+        .value("A_1C_B__KSTAR_E_E", Observables::A_1C_B__KSTAR_E_E)
+        .value("A_FL_B__KSTAR_E_E", Observables::A_FL_B__KSTAR_E_E)
+        .value("A_2S_B__KSTAR_E_E", Observables::A_2S_B__KSTAR_E_E)
+        .value("A_3_B__KSTAR_E_E", Observables::A_3_B__KSTAR_E_E)
+        .value("A_4_B__KSTAR_E_E", Observables::A_4_B__KSTAR_E_E)
+        .value("A_5_B__KSTAR_E_E", Observables::A_5_B__KSTAR_E_E)
+        .value("A_6S_B__KSTAR_E_E", Observables::A_6S_B__KSTAR_E_E)
+        .value("A_6C_B__KSTAR_E_E", Observables::A_6C_B__KSTAR_E_E)
+        .value("A_7_B__KSTAR_E_E", Observables::A_7_B__KSTAR_E_E)
+        .value("A_8_B__KSTAR_E_E", Observables::A_8_B__KSTAR_E_E)
+        .value("A_9_B__KSTAR_E_E", Observables::A_9_B__KSTAR_E_E)
+        .value("P_1_CPV_B__KSTAR_E_E", Observables::P_1_CPV_B__KSTAR_E_E)
+        .value("P_2_CPV_B__KSTAR_E_E", Observables::P_2_CPV_B__KSTAR_E_E)
+        .value("P_3_CPV_B__KSTAR_E_E", Observables::P_3_CPV_B__KSTAR_E_E)
+        .value("P_PRIME_4_CPV_B__KSTAR_E_E", Observables::P_PRIME_4_CPV_B__KSTAR_E_E)
+        .value("P_PRIME_5_CPV_B__KSTAR_E_E", Observables::P_PRIME_5_CPV_B__KSTAR_E_E)
+        .value("P_PRIME_6_CPV_B__KSTAR_E_E", Observables::P_PRIME_6_CPV_B__KSTAR_E_E)
+        .value("P_PRIME_8_CPV_B__KSTAR_E_E", Observables::P_PRIME_8_CPV_B__KSTAR_E_E)
+        .value("DGAMMA_DQ2_B__KSTAR_MU_MU", Observables::DGAMMA_DQ2_B__KSTAR_MU_MU)
+        .value("DBR_DQ2_B__KSTAR_MU_MU", Observables::DBR_DQ2_B__KSTAR_MU_MU)
+        .value("A_FB_B__KSTAR_MU_MU", Observables::A_FB_B__KSTAR_MU_MU)
+        .value("A_FB_CPV_B__KSTAR_MU_MU", Observables::A_FB_CPV_B__KSTAR_MU_MU)
+        .value("Q0_A_FB_B__KSTAR_MU_MU", Observables::Q0_A_FB_B__KSTAR_MU_MU)
+        .value("A_CP_B__KSTAR_MU_MU", Observables::A_CP_B__KSTAR_MU_MU)
+        .value("F_L_B__KSTAR_MU_MU", Observables::F_L_B__KSTAR_MU_MU)
+        .value("F_T_B__KSTAR_MU_MU", Observables::F_T_B__KSTAR_MU_MU)
+        .value("A_T_1_B__KSTAR_MU_MU", Observables::A_T_1_B__KSTAR_MU_MU)
+        .value("A_T_2_B__KSTAR_MU_MU", Observables::A_T_2_B__KSTAR_MU_MU)
+        .value("A_T_3_B__KSTAR_MU_MU", Observables::A_T_3_B__KSTAR_MU_MU)
+        .value("A_T_4_B__KSTAR_MU_MU", Observables::A_T_4_B__KSTAR_MU_MU)
+        .value("A_T_5_B__KSTAR_MU_MU", Observables::A_T_5_B__KSTAR_MU_MU)
+        .value("A_T_RE_B__KSTAR_MU_MU", Observables::A_T_RE_B__KSTAR_MU_MU)
+        .value("A_T_RE_CPV_B__KSTAR_MU_MU", Observables::A_T_RE_CPV_B__KSTAR_MU_MU)
+        .value("A_IM_B__KSTAR_MU_MU", Observables::A_IM_B__KSTAR_MU_MU)
+        .value("ALPHA_K_B__KSTAR_MU_MU", Observables::ALPHA_K_B__KSTAR_MU_MU)
+        .value("H_T_1_B__KSTAR_MU_MU", Observables::H_T_1_B__KSTAR_MU_MU)
+        .value("H_T_2_B__KSTAR_MU_MU", Observables::H_T_2_B__KSTAR_MU_MU)
+        .value("H_T_3_B__KSTAR_MU_MU", Observables::H_T_3_B__KSTAR_MU_MU)
+        .value("P_1_B__KSTAR_MU_MU", Observables::P_1_B__KSTAR_MU_MU)
+        .value("P_2_B__KSTAR_MU_MU", Observables::P_2_B__KSTAR_MU_MU)
+        .value("P_3_B__KSTAR_MU_MU", Observables::P_3_B__KSTAR_MU_MU)
+        .value("P_4_B__KSTAR_MU_MU", Observables::P_4_B__KSTAR_MU_MU)
+        .value("P_5_B__KSTAR_MU_MU", Observables::P_5_B__KSTAR_MU_MU)
+        .value("P_6_B__KSTAR_MU_MU", Observables::P_6_B__KSTAR_MU_MU)
+        .value("P_8_B__KSTAR_MU_MU", Observables::P_8_B__KSTAR_MU_MU)
+        .value("P_PRIME_4_B__KSTAR_MU_MU", Observables::P_PRIME_4_B__KSTAR_MU_MU)
+        .value("P_PRIME_5_B__KSTAR_MU_MU", Observables::P_PRIME_5_B__KSTAR_MU_MU)
+        .value("P_PRIME_6_B__KSTAR_MU_MU", Observables::P_PRIME_6_B__KSTAR_MU_MU)
+        .value("P_PRIME_8_B__KSTAR_MU_MU", Observables::P_PRIME_8_B__KSTAR_MU_MU)
+        .value("S_1C_B__KSTAR_MU_MU", Observables::S_1C_B__KSTAR_MU_MU)
+        .value("S_2C_B__KSTAR_MU_MU", Observables::S_2C_B__KSTAR_MU_MU)
+        .value("S_2S_B__KSTAR_MU_MU", Observables::S_2S_B__KSTAR_MU_MU)
+        .value("S_3_B__KSTAR_MU_MU", Observables::S_3_B__KSTAR_MU_MU)
+        .value("S_4_B__KSTAR_MU_MU", Observables::S_4_B__KSTAR_MU_MU)
+        .value("S_5_B__KSTAR_MU_MU", Observables::S_5_B__KSTAR_MU_MU)
+        .value("S_6C_B__KSTAR_MU_MU", Observables::S_6C_B__KSTAR_MU_MU)
+        .value("S_7_B__KSTAR_MU_MU", Observables::S_7_B__KSTAR_MU_MU)
+        .value("S_8_B__KSTAR_MU_MU", Observables::S_8_B__KSTAR_MU_MU)
+        .value("S_9_B__KSTAR_MU_MU", Observables::S_9_B__KSTAR_MU_MU)
+        .value("A_1C_B__KSTAR_MU_MU", Observables::A_1C_B__KSTAR_MU_MU)
+        .value("A_FL_B__KSTAR_MU_MU", Observables::A_FL_B__KSTAR_MU_MU)
+        .value("A_2S_B__KSTAR_MU_MU", Observables::A_2S_B__KSTAR_MU_MU)
+        .value("A_3_B__KSTAR_MU_MU", Observables::A_3_B__KSTAR_MU_MU)
+        .value("A_4_B__KSTAR_MU_MU", Observables::A_4_B__KSTAR_MU_MU)
+        .value("A_5_B__KSTAR_MU_MU", Observables::A_5_B__KSTAR_MU_MU)
+        .value("A_6S_B__KSTAR_MU_MU", Observables::A_6S_B__KSTAR_MU_MU)
+        .value("A_6C_B__KSTAR_MU_MU", Observables::A_6C_B__KSTAR_MU_MU)
+        .value("A_7_B__KSTAR_MU_MU", Observables::A_7_B__KSTAR_MU_MU)
+        .value("A_8_B__KSTAR_MU_MU", Observables::A_8_B__KSTAR_MU_MU)
+        .value("A_9_B__KSTAR_MU_MU", Observables::A_9_B__KSTAR_MU_MU)
+        .value("P_1_CPV_B__KSTAR_MU_MU", Observables::P_1_CPV_B__KSTAR_MU_MU)
+        .value("P_2_CPV_B__KSTAR_MU_MU", Observables::P_2_CPV_B__KSTAR_MU_MU)
+        .value("P_3_CPV_B__KSTAR_MU_MU", Observables::P_3_CPV_B__KSTAR_MU_MU)
+        .value("P_PRIME_4_CPV_B__KSTAR_MU_MU", Observables::P_PRIME_4_CPV_B__KSTAR_MU_MU)
+        .value("P_PRIME_5_CPV_B__KSTAR_MU_MU", Observables::P_PRIME_5_CPV_B__KSTAR_MU_MU)
+        .value("P_PRIME_6_CPV_B__KSTAR_MU_MU", Observables::P_PRIME_6_CPV_B__KSTAR_MU_MU)
+        .value("P_PRIME_8_CPV_B__KSTAR_MU_MU", Observables::P_PRIME_8_CPV_B__KSTAR_MU_MU)
+        .value("DGAMMA_DQ2_B__KSTAR_TAU_TAU", Observables::DGAMMA_DQ2_B__KSTAR_TAU_TAU)
+        .value("DBR_DQ2_B__KSTAR_TAU_TAU", Observables::DBR_DQ2_B__KSTAR_TAU_TAU)
+        .value("A_FB_B__KSTAR_TAU_TAU", Observables::A_FB_B__KSTAR_TAU_TAU)
+        .value("A_FB_CPV_B__KSTAR_TAU_TAU", Observables::A_FB_CPV_B__KSTAR_TAU_TAU)
+        .value("Q0_A_FB_B__KSTAR_TAU_TAU", Observables::Q0_A_FB_B__KSTAR_TAU_TAU)
+        .value("A_CP_B__KSTAR_TAU_TAU", Observables::A_CP_B__KSTAR_TAU_TAU)
+        .value("F_L_B__KSTAR_TAU_TAU", Observables::F_L_B__KSTAR_TAU_TAU)
+        .value("F_T_B__KSTAR_TAU_TAU", Observables::F_T_B__KSTAR_TAU_TAU)
+        .value("A_T_1_B__KSTAR_TAU_TAU", Observables::A_T_1_B__KSTAR_TAU_TAU)
+        .value("A_T_2_B__KSTAR_TAU_TAU", Observables::A_T_2_B__KSTAR_TAU_TAU)
+        .value("A_T_3_B__KSTAR_TAU_TAU", Observables::A_T_3_B__KSTAR_TAU_TAU)
+        .value("A_T_4_B__KSTAR_TAU_TAU", Observables::A_T_4_B__KSTAR_TAU_TAU)
+        .value("A_T_5_B__KSTAR_TAU_TAU", Observables::A_T_5_B__KSTAR_TAU_TAU)
+        .value("A_T_RE_B__KSTAR_TAU_TAU", Observables::A_T_RE_B__KSTAR_TAU_TAU)
+        .value("A_T_RE_CPV_B__KSTAR_TAU_TAU", Observables::A_T_RE_CPV_B__KSTAR_TAU_TAU)
+        .value("A_IM_B__KSTAR_TAU_TAU", Observables::A_IM_B__KSTAR_TAU_TAU)
+        .value("ALPHA_K_B__KSTAR_TAU_TAU", Observables::ALPHA_K_B__KSTAR_TAU_TAU)
+        .value("H_T_1_B__KSTAR_TAU_TAU", Observables::H_T_1_B__KSTAR_TAU_TAU)
+        .value("H_T_2_B__KSTAR_TAU_TAU", Observables::H_T_2_B__KSTAR_TAU_TAU)
+        .value("H_T_3_B__KSTAR_TAU_TAU", Observables::H_T_3_B__KSTAR_TAU_TAU)
+        .value("P_1_B__KSTAR_TAU_TAU", Observables::P_1_B__KSTAR_TAU_TAU)
+        .value("P_2_B__KSTAR_TAU_TAU", Observables::P_2_B__KSTAR_TAU_TAU)
+        .value("P_3_B__KSTAR_TAU_TAU", Observables::P_3_B__KSTAR_TAU_TAU)
+        .value("P_4_B__KSTAR_TAU_TAU", Observables::P_4_B__KSTAR_TAU_TAU)
+        .value("P_5_B__KSTAR_TAU_TAU", Observables::P_5_B__KSTAR_TAU_TAU)
+        .value("P_6_B__KSTAR_TAU_TAU", Observables::P_6_B__KSTAR_TAU_TAU)
+        .value("P_8_B__KSTAR_TAU_TAU", Observables::P_8_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_4_B__KSTAR_TAU_TAU", Observables::P_PRIME_4_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_5_B__KSTAR_TAU_TAU", Observables::P_PRIME_5_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_6_B__KSTAR_TAU_TAU", Observables::P_PRIME_6_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_8_B__KSTAR_TAU_TAU", Observables::P_PRIME_8_B__KSTAR_TAU_TAU)
+        .value("S_1C_B__KSTAR_TAU_TAU", Observables::S_1C_B__KSTAR_TAU_TAU)
+        .value("S_2C_B__KSTAR_TAU_TAU", Observables::S_2C_B__KSTAR_TAU_TAU)
+        .value("S_2S_B__KSTAR_TAU_TAU", Observables::S_2S_B__KSTAR_TAU_TAU)
+        .value("S_3_B__KSTAR_TAU_TAU", Observables::S_3_B__KSTAR_TAU_TAU)
+        .value("S_4_B__KSTAR_TAU_TAU", Observables::S_4_B__KSTAR_TAU_TAU)
+        .value("S_5_B__KSTAR_TAU_TAU", Observables::S_5_B__KSTAR_TAU_TAU)
+        .value("S_6C_B__KSTAR_TAU_TAU", Observables::S_6C_B__KSTAR_TAU_TAU)
+        .value("S_7_B__KSTAR_TAU_TAU", Observables::S_7_B__KSTAR_TAU_TAU)
+        .value("S_8_B__KSTAR_TAU_TAU", Observables::S_8_B__KSTAR_TAU_TAU)
+        .value("S_9_B__KSTAR_TAU_TAU", Observables::S_9_B__KSTAR_TAU_TAU)
+        .value("A_1C_B__KSTAR_TAU_TAU", Observables::A_1C_B__KSTAR_TAU_TAU)
+        .value("A_FL_B__KSTAR_TAU_TAU", Observables::A_FL_B__KSTAR_TAU_TAU)
+        .value("A_2S_B__KSTAR_TAU_TAU", Observables::A_2S_B__KSTAR_TAU_TAU)
+        .value("A_3_B__KSTAR_TAU_TAU", Observables::A_3_B__KSTAR_TAU_TAU)
+        .value("A_4_B__KSTAR_TAU_TAU", Observables::A_4_B__KSTAR_TAU_TAU)
+        .value("A_5_B__KSTAR_TAU_TAU", Observables::A_5_B__KSTAR_TAU_TAU)
+        .value("A_6S_B__KSTAR_TAU_TAU", Observables::A_6S_B__KSTAR_TAU_TAU)
+        .value("A_6C_B__KSTAR_TAU_TAU", Observables::A_6C_B__KSTAR_TAU_TAU)
+        .value("A_7_B__KSTAR_TAU_TAU", Observables::A_7_B__KSTAR_TAU_TAU)
+        .value("A_8_B__KSTAR_TAU_TAU", Observables::A_8_B__KSTAR_TAU_TAU)
+        .value("A_9_B__KSTAR_TAU_TAU", Observables::A_9_B__KSTAR_TAU_TAU)
+        .value("P_1_CPV_B__KSTAR_TAU_TAU", Observables::P_1_CPV_B__KSTAR_TAU_TAU)
+        .value("P_2_CPV_B__KSTAR_TAU_TAU", Observables::P_2_CPV_B__KSTAR_TAU_TAU)
+        .value("P_3_CPV_B__KSTAR_TAU_TAU", Observables::P_3_CPV_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_4_CPV_B__KSTAR_TAU_TAU", Observables::P_PRIME_4_CPV_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_5_CPV_B__KSTAR_TAU_TAU", Observables::P_PRIME_5_CPV_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_6_CPV_B__KSTAR_TAU_TAU", Observables::P_PRIME_6_CPV_B__KSTAR_TAU_TAU)
+        .value("P_PRIME_8_CPV_B__KSTAR_TAU_TAU", Observables::P_PRIME_8_CPV_B__KSTAR_TAU_TAU)
+        .value("DGAMMA_DQ2_B0__KSTAR0_E_E", Observables::DGAMMA_DQ2_B0__KSTAR0_E_E)
+        .value("DBR_DQ2_B0__KSTAR0_E_E", Observables::DBR_DQ2_B0__KSTAR0_E_E)
+        .value("A_FB_B0__KSTAR0_E_E", Observables::A_FB_B0__KSTAR0_E_E)
+        .value("A_FB_CPV_B0__KSTAR0_E_E", Observables::A_FB_CPV_B0__KSTAR0_E_E)
+        .value("Q0_A_FB_B0__KSTAR0_E_E", Observables::Q0_A_FB_B0__KSTAR0_E_E)
+        .value("A_CP_B0__KSTAR0_E_E", Observables::A_CP_B0__KSTAR0_E_E)
+        .value("F_L_B0__KSTAR0_E_E", Observables::F_L_B0__KSTAR0_E_E)
+        .value("F_T_B0__KSTAR0_E_E", Observables::F_T_B0__KSTAR0_E_E)
+        .value("A_T_1_B0__KSTAR0_E_E", Observables::A_T_1_B0__KSTAR0_E_E)
+        .value("A_T_2_B0__KSTAR0_E_E", Observables::A_T_2_B0__KSTAR0_E_E)
+        .value("A_T_3_B0__KSTAR0_E_E", Observables::A_T_3_B0__KSTAR0_E_E)
+        .value("A_T_4_B0__KSTAR0_E_E", Observables::A_T_4_B0__KSTAR0_E_E)
+        .value("A_T_5_B0__KSTAR0_E_E", Observables::A_T_5_B0__KSTAR0_E_E)
+        .value("A_T_RE_B0__KSTAR0_E_E", Observables::A_T_RE_B0__KSTAR0_E_E)
+        .value("A_T_RE_CPV_B0__KSTAR0_E_E", Observables::A_T_RE_CPV_B0__KSTAR0_E_E)
+        .value("A_IM_B0__KSTAR0_E_E", Observables::A_IM_B0__KSTAR0_E_E)
+        .value("ALPHA_K_B0__KSTAR0_E_E", Observables::ALPHA_K_B0__KSTAR0_E_E)
+        .value("H_T_1_B0__KSTAR0_E_E", Observables::H_T_1_B0__KSTAR0_E_E)
+        .value("H_T_2_B0__KSTAR0_E_E", Observables::H_T_2_B0__KSTAR0_E_E)
+        .value("H_T_3_B0__KSTAR0_E_E", Observables::H_T_3_B0__KSTAR0_E_E)
+        .value("P_1_B0__KSTAR0_E_E", Observables::P_1_B0__KSTAR0_E_E)
+        .value("P_2_B0__KSTAR0_E_E", Observables::P_2_B0__KSTAR0_E_E)
+        .value("P_3_B0__KSTAR0_E_E", Observables::P_3_B0__KSTAR0_E_E)
+        .value("P_4_B0__KSTAR0_E_E", Observables::P_4_B0__KSTAR0_E_E)
+        .value("P_5_B0__KSTAR0_E_E", Observables::P_5_B0__KSTAR0_E_E)
+        .value("P_6_B0__KSTAR0_E_E", Observables::P_6_B0__KSTAR0_E_E)
+        .value("P_8_B0__KSTAR0_E_E", Observables::P_8_B0__KSTAR0_E_E)
+        .value("P_PRIME_4_B0__KSTAR0_E_E", Observables::P_PRIME_4_B0__KSTAR0_E_E)
+        .value("P_PRIME_5_B0__KSTAR0_E_E", Observables::P_PRIME_5_B0__KSTAR0_E_E)
+        .value("P_PRIME_6_B0__KSTAR0_E_E", Observables::P_PRIME_6_B0__KSTAR0_E_E)
+        .value("P_PRIME_8_B0__KSTAR0_E_E", Observables::P_PRIME_8_B0__KSTAR0_E_E)
+        .value("S_1C_B0__KSTAR0_E_E", Observables::S_1C_B0__KSTAR0_E_E)
+        .value("S_2C_B0__KSTAR0_E_E", Observables::S_2C_B0__KSTAR0_E_E)
+        .value("S_2S_B0__KSTAR0_E_E", Observables::S_2S_B0__KSTAR0_E_E)
+        .value("S_3_B0__KSTAR0_E_E", Observables::S_3_B0__KSTAR0_E_E)
+        .value("S_4_B0__KSTAR0_E_E", Observables::S_4_B0__KSTAR0_E_E)
+        .value("S_5_B0__KSTAR0_E_E", Observables::S_5_B0__KSTAR0_E_E)
+        .value("S_6C_B0__KSTAR0_E_E", Observables::S_6C_B0__KSTAR0_E_E)
+        .value("S_7_B0__KSTAR0_E_E", Observables::S_7_B0__KSTAR0_E_E)
+        .value("S_8_B0__KSTAR0_E_E", Observables::S_8_B0__KSTAR0_E_E)
+        .value("S_9_B0__KSTAR0_E_E", Observables::S_9_B0__KSTAR0_E_E)
+        .value("A_1C_B0__KSTAR0_E_E", Observables::A_1C_B0__KSTAR0_E_E)
+        .value("A_FL_B0__KSTAR0_E_E", Observables::A_FL_B0__KSTAR0_E_E)
+        .value("A_2S_B0__KSTAR0_E_E", Observables::A_2S_B0__KSTAR0_E_E)
+        .value("A_3_B0__KSTAR0_E_E", Observables::A_3_B0__KSTAR0_E_E)
+        .value("A_4_B0__KSTAR0_E_E", Observables::A_4_B0__KSTAR0_E_E)
+        .value("A_5_B0__KSTAR0_E_E", Observables::A_5_B0__KSTAR0_E_E)
+        .value("A_6S_B0__KSTAR0_E_E", Observables::A_6S_B0__KSTAR0_E_E)
+        .value("A_6C_B0__KSTAR0_E_E", Observables::A_6C_B0__KSTAR0_E_E)
+        .value("A_7_B0__KSTAR0_E_E", Observables::A_7_B0__KSTAR0_E_E)
+        .value("A_8_B0__KSTAR0_E_E", Observables::A_8_B0__KSTAR0_E_E)
+        .value("A_9_B0__KSTAR0_E_E", Observables::A_9_B0__KSTAR0_E_E)
+        .value("P_1_CPV_B0__KSTAR0_E_E", Observables::P_1_CPV_B0__KSTAR0_E_E)
+        .value("P_2_CPV_B0__KSTAR0_E_E", Observables::P_2_CPV_B0__KSTAR0_E_E)
+        .value("P_3_CPV_B0__KSTAR0_E_E", Observables::P_3_CPV_B0__KSTAR0_E_E)
+        .value("P_PRIME_4_CPV_B0__KSTAR0_E_E", Observables::P_PRIME_4_CPV_B0__KSTAR0_E_E)
+        .value("P_PRIME_5_CPV_B0__KSTAR0_E_E", Observables::P_PRIME_5_CPV_B0__KSTAR0_E_E)
+        .value("P_PRIME_6_CPV_B0__KSTAR0_E_E", Observables::P_PRIME_6_CPV_B0__KSTAR0_E_E)
+        .value("P_PRIME_8_CPV_B0__KSTAR0_E_E", Observables::P_PRIME_8_CPV_B0__KSTAR0_E_E)
+        .value("DGAMMA_DQ2_B0__KSTAR0_MU_MU", Observables::DGAMMA_DQ2_B0__KSTAR0_MU_MU)
+        .value("DBR_DQ2_B0__KSTAR0_MU_MU", Observables::DBR_DQ2_B0__KSTAR0_MU_MU)
+        .value("A_FB_B0__KSTAR0_MU_MU", Observables::A_FB_B0__KSTAR0_MU_MU)
+        .value("A_FB_CPV_B0__KSTAR0_MU_MU", Observables::A_FB_CPV_B0__KSTAR0_MU_MU)
+        .value("Q0_A_FB_B0__KSTAR0_MU_MU", Observables::Q0_A_FB_B0__KSTAR0_MU_MU)
+        .value("A_CP_B0__KSTAR0_MU_MU", Observables::A_CP_B0__KSTAR0_MU_MU)
+        .value("F_L_B0__KSTAR0_MU_MU", Observables::F_L_B0__KSTAR0_MU_MU)
+        .value("F_T_B0__KSTAR0_MU_MU", Observables::F_T_B0__KSTAR0_MU_MU)
+        .value("A_T_1_B0__KSTAR0_MU_MU", Observables::A_T_1_B0__KSTAR0_MU_MU)
+        .value("A_T_2_B0__KSTAR0_MU_MU", Observables::A_T_2_B0__KSTAR0_MU_MU)
+        .value("A_T_3_B0__KSTAR0_MU_MU", Observables::A_T_3_B0__KSTAR0_MU_MU)
+        .value("A_T_4_B0__KSTAR0_MU_MU", Observables::A_T_4_B0__KSTAR0_MU_MU)
+        .value("A_T_5_B0__KSTAR0_MU_MU", Observables::A_T_5_B0__KSTAR0_MU_MU)
+        .value("A_T_RE_B0__KSTAR0_MU_MU", Observables::A_T_RE_B0__KSTAR0_MU_MU)
+        .value("A_T_RE_CPV_B0__KSTAR0_MU_MU", Observables::A_T_RE_CPV_B0__KSTAR0_MU_MU)
+        .value("A_IM_B0__KSTAR0_MU_MU", Observables::A_IM_B0__KSTAR0_MU_MU)
+        .value("ALPHA_K_B0__KSTAR0_MU_MU", Observables::ALPHA_K_B0__KSTAR0_MU_MU)
+        .value("H_T_1_B0__KSTAR0_MU_MU", Observables::H_T_1_B0__KSTAR0_MU_MU)
+        .value("H_T_2_B0__KSTAR0_MU_MU", Observables::H_T_2_B0__KSTAR0_MU_MU)
+        .value("H_T_3_B0__KSTAR0_MU_MU", Observables::H_T_3_B0__KSTAR0_MU_MU)
+        .value("P_1_B0__KSTAR0_MU_MU", Observables::P_1_B0__KSTAR0_MU_MU)
+        .value("P_2_B0__KSTAR0_MU_MU", Observables::P_2_B0__KSTAR0_MU_MU)
+        .value("P_3_B0__KSTAR0_MU_MU", Observables::P_3_B0__KSTAR0_MU_MU)
+        .value("P_4_B0__KSTAR0_MU_MU", Observables::P_4_B0__KSTAR0_MU_MU)
+        .value("P_5_B0__KSTAR0_MU_MU", Observables::P_5_B0__KSTAR0_MU_MU)
+        .value("P_6_B0__KSTAR0_MU_MU", Observables::P_6_B0__KSTAR0_MU_MU)
+        .value("P_8_B0__KSTAR0_MU_MU", Observables::P_8_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_4_B0__KSTAR0_MU_MU", Observables::P_PRIME_4_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_5_B0__KSTAR0_MU_MU", Observables::P_PRIME_5_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_6_B0__KSTAR0_MU_MU", Observables::P_PRIME_6_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_8_B0__KSTAR0_MU_MU", Observables::P_PRIME_8_B0__KSTAR0_MU_MU)
+        .value("S_1C_B0__KSTAR0_MU_MU", Observables::S_1C_B0__KSTAR0_MU_MU)
+        .value("S_2C_B0__KSTAR0_MU_MU", Observables::S_2C_B0__KSTAR0_MU_MU)
+        .value("S_2S_B0__KSTAR0_MU_MU", Observables::S_2S_B0__KSTAR0_MU_MU)
+        .value("S_3_B0__KSTAR0_MU_MU", Observables::S_3_B0__KSTAR0_MU_MU)
+        .value("S_4_B0__KSTAR0_MU_MU", Observables::S_4_B0__KSTAR0_MU_MU)
+        .value("S_5_B0__KSTAR0_MU_MU", Observables::S_5_B0__KSTAR0_MU_MU)
+        .value("S_6C_B0__KSTAR0_MU_MU", Observables::S_6C_B0__KSTAR0_MU_MU)
+        .value("S_7_B0__KSTAR0_MU_MU", Observables::S_7_B0__KSTAR0_MU_MU)
+        .value("S_8_B0__KSTAR0_MU_MU", Observables::S_8_B0__KSTAR0_MU_MU)
+        .value("S_9_B0__KSTAR0_MU_MU", Observables::S_9_B0__KSTAR0_MU_MU)
+        .value("A_1C_B0__KSTAR0_MU_MU", Observables::A_1C_B0__KSTAR0_MU_MU)
+        .value("A_FL_B0__KSTAR0_MU_MU", Observables::A_FL_B0__KSTAR0_MU_MU)
+        .value("A_2S_B0__KSTAR0_MU_MU", Observables::A_2S_B0__KSTAR0_MU_MU)
+        .value("A_3_B0__KSTAR0_MU_MU", Observables::A_3_B0__KSTAR0_MU_MU)
+        .value("A_4_B0__KSTAR0_MU_MU", Observables::A_4_B0__KSTAR0_MU_MU)
+        .value("A_5_B0__KSTAR0_MU_MU", Observables::A_5_B0__KSTAR0_MU_MU)
+        .value("A_6S_B0__KSTAR0_MU_MU", Observables::A_6S_B0__KSTAR0_MU_MU)
+        .value("A_6C_B0__KSTAR0_MU_MU", Observables::A_6C_B0__KSTAR0_MU_MU)
+        .value("A_7_B0__KSTAR0_MU_MU", Observables::A_7_B0__KSTAR0_MU_MU)
+        .value("A_8_B0__KSTAR0_MU_MU", Observables::A_8_B0__KSTAR0_MU_MU)
+        .value("A_9_B0__KSTAR0_MU_MU", Observables::A_9_B0__KSTAR0_MU_MU)
+        .value("P_1_CPV_B0__KSTAR0_MU_MU", Observables::P_1_CPV_B0__KSTAR0_MU_MU)
+        .value("P_2_CPV_B0__KSTAR0_MU_MU", Observables::P_2_CPV_B0__KSTAR0_MU_MU)
+        .value("P_3_CPV_B0__KSTAR0_MU_MU", Observables::P_3_CPV_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_4_CPV_B0__KSTAR0_MU_MU", Observables::P_PRIME_4_CPV_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_5_CPV_B0__KSTAR0_MU_MU", Observables::P_PRIME_5_CPV_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_6_CPV_B0__KSTAR0_MU_MU", Observables::P_PRIME_6_CPV_B0__KSTAR0_MU_MU)
+        .value("P_PRIME_8_CPV_B0__KSTAR0_MU_MU", Observables::P_PRIME_8_CPV_B0__KSTAR0_MU_MU)
+        .value("DGAMMA_DQ2_B0__KSTAR0_TAU_TAU", Observables::DGAMMA_DQ2_B0__KSTAR0_TAU_TAU)
+        .value("DBR_DQ2_B0__KSTAR0_TAU_TAU", Observables::DBR_DQ2_B0__KSTAR0_TAU_TAU)
+        .value("A_FB_B0__KSTAR0_TAU_TAU", Observables::A_FB_B0__KSTAR0_TAU_TAU)
+        .value("A_FB_CPV_B0__KSTAR0_TAU_TAU", Observables::A_FB_CPV_B0__KSTAR0_TAU_TAU)
+        .value("Q0_A_FB_B0__KSTAR0_TAU_TAU", Observables::Q0_A_FB_B0__KSTAR0_TAU_TAU)
+        .value("A_CP_B0__KSTAR0_TAU_TAU", Observables::A_CP_B0__KSTAR0_TAU_TAU)
+        .value("F_L_B0__KSTAR0_TAU_TAU", Observables::F_L_B0__KSTAR0_TAU_TAU)
+        .value("F_T_B0__KSTAR0_TAU_TAU", Observables::F_T_B0__KSTAR0_TAU_TAU)
+        .value("A_T_1_B0__KSTAR0_TAU_TAU", Observables::A_T_1_B0__KSTAR0_TAU_TAU)
+        .value("A_T_2_B0__KSTAR0_TAU_TAU", Observables::A_T_2_B0__KSTAR0_TAU_TAU)
+        .value("A_T_3_B0__KSTAR0_TAU_TAU", Observables::A_T_3_B0__KSTAR0_TAU_TAU)
+        .value("A_T_4_B0__KSTAR0_TAU_TAU", Observables::A_T_4_B0__KSTAR0_TAU_TAU)
+        .value("A_T_5_B0__KSTAR0_TAU_TAU", Observables::A_T_5_B0__KSTAR0_TAU_TAU)
+        .value("A_T_RE_B0__KSTAR0_TAU_TAU", Observables::A_T_RE_B0__KSTAR0_TAU_TAU)
+        .value("A_T_RE_CPV_B0__KSTAR0_TAU_TAU", Observables::A_T_RE_CPV_B0__KSTAR0_TAU_TAU)
+        .value("A_IM_B0__KSTAR0_TAU_TAU", Observables::A_IM_B0__KSTAR0_TAU_TAU)
+        .value("ALPHA_K_B0__KSTAR0_TAU_TAU", Observables::ALPHA_K_B0__KSTAR0_TAU_TAU)
+        .value("H_T_1_B0__KSTAR0_TAU_TAU", Observables::H_T_1_B0__KSTAR0_TAU_TAU)
+        .value("H_T_2_B0__KSTAR0_TAU_TAU", Observables::H_T_2_B0__KSTAR0_TAU_TAU)
+        .value("H_T_3_B0__KSTAR0_TAU_TAU", Observables::H_T_3_B0__KSTAR0_TAU_TAU)
+        .value("P_1_B0__KSTAR0_TAU_TAU", Observables::P_1_B0__KSTAR0_TAU_TAU)
+        .value("P_2_B0__KSTAR0_TAU_TAU", Observables::P_2_B0__KSTAR0_TAU_TAU)
+        .value("P_3_B0__KSTAR0_TAU_TAU", Observables::P_3_B0__KSTAR0_TAU_TAU)
+        .value("P_4_B0__KSTAR0_TAU_TAU", Observables::P_4_B0__KSTAR0_TAU_TAU)
+        .value("P_5_B0__KSTAR0_TAU_TAU", Observables::P_5_B0__KSTAR0_TAU_TAU)
+        .value("P_6_B0__KSTAR0_TAU_TAU", Observables::P_6_B0__KSTAR0_TAU_TAU)
+        .value("P_8_B0__KSTAR0_TAU_TAU", Observables::P_8_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_4_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_4_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_5_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_5_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_6_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_6_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_8_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_8_B0__KSTAR0_TAU_TAU)
+        .value("S_1C_B0__KSTAR0_TAU_TAU", Observables::S_1C_B0__KSTAR0_TAU_TAU)
+        .value("S_2C_B0__KSTAR0_TAU_TAU", Observables::S_2C_B0__KSTAR0_TAU_TAU)
+        .value("S_2S_B0__KSTAR0_TAU_TAU", Observables::S_2S_B0__KSTAR0_TAU_TAU)
+        .value("S_3_B0__KSTAR0_TAU_TAU", Observables::S_3_B0__KSTAR0_TAU_TAU)
+        .value("S_4_B0__KSTAR0_TAU_TAU", Observables::S_4_B0__KSTAR0_TAU_TAU)
+        .value("S_5_B0__KSTAR0_TAU_TAU", Observables::S_5_B0__KSTAR0_TAU_TAU)
+        .value("S_6C_B0__KSTAR0_TAU_TAU", Observables::S_6C_B0__KSTAR0_TAU_TAU)
+        .value("S_7_B0__KSTAR0_TAU_TAU", Observables::S_7_B0__KSTAR0_TAU_TAU)
+        .value("S_8_B0__KSTAR0_TAU_TAU", Observables::S_8_B0__KSTAR0_TAU_TAU)
+        .value("S_9_B0__KSTAR0_TAU_TAU", Observables::S_9_B0__KSTAR0_TAU_TAU)
+        .value("A_1C_B0__KSTAR0_TAU_TAU", Observables::A_1C_B0__KSTAR0_TAU_TAU)
+        .value("A_FL_B0__KSTAR0_TAU_TAU", Observables::A_FL_B0__KSTAR0_TAU_TAU)
+        .value("A_2S_B0__KSTAR0_TAU_TAU", Observables::A_2S_B0__KSTAR0_TAU_TAU)
+        .value("A_3_B0__KSTAR0_TAU_TAU", Observables::A_3_B0__KSTAR0_TAU_TAU)
+        .value("A_4_B0__KSTAR0_TAU_TAU", Observables::A_4_B0__KSTAR0_TAU_TAU)
+        .value("A_5_B0__KSTAR0_TAU_TAU", Observables::A_5_B0__KSTAR0_TAU_TAU)
+        .value("A_6S_B0__KSTAR0_TAU_TAU", Observables::A_6S_B0__KSTAR0_TAU_TAU)
+        .value("A_6C_B0__KSTAR0_TAU_TAU", Observables::A_6C_B0__KSTAR0_TAU_TAU)
+        .value("A_7_B0__KSTAR0_TAU_TAU", Observables::A_7_B0__KSTAR0_TAU_TAU)
+        .value("A_8_B0__KSTAR0_TAU_TAU", Observables::A_8_B0__KSTAR0_TAU_TAU)
+        .value("A_9_B0__KSTAR0_TAU_TAU", Observables::A_9_B0__KSTAR0_TAU_TAU)
+        .value("P_1_CPV_B0__KSTAR0_TAU_TAU", Observables::P_1_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_2_CPV_B0__KSTAR0_TAU_TAU", Observables::P_2_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_3_CPV_B0__KSTAR0_TAU_TAU", Observables::P_3_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_4_CPV_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_4_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_5_CPV_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_5_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_6_CPV_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_6_CPV_B0__KSTAR0_TAU_TAU)
+        .value("P_PRIME_8_CPV_B0__KSTAR0_TAU_TAU", Observables::P_PRIME_8_CPV_B0__KSTAR0_TAU_TAU)
+        .value("R_1_B__KSTAR_L_L", Observables::R_1_B__KSTAR_L_L)
+        .value("R_1_B0__KSTAR0_L_L", Observables::R_1_B0__KSTAR0_L_L)
+        .value("DGAMMA_DQ2_BS__PHI_E_E", Observables::DGAMMA_DQ2_BS__PHI_E_E)
+        .value("DBR_DQ2_BS__PHI_E_E", Observables::DBR_DQ2_BS__PHI_E_E)
+        .value("A_FB_CPV_BS__PHI_E_E", Observables::A_FB_CPV_BS__PHI_E_E)
+        .value("F_L_BS_PHI_E_E", Observables::F_L_BS_PHI_E_E)
+        .value("A_T_2_BS_PHI_E_E", Observables::A_T_2_BS_PHI_E_E)
+        .value("A_T_RE_CPV_BS_PHI_E_E", Observables::A_T_RE_CPV_BS_PHI_E_E)
+        .value("A_T_IM_CPV_BS_PHI_E_E", Observables::A_T_IM_CPV_BS_PHI_E_E)
+        .value("P_PRIME_4_BS_PHI_E_E", Observables::P_PRIME_4_BS_PHI_E_E)
+        .value("P_PRIME_6_BS_PHI_E_E", Observables::P_PRIME_6_BS_PHI_E_E)
+        .value("S_2S_BS_PHI_E_E", Observables::S_2S_BS_PHI_E_E)
+        .value("S_3_BS_PHI_E_E", Observables::S_3_BS_PHI_E_E)
+        .value("S_4_BS_PHI_E_E", Observables::S_4_BS_PHI_E_E)
+        .value("S_7_BS_PHI_E_E", Observables::S_7_BS_PHI_E_E)
+        .value("A_5_BS_PHI_E_E", Observables::A_5_BS_PHI_E_E)
+        .value("A_6C_BS_PHI_E_E", Observables::A_6C_BS_PHI_E_E)
+        .value("A_8_BS_PHI_E_E", Observables::A_8_BS_PHI_E_E)
+        .value("A_9_BS_PHI_E_E", Observables::A_9_BS_PHI_E_E)
+        .value("P_2_CPV_BS_PHI_E_E", Observables::P_2_CPV_BS_PHI_E_E)
+        .value("P_3_CPV_BS_PHI_E_E", Observables::P_3_CPV_BS_PHI_E_E)
+        .value("P_PRIME_5_CPV_BS_PHI_E_E", Observables::P_PRIME_5_CPV_BS_PHI_E_E)
+        .value("P_PRIME_8_CPV_BS_PHI_E_E", Observables::P_PRIME_8_CPV_BS_PHI_E_E)
+        .value("Q_8M_BS_PHI_E_E", Observables::Q_8M_BS_PHI_E_E)
+        .value("Q_8P_BS_PHI_E_E", Observables::Q_8P_BS_PHI_E_E)
+        .value("Q_9_BS_PHI_E_E", Observables::Q_9_BS_PHI_E_E)
+        .value("DGAMMA_DQ2_BS__PHI_MU_MU", Observables::DGAMMA_DQ2_BS__PHI_MU_MU)
+        .value("DBR_DQ2_BS__PHI_MU_MU", Observables::DBR_DQ2_BS__PHI_MU_MU)
+        .value("A_FB_CPV_BS__PHI_MU_MU", Observables::A_FB_CPV_BS__PHI_MU_MU)
+        .value("F_L_BS_PHI_MU_MU", Observables::F_L_BS_PHI_MU_MU)
+        .value("A_T_2_BS_PHI_MU_MU", Observables::A_T_2_BS_PHI_MU_MU)
+        .value("A_T_RE_CPV_BS_PHI_MU_MU", Observables::A_T_RE_CPV_BS_PHI_MU_MU)
+        .value("A_T_IM_CPV_BS_PHI_MU_MU", Observables::A_T_IM_CPV_BS_PHI_MU_MU)
+        .value("P_PRIME_4_BS_PHI_MU_MU", Observables::P_PRIME_4_BS_PHI_MU_MU)
+        .value("P_PRIME_6_BS_PHI_MU_MU", Observables::P_PRIME_6_BS_PHI_MU_MU)
+        .value("S_2S_BS_PHI_MU_MU", Observables::S_2S_BS_PHI_MU_MU)
+        .value("S_3_BS_PHI_MU_MU", Observables::S_3_BS_PHI_MU_MU)
+        .value("S_4_BS_PHI_MU_MU", Observables::S_4_BS_PHI_MU_MU)
+        .value("S_7_BS_PHI_MU_MU", Observables::S_7_BS_PHI_MU_MU)
+        .value("A_5_BS_PHI_MU_MU", Observables::A_5_BS_PHI_MU_MU)
+        .value("A_6C_BS_PHI_MU_MU", Observables::A_6C_BS_PHI_MU_MU)
+        .value("A_8_BS_PHI_MU_MU", Observables::A_8_BS_PHI_MU_MU)
+        .value("A_9_BS_PHI_MU_MU", Observables::A_9_BS_PHI_MU_MU)
+        .value("P_2_CPV_BS_PHI_MU_MU", Observables::P_2_CPV_BS_PHI_MU_MU)
+        .value("P_3_CPV_BS_PHI_MU_MU", Observables::P_3_CPV_BS_PHI_MU_MU)
+        .value("P_PRIME_5_CPV_BS_PHI_MU_MU", Observables::P_PRIME_5_CPV_BS_PHI_MU_MU)
+        .value("P_PRIME_8_CPV_BS_PHI_MU_MU", Observables::P_PRIME_8_CPV_BS_PHI_MU_MU)
+        .value("Q_8M_BS_PHI_MU_MU", Observables::Q_8M_BS_PHI_MU_MU)
+        .value("Q_8P_BS_PHI_MU_MU", Observables::Q_8P_BS_PHI_MU_MU)
+        .value("Q_9_BS_PHI_MU_MU", Observables::Q_9_BS_PHI_MU_MU)
+        .value("DGAMMA_DQ2_BS__PHI_TAU_TAU", Observables::DGAMMA_DQ2_BS__PHI_TAU_TAU)
+        .value("DBR_DQ2_BS__PHI_TAU_TAU", Observables::DBR_DQ2_BS__PHI_TAU_TAU)
+        .value("A_FB_CPV_BS__PHI_TAU_TAU", Observables::A_FB_CPV_BS__PHI_TAU_TAU)
+        .value("F_L_BS_PHI_TAU_TAU", Observables::F_L_BS_PHI_TAU_TAU)
+        .value("A_T_2_BS_PHI_TAU_TAU", Observables::A_T_2_BS_PHI_TAU_TAU)
+        .value("A_T_RE_CPV_BS_PHI_TAU_TAU", Observables::A_T_RE_CPV_BS_PHI_TAU_TAU)
+        .value("A_T_IM_CPV_BS_PHI_TAU_TAU", Observables::A_T_IM_CPV_BS_PHI_TAU_TAU)
+        .value("P_PRIME_4_BS_PHI_TAU_TAU", Observables::P_PRIME_4_BS_PHI_TAU_TAU)
+        .value("P_PRIME_6_BS_PHI_TAU_TAU", Observables::P_PRIME_6_BS_PHI_TAU_TAU)
+        .value("S_2S_BS_PHI_TAU_TAU", Observables::S_2S_BS_PHI_TAU_TAU)
+        .value("S_3_BS_PHI_TAU_TAU", Observables::S_3_BS_PHI_TAU_TAU)
+        .value("S_4_BS_PHI_TAU_TAU", Observables::S_4_BS_PHI_TAU_TAU)
+        .value("S_7_BS_PHI_TAU_TAU", Observables::S_7_BS_PHI_TAU_TAU)
+        .value("A_5_BS_PHI_TAU_TAU", Observables::A_5_BS_PHI_TAU_TAU)
+        .value("A_6C_BS_PHI_TAU_TAU", Observables::A_6C_BS_PHI_TAU_TAU)
+        .value("A_8_BS_PHI_TAU_TAU", Observables::A_8_BS_PHI_TAU_TAU)
+        .value("A_9_BS_PHI_TAU_TAU", Observables::A_9_BS_PHI_TAU_TAU)
+        .value("P_2_CPV_BS_PHI_TAU_TAU", Observables::P_2_CPV_BS_PHI_TAU_TAU)
+        .value("P_3_CPV_BS_PHI_TAU_TAU", Observables::P_3_CPV_BS_PHI_TAU_TAU)
+        .value("P_PRIME_5_CPV_BS_PHI_TAU_TAU", Observables::P_PRIME_5_CPV_BS_PHI_TAU_TAU)
+        .value("P_PRIME_8_CPV_BS_PHI_TAU_TAU", Observables::P_PRIME_8_CPV_BS_PHI_TAU_TAU)
+        .value("Q_8M_BS_PHI_TAU_TAU", Observables::Q_8M_BS_PHI_TAU_TAU)
+        .value("Q_8P_BS_PHI_TAU_TAU", Observables::Q_8P_BS_PHI_TAU_TAU)
+        .value("Q_9_BS_PHI_TAU_TAU", Observables::Q_9_BS_PHI_TAU_TAU)
+        .value("R_1_BS__PHI_L_L", Observables::R_1_BS__PHI_L_L)
+        .value("DGAMMA_DQ2_B0__K0_E_E", Observables::DGAMMA_DQ2_B0__K0_E_E)
+        .value("DBR_DQ2_B0__K0_E_E", Observables::DBR_DQ2_B0__K0_E_E)
+        .value("A_FB_B0__K0_E_E", Observables::A_FB_B0__K0_E_E)
+        .value("F_H_B0__K0_E_E", Observables::F_H_B0__K0_E_E)
+        .value("DGAMMA_DQ2_B__K_E_E", Observables::DGAMMA_DQ2_B__K_E_E)
+        .value("DBR_DQ2_B__K_E_E", Observables::DBR_DQ2_B__K_E_E)
+        .value("A_FB_B__K_E_E", Observables::A_FB_B__K_E_E)
+        .value("F_H_B__K_E_E", Observables::F_H_B__K_E_E)
+        .value("DGAMMA_DQ2_B0__K0_MU_MU", Observables::DGAMMA_DQ2_B0__K0_MU_MU)
+        .value("DBR_DQ2_B0__K0_MU_MU", Observables::DBR_DQ2_B0__K0_MU_MU)
+        .value("A_FB_B0__K0_MU_MU", Observables::A_FB_B0__K0_MU_MU)
+        .value("F_H_B0__K0_MU_MU", Observables::F_H_B0__K0_MU_MU)
+        .value("DGAMMA_DQ2_B__K_MU_MU", Observables::DGAMMA_DQ2_B__K_MU_MU)
+        .value("DBR_DQ2_B__K_MU_MU", Observables::DBR_DQ2_B__K_MU_MU)
+        .value("A_FB_B__K_MU_MU", Observables::A_FB_B__K_MU_MU)
+        .value("F_H_B__K_MU_MU", Observables::F_H_B__K_MU_MU)
+        .value("DGAMMA_DQ2_B0__K0_TAU_TAU", Observables::DGAMMA_DQ2_B0__K0_TAU_TAU)
+        .value("DBR_DQ2_B0__K0_TAU_TAU", Observables::DBR_DQ2_B0__K0_TAU_TAU)
+        .value("A_FB_B0__K0_TAU_TAU", Observables::A_FB_B0__K0_TAU_TAU)
+        .value("F_H_B0__K0_TAU_TAU", Observables::F_H_B0__K0_TAU_TAU)
+        .value("DGAMMA_DQ2_B__K_TAU_TAU", Observables::DGAMMA_DQ2_B__K_TAU_TAU)
+        .value("DBR_DQ2_B__K_TAU_TAU", Observables::DBR_DQ2_B__K_TAU_TAU)
+        .value("A_FB_B__K_TAU_TAU", Observables::A_FB_B__K_TAU_TAU)
+        .value("F_H_B__K_TAU_TAU", Observables::F_H_B__K_TAU_TAU)
+        .value("R_1_B__K_L_L", Observables::R_1_B__K_L_L)
+        .value("DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E", Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E)
+        .value("DBR_DQ2_LAMBDA_B__LAMBDA_E_E", Observables::DBR_DQ2_LAMBDA_B__LAMBDA_E_E)
+        .value("A_FB_L_LAMBDA_B__LAMBDA_E_E", Observables::A_FB_L_LAMBDA_B__LAMBDA_E_E)
+        .value("A_FB_H_LAMBDA_B__LAMBDA_E_E", Observables::A_FB_H_LAMBDA_B__LAMBDA_E_E)
+        .value("A_FB_LH_LAMBDA_B__LAMBDA_E_E", Observables::A_FB_LH_LAMBDA_B__LAMBDA_E_E)
+        .value("F_L_LAMBDA_B__LAMBDA_E_E", Observables::F_L_LAMBDA_B__LAMBDA_E_E)
+        .value("F_T_LAMBDA_B__LAMBDA_E_E", Observables::F_T_LAMBDA_B__LAMBDA_E_E)
+        .value("DGAMMA_DQ2_LAMBDA_B__LAMBDA_MU_MU", Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_MU_MU)
+        .value("DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU", Observables::DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU)
+        .value("A_FB_L_LAMBDA_B__LAMBDA_MU_MU", Observables::A_FB_L_LAMBDA_B__LAMBDA_MU_MU)
+        .value("A_FB_H_LAMBDA_B__LAMBDA_MU_MU", Observables::A_FB_H_LAMBDA_B__LAMBDA_MU_MU)
+        .value("A_FB_LH_LAMBDA_B__LAMBDA_MU_MU", Observables::A_FB_LH_LAMBDA_B__LAMBDA_MU_MU)
+        .value("F_L_LAMBDA_B__LAMBDA_MU_MU", Observables::F_L_LAMBDA_B__LAMBDA_MU_MU)
+        .value("F_T_LAMBDA_B__LAMBDA_MU_MU", Observables::F_T_LAMBDA_B__LAMBDA_MU_MU)
+        .value("DGAMMA_DQ2_LAMBDA_B__LAMBDA_TAU_TAU", Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU", Observables::DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("A_FB_L_LAMBDA_B__LAMBDA_TAU_TAU", Observables::A_FB_L_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("A_FB_H_LAMBDA_B__LAMBDA_TAU_TAU", Observables::A_FB_H_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("A_FB_LH_LAMBDA_B__LAMBDA_TAU_TAU", Observables::A_FB_LH_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("F_L_LAMBDA_B__LAMBDA_TAU_TAU", Observables::F_L_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("F_T_LAMBDA_B__LAMBDA_TAU_TAU", Observables::F_T_LAMBDA_B__LAMBDA_TAU_TAU)
+        .value("PHI_D", Observables::PHI_D)
+        .value("DELTA_M_BD", Observables::DELTA_M_BD)
+        .value("PHI_S", Observables::PHI_S)
+        .value("DELTA_M_BS", Observables::DELTA_M_BS)
+        .value("A_FS", Observables::A_FS)
+        .value("DELTA_M_K", Observables::DELTA_M_K)
+        .value("ABS_EPSILON_K", Observables::ABS_EPSILON_K)
+        .value("X_D", Observables::X_D)
+        .value("BR_KL__MU_MU", Observables::BR_KL__MU_MU)
+        .value("BR_KS__MU_MU", Observables::BR_KS__MU_MU)
+        .value("BR_K__MU_NU__BR_PI__MU_NU", Observables::BR_K__MU_NU__BR_PI__MU_NU)
+        .value("R_MU23", Observables::R_MU23)
+        .value("BR_K__PI_NU_NU", Observables::BR_K__PI_NU_NU)
+        .value("BR_KL__PI0_NU_NU", Observables::BR_KL__PI0_NU_NU)
+        .value("BR_D__MU_NU", Observables::BR_D__MU_NU)
+        .value("BR_DS__MU_NU", Observables::BR_DS__MU_NU)
+        .value("BR_DS__TAU_NU", Observables::BR_DS__TAU_NU)
+        .export_values();
+
+    py::enum_<Decays>(m, "Decays")
+        .value("B__D_l_nu", Decays::B__D_l_nu)
+        .value("B__Dstar_l_nu", Decays::B__Dstar_l_nu)
+        .value("B__Kstar_gamma", Decays::B__Kstar_gamma)
+        .value("B__l_l", Decays::B__l_l)
+        .value("B__l_nu", Decays::B__l_nu)
+        .value("B__Xs_gamma", Decays::B__Xs_gamma)
+        .value("B__Xs_l_l", Decays::B__Xs_l_l)
+        .value("B__K_l_l", Decays::B__K_l_l)
+        .value("B__Kstar_l_l", Decays::B__Kstar_l_l)
+        .value("Bs__phi_l_l", Decays::Bs__phi_l_l)
+        .value("Lambda_b__Lambda_l_l", Decays::Lambda_b__Lambda_l_l)
+        .value("M0_Mix", Decays::M0_Mix)
+        .value("K__l_l", Decays::K__l_l)
+        .value("K__pi_nu_nu", Decays::K__pi_nu_nu)
+        .value("K__l_nu", Decays::K__l_nu)
+        .value("D__l_nu", Decays::D__l_nu)
+        .value("Ds__l_nu", Decays::Ds__l_nu)
+        .export_values();
+
+    py::enum_<QCDOrder>(m, "QCDOrder")
+        .value("NONE", QCDOrder::NONE)
+        .value("LO", QCDOrder::LO)
+        .value("NLO", QCDOrder::NLO)
+        .value("NNLO", QCDOrder::NNLO)
+        .export_values();
+
+    py::enum_<WCoef>(m, "WCoef")
+        .value("C1", WCoef::C1)
+        .value("C2", WCoef::C2)
+        .value("C3", WCoef::C3)
+        .value("C4", WCoef::C4)
+        .value("C5", WCoef::C5)
+        .value("C6", WCoef::C6)
+        .value("C7", WCoef::C7)
+        .value("C8", WCoef::C8)
+        .value("C9", WCoef::C9)
+        .value("C10", WCoef::C10)
+        .value("CQ1_E", WCoef::CQ1_E)
+        .value("CQ1_MU", WCoef::CQ1_MU)
+        .value("CQ1_TA", WCoef::CQ1_TA)
+        .value("CQ2_E", WCoef::CQ2_E)
+        .value("CQ2_MU", WCoef::CQ2_MU)
+        .value("CQ2_TA", WCoef::CQ2_TA)
+        .value("CQ1", WCoef::CQ1)
+        .value("CQ2", WCoef::CQ2)
+        .value("CP1", WCoef::CP1)
+        .value("CP2", WCoef::CP2)
+        .value("CP3", WCoef::CP3)
+        .value("CP4", WCoef::CP4)
+        .value("CP5", WCoef::CP5)
+        .value("CP6", WCoef::CP6)
+        .value("CP7", WCoef::CP7)
+        .value("CP8", WCoef::CP8)
+        .value("CP9", WCoef::CP9)
+        .value("CP10", WCoef::CP10)
+        .value("CPQ1_E", WCoef::CPQ1_E)
+        .value("CPQ1_MU", WCoef::CPQ1_MU)
+        .value("CPQ1_TA", WCoef::CPQ1_TA)
+        .value("CPQ2_E", WCoef::CPQ2_E)
+        .value("CPQ2_MU", WCoef::CPQ2_MU)
+        .value("CPQ2_TA", WCoef::CPQ2_TA)
+        .value("CPQ1", WCoef::CPQ1)
+        .value("CPQ2", WCoef::CPQ2)
+        .value("C_V1_bc", WCoef::C_V1_bc)
+        .value("C_V2_bc", WCoef::C_V2_bc)
+        .value("C_S1_bc", WCoef::C_S1_bc)
+        .value("C_S2_bc", WCoef::C_S2_bc)
+        .value("C_T_bc", WCoef::C_T_bc)
+        .value("C_V1_bu", WCoef::C_V1_bu)
+        .value("C_V2_bu", WCoef::C_V2_bu)
+        .value("C_S1_bu", WCoef::C_S1_bu)
+        .value("C_S2_bu", WCoef::C_S2_bu)
+        .value("C_T_bu", WCoef::C_T_bu)
+        .value("C_V1_cs", WCoef::C_V1_cs)
+        .value("C_V2_cs", WCoef::C_V2_cs)
+        .value("C_S1_cs", WCoef::C_S1_cs)
+        .value("C_S2_cs", WCoef::C_S2_cs)
+        .value("C_T_cs", WCoef::C_T_cs)
+        .value("C_V1_cd", WCoef::C_V1_cd)
+        .value("C_V2_cd", WCoef::C_V2_cd)
+        .value("C_S1_cd", WCoef::C_S1_cd)
+        .value("C_S2_cd", WCoef::C_S2_cd)
+        .value("C_T_cd", WCoef::C_T_cd)
+        .value("C_V1_su", WCoef::C_V1_su)
+        .value("C_V2_su", WCoef::C_V2_su)
+        .value("C_S1_su", WCoef::C_S1_su)
+        .value("C_S2_su", WCoef::C_S2_su)
+        .value("C_T_su", WCoef::C_T_su)
+        .value("C_V1_du", WCoef::C_V1_du)
+        .value("C_V2_du", WCoef::C_V2_du)
+        .value("C_S1_du", WCoef::C_S1_du)
+        .value("C_S2_du", WCoef::C_S2_du)
+        .value("C_T_du", WCoef::C_T_du)
+        .value("C_BD_1", WCoef::C_BD_1)
+        .value("CT_BD_1", WCoef::CT_BD_1)
+        .value("C_BD_2", WCoef::C_BD_2)
+        .value("CT_BD_2", WCoef::CT_BD_2)
+        .value("C_BD_3", WCoef::C_BD_3)
+        .value("CT_BD_3", WCoef::CT_BD_3)
+        .value("C_BD_4", WCoef::C_BD_4)
+        .value("C_BD_5", WCoef::C_BD_5)
+        .value("C_BS_1", WCoef::C_BS_1)
+        .value("CT_BS_1", WCoef::CT_BS_1)
+        .value("C_BS_2", WCoef::C_BS_2)
+        .value("CT_BS_2", WCoef::CT_BS_2)
+        .value("C_BS_3", WCoef::C_BS_3)
+        .value("CT_BS_3", WCoef::CT_BS_3)
+        .value("C_BS_4", WCoef::C_BS_4)
+        .value("C_BS_5", WCoef::C_BS_5)
+        .value("C_SD_1", WCoef::C_SD_1)
+        .value("CT_SD_1", WCoef::CT_SD_1)
+        .value("C_SD_2", WCoef::C_SD_2)
+        .value("CT_SD_2", WCoef::CT_SD_2)
+        .value("C_SD_3", WCoef::C_SD_3)
+        .value("CT_SD_3", WCoef::CT_SD_3)
+        .value("C_SD_4", WCoef::C_SD_4)
+        .value("C_SD_5", WCoef::C_SD_5)
+        .value("C_CU_1", WCoef::C_CU_1)
+        .value("CT_CU_1", WCoef::CT_CU_1)
+        .value("C_CU_2", WCoef::C_CU_2)
+        .value("CT_CU_2", WCoef::CT_CU_2)
+        .value("C_CU_3", WCoef::C_CU_3)
+        .value("CT_CU_3", WCoef::CT_CU_3)
+        .value("C_CU_4", WCoef::C_CU_4)
+        .value("C_CU_5", WCoef::C_CU_5)
+        .value("CK9", WCoef::CK9)
+        .value("CPK9", WCoef::CPK9)
+        .value("CK10", WCoef::CK10)
+        .value("CPK10", WCoef::CPK10)
+        .value("CKQ1", WCoef::CKQ1)
+        .value("CKQ2", WCoef::CKQ2)
+        .value("CPKQ1", WCoef::CPKQ1)
+        .value("CPKQ2", WCoef::CPKQ2)
+        .value("CK_L", WCoef::CK_L)
+        .export_values();
+
+    py::enum_<WGroup>(m, "WGroup")
+        .value("B", WGroup::B)
+        .value("BPrime", WGroup::BPrime)
+        .value("BScalar", WGroup::BScalar)
+        .value("CC_bc", WGroup::CC_bc)
+        .value("CC_bu", WGroup::CC_bu)
+        .value("CC_cs", WGroup::CC_cs)
+        .value("CC_cd", WGroup::CC_cd)
+        .value("CC_su", WGroup::CC_su)
+        .value("CC_du", WGroup::CC_du)
+        .value("MESON_MIXING", WGroup::MESON_MIXING)
+        .value("K", WGroup::K)
+        .export_values();
+
+    py::enum_<WilsonBasis>(m, "WilsonBasis")
+        .value("STANDARD", WilsonBasis::B_STANDARD)
+        .value("TRADITIONAL", WilsonBasis::B_TRADITIONAL)
+        .export_values();
+
+    py::enum_<ContributionType>(m, "ContributionType")
+        .value("SM", ContributionType::SM)
+        .value("BSM", ContributionType::BSM)
+        .value("TOTAL", ContributionType::TOTAL)
+        .export_values();
+
+
+    py::enum_<MassType>(m, "MassType")
+        .value("POLE", MassType::POLE)
+        .value("MSBAR", MassType::MSBAR)
+        .export_values();
+
+    py::enum_<ScaleType>(m, "ScaleType")
+        .value("MATCHING", ScaleType::MATCHING)
+        .value("HADRONIC", ScaleType::HADRONIC)
+        .export_values();
+
+    py::enum_<DataType>(m, "DataType")
+        .value("VALUE", DataType::VALUE)
+        .value("STD_STAT", DataType::STD_STAT)
+        .value("STD_SYST", DataType::STD_SYST)
+        .value("STD_COMBINED", DataType::STD_COMBINED)
+        .export_values();
+
+    py::enum_<UncertaintyType>(m, "UncertaintyType")
+        .value("STAT", UncertaintyType::STAT)
+        .value("SYST", UncertaintyType::SYST)
+        .value("COMBINED", UncertaintyType::COMBINED)
+        .export_values();
+
+    
+
+    BIND_ENUM_MAPPER(OrderMapper, QCDOrder)
+
+    BIND_ENUM_MAPPER(ParameterTypeMapper, ParameterType)
+    BIND_ENUM_MAPPER(ModelMapper, Model)
+    BIND_ENUM_MAPPER(WilsonBasisMapper, WilsonBasis)
+    BIND_ENUM_MAPPER(ContributionTypeMapper, ContributionType)
+    BIND_ENUM_MAPPER(MassTypeMapper, MassType)
+
+    bind_symbol_id<ObservableId>(m, "_CppObservableId");
+    bind_symbol_id<DecayId>(m, "_CppDecayId");
+    bind_symbol_id<WGroupId>(m, "_CppWGroupId");
+    bind_symbol_id<WCoefId>(m, "_CppWCoefId");
+    m.attr("WGroupId") = m.attr("_CppWGroupId");
+    m.attr("WCoefId") = m.attr("_CppWCoefId");
+    py::class_<ObservableMapper, std::shared_ptr<ObservableMapper>>(m, "ObservableMapper")
+        .def_static("str",
+            py::overload_cast<Observables>(&ObservableMapper::str),
+            py::arg("obs"))
+        .def_static("enum_elt_legacy", &ObservableMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("enum_elt",        &ObservableMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",         &ObservableMapper::get_str)
+        .def_static("get_enum",        &ObservableMapper::get_enum)
+        .def_static("get_str_all",     &ObservableMapper::get_str_all)
+
+        .def_static("to_id",
+            py::overload_cast<Observables>(&ObservableMapper::to_id),
+            py::arg("obs"))
+        .def_static("id_of",        &ObservableMapper::id_of, py::arg("name"))
+        .def_static("enum_elt_dynamic", &ObservableMapper::id_of, py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const ObservableId&>(&ObservableMapper::str),
+            py::arg("id"))
+
+        .def_static("from_flha",    &ObservableMapper::from_flha, py::arg("lha"))
+        .def_static("flha",
+            py::overload_cast<const ObservableId&>(&ObservableMapper::flha),
+            py::arg("id"))
+        .def_static("flha",
+            py::overload_cast<const Observables&>(&ObservableMapper::flha),
+            py::arg("obs"))
+
+        .def_static("register_custom",
+            [](const std::string& canonical,
+               const std::string& parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    std::string_view(parent_decay)
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_static("register_custom_with_decay_id",
+            [](const std::string& canonical,
+               const DecayId& parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    parent_decay
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_static("register_custom_with_decay_enum",
+            [](const std::string& canonical,
+               Decays parent_decay,
+               const std::vector<std::string>& aliases,
+               py::object ext)
+            {
+                return ObservableMapper::register_custom(
+                    canonical,
+                    aliases,
+                    optional_lhaid_from_py(ext),
+                    parent_decay
+                );
+            },
+            py::arg("canonical"),
+            py::arg("parent_decay"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none());
+
+
+    py::class_<WCoefMapper, std::shared_ptr<WCoefMapper>>(m, "WCoefMapper")
+        .def_static("str",
+            py::overload_cast<WCoef>(&WCoefMapper::str),
+            py::arg("coef"))
+        .def_static("enum_elt",   &WCoefMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &WCoefMapper::get_str)
+        .def_static("get_enum",   &WCoefMapper::get_enum)
+        .def_static("get_str_all",&WCoefMapper::get_str_all)
+
+        .def_static("id_of",        &WCoefMapper::id_of,        py::arg("name"))
+        .def_static("to_id",        &WCoefMapper::to_id,        py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const WCoefId&>(&WCoefMapper::str),
+            py::arg("id"))
+        .def_static("from_external",&WCoefMapper::from_external,py::arg("flha_pair"))
+        .def_static("external_of",  &WCoefMapper::external_of,  py::arg("id"))
+        .def_static("register_custom",
+            [](const std::string& canon, const std::vector<std::string>& aliases, std::pair<int,int> flha){
+                return WCoefMapper::register_custom(canon, aliases, flha);
+            },
+            py::arg("canonical"), py::arg("aliases") = std::vector<std::string>{}, py::arg("flha"))
+
+        .def_static("get_group",        &WCoefMapper::get_group,        py::arg("group"))
+        .def_static("B_group",          &WCoefMapper::B_group,          py::return_value_policy::reference)
+        .def_static("B_prime_group",    &WCoefMapper::B_prime_group,    py::return_value_policy::reference)
+        .def_static("B_scalar_group",   &WCoefMapper::B_scalar_group,   py::return_value_policy::reference)
+        .def_static("b_clnu_group",     &WCoefMapper::b_clnu_group,     py::return_value_policy::reference)
+
+        .def_static("flha_base",
+            py::overload_cast<WCoef>(&WCoefMapper::flha_base),
+            py::arg("coef"))
+        .def_static("flha_base",
+            py::overload_cast<const WCoefId&>(&WCoefMapper::flha_base),
+            py::arg("id"))
+        .def_static("flha_full",
+            py::overload_cast<WCoef, QCDOrder, ContributionType>(&WCoefMapper::flha_full),
+            py::arg("coef"), py::arg("order"), py::arg("type"))
+        .def_static("flha_full",
+            py::overload_cast<const WCoefId&, QCDOrder, ContributionType>(&WCoefMapper::flha_full),
+            py::arg("id"), py::arg("order"), py::arg("type"));
+
+
+    py::class_<GroupMapper, std::shared_ptr<GroupMapper>>(m, "GroupMapper")
+        .def_static("str", py::overload_cast<WGroup>(&GroupMapper::str), py::arg("group"))
+        .def_static("str", py::overload_cast<WGroup, ScaleType, WilsonBasis>(&GroupMapper::str),
+                    py::arg("group"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD)
+
+        .def_static("enum_elt",     &GroupMapper::enum_elt_legacy,  py::arg("name"))
+        .def_static("get_str",      &GroupMapper::get_str)
+        .def_static("get_enum",     &GroupMapper::get_enum)
+        .def_static("get_str_all",  &GroupMapper::get_str_all)
+        .def_static("to_id",        &GroupMapper::to_id,        py::arg("name"))
+        .def_static("id_of",     &GroupMapper::id_of,     py::arg("name"))
+        .def_static("canonical", py::overload_cast<const WGroupId&>(&GroupMapper::str), py::arg("id"))
+        .def_static("str_id", py::overload_cast<const WGroupId&, ScaleType, WilsonBasis>(&GroupMapper::str),
+                    py::arg("id"), py::arg("scale"), py::arg("basis") = WilsonBasis::B_STANDARD)
+        .def_static("register_custom",
+            [](const std::string& canonical, const std::vector<std::string>& aliases, py::object ext) {
+                std::optional<std::string> opt_ext = std::nullopt;
+                if (!ext.is_none()) {
+                    opt_ext = ext.cast<std::string>();
+                }
+                return GroupMapper::register_custom(canonical, aliases, opt_ext);
+            },
+            py::arg("canonical"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("external") = py::none());
+
+
+    py::class_<ScaleTypeMapper, std::shared_ptr<ScaleTypeMapper>>(m, "ScaleTypeMapper")
+        .def_static("str",        py::overload_cast<ScaleType>(&ScaleTypeMapper::str), py::arg("type"))
+        .def_static("enum_elt",   &ScaleTypeMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",    &ScaleTypeMapper::get_str)
+        .def_static("get_enum",   &ScaleTypeMapper::get_enum)
+        .def_static("get_str_all",&ScaleTypeMapper::get_str_all)
+        .def_static("block",      &ScaleTypeMapper::block, py::arg("type"))
+        .def_static("id_of",      &ScaleTypeMapper::id_of, py::arg("name"))
+        .def_static("canonical",  py::overload_cast<const ScaleTypeId&>(&ScaleTypeMapper::str), py::arg("id"));
+
+
+    py::class_<CustomObservableSpec>(m, "CustomObservableSpec")
+        .def(py::init<>())
+        .def(py::init([](const std::string& canonical,
+                         const std::vector<std::string>& aliases,
+                         py::object ext)
+        {
+            CustomObservableSpec spec;
+            spec.canonical = canonical;
+            spec.aliases = aliases;
+            spec.ext = optional_lhaid_from_py(ext);
+            return spec;
+        }),
+            py::arg("canonical"),
+            py::arg("aliases") = std::vector<std::string>{},
+            py::arg("ext") = py::none())
+        .def_readwrite("canonical", &CustomObservableSpec::canonical)
+        .def_readwrite("aliases",   &CustomObservableSpec::aliases)
+        .def_readwrite("ext",       &CustomObservableSpec::ext);
+
+    py::class_<DecayMapper, std::shared_ptr<DecayMapper>>(m, "DecayMapper")
+        .def_static("str",
+            py::overload_cast<Decays>(&DecayMapper::str),
+            py::arg("decay"))
+        .def_static("enum_elt_legacy", &DecayMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("enum_elt",        &DecayMapper::enum_elt_legacy, py::arg("name"))
+        .def_static("get_str",         &DecayMapper::get_str)
+        .def_static("get_enum",        &DecayMapper::get_enum)
+        .def_static("get_str_all",     &DecayMapper::get_str_all)
+
+        .def_static("to_id",
+            py::overload_cast<Decays>(&DecayMapper::to_id),
+            py::arg("decay"))
+        .def_static("id_of",        &DecayMapper::id_of, py::arg("name"))
+        .def_static("enum_elt_dynamic", &DecayMapper::id_of, py::arg("name"))
+        .def_static("canonical",
+            py::overload_cast<const DecayId&>(&DecayMapper::str),
+            py::arg("id"))
+        .def_static("from_external", &DecayMapper::from_external, py::arg("lha"))
+        .def_static("external_of",   &DecayMapper::external_of,   py::arg("id"))
+        .def_static("set_external",  &DecayMapper::set_external,  py::arg("id"), py::arg("lha"))
+
+        .def_static("get_observables",
+            py::overload_cast<Decays>(&DecayMapper::get_observables),
+            py::arg("decay"))
+        .def_static("get_observables",
+            py::overload_cast<const DecayId&>(&DecayMapper::get_observables),
+            py::arg("decay"))
+        .def_static("get_observables_by_name",
+            [](const std::string& decay_name) {
+                return DecayMapper::get_observables(std::string_view(decay_name));
+            },
+            py::arg("decay"))
+        .def_static("get_observable_ids", &DecayMapper::get_observable_ids, py::arg("decay"))
+        .def_static("get_decay",         &DecayMapper::get_decay,          py::arg("observable"))
+        .def_static("get_decay_id",
+            py::overload_cast<const ObservableId&>(&DecayMapper::get_decay_id),
+            py::arg("observable"))
+        .def_static("get_decay_id",
+            py::overload_cast<Observables>(&DecayMapper::get_decay_id),
+            py::arg("observable"))
+        .def_static("get_decay_id_or_throw", &DecayMapper::get_decay_id_or_throw, py::arg("observable"))
+        .def_static("has_observables",       &DecayMapper::has_observables,       py::arg("decay"))
+        .def_static("require_observables",   &DecayMapper::require_observables,   py::arg("decay"))
+
+        .def_static("register_custom_with_observables",
+            [](const std::string& canonical,
+               const std::vector<CustomObservableSpec>& observables,
+               const std::vector<std::string>& aliases)
+            {
+                return DecayMapper::register_custom_with_observables(
+                    canonical,
+                    aliases,
+                    observables
+                );
+            },
+            py::arg("canonical"),
+            py::arg("observables"),
+            py::arg("aliases") = std::vector<std::string>{});
+ 
+    py::class_<LhaID>(m, "LhaID")
+    .def(py::init<const std::string&>(), py::arg("parts"))
+    .def(py::init<long>(), py::arg("id"))
+    .def(py::init<const std::vector<long>&>(), py::arg("sub_ids"))
+    .def(py::init<std::initializer_list<long>>(), py::arg("sub_ids"))
+    .def(py::init([](py::args args) {
+        std::vector<long> values;
+        for (auto& item : args) {
+            values.push_back(item.cast<long>());
+        }
+        return LhaID(values);
+    }), "Construct from multiple long arguments")
+
+    .def("to_string", &LhaID::to_string)
+    .def("get_parts", &LhaID::get_parts)
+
+    .def("__int__", [](const LhaID& self) { return static_cast<long>(self); })
+
+    .def("__repr__", [](const LhaID& self) {
+        return "<LhaID: " + self.to_string() + ">";
+    })
+
+    .def(py::self == py::self)
+    .def(py::self != py::self)
+    .def(py::self < py::self)
+
+    .def("__hash__", [](const LhaID& self) {
+        return std::hash<LhaID>{}(self);
+    });
+
+    py::class_<BlockName>(m, "BlockName")
+
+    .def(py::init<>())
+    .def(py::init<const std::string&>(), py::arg("name"))
+    .def(py::init<const char*>(), py::arg("name"))
+    .def(py::init<std::initializer_list<std::string>>(), py::arg("names"))
+    .def(py::init<const std::unordered_set<std::string>&>(), py::arg("names"))
+
+    .def("get_alias", &BlockName::get_alias)
+    .def("canonical", &BlockName::canonical, py::return_value_policy::copy)
+    .def("has_alias", &BlockName::hasAlias, py::arg("alias"))
+    .def("add_alias", &BlockName::addAlias, py::arg("alias"), py::return_value_policy::reference)
+    .def("to_string", &BlockName::to_string)
+    .def("to_upper", &BlockName::to_upper)
+
+    .def("__str__", &BlockName::to_string)
+    .def("__repr__", [](const BlockName& b) {
+        std::ostringstream oss;
+        oss << "<BlockName: ";
+        bool first = true;
+        for (const auto& name : b.get_alias()) {
+            if (!first) oss << "/";
+            oss << name;
+            first = false;
+        }
+        oss << ">";
+        return oss.str();
+    })
+
+    .def(py::self == py::self)
+    .def(py::self != py::self)
+    .def(py::self < py::self)
+
+    .def("__eq__", [](const BlockName& self, const std::string& s) { return self == s; })
+    .def("__ne__", [](const BlockName& self, const std::string& s) { return self != s; })
+    .def("__eq__", [](const std::string& s, const BlockName& self) { return self == s; })
+    .def("__ne__", [](const std::string& s, const BlockName& self) { return self != s; })
+
+    .def("__hash__", [](const BlockName& b) {
+        return std::hash<BlockName>{}(b);
+    });
+
+    py::class_<ParamId>(m, "ParamId")
+    .def(py::init<>())
+    .def(py::init<const BlockName&, const LhaID&>(), py::arg("block"), py::arg("code"))
+    .def(py::init<ParameterType, const BlockName&, const LhaID&>(), py::arg("type"), py::arg("block"), py::arg("code"))
+
+    .def_readwrite("type", &ParamId::type)
+    .def_readwrite("block", &ParamId::block)
+    .def_readwrite("code", &ParamId::code)
+
+    .def("set_parameter_type", &ParamId::set_parameter_type)
+
+    .def(py::self == py::self)
+    .def(py::self < py::self)
+
+    .def("__repr__", [](const ParamId& pid) {
+        std::ostringstream oss;
+        oss << "<ParamId: " << pid.block << ":" << pid.code;
+        if (pid.type.has_value()) {
+            oss << ", type=" << static_cast<int>(pid.type.value());
+        } else {
+            oss << ", type=None";
+        }
+        oss << ">";
+        return oss.str();
+    })
+
+    .def("__hash__", [](const ParamId& pid) {
+        return std::hash<ParamId>{}(pid);
+    });
+
+    py::class_<ParamSrc>(m, "ParamSrc", R"pbdoc(
+Read-only view passed to Python custom-Wilson matching callbacks.
+
+A ``ParamSrc`` is created by the C++ dependency engine from the ``ParamId``
+sources declared on a custom Wilson coefficient. It is intentionally non-owning
+and should only be used during the callback call.
+)pbdoc")
+        .def("has", &ParamSrc::has, py::arg("pid"),
+             R"pbdoc(Return whether the requested parameter is available.)pbdoc")
+        .def("get_val", py::overload_cast<const ParamId&>(&ParamSrc::get_val, py::const_), py::arg("pid"),
+             R"pbdoc(Return a parameter value by full ``ParamId``.)pbdoc")
+        .def("get_val", py::overload_cast<ParameterType, std::string_view, int>(&ParamSrc::get_val, py::const_),
+             py::arg("type"), py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a typed parameter value by block and integer code.)pbdoc")
+        .def("size", [](const ParamSrc& src) { return src.raw().size(); },
+             R"pbdoc(Number of parameters in this callback view.)pbdoc");
+
+    py::class_<BlockSrc>(m, "BlockSrc", R"pbdoc(
+Read-only view passed to Python custom-Wilson running callbacks.
+
+A ``BlockSrc`` exposes dependent and input blocks needed by a running lambda.
+The object is non-owning and should only be used during the callback call.
+)pbdoc")
+        .def("has_block", &BlockSrc::has_block, py::arg("block"),
+             R"pbdoc(Return whether a source block is present.)pbdoc")
+        .def("get_val", py::overload_cast<std::string_view, int>(&BlockSrc::get_val, py::const_),
+             py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a block value by integer code.)pbdoc")
+        .def("get_val", py::overload_cast<std::string_view, const LhaID&>(&BlockSrc::get_val, py::const_),
+             py::arg("block"), py::arg("code"),
+             R"pbdoc(Return a block value by full ``LhaID``.)pbdoc")
+        .def("size", [](const BlockSrc& src) { return src.raw().size(); },
+             R"pbdoc(Number of source blocks in this callback view.)pbdoc");
+
+
+    py::class_<DependenciesHelper, std::shared_ptr<DH>>(m, "DependenciesHelper")
+    .def_static(
+        "get_allowed_parameters",
+        py::overload_cast<Observables>(&DH::get_allowed_parameters),
+        py::arg("obs")
+    )
+    .def_static(
+        "get_allowed_parameters_from_id",
+        py::overload_cast<ObservableId>(&DH::get_allowed_parameters),
+        py::arg("obs_id")
+    )
+    .def_static(
+        "is_param_allowed",
+        py::overload_cast<Observables, ParamId>(&DH::is_param_allowed),
+        py::arg("obs"),
+        py::arg("param")
+    )
+    .def_static(
+        "is_param_allowed_from_id",
+        py::overload_cast<ObservableId, ParamId>(&DH::is_param_allowed),
+        py::arg("obs_id"),
+        py::arg("param")
+    );
+
+    py::class_<LhaParamsHelper, std::shared_ptr<LhaParamsHelper>>(m, "LhaParamsHelper")
+        .def_static("get_minimal_content", &LhaParamsHelper::get_minimal_content, py::arg("block_name"));
+
+
+    py::class_<WilsonBuildConfig>(m, "WilsonBuildConfig")
+        .def(py::init<>())
+        .def_readwrite("groups", &WilsonBuildConfig::groups)
+        .def_readwrite("matching_scale", &WilsonBuildConfig::matching_scale)
+        .def_readwrite("hadronic_scale", &WilsonBuildConfig::hadronic_scale)
+        .def_readwrite("order", &WilsonBuildConfig::order);
+    
+    py::class_<WilsonRequest>(m, "WilsonRequest")
+        .def(py::init<WGroup, WCoef, QCDOrder, ContributionType, ScaleType, bool>(),
+             py::arg("group"), py::arg("coefficient"), py::arg("order"),
+             py::arg("contribution"), py::arg("scale_type"), py::arg("sum_qcd_orders"))
+        .def(py::init<WGroupId, WCoefId, QCDOrder, ContributionType, ScaleType, bool>(),
+             py::arg("group"), py::arg("coefficient"), py::arg("order"),
+             py::arg("contribution"), py::arg("scale_type"), py::arg("sum_qcd_orders"))
+        .def_readwrite("group", &WilsonRequest::group)
+        .def_readwrite("coefficient", &WilsonRequest::coefficient)
+        .def_readwrite("order", &WilsonRequest::order)
+        .def_readwrite("contribution", &WilsonRequest::contribution)
+        .def_readwrite("scale_type", &WilsonRequest::scale_type)
+        .def_readwrite("sum_qcd_orders", &WilsonRequest::sum_qcd_orders);
+    
+    py::class_<AbstractConfig>(m, "AbstractConfig"); 
+
+    py::class_<AlphasConfig, AbstractConfig>(m, "AlphasConfig")
+        .def(py::init<double, MassType, MassType>(), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
+        .def_readwrite("scale", &AlphasConfig::scale)
+        .def_readwrite("m_b_type", &AlphasConfig::m_b_type)
+        .def_readwrite("m_t_type", &AlphasConfig::m_t_type);
+
+    py::class_<MassConfig, AlphasConfig>(m, "MassConfig")
+        .def(py::init<int, double, MassType, MassType>(), py::arg("pdg_id"), py::arg("scale"), py::arg("m_b_type"), py::arg("m_t_type"))
+        .def_readwrite("pdg_id", &MassConfig::pdg_id);
+
+    py::class_<BinnedObservableId>(m, "BinnedObservableId")
+        .def(py::init<>())
+        .def(py::init<ObservableId>(), py::arg("id"))
+        .def(py::init<ObservableId, std::pair<double,double>>(), py::arg("id"), py::arg("bin"))
+        .def_readwrite("s", &BinnedObservableId::s)
+        .def_readwrite("p", &BinnedObservableId::p)
+        .def("flha", &BinnedObservableId::flha)
+        .def_static("from_flha", &BinnedObservableId::from_flha, py::arg("id"))
+        .def("str", &BinnedObservableId::str)
+        .def("__str__", &BinnedObservableId::str)
+        .def("__repr__", [](BinnedObservableId const& x){
+            return std::string("BinnedObservableId(") + x.str() + ")";
+        })
+        .def(py::self == py::self)
+        .def(py::self < py::self);
+
+    py::implicitly_convertible<ObservableId, BinnedObservableId>();
+    py::class_<std::unordered_map<BinnedObservableId, double>>(m, "BinnedObservableIdDoubleMap");
+
+    m.attr("BinnedObservableId").attr("__hash__") = py::cpp_function(
+        [](BinnedObservableId const& x) -> std::size_t { return std::hash<BinnedObservableId>{}(x); },
+        py::is_method(m.attr("BinnedObservableId"))
+    );
+}

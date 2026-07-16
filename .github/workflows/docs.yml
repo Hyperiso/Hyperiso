@@ -1,0 +1,39 @@
+name: Documentation
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  doxygen:
+    name: Doxygen
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install documentation dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen graphviz
+
+      - name: Build Doxygen documentation
+        run: |
+          cd Hyperiso/Docs
+          rm -rf html
+          doxygen Doxyfile
+          test -s html/index.html
+          test "$(find html -type f | wc -l)" -gt 20
+
+      - name: Upload documentation artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: hyperiso-doxygen-html
+          path: Hyperiso/Docs/html
+          if-no-files-found: error

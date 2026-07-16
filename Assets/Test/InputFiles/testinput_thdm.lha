@@ -1,0 +1,48 @@
+##########################################################################
+# Sample LesHouches card input for 2HDMC
+#
+# If set, the calculator uses input from MINPAR(11)-(17) for the lambda
+# parameters, MINPAR(3) for tan(beta) and MINPAR(18) for m12_2. This
+# defines a "generic" basis. If tan(beta) is absent, it defines the Higgs
+# basis.
+# When no lambdas are specified, the input is taken from the MASS block
+# and is considered to be given in the physical basis. MINPAR(20) is then
+# used to give the required value for sin(beta-alpha).
+#
+##########################################################################
+Block MODSEL # Select Model
+    0   10     #  10 = THDM
+Block SMINPUTS  # Standard Model inputs
+    1        1.37036e+2   # 1/alpha_em(MZ) SM MSbar
+    2        1.1663787e-5   # G Fermi
+    3        0.1179   # alpha_s(MZ) SM MSbar
+    4        91.1876   # MZ
+    5        4.18   # mb(mb)
+    6        173.34   # mt (pole)
+    7        1.77693   # mtau(pole)
+Block MINPAR    # Model parameters
+# Parameters for general potential in generic basis
+    3        1.00000000e+01   # tan(beta)
+   11        1.13819e-01   # lambda_1
+   12        1.13819e-01   # lambda_2
+   13        7.43019e-02   # lambda_3
+   14       -2.12492e-01   # lambda_4
+   15        0.00000000e+00   # lambda_5
+   16        0.00000000e+00   # lambda_6
+   17        0.00000000e+00   # lambda_7
+   18        8.91089e+03   # m_12^2
+   24        4                   # Yukawas Type
+
+Block MASS      #  Mass spectrum (kinematic masses)
+#  PDG      Mass
+     1        4.7e-03   # Md
+     2        2.12e-03   # Mu
+     3        0.0935   # Ms
+     4        1.273000000e+00   # Mc
+     5        4.180000000e+00   # Mb
+     6        1.733400000e+02   # Mt
+    11        0.511e-3   # Me
+    13        0.105658   # Mmu
+    15        1.77693   # Mta
+    23        91.1876   # MZ
+    24        80.3692   # MW

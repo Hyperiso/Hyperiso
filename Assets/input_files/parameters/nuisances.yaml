@@ -1,0 +1,6 @@
+nuisances:
+  - block: "WILSON"
+    code: "2_3_5"
+    min_val: 0.5
+    max_val: 4.0
+    distribution: "flat"

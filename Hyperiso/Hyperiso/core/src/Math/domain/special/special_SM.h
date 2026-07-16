@@ -1,0 +1,457 @@
+#ifndef SPECIAL_SM_H
+#define SPECIAL_SM_H
+
+#include "scalar.h"
+#include "special_generic.h"
+#include "constants.h"
+
+/**
+ * @brief Computes the two-variable function H2(x, y).
+ * @param x First input.
+ * @param y Second input.
+ * @return Result of H2.
+ */
+double H2(double x, double y);
+
+/**
+ * @brief Computes the Passarino-Veltman scalar function B.
+ * @param m1 First mass.
+ * @param m2 Second mass.
+ * @param Q Energy scale.
+ * @return Result of the B function.
+ */
+double B(double m1, double m2, double Q);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient A0t.
+ * @param x Input parameter.
+ * @return Coefficient A0t(x).
+ */
+double A0t(double x);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient F0t.
+ * @param x Input parameter.
+ * @return Coefficient F0t(x).
+ */
+double F0t(double x);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient B0t.
+ * @param x Input parameter.
+ * @return Coefficient B0t(x).
+ */
+double B0t(double x);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient C0t.
+ * @param x Input parameter.
+ * @return Coefficient C0t(x).
+ */
+double C0t(double x);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient D0t.
+ * @param x Input parameter.
+ * @return Coefficient D0t(x).
+ */
+double D0t(double x);
+
+/**
+ * @brief Scalar one-loop Wilson coefficient E0t.
+ * @param x Input parameter.
+ * @return Coefficient E0t(x).
+ */
+double E0t(double x);
+
+/**
+ * @brief Wilson coefficient T(x).
+ * @param x Input parameter.
+ * @return Coefficient T(x).
+ */
+double T(double x);
+
+/**
+ * @brief Wilson coefficient A1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient A1t(x, l).
+ */
+double A1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient B1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient B1t(x, l).
+ */
+double B1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient C1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient C1t(x, l).
+ */
+double C1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient D1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient D1t(x, l).
+ */
+double D1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient E1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient E1t(x, l).
+ */
+double E1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient F1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient F1t(x, l).
+ */
+double F1t(double x,double l);
+
+/**
+ * @brief Wilson coefficient G1t depending on x and scale l.
+ * @param x Input parameter.
+ * @param l Logarithmic scale.
+ * @return Coefficient G1t(x, l).
+ */
+double G1t(double x, double l);
+
+/**
+ * @brief Wilson coefficient C7t at 2m_t scale.
+ * @param x Input parameter.
+ * @return Coefficient C7t(2m_t).
+ */
+double C7t2mt(double x);
+
+/**
+ * @brief Wilson coefficient C7c at M_W scale.
+ * @param x Input parameter.
+ * @return Coefficient C7c(M_W).
+ */
+double C7c2MW(double x);
+
+/**
+ * @brief Wilson coefficient C8t at 2m_t scale.
+ * @param x Input parameter.
+ * @return Coefficient C8t(2m_t).
+ */
+double C8t2mt(double x);
+
+/**
+ * @brief Wilson coefficient C8c at M_W scale.
+ * @param x Input parameter.
+ * @return Coefficient C8c(M_W).
+ */
+double C8c2MW(double x);
+
+/**
+ * @brief Wilson coefficient F7_1.
+ * @param x Input parameter.
+ * @return Coefficient F7_1(x).
+ */
+double F7_1(double x);
+
+/**
+ * @brief Wilson coefficient F7_2.
+ * @param x Input parameter.
+ * @return Coefficient F7_2(x).
+ */
+double F7_2(double x);
+
+/**
+ * @brief Wilson coefficient F8_1.
+ * @param x Input parameter.
+ * @return Coefficient F8_1(x).
+ */
+double F8_1(double x);
+
+/**
+ * @brief Wilson coefficient F8_2.
+ * @param x Input parameter.
+ * @return Coefficient F8_2(x).
+ */
+double F8_2(double x);
+
+/**
+ * @brief Wilson coefficient G3H depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient G3H(x, lu).
+ */
+double G3H(double x, double lu);
+
+/**
+ * @brief Wilson coefficient G4H depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient G4H(x, lu).
+ */
+double G4H(double x, double lu);
+
+/**
+ * @brief Wilson coefficient G7H depending on x, lu, and ld.
+ * @param x Input parameter.
+ * @param lu Upper log scale.
+ * @param ld Lower log scale.
+ * @return Coefficient G7H(x, lu, ld).
+ */
+double G7H(double x, double lu, double ld);
+
+/**
+ * @brief Wilson coefficient G8H depending on x, lu, and ld.
+ * @param x Input parameter.
+ * @param lu Upper log scale.
+ * @param ld Lower log scale.
+ * @return Coefficient G8H(x, lu, ld).
+ */
+double G8H(double x, double lu, double ld);
+
+/**
+ * @brief Wilson coefficient EH depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient EH(x, lu).
+ */
+double EH(double x, double lu);
+
+/**
+ * @brief Wilson coefficient D9H0 depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient D9H0(x, lu).
+ */
+double D9H0(double x, double lu);
+
+/**
+ * @brief Wilson coefficient D9H1 depending on x, lu, and L.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @param L Additional scale or parameter.
+ * @return Coefficient D9H1(x, lu, L).
+ */
+double D9H1(double x, double lu, double L);
+
+/**
+ * @brief Wilson coefficient Delta3H depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient Delta3H(x, lu).
+ */
+double Delta3H(double x, double lu);
+
+/**
+ * @brief Wilson coefficient Delta4H depending on x and lu.
+ * @param x Input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient Delta4H(x, lu).
+ */
+double Delta4H(double x, double lu);
+
+/**
+ * @brief Wilson coefficient Delta7H depending on x, lu, and ld.
+ * @param x Input parameter.
+ * @param lu Upper log scale.
+ * @param ld Lower log scale.
+ * @return Coefficient Delta7H(x, lu, ld).
+ */
+double Delta7H(double x, double lu, double ld);
+
+/**
+ * @brief Wilson coefficient Delta8H depending on x, lu, and ld.
+ * @param x Input parameter.
+ * @param lu Upper log scale.
+ * @param ld Lower log scale.
+ * @return Coefficient Delta8H(x, lu, ld).
+ */
+double Delta8H(double x, double lu, double ld);
+
+/**
+ * @brief Wilson coefficient C9llH0 depending on x, y, and lu.
+ * @param x First input parameter.
+ * @param y Second input parameter.
+ * @param lu Logarithmic scale.
+ * @return Coefficient C9llH0(x, y, lu).
+ */
+double C9llH0(double x, double y, double lu);
+
+/**
+ * @brief Wilson coefficient C9llH1 depending on x, y, lu, and L.
+ * @param x First input parameter.
+ * @param y Second input parameter.
+ * @param lu Logarithmic scale.
+ * @param L Additional scale or parameter.
+ * @return Coefficient C9llH1(x, y, lu, L).
+ */
+double C9llH1(double x, double y, double lu, double L);
+
+/**
+ * @brief Wilson coefficient C10Wt at 2m_t scale.
+ * @param x Input parameter.
+ * @return Coefficient C10Wt(2m_t).
+ */
+double C10Wt2mt(double x);
+
+/**
+ * @brief Wilson coefficient C10Wc at M_W scale.
+ * @param x Input parameter.
+ * @return Coefficient C10Wc(M_W).
+ */
+double C10Wc2MW(double x);
+
+/**
+ * @brief Wilson coefficient C10Zt at 2m_t scale.
+ * @param x Input parameter.
+ * @return Coefficient C10Zt(2m_t).
+ */
+double C10Zt2mt(double x);
+
+/**
+ * @brief Wilson coefficient C10Z from triangle diagrams.
+ * @param x Input parameter.
+ * @return Coefficient C10Z (triangle contribution).
+ */
+double C10Z2tri(double x);
+
+/**
+ * @brief Wilson coefficient F0SP depending on xt.
+ * @param xt Input parameter.
+ * @return Coefficient F0SP(xt).
+ */
+double F0SP(double xt);
+
+/**
+ * @brief Wilson special function S0 depending on xt.
+ * @param xt Input parameter.
+ * @return Value of S0(xt).
+ */
+double S0(double x);
+
+/**
+ * @brief Wilson special function D0 depending on 4 parameters.
+ * @param w Input parameter.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @param z Input parameter.
+ * @return Value of D0(w,x,y,z).
+ */
+double D0(double w, double x, double y, double z);
+
+
+/**
+ * @brief Wilson special function D2p depending on 4 parameters.
+ * @param w Input parameter.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @param z Input parameter.
+ * @return Value of D2p(w,x,y,z).
+ */
+double D2p(double w, double x, double y, double z);
+
+
+/**
+ * @brief Wilson special function getDelta.
+ * @param delta Input parameter.
+ * @param Z Input parameter.
+ * @param M Input parameter.
+ * @param m_av Input parameter.
+ * @param delta_LL Input parameter.
+ * @param delta_LR Input parameter.
+ * @param delta_RL Input parameter.
+ * @param delta_RR Input parameter.
+ * @return Value of getDelta.
+ */
+void getDelta(scalar_t delta[6][6],scalar_t Z[6][6],double M[6],double m_av,scalar_t delta_LL[3][3],scalar_t delta_LR[3][3],scalar_t delta_RL[3][3],scalar_t delta_RR[3][3]);
+
+/**
+ * @brief Wilson special function h3 depending on x.
+ * @param x Input parameter.
+ * @return Value of h3(x).
+ */
+double h3(double x);
+
+/**
+ * @brief Wilson special function h1 depending on x.
+ * @param x Input parameter.
+ * @return Value of h1(x).
+ */
+double h1(double x);
+
+/**
+ * @brief Wilson special function h4 depending on x and y.
+ * @param x Input parameter.
+ * @param y Input parameter.
+ * @return Value of h4(x,y).
+ */
+double h4(double x, double y);
+
+/**
+ * @brief Wilson special function f depending on x.
+ * @param x Input parameter.
+ * @return Value of f(x).
+ */
+double f(double x);
+
+double Y0(double xt);
+double Y1(double xt, double mu, double mass_W);
+double X0(double xt);
+double X1(double xt, double mu, double mass_W);
+
+// Digamma function for integer inputs
+double psi(int n);
+
+
+/*****************************************
+ *                                       *
+ *      Observable-related functions     *
+ *                                       *
+ *****************************************/
+
+// TODO : Docstring
+
+namespace BV {
+    complex_t A_Seidel  (double s_hat, double L_b);
+    complex_t B_Seidel  (double s_hat, double L_b);
+    complex_t C_Seidel  (double s, double mu_b);
+
+    complex_t f_17      (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_27      (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_27_u    (double s_hat, double L_b);
+    complex_t f_19_PS   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_19_1S   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_19_u    (double s_hat, double L_b);
+    complex_t f_29_PS   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_29_1S   (double s_hat, double L_b, double z, size_t max_pow=20);
+    complex_t f_29_u    (double s_hat, double L_b);
+    complex_t f_87      (double s_hat, double L_b);
+    complex_t f_89      (double s_hat);
+
+    complex_t h(double s, double m_q, double mu_b);
+    complex_t B_0(double s, double m_q);
+    complex_t L_1(complex_t x);
+    complex_t I_1(double u, double s_hat, double m_q_hat);
+    complex_t G(double x_bar, double z);
+    complex_t hard_kernel(double u, double z);
+    complex_t G2(double z, double L_b); 
+    complex_t G8(double L_b);
+
+}; // namespace BV
+
+namespace KP {
+    complex_t F(double z);
+    complex_t G(double z);
+    complex_t H(double z, double r_P);
+}; // namespace KP
+
+
+#endif // SPECIAL_SM_H

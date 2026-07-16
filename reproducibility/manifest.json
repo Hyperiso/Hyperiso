@@ -1,0 +1,79 @@
+{
+  "suite_name": "HyperIso CPC reference reproducibility suite",
+  "input": "reproducibility/inputs/sm_reference.flha",
+  "default_tolerances": {
+    "abs_tol": 1e-12,
+    "rel_tol": 1e-08
+  },
+  "examples": [
+    {
+      "id": "R1",
+      "description": "SM B-sector Wilson coefficients at matching and low scales",
+      "command": "hyperiso-ui wilson summary --model SM --lha reproducibility/inputs/sm_reference.flha --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 4.8 --order NNLO",
+      "stdout": "wilson_b_sm_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-08
+    },
+    {
+      "id": "R2",
+      "description": "Scalar Wilson coefficients in the BScalar group",
+      "command": "hyperiso-ui wilson summary --model SM --lha reproducibility/inputs/sm_reference.flha --groups BScalarCoefficients --coeffs CQ1_MU,CQ2_MU --qmatch 81 --q 4.8 --order LO",
+      "stdout": "wilson_bscalar_sm_lo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-08
+    },
+    {
+      "id": "R3",
+      "description": "Inclusive and leptonic observables",
+      "command": "hyperiso-ui observable summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --order NNLO",
+      "stdout": "observables_sm_nnlo.txt",
+      "abs_tol": 1e-14,
+      "rel_tol": 1e-08
+    },
+    {
+      "id": "R4",
+      "description": "Binned angular observable in a fixed q2 bin",
+      "command": "hyperiso-ui observable summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu --bins F_L_B0__K*0_mu_mu:1.1:6.0 --order NNLO",
+      "stdout": "observable_binned_fl_kstar_sm_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-08
+    },
+    {
+      "id": "R5",
+      "description": "MC uncertainty summary with fixed seed",
+      "command": "hyperiso-ui statistic summary --model SM --lha reproducibility/inputs/sm_reference.flha --observables BR_Bs__mu_mu,BR_B__Xs_gamma --uncertainties --draws 200 --seed 123456 --samples-csv reproducibility/outputs/statistics_samples.csv --order NNLO",
+      "stdout": "statistics_sm_seed123456.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 0.005,
+      "samples_csv": {
+        "file": "statistics_samples.csv",
+        "rows": 200,
+        "columns": [
+          "BR_B__Xs_gamma [0, 0]",
+          "BR_Bs__mu_mu [0, 0]"
+        ],
+        "minimum": 0.0,
+        "maximum": 1.0,
+        "abs_tol": 0.0,
+        "rel_tol": 1e-08
+      }
+    },
+    {
+      "id": "R6",
+      "description": "THDM BSM Wilson coefficients from an archived 2HDMC spectrum",
+      "command": "hyperiso-ui wilson summary --model THDM --lha reproducibility/inputs/thdm_reference.lha --spectrum true --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 81 --order NNLO",
+      "stdout": "wilson_b_thdm_spectrum_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-07
+    },
+    {
+      "id": "R7",
+      "description": "SUSY BSM Wilson coefficients from an archived SOFTSUSY spectrum",
+      "command": "hyperiso-ui wilson summary --model SUSY --lha reproducibility/inputs/susy_reference.slha --spectrum true --contribution BSM --groups BCoefficients --coeffs C7,C8,C9,C10 --qmatch 81 --q 81 --order NNLO",
+      "stdout": "wilson_b_susy_spectrum_nnlo.txt",
+      "abs_tol": 1e-12,
+      "rel_tol": 1e-07
+    }
+  ],
+  "hyperiso_version": "1.0.0"
+}

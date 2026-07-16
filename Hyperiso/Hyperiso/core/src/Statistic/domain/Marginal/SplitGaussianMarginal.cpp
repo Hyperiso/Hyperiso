@@ -1,0 +1,61 @@
+#include "SplitGaussianMarginal.h"
+
+SplitGaussianMarginal::SplitGaussianMarginal(double mu, double sigma_p, double sigma_m, unsigned int seed)
+    : mu(mu), sigma_p(sigma_p), sigma_m(sigma_m)
+{
+    N = 2.0 / (sigma_p + sigma_m);
+    w = sigma_m / (sigma_p + sigma_m);
+
+    gsl_rng_set(eng_.get(), seed);
+}
+
+std::vector<double> SplitGaussianMarginal::rvs(std::size_t n) {
+    std::vector<double> z(n);
+    for (std::size_t i = 0; i < n; ++i) 
+        z[i] = ppf(gsl_ran_flat(eng_.get(), 0, 1));
+    return z;
+}
+
+double SplitGaussianMarginal::logpdf(double x) {
+    double sigma_local = x > mu ? sigma_p : sigma_m;
+    // return std::log(N) - 0.5 * std::log(2 * PI) - 0.5 * std::pow((x - mu) / sigma_local, 2);
+    return -0.5 * std::pow((x - mu) / sigma_local, 2);
+}
+
+PDFDiff SplitGaussianMarginal::f_df_ddf(double x) {
+    double sigma_local = x > mu ? sigma_p : sigma_m;
+    double s2 = sigma_local * sigma_local;
+    double f = N / std::sqrt(2 * PI) * std::exp(-0.5 * std::pow((x - mu) / sigma_local, 2));
+    double df = -(x - mu) / s2 * f;
+    double ddf = ((std::pow(x - mu / sigma_local, 2)) - 1) * f / s2;
+
+    return {f, df, ddf};
+}
+
+double SplitGaussianMarginal::cdf(double x) {
+    if (x > mu) {
+        return 2 * w * gsl_cdf_gaussian_P((x - mu) / sigma_m, 1);
+    } else {
+        return w + 2 * (1 - w) * (gsl_cdf_gaussian_P((x - mu) / sigma_p, 1) - 0.5);
+    }
+}
+
+double SplitGaussianMarginal::ppf(double p) {
+    double u, s;
+    if (p > w) {
+        u = (1 - 2 * w + p) / (2 * (1 - w));
+        s = sigma_p;
+    } else {
+        u = p / (2 * w);
+        s = sigma_m;
+    }
+    return mu + s * gsl_cdf_gaussian_Pinv(u, 1);
+}
+
+double SplitGaussianMarginal::mean() {
+    return mu + std::sqrt(2 / PI) * (sigma_p - sigma_m);
+}
+
+double SplitGaussianMarginal::std() {
+    return std::sqrt((1 - 2 / PI) * std::pow(sigma_p - sigma_m, 2) + sigma_p * sigma_m);
+}

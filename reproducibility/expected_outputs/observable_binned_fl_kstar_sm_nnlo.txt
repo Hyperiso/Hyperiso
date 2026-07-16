@@ -1,0 +1,8 @@
+== Observable summary ==
+order=NNLO
+
+BR_Bs__mu_mu
+  BR_Bs__mu_mu = 3.2711e-09
+
+F_L_B0__K*0_mu_mu
+  F_L_B0__K*0_mu_mu = 0.76354 in [1.1, 6]

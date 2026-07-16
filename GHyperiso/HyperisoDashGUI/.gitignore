@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.DS_Store
+pyhyperiso_dash/data/uploaded_lha/*
+!pyhyperiso_dash/data/uploaded_lha/.gitkeep

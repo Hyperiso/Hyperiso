@@ -1,0 +1,59 @@
+repos:
+  - repo: local
+    hooks:
+      - id: ruff-check
+        name: Ruff lint
+        entry: ruff check
+        language: system
+        types: [python]
+        pass_filenames: false
+        args:
+          - Hyperiso/Hyperiso/pyhyperiso
+          - GHyperiso/HyperisoDashGUI
+          - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
+          - reproducibility/scripts
+          - reproducibility/tests
+          - tools
+
+      - id: ruff-format
+        name: Ruff format
+        entry: ruff format --check
+        language: system
+        types: [python]
+        pass_filenames: false
+        args:
+          - Hyperiso/Hyperiso/pyhyperiso
+          - GHyperiso/HyperisoDashGUI
+          - Hyperiso/Hyperiso/examples_python/plotting/legacy_scan_plot.py
+          - reproducibility/scripts
+          - reproducibility/tests
+          - tools
+
+      - id: metadata
+        name: Validate JSON, TOML and YAML
+        entry: python tools/validate_metadata.py
+        language: system
+        pass_filenames: false
+
+      - id: versions
+        name: Check release version consistency
+        entry: python tools/check_version_consistency.py
+        language: system
+        pass_filenames: false
+
+
+      - id: reproducibility-tests
+        name: Test reproducibility tooling
+        entry: python -m unittest discover -s reproducibility/tests -v
+        language: system
+        pass_filenames: false
+
+      - id: frozen-references
+        name: Validate frozen reproducibility references
+        entry: >-
+          python reproducibility/scripts/check_expected_outputs.py
+          --manifest reproducibility/manifest.json
+          --outputs reproducibility/expected_outputs
+          --expected reproducibility/expected_outputs
+        language: system
+        pass_filenames: false
