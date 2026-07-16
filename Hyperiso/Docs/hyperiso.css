@@ -1,0 +1,61 @@
+:root {
+  --hyperiso-accent: #238b57;
+  --hyperiso-accent-soft: rgba(35, 139, 87, 0.10);
+  --hyperiso-border: rgba(74, 92, 111, 0.24);
+}
+
+.hyperiso-hero {
+  margin: 0.8rem 0 1.4rem;
+  padding: 1.4rem 1.6rem;
+  border: 1px solid var(--hyperiso-border);
+  border-left: 5px solid var(--hyperiso-accent);
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--hyperiso-accent-soft), transparent 65%);
+}
+
+.hyperiso-hero h2 {
+  margin: 0.25rem 0 0.7rem;
+  font-size: 1.55rem;
+}
+
+.hyperiso-kicker {
+  color: var(--hyperiso-accent);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.hyperiso-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 0.8rem;
+  margin: 1rem 0 1.6rem;
+}
+
+.hyperiso-card {
+  padding: 0.95rem 1rem;
+  border: 1px solid var(--hyperiso-border);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.hyperiso-card b {
+  display: inline-block;
+  margin-bottom: 0.25rem;
+}
+
+.hyperiso-note {
+  margin: 1.1rem 0;
+  padding: 0.85rem 1rem;
+  border-left: 4px solid var(--hyperiso-accent);
+  background: var(--hyperiso-accent-soft);
+}
+
+.contents table.markdownTable {
+  width: 100%;
+}
+
+.contents img {
+  max-width: 100%;
+  height: auto;
+}
