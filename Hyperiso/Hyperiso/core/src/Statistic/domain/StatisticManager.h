@@ -95,7 +95,7 @@ struct AdvancedStatisticConfig {
     double MLE_profile_hessian_step_scale = 1.0;                         ///< Step scaling used by the numerical profile-Hessian fallback.
     double MLE_profile_hessian_eig_floor_rel = 1e-8;                     ///< Relative eigenvalue floor used to regularize the fallback Hessian.
 
-    StatisticLikelihoodMode likelihood_mode = StatisticLikelihoodMode::PROFILED_NUISANCE; ///< Likelihood mode used by compute_MLE().
+    StatisticLikelihoodMode likelihood_mode = StatisticLikelihoodMode::CHI2_MC_COVARIANCE; ///< Likelihood mode used by compute_MLE().
     double chi2_covariance_ridge_rel = 1e-8;                             ///< Relative diagonal ridge used before inverting chi-square covariance matrices.
     double chi2_covariance_ridge_abs = 1e-12;                            ///< Absolute diagonal ridge used before inverting chi-square covariance matrices.
 

@@ -232,7 +232,7 @@ class AdvancedStatisticConfig:
     MLE_profile_hessian_step_scale: float = 1.0
     MLE_profile_hessian_eig_floor_rel: float = 1e-8
 
-    likelihood_mode: StatisticLikelihoodMode = StatisticLikelihoodMode.PROFILED_NUISANCE
+    likelihood_mode: StatisticLikelihoodMode = StatisticLikelihoodMode.CHI2_MC_COVARIANCE
     chi2_covariance_ridge_rel: float = 1e-8
     chi2_covariance_ridge_abs: float = 1e-12
 
