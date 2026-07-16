@@ -82,7 +82,7 @@ jobs:
           python -m pip install build twine
           python -m build --sdist Hyperiso/Hyperiso --outdir dist
           python -m twine check --strict dist/*
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: sdist
           path: dist/*
@@ -103,7 +103,7 @@ jobs:
           python -m pip install --upgrade pip
           python -m pip install cibuildwheel==4.1.0
           python -m cibuildwheel Hyperiso/Hyperiso --output-dir wheelhouse
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: wheels
           path: wheelhouse/*
@@ -174,7 +174,7 @@ jobs:
               | xargs sha256sum \
               > SHA256SUMS
           )
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-files
           path: dist/*
