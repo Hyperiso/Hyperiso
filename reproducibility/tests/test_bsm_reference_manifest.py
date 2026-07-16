@@ -40,7 +40,13 @@ class BsmReferenceManifestTests(unittest.TestCase):
 
     def test_archived_input_hashes_match_metadata(self) -> None:
         """Input files must match the hashes recorded with the references."""
-        for filename, item in self.metadata["inputs"].items():
+        input_metadata = self.metadata.get("inputs")
+        self.assertIsInstance(input_metadata, dict)
+        expected_inputs = {
+            path.name for path in (REPRO / "inputs").iterdir() if path.is_file()
+        }
+        self.assertEqual(set(input_metadata), expected_inputs)
+        for filename, item in input_metadata.items():
             path = REPRO / "inputs" / filename
             digest = hashlib.sha256(path.read_bytes()).hexdigest()
             self.assertEqual(item["sha256"], digest)
