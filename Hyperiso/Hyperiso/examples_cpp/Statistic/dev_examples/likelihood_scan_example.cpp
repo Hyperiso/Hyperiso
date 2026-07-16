@@ -24,7 +24,7 @@ int main() {
 
     StatisticConfig sc;
     sc.MC_draws = 100;
-    sc.MLE_max_iter = 500;
+    sc.advanced.MLE_max_iter = 500;
 
     StatisticInterface si(sc, oi);
 
