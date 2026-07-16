@@ -10,8 +10,7 @@ def test_py_config_default_to_cpp():
 
     assert isinstance(cpp_cfg.flags, dict)
     for flag in ExternalFlag:
-        if flag != ExternalFlag.HYP_AS_SM_MARTY:
-            assert cpp_cfg.flags[flag.value] is False
+        assert cpp_cfg.flags[flag.value] is False
 
     assert cpp_cfg.model == Model.SM.value
     assert cpp_cfg.mty_model_name is None

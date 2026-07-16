@@ -27,7 +27,7 @@ struct HyperisoConfig {
         {ExternalFlag::IS_LHA_SPECTRUM, false},
         {ExternalFlag::HAS_WILSON_INPUT, false},
         {ExternalFlag::HAS_TH_OBSERVABLE_INPUT, false},
-        {ExternalFlag::HYP_AS_SM_MARTY, true}
+        {ExternalFlag::HYP_AS_SM_MARTY, false}
     };
 
     Model model {Model::SM};                    ///< Current model.

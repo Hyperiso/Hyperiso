@@ -61,7 +61,7 @@ class HyperisoConfig:
             ExternalFlag.IS_LHA_SPECTRUM: False,
             ExternalFlag.HAS_WILSON_INPUT: False,
             ExternalFlag.HAS_TH_OBSERVABLE_INPUT: False,
-            ExternalFlag.HYP_AS_SM_MARTY: True,
+            ExternalFlag.HYP_AS_SM_MARTY: False,
         }
     )
     model: Model = Model.SM
