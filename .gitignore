@@ -2,9 +2,9 @@
 *~
 build/
 *.vscode
-ExternalIntegration/SOFTSUSY
-ExternalIntegration/2HDMC
-ExternalIntegration/MARTY
+Third_party/SOFTSUSY
+Third_party/2HDMC
+Third_party/MARTY
 Test/build
 Test/output.lha
 Test/spectrum.slha
@@ -16,8 +16,25 @@ CMakeCache.txt
 superiso_v4.1/
 cmake_install.cmake
 output.slha
-test
 hyperiso
-app
 Docs/html
 Docs/latex
+test.py
+superiso_v4.1.zip
+DataBase/MartyWilson
+*/__pycache__
+logs/
+trash/
+DataBase/lha/*
+DataBase/Params/*
+__pycache__/
+Python/phyperiso/
+Assets/MartyTemp/*
+GHyperiso/.next
+GHyperiso/node_modules
+Hyperiso/Hyperiso/dist/*
+Hyperiso/Hyperiso/wheelhouse/*
+# Local release/build leftovers
+Assets/*.zip
+Assets/template/MARTY/* copy.cpp
+Hyperiso/Hyperiso/core/src/configured_files/

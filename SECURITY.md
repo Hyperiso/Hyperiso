@@ -1,21 +1,46 @@
 # Security Policy
 
-## Supported Versions
+## Supported versions
 
-Use this section to tell people about which versions of your project are
-currently being supported with security updates.
+HyperIso is active research software. Security fixes are provided for:
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 5.1.x   | :white_check_mark: |
-| 5.0.x   | :x:                |
-| 4.0.x   | :white_check_mark: |
-| < 4.0   | :x:                |
+| Version | Supported |
+|---|---|
+| `main` branch | Yes |
+| Latest tagged release | Yes |
+| Older releases | Best effort |
 
-## Reporting a Vulnerability
+Version 1.0.0 is the first stable release. Long-term support windows are not guaranteed.
 
-Use this section to tell people how to report a vulnerability.
+## Reporting a vulnerability
 
-Tell them where to go, how often they can expect to get an update on a
-reported vulnerability, what to expect if the vulnerability is accepted or
-declined, etc.
+Please do not open a public GitHub issue for vulnerabilities.
+
+Report security issues by email to the maintainers listed in the project metadata. Include:
+
+- affected version or commit;
+- operating system and compiler/Python version;
+- reproduction steps;
+- impact assessment;
+- whether the issue is public or under embargo.
+
+We aim to acknowledge valid reports within 7 days and to provide a remediation plan or status update within 30 days.
+
+## Scope
+
+Security-sensitive areas include:
+
+- LHA/SLHA/FLHA parsing;
+- YAML/JSON input loading;
+- generated code and MARTY integration;
+- file-system access in examples, GUI and scripts;
+- Python bindings that cross the C++/Python boundary;
+- Docker images and CI artifacts.
+
+## Implemented release hardening
+
+The repository uses CodeQL, OpenSSF Scorecard, Dependabot, C++ sanitizer
+configuration, strict pre-commit checks, frozen numerical references, SBOM
+generation and provenance attestations in the release workflow.
+
+Parser fuzzing and broader long-running numerical campaigns remain roadmap work.

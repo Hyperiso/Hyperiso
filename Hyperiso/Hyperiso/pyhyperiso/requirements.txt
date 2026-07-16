@@ -1,0 +1,3 @@
+# Runtime dependencies; prefer `pip install .` or `pip install -e .[test]`.
+numpy>=1.23
+matplotlib>=3.6

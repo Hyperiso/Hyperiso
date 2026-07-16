@@ -1,0 +1,19 @@
+{
+  "1": {
+    "2": {
+      "3": "wowow",
+      "4": "wowo2w",
+      "5": {
+        "newKey1": "newValue1",
+        "newKey2": 12345,
+        "newKey3": false
+      }
+    }
+  },
+  "level1": {
+    "level2": {
+      "ERER": "value",
+      "sdf": 42.5
+    }
+  }
+}

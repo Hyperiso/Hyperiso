@@ -1,0 +1,49 @@
+name: Reproducibility
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "Hyperiso/**"
+      - "reproducibility/**"
+      - ".github/workflows/reproducibility.yml"
+  pull_request:
+    branches: [main]
+    paths:
+      - "Hyperiso/**"
+      - "reproducibility/**"
+      - ".github/workflows/reproducibility.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: reproducibility-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  reference-suite:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev
+      - name: Test reproducibility tooling
+        run: python -m unittest discover -s reproducibility/tests -v
+
+      - name: Build release CLI
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_WITH_CLI=ON \
+            -DENABLE_TESTS=OFF
+          cmake --build build --parallel 2
+      - name: Compare R1-R7 with frozen references
+        run: |
+          HYPERISO_BIN="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
+          test -n "${HYPERISO_BIN}"
+          HYPERISO_BIN="${HYPERISO_BIN}" ./reproducibility/scripts/run_cli_suite.sh

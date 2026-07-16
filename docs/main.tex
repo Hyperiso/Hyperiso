@@ -1,0 +1,1829 @@
+%% This template can be used to write a paper for
+%% Computer Physics Communications using LaTeX.
+%% For authors who want to write a computer program description,
+%% an example Program Summary is included that only has to be
+%% completed and which will give the correct layout in the
+%% preprint and the journal.
+%% The `elsarticle' style is used and more information on this style
+%% can be found at
+%% http://www.elsevier.com/wps/find/authorsview.authors/elsarticle.
+%%
+%%
+\documentclass[preprint,11pt]{elsarticle}
+
+%% Use the option review to obtain double line spacing
+%% \documentclass[preprint,review,12pt]{elsarticle}
+
+%% Use the options 1p,twocolumn; 3p; 3p,twocolumn; 5p; or 5p,twocolumn
+%% for a journal layout:
+%% \documentclass[final,1p,times]{elsarticle}
+%% \documentclass[final,1p,times,twocolumn]{elsarticle}
+%% \documentclass[final,3p,times]{elsarticle}
+%% \documentclass[final,3p,times,twocolumn]{elsarticle}
+%% \documentclass[final,5p,times]{elsarticle}
+%% \documentclass[final,5p,times,twocolumn]{elsarticle}
+
+%% if you use PostScript figures in your article
+%% use the graphics package for simple commands
+%% \usepackage{graphics}
+%% or use the graphicx package for more complicated commands
+%% \usepackage{graphicx}
+%% or use the epsfig package if you prefer to use the old commands
+%% \usepackage{epsfig}
+
+%% The amssymb package provides various useful mathematical symbols
+\usepackage{amsmath,amssymb}
+\usepackage{graphicx}
+\usepackage{physics}
+\usepackage{centernot}
+\usepackage{enumitem}
+\usepackage{amsthm}
+%\usepackage{arydshln}
+%% The amsthm package provides extended theorem environments
+%% \usepackage{amsthm}
+
+%% The lineno packages adds line numbers. Start line numbering with
+%% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
+%% for the whole article with \linenumbers after \end{frontmatter}.
+%% \usepackage{lineno}
+
+%% natbib.sty is loaded by default. However, natbib options can be
+%% provided with \biboptions{...} command. Following options are
+%% valid:
+
+%%   round  -  round parentheses are used (default)
+%%   square -  square brackets are used   [option]
+%%   curly  -  curly braces are used      {option}
+%%   angle  -  angle brackets are used    <option>
+%%   semicolon  -  multiple citations separated by semi-colon
+%%   colon  - same as semicolon, an earlier confusion
+%%   comma  -  separated by comma
+%%   numbers-  selects numerical citations
+%%   super  -  numerical citations as superscripts
+%%   sort   -  sorts multiple citations according to order in ref. list
+%%   sort&compress   -  like sort, but also compresses numerical citations
+%%   compress - compresses without sorting
+%%
+%% \biboptions{comma,round}
+
+% \biboptions{}
+\usepackage{tabularx,booktabs,adjustbox,array}
+\usepackage{longtable}
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X} % X avec retours \\ permis
+
+% petit helper pour math inline en sécurité
+\newcommand{\m}[1]{\ensuremath{#1}}
+
+% une "carte" observable compacte
+\newcommand{\cellobs}[4]{%
+  \textbf{\m{#1}}\\
+  \emph{#2}\\
+  Coefs: \m{#3}\\
+  Obs.: \m{#4}%
+}
+\usepackage{adjustbox}
+\usepackage{siunitx}
+\sisetup{
+  round-mode = figures,
+  round-precision = 3,
+  % scientific-notation = true, % force a×10^b
+  exponent-product = \times,
+  % output-exponent-marker = \mathrm{e} % <- enlève cette ligne si tu veux strictement ×10^b (sans 'e')
+}
+
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,fit,calc}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage{xurl}
+\emergencystretch=2em
+\newcommand{\gev}{\giga\electronvolt}
+\newcommand{\fsl}[1]{{\centernot{#1}}}
+\newcommand\numberthis{\addtocounter{equation}{1}\tag{\theequation}}
+
+%% This list environment is used for the references in the
+%% Program Summary
+%%
+\newcounter{bla}
+\newenvironment{refnummer}{%
+\list{[\arabic{bla}]}%
+{\usecounter{bla}%
+ \setlength{\itemindent}{0pt}%
+ \setlength{\topsep}{0pt}%
+ \setlength{\itemsep}{0pt}%
+ \setlength{\labelsep}{2pt}%
+ \setlength{\listparindent}{0pt}%
+ \settowidth{\labelwidth}{[9]}%
+ \setlength{\leftmargin}{\labelwidth}%
+ \addtolength{\leftmargin}{\labelsep}%
+ \setlength{\rightmargin}{0pt}}}
+ {\endlist}
+
+\journal{Computer Physics Communications}
+
+\newcommand{\hi}{\texttt{HyperIso}}
+\newcommand{\spi}{\texttt{SuperIso}}
+\newcommand{\mty}{\texttt{MARTY}}
+
+\definecolor{myg}{RGB}{56, 140, 70}
+\newcommand{\NF}[1]{{\textcolor{myg}{NF: #1}}}
+
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{minted}
+
+\setminted{
+  linenos,
+  breaklines,
+  autogobble,
+  fontsize=\small
+}
+
+\usemintedstyle{friendly}
+
+\newtcblisting{cppcode}{
+  listing only,
+  listing engine=minted,
+  minted language=c++,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\newtcblisting{pycode}{
+  listing only,
+  listing engine=minted,
+  minted language=python,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\newtcblisting{terminal}{
+  listing only,
+  listing engine=minted,
+  minted language=bash,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\newtcblisting{jsoncode}{
+  listing only,
+  listing engine=minted,
+  minted language=json,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\newtcblisting{yamlcode}{
+  listing only,
+  listing engine=minted,
+  minted language=yaml,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\newtcblisting{lhacode}{
+  listing only,
+  listing engine=minted,
+  minted language=text,
+  colback=black!2,
+  colframe=black!20,
+  boxrule=0.3pt,
+  arc=1mm,
+  left=2mm,
+  right=2mm,
+  top=1mm,
+  bottom=1mm
+}
+
+\begin{document}
+
+\begin{frontmatter}
+
+%% Title, authors and addresses
+
+%% use the tnoteref command within \title for footnotes;
+%% use the tnotetext command for the associated footnote;
+%% use the fnref command within \author or \address for footnotes;
+%% use the fntext command for the associated footnote;
+%% use the corref command within \author for corresponding author footnotes;
+%% use the cortext command for the associated footnote;
+%% use the ead command for the email address,
+%% and the form \ead[url] for the home page:
+%%
+%% \title{Title\tnoteref{label1}}
+%% \tnotetext[label1]{}
+%% \author{Name\corref{cor1}\fnref{label2}}
+%% \ead{email address}
+%% \ead[url]{home page}
+%% \fntext[label2]{}
+%% \cortext[cor1]{}
+%% \address{Address\fnref{label3}}
+%% \fntext[label3]{}
+
+\title{\hi~ : A general BSM
+calculator for flavour
+observables}
+
+%% use optional labels to link authors explicitly to addresses:
+%% \author[label1,label2]{<author name>}
+%% \address[label1]{<address>}
+%% \address[label2]{<address>}
+
+\author[a]{Théo Reymermier\corref{author}}
+\author[a]{Niels Fardeau}
+\author[a,b]{Farvah Mahmoudi}
+
+\cortext[author] {Corresponding author.\\\textit{E-mail address:} t.reymermier@ip2i.in2p3.fr}
+\address[a]{Université Claude Bernard Lyon 1, CNRS/IN2P3, IP2I Lyon, UMR 5822, F-69622, Villeurbanne,
+France}
+\address[b]{Theoretical Physics Department, CERN, CH-1211 Geneva 23, Switzerland}
+
+\begin{abstract}
+%% Text of abstract
+We present \hi~, a new standalone program for the evaluation of flavour-physics observables across a wide variety of Standard Model (SM) and Beyond-the-Standard-Model (BSM) scenarios. The code builds on the physics heritage of \spi, but is implemented as a new modular software package with a modern C++ core and multiple user interfaces. In addition to native implementations for established scenarios such as the SM, the general Two-Higgs-Doublet Model (THDM), and supersymmetric models, \hi~ interfaces with the \mty~ framework to compute BSM Wilson coefficients at leading order. This design makes it possible to study user-defined BSM models while keeping the observable calculation, uncertainty propagation and statistical interpretation in a common backend. The software provides C++, Python, command-line and graphical interfaces. It supports the evaluation of key observables such as the branching ratios of \(B\to X_s\gamma\), \(B_s\to\mu^+\mu^-\), \(B\to\tau\nu_\tau\), \(K\to\mu\nu_\mu\), \(D_s\to\tau\nu_\tau\), and \(D_s\to\mu\nu_\mu\), among others, together with the muon anomalous magnetic moment \((g-2)\). Input can be provided through JSON/YAML configuration files and Les Houches Accord files, either supplied by the user or generated by external spectrum calculators. \hi~ therefore provides a flexible and extensible tool for flavour studies, phenomenological scans and the validation of BSM scenarios.
+\end{abstract}
+
+\begin{keyword}
+Flavour physics \sep Wilson coefficients \sep Beyond the Standard Model \sep Effective field theory \sep Scientific computing
+\end{keyword}
+\end{frontmatter}
+
+
+% All CPiP articles must contain the following
+% PROGRAM SUMMARY.
+
+\noindent \textbf{PROGRAM SUMMARY}
+
+\begin{small}
+\noindent
+{\em Program Title:} \hi~ \\
+{\em CPC Library link to program files:} (to be added by the Technical Editor) \\
+{\em Developer's repository link:} \url{https://github.com/HyperIso/HyperIso} (the immutable \texttt{v1.0.0} tag will identify the submitted code) \\
+{\em Licensing provisions:} GNU General Public License, version 3 or (at your option) any later version \\
+{\em Programming language:} C++20 and Python 3.10--3.12 \\
+{\em Supplementary material:} User and installation guides, generated API documentation, example LHA/SLHA/FLHA files, validation tables, benchmark data, reproducibility scripts and frozen numerical outputs. \\
+{\em Nature of problem:}\\
+Precision flavour observables constrain the Standard Model and a broad range of beyond-the-Standard-Model scenarios. Practical analyses require a consistent treatment of numerical inputs, Wilson coefficients at matching and low-energy scales, decay observables, experimental correlations, nuisance-parameter distributions and statistical fits. Existing programs often expose these tasks through model-specific or monolithic interfaces, which complicates reuse in new models and makes it difficult to keep C++, Python and command-line calculations numerically aligned. \hi~addresses this problem by providing a common computational backend for native Standard Model, two-Higgs-doublet and supersymmetric calculations, while retaining an optional route for user-defined models through externally generated Wilson coefficients. The software also supplies a layered input system and a release-level reproducibility suite so that benchmark calculations can be repeated from archived spectrum files without rerunning external spectrum generators. \\
+{\em Solution method:}\\
+\hi~uses a modular C++20 architecture with explicit ports and adapters for parameter loading, spectrum handling, Wilson-coefficient construction, observable evaluation and statistical inference. Distributed JSON files define the reference database, user YAML files provide controlled overrides, and LHA-family files supply model-dependent numerical inputs. Native Wilson-coefficient implementations support the Standard Model, THDM and SUSY paths at the perturbative orders available for each coefficient group. The same backend is exposed through C++, Python, a command-line interface and a graphical interface. Statistical routines combine nuisance marginals and correlations, propagate uncertainties by fixed-seed Monte Carlo sampling and provide chi-square-based profiling. The release archive includes deterministic SM cases and spectrum-file-based THDM and SUSY benchmarks; these use already generated spectra and therefore do not require 2HDMC or SOFTSUSY during reproduction. \\
+{\em Additional comments including restrictions and unusual features:}\\
+The generic \mty~backend is optional and must be installed separately. It is validated in this article against native calculations, but is deliberately excluded from the mandatory release reproducibility gate because a clean reproduction would otherwise depend on an external symbolic-software installation and its version. Native THDM and SUSY reference cases instead consume archived spectrum files with the \texttt{--spectrum} option. Generic BSM coefficients produced through \mty~are limited to the perturbative order implemented by that workflow. Features listed as experimental or unsupported in \texttt{KNOWN\_LIMITATIONS.md} are documented separately and fail explicitly where applicable. The fixed-seed 200-draw statistical example is a software non-regression test rather than a Monte Carlo convergence study. \\
+{\em Release metadata:} source release \texttt{v1.0.0}; final commit hash, software DOI and documentation URL to be inserted after the immutable release artefacts are created; PyPI package \texttt{pyhyperiso==1.0.0}. \\
+{\em External routines/libraries:} CMake, GSL, Eigen and pybind11; vendored 2HDMC and MinuitCpp; optional external \mty~and SOFTSUSY installations. \\
+{\em Operating systems and compilers tested:} Linux x86-64 on the release CI matrix; exact distribution, compiler and dependency versions are recorded in the frozen reference metadata. \\
+{\em Example input/output:} archived inputs and expected numerical outputs in \texttt{reproducibility/}. \\
+{\em Classification:} 11.1, 11.3, 11.6.
+\end{small}
+
+%\begin{small}
+%\noindent
+%{\em Program Title:}                                          \\
+%{\em CPC Library link to program files:} (to be added by Technical Editor) \\
+%{\em Developer's repository link:} (if available) \\
+%{\em Programming language:}                                   \\
+%{\em Supplementary material:}                                 \\
+  % Fill in if necessary, otherwise leave out.
+%{\em Journal reference of previous version:}*                  \\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Does the new version supersede the previous version?:}*   \\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Reasons for the new version:*}\\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Summary of revisions:}*\\
+  %Only required for a New Version summary, otherwise leave out.
+%{\em Nature of problem(approx. 50-250 words):}\\
+  %Describe the nature of the problem here. \\
+%{\em Solution method(approx. 50-250 words):}\\
+  %Describe the method solution here.
+%{\em Additional comments including restrictions and unusual features (approx. 50-250 words):}\\
+  %Provide any additional comments here.
+
+\section{Introduction}
+
+The study of flavor physics observables plays an important role in testing the SM and exploring potential extensions, such as SUSY, THDM, and other BSM scenarios. These observables, including branching ratios of rare decays and the muon anomalous magnetic moment \((g-2)\), provide sensitive probes of new physics effects. With increasing experimental precision at experiments like LHCb, Belle II and BaBar, theoretical tools capable of handling complex scenarios are essential for accurately constraining BSM scenarios by predicting observables in both standard and non-standard models and making statistical analysis.
+
+Existing software tools like \spi~have made significant strides in enabling such analyses. However, their scope is often limited to specific models, and their extensibility to novel theoretical models or new effective theories remains constrained. Furthermore, user interfaces in these tools are typically rigid, restricting accessibility for diverse users, from phenomenologists to experimentalists.
+
+To address these limitations, we present \hi~, a comprehensive software for evaluating flavor physics observables in arbitrary theoretical models and performing statistical analysis ($\chi^2$ computation). By leveraging the \mty~ framework for the computation of Wilson coefficients and using a C++ core, \hi~ provides an extensible and high-performance software. Additionally, it offers a Python interface, an API, and a GUI, ensuring accessibility for a broad user base, including phenomenologists and experimentalists. \hi~ is designed to handle inputs in the LHA format and supports seamless integration with existing particle physics tools, for spectrum calculation or performing scans over parameter space.
+
+In this paper, we describe the design, implementation, and functionality of \hi~, highlight the software architecture, public interfaces, validation strategy and reproducibility workflow, while referring to the original \spi~documentation for legacy formulae reused unchanged, and validate its performance and accuracy. By combining flexibility, usability, and precision, \hi~ establishes itself as a versatile tool for flavor physics studies.
+
+\section{Design goal and principles}
+
+\hi~ follows the main lines of the \textbf{hexagonal architecture}. The software is divided in multiples parts (Database, Wilson Coefficient Calculation, Observables calculation, etc.), each having its own architecture. An example with the Core part is given in Fig.\ref{fig:core_architecture}.
+
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/temp_core_archi.pdf}
+    \caption{Hexagonal architecture of the Core part of \hi~}
+    \label{fig:core_architecture}
+\end{figure}
+
+This architecture reduces coupling between modules and makes the physics, input, interface and numerical layers easier to test independently.
+\section{Software architecture}
+
+A high-level description of the \hi{} architecture and data flow is shown in Fig.~\ref{fig:hyperiso_data_flow}. The distributed JSON files provide the default numerical database used by the code, including SM inputs, QCD parameters, flavour parameters, nuisance distributions, observable definitions and correlations. These defaults are intended to define a reproducible reference setup and should not be edited directly by users.
+
+User-level modifications are provided through YAML override files. This mechanism is useful when a parameter value, uncertainty or distribution has to be updated to match a given experimental input, global fit or phenomenological convention. The override layer is deliberately separated from the distributed defaults so that scans can be reproduced by archiving only the user-provided YAML files and the LHA input.
+
+Model-specific parameters are supplied through LHA, SLHA or FLHA files \cite{Skands:2003cj,Allanach:2008qq,Mahmoudi:2010iz}. These files are loaded after the JSON defaults and YAML overrides; entries found in the LHA-family input therefore have the highest priority for overlapping quantities.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=1\linewidth]{Figures/hyperiso_data_flow.pdf}
+    \caption{Dataflow in the \hi~ software}
+    \label{fig:hyperiso_data_flow}
+\end{figure}
+
+\section{Program Description}
+
+\hi~ is a modular software tool designed for the computation of Wilson coefficients, flavour observables and statistical analyses. Its architecture is built around a C++ core following SOLID design principles, with several user-facing layers built on top of the same internal calculation pipeline.
+
+The program supports four complementary interfaces:
+\begin{itemize}
+    \item \textbf{C++ interface.} The native interface gives direct access to the core and is intended for developers or users who want to write custom \texttt{main} programs, implement new observables, or integrate \hi~ into a larger compiled workflow.
+    \item \textbf{Python interface.} The C++ core is exposed to Python through \texttt{pybind11}. This interface is intended for scripted scans, notebooks, automated comparisons and integration with Python-based phenomenological workflows.
+    \item \textbf{Terminal interface.} A command-line layer is provided for simple calculations and quick checks, without writing a dedicated C++ or Python driver.
+    \item \textbf{Graphical interface.} The GUI is based on Dash and targets interactive use. It gives access to Wilson-coefficient calculations, observable predictions, uncertainty estimates, best-fit routines based on MLE/MC with a $\chi^2$ statistic, and parameter-space exploration.
+\end{itemize}
+
+All interfaces are intended to rely on the same initialization pattern: a \texttt{\hi~Master()} object is created and initialized with a configuration file and an LHA input. This guarantees that the same parameter-loading rules, Wilson-coefficient pipeline and observable calculators are used independently of the chosen frontend.
+
+\section{Input structure and data conventions}
+\label{sec:input_structure}
+
+The numerical inputs of \hi~are stored in typed parameter blocks.  Whenever possible, block names and integer identifiers follow the FLHA convention; additional non-FLHA blocks use the same block--identifier logic with project-defined IDs.  The full catalogue of default blocks and custom identifiers is given in Appendix~\ref{app:block_structure}.  At runtime, the same block database is shared by the C++, Python, CLI and graphical interfaces.
+
+The input system is deliberately layered.  Distributed JSON files define the reference database used by a clean installation.  User YAML files may override selected entries, including their central value and uncertainty metadata.  Finally, the LHA/SLHA/FLHA spectrum file passed to \texttt{HyperisoMaster::init(...)} is applied as the model-specific numerical input.  This last layer has the highest priority for overlapping entries, but LHA-family files provide only the numerical value read from the spectrum block; they do not carry the separate statistical and systematic uncertainty fields used by the internal database.  The resulting precedence rule is summarized in Fig.~\ref{fig:input_precedence}.
+
+\begin{figure}[!ht]
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+  font=\small,
+  node distance=2.1cm,
+  source/.style={draw, rounded corners, align=center, minimum width=3.5cm, minimum height=1.25cm, fill=black!3},
+  cache/.style={draw, rounded corners, align=center, minimum width=4.0cm, minimum height=1.15cm, fill=black!7},
+  arrow/.style={-{Latex[length=3mm]}, thick}
+]
+\node[source] (defaults) {\textbf{1. JSON defaults}\\\texttt{Assets/default}\\central value + uncertainties};
+\node[source, right=2.3cm of defaults] (yaml) {\textbf{2. YAML overrides}\\user input files\\central value and/or uncertainties};
+\node[source, right=2.3cm of yaml] (lha) {\textbf{3. LHA/SLHA/FLHA}\\spectrum input\\central value only};
+\node[cache, below=1.55cm of yaml] (runtime) {\textbf{Runtime parameter cache}\\single value used by Wilson, observable and statistic modules};
+\draw[arrow] (defaults) -- node[above, align=center] {used if no\\override exists} (yaml);
+\draw[arrow] (yaml) -- node[above, align=center] {overridden by\\spectrum entry} (lha);
+\draw[arrow] (defaults.south) |- (runtime.west);
+\draw[arrow] (yaml.south) -- (runtime.north);
+\draw[arrow] (lha.south) |- (runtime.east);
+\end{tikzpicture}%
+}
+\caption{Input precedence in \hi.  JSON files provide the distributed reference database.  YAML files document user-level changes, including uncertainty metadata.  LHA-family files provide the final model-dependent central values and override matching entries in the runtime cache.}
+\label{fig:input_precedence}
+\end{figure}
+
+The JSON layer is intended to be version controlled with the code rather than edited for each scan.  A typical entry stores the central value and the uncertainty fields used by the statistical layer:
+\begin{jsoncode}
+{
+  "SMINPUTS": {
+    "6": {
+      "central_value": 172.69,
+      "stat_error": 0.30,
+      "syst_error": 0.40
+    }
+  }
+}
+\end{jsoncode}
+A YAML override has the same logical structure but is supplied by the user.  It is therefore a compact way of recording an alternative input convention without modifying the distributed defaults:
+\begin{yamlcode}
+SMINPUTS:
+  6:
+    central_value: 171.5
+    stat_error: 1.0
+    syst_error: 0.0
+\end{yamlcode}
+The corresponding value in a spectrum file follows the LHA-family syntax and overrides the runtime central value when the same block and identifier are present:
+\begin{lhacode}
+Block SMINPUTS
+    6   1.71500000E+02   # m_t
+\end{lhacode}
+In this case the LHA value becomes the active top-quark mass in the cache.  The uncertainty metadata remains controlled by the JSON/YAML database and by the statistical configuration.  YAML files are therefore best suited for non-LHA quantities, nuisance parameters, uncertainty models or explicit studies of alternative conventions.  LHA, SLHA and FLHA files are best suited for model-specific spectra and Wilson-coefficient inputs.
+
+For BSM models, the LHA parser can be extended before initialization through the \texttt{pre\_init} interface of \texttt{HyperisoMaster}.  This is useful when a model introduces spectrum blocks that are not part of the standard LHA/SLHA/FLHA prototypes.  The relevant call is
+\begin{cppcode}
+HyperisoMaster hyp;
+hyp.pre_init_add_block("SPECIAL_BLOCK",
+                       2,   // itemCount
+                       1,   // valueIdx
+                      -1,   // scaleIdx
+                      -1,   // rgIdx
+                      -1,   // binIdx
+                       false); // globalScale
+hyp.init("model_input.flha", config);
+\end{cppcode}
+The same method is exposed in Python as \texttt{pre\_init\_add\_block}.  Its arguments describe how a line of the custom block is mapped to an internal parameter entry; they are summarized in Table~\ref{tab:preinit_block_args}.  The column indices are zero-based, consistently with the internal \texttt{Prototype} representation.  The method should be called before \texttt{init()}, so that the first spectrum parsing already uses the custom prototype.
+
+\begin{table}[!ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.22\textwidth}p{0.16\textwidth}X@{}}
+\toprule
+\textbf{Argument} & \textbf{Default} & \textbf{Meaning} \\
+\midrule
+\texttt{blockName} & -- & Name of the custom LHA block.  The name is normalized to upper case before registration. \\
+\texttt{itemCount} & \texttt{2} & Total number of tokens expected on each data line of the block. \\
+\texttt{valueIdx} & \texttt{1} & Zero-based column index containing the numerical value to store. \\
+\texttt{scaleIdx} & \texttt{-1} & Optional zero-based column index for a local scale; \texttt{-1} means that no per-entry scale is present. \\
+\texttt{rgIdx} & \texttt{-1} & Optional zero-based column index for a renormalization or scheme identifier. \\
+\texttt{binIdx} & \texttt{-1} & Optional zero-based column index for binned entries; the parser uses it to encode bin information in the internal identifier. \\
+\texttt{globalScale} & \texttt{false} & Set to \texttt{true} when the block uses a global \texttt{Q=} scale in the block header. \\
+\bottomrule
+\end{tabularx}
+\caption{Arguments of the custom-block registration routine.  They define the LHA prototype used by the parser for BSM-specific blocks.}
+\label{tab:preinit_block_args}
+\end{table}
+
+Paths to external tools and writable runtime directories can also be registered before initialization.  The method \texttt{pre\_init\_set\_marty\_path} selects an existing \mty~installation, while \texttt{pre\_init\_set\_softsusy\_path} selects a \texttt{SOFTSUSY} executable or installation directory.  The lower-level \texttt{pre\_init\_set\_paths} routine overrides selected internal paths, such as the MARTY and spectrum-cache directories.  The active LHA path is intentionally excluded from this routine because it is supplied explicitly to \texttt{init()} or to the LHA-switching routine.
+
+\subsection{FLHA conventions for observables}
+
+We expand the FLHA convention \cite{Mahmoudi:2010iz} in order to account for all the observables defined in \hi~. For binned observables, six additional integer fields encode the optional lower and upper bounds of the $q^2$ bin in GeV, with three integer fields assigned to each edge. This avoids floating-point identifiers while keeping sub-GeV bin definitions reproducible. We also extend the observable-type field beyond the values defined in the original FLHA convention. The new ids are gathered in Table~\ref{tab:obs_ids}.
+
+\begin{table}[!h]
+    \centering
+    \begin{tabular}{ccc}
+        Id&Observable type&Ref.\\\hline\hline
+        \texttt{15}&Untagged BR&\\
+        \texttt{50}&$A_{FB}$ zero-crossing&\\
+        \texttt{51}&$A_{FB}^\ell$&\\
+        \texttt{52}&$A_{FB}^h$&\\
+        \texttt{53}&$A_{FB}^{\ell h}$&\\
+        \texttt{91ij}&$R_M=\frac{BR(B\to M\ell_i\ell_i)}{BR(B\to M\ell_j\ell_j)}$&\\
+        \texttt{92ij}&Polarization (pattern to be defined)&\\
+        \texttt{931}&$F_L$& \\
+        \texttt{932}&$F_T$& \\
+        \texttt{933}&$\alpha$& \\
+        \texttt{934}&$F_H$& \\
+        \texttt{941i}&$A_T^{(i)}$& \\
+        \texttt{9416}&$A_{T,\rm Re}$& \\
+        \texttt{9417}&$A_{T,\rm Im}$& \\
+        \texttt{942}&$A_{\rm Im}$& \\
+        \texttt{943i}&$H_T^{(i)}$& \\
+        \texttt{951i}&$P_i$& \\
+        \texttt{952i}&$P'_i$& \\
+        \texttt{953i}&$S_i$& \\
+    \end{tabular}
+    \caption{New type ids for FLHA observable convention.}
+    \label{tab:obs_ids}
+\end{table}
+
+\section{User guide and interfaces}\label{sec:user_guide}
+
+The public interfaces of \hi~are designed as lightweight frontends to the same calculation backend. They differ in the degree of interactivity and in the amount of control exposed to the user, but they all rely on the same initialization step: a \texttt{HyperisoMaster} object is created, an LHA input file is loaded, and a \texttt{HyperisoConfig} object fixes the model and runtime flags. This common entry point is important for reproducibility, since Wilson coefficients, observables and statistical routines then use the same parameter cache and the same precedence rules for default JSON values, YAML overrides and LHA inputs.
+
+\subsection{Overview of the user interfaces}
+
+The four user-facing layers are summarized in Table~\ref{tab:user_interfaces}. The command-line interface is intended for stable built-in workflows, whereas the Python and C++ interfaces expose the programmable API. In particular, custom decays, custom observables and dynamic Wilson groups are treated as API examples rather than as command-line primitives.
+
+\begin{table}[!ht]
+\centering
+\begin{adjustbox}{max width=\textwidth}
+\begin{tabularx}{\textwidth}{@{}p{0.13\textwidth}p{0.35\textwidth}p{0.44\textwidth}@{}}
+\toprule
+Interface & Typical use & Representative distributed examples \\
+\midrule
+C++ API & Native compiled workflows, integration in external C++ scans, development of custom observables or Wilson groups. & {\footnotesize\begin{tabular}[t]{@{}l@{}}\texttt{examples\_cpp/Core}\\\texttt{examples\_cpp/Wilson}\\\texttt{examples\_cpp/Observable}\\\texttt{examples\_cpp/Statistic}\end{tabular}} \\
+Python API & Interactive and scripted phenomenological analyses, notebooks, scans, post-processing and quick validation. & {\footnotesize\begin{tabular}[t]{@{}l@{}}\texttt{examples\_python/Core}\\\texttt{examples\_python/Wilson}\\\texttt{examples\_python/Observable}\\\texttt{examples\_python/Statistic}\end{tabular}} \\
+CLI & Reproducible built-in summaries of Wilson coefficients, observables and statistical uncertainties without writing a driver program. & {\footnotesize\begin{tabular}[t]{@{}l@{}}\texttt{hyperiso-ui wilson summary}\\\texttt{hyperiso-ui observable summary}\\\texttt{hyperiso-ui statistic summary}\end{tabular}} \\
+Dash GUI & Interactive exploration of model inputs, Wilson coefficients, observables, uncertainties, best-fit routines and parameter scans. & Graphical frontend built on top of the same Python/C++ backend. \\
+\bottomrule
+\end{tabularx}
+\end{adjustbox}
+\caption{Main user interfaces of \hi~and their intended use.}
+\label{tab:user_interfaces}
+\end{table}
+
+\subsection{Common initialization}
+
+The initialization step is deliberately minimal. In Python, the high-level controller is imported from \texttt{pyhyperiso.Core}; model and flag enums are imported from \texttt{pyhyperiso.Common}. The following example initializes a Standard Model run from the reference LHA file distributed with the code:
+
+\begin{pycode}
+from pyhyperiso.Common import Model
+from pyhyperiso.Core import HyperisoConfig, HyperisoMaster
+
+config = HyperisoConfig(model=Model.SM)
+hyp = HyperisoMaster()
+hyp.init(lha_file="lha/si_input.flha", config=config)
+\end{pycode}
+
+The corresponding C++ entry point follows the same structure:
+
+\begin{cppcode}
+#include "HyperisoMaster.h"
+#include "Include.h"
+
+HyperisoConfig config;
+config.model = Model::SM;
+
+HyperisoMaster hyp;
+hyp.init("lha/si_input.flha", config);
+\end{cppcode}
+
+The same configuration object also stores runtime flags and model-backend options:
+\begin{itemize}[leftmargin=1.5em]
+  \item spectrum and input flags, such as \texttt{IS\_LHA\_SPECTRUM}, \texttt{HAS\_WILSON\_INPUT} and \texttt{HAS\_TH\_OBSERVABLE\_INPUT};
+  \item MARTY backend flags, such as \texttt{HYP\_AS\_SM\_MARTY};
+  \item the backend model choice, selected with \texttt{Model.MARTY} in Python or \texttt{Model::MARTY} in C++;
+  \item the MARTY model name and file path, supplied through \texttt{mty\_model\_name} and \texttt{mty\_model\_path}.
+\end{itemize}
+External MARTY paths and extra non-FLHA blocks can be declared before initialization with the \texttt{pre\_init} routines described above.
+
+\subsection{Python interface}
+
+The Python interface exposes the main C++ functionality through \texttt{pybind11} bindings and thin high-level wrappers.  The most common modules are \texttt{pyhyperiso.Core}, \texttt{pyhyperiso.Wilson}, \texttt{pyhyperiso.Observable} and \texttt{pyhyperiso.Statistic}.  They respectively cover initialization and parameter access, Wilson coefficients, physical observables, and uncertainty propagation or fits.  The following compact example combines the Wilson and observable interfaces:
+
+\begin{pycode}
+from pyhyperiso.Common import (
+    Model, WGroup, WCoeff, QCDOrder,
+    ContributionType, ScaleType, WilsonBasis,
+    Observables, Decays
+)
+from pyhyperiso.Core import HyperisoConfig, HyperisoMaster
+from pyhyperiso.Wilson import WilsonBuildConfig, WilsonInterface, WilsonRequest
+from pyhyperiso.Observable import ObservableInterface
+
+hyp = HyperisoMaster()
+hyp.init(lha_file="lha/si_input.flha", config=HyperisoConfig(model=Model.SM))
+
+W = WilsonInterface()
+W.build(WilsonBuildConfig(
+    groups={WGroup.B}, matching_scale=81.0,
+    hadronic_scale=2.0, order=QCDOrder.LO
+))
+req = WilsonRequest(
+    group=WGroup.B, coefficient=WCoeff.C9, order=QCDOrder.LO,
+    contribution=ContributionType.TOTAL, scale_type=ScaleType.HADRONIC,
+    wilson_basis=WilsonBasis.STANDARD
+)
+print(W.get_FR(req))
+
+O = ObservableInterface()
+O.add_observable(Observables.BR_B_XS_GAMMA, QCDOrder.NNLO)
+O.add_observables_from_decay(Decays.B__l_l, QCDOrder.NNLO)
+print(O.compute_observable(Observables.BR_BS_MUMU))
+\end{pycode}
+
+For statistical studies, an \texttt{ObservableInterface} is first filled with the observables entering the fit. It is then passed to a \texttt{StatisticInterface} together with a \texttt{StatisticConfig}. The main public methods illustrated in the examples are \texttt{compute\_uncertainties()}, \texttt{compute\_MLE(...)} and \texttt{compute\_confidence\_contour(...)}, respectively used for Monte-Carlo uncertainty estimates, profiled best fits and two-dimensional confidence regions.
+
+\subsection{C++ interface}
+
+The C++ examples are built as independent executables against an installed \hi~package. A minimal build uses CMake and the exported targets of the library:
+
+\begin{terminal}
+mkdir -p build
+cd build
+cmake ..
+cmake --build .
+\end{terminal}
+
+The example CMake project calls \texttt{find\_package(Hyperiso REQUIRED)} and links to the relevant component targets, such as \texttt{Hyperiso::CoreLib}, \texttt{Hyperiso::PhysicalModelLib}, \texttt{Hyperiso::BusinessLogicLib} and, when available, \texttt{Hyperiso::StatisticLib}. The following C++ fragment shows the same Wilson-coefficient workflow as above:
+
+\begin{cppcode}
+#include <iostream>
+#include <unordered_set>
+
+#include "HyperisoMaster.h"
+#include "Include.h"
+#include "WilsonInterface.h"
+
+HyperisoConfig config;
+config.model = Model::SM;
+
+HyperisoMaster hyp;
+hyp.init("lha/si_input.flha", config);
+
+WilsonBuildConfig wc_config(
+    std::unordered_set<WGroup>{WGroup::B, WGroup::BScalar},
+    81.0, 2.0, QCDOrder::LO
+);
+
+WilsonInterface W;
+W.build(wc_config);
+std::cout << W.getFR(WGroup::B, WCoef::C9,
+                     QCDOrder::LO, ContributionType::TOTAL) << std::endl;
+\end{cppcode}
+
+Observable calculations are handled by \texttt{ObservableInterface}, using \texttt{add\_observable(...)} for individual observables, \texttt{add\_observables(...)} for complete decays and \texttt{BinnedObservableId} for binned quantities. The statistical API mirrors the Python workflow through \texttt{StatisticConfig}, \texttt{StatisticInterface}, \texttt{compute\_uncertainties()}, \texttt{compute\_MLE(...)} and \texttt{compute\_confidence\_contour(...)}. The more development-oriented examples, stored in \texttt{dev\_examples}, illustrate dynamic identifiers, lambda-defined Wilson groups, custom decays and diagnostic utilities.
+
+\subsection{Command-line interface}
+
+The command-line interface is provided by the \texttt{hyperiso-ui} executable. Since it is aimed at stable built-in workflows, it focuses on three families of summaries: Wilson coefficients, observables and statistical dependency or uncertainty estimates. The executable is enabled with the dedicated CLI build flag,
+
+\begin{terminal}
+cmake -S Hyperiso/Hyperiso/core -B build -DBUILD_WITH_CLI=ON
+cmake --build build --target hyperiso-ui -j
+\end{terminal}
+
+and accepts the common options \texttt{--model SM|THDM|MSSM|MARTY}, \texttt{--lha <file>} and \texttt{--order LO|NLO|NNLO}. For example, a compact Wilson-coefficient summary can be obtained with
+
+\begin{terminal}
+./build/hyperiso-ui wilson summary \
+  --groups BCoefficients \
+  --coeffs C7,C9,C10 \
+  --qmatch 81 \
+  --q 4.8 \
+  --order NNLO
+\end{terminal}
+
+while representative observable and statistics runs are
+
+\begin{terminal}
+./build/hyperiso-ui observable summary \
+  --observables BR_Bs__mu_mu,BR_B__Xs_gamma \
+  --order NNLO
+
+./build/hyperiso-ui statistic summary \
+  --observables BR_Bs__mu_mu,BR_B__Xs_gamma \
+  --chi2 --uncertainties --progress --draws 500 --seed 123456
+\end{terminal}
+
+Binned observables are passed through \texttt{--bins} using the syntax \texttt{OBS:min:max}, for example \texttt{F\_L\_B0\_\_K*0\_mu\_mu:1.1:6.0}. Help is available at the top level and for each command family through \texttt{hyperiso-ui --help}, \texttt{hyperiso-ui wilson --help}, \texttt{hyperiso-ui observable --help} and \texttt{hyperiso-ui statistic --help}.
+
+\subsection{Graphical interface}
+
+The Dash graphical interface provides a no-code route to the same workflows. It is mainly intended for exploratory use: the user selects the model configuration and LHA input, computes Wilson coefficients or observables, propagates uncertainties, launches MLE/Monte-Carlo fits with a $\chi^2$ backend, and scans selected parameters. Representative screenshots of the Wilson, observable, uncertainty and scan panels are distributed with the user documentation together with the corresponding CLI or Python commands used to reproduce the same calculations.
+
+
+\section{Theoretical Framework}
+
+Most of the theoretical calculations used in \hi~are detailed in \spi. In this section we merely recall the general framework in which the observables are calculated, and we detail the new statistical engine that is featured by \hi~.\smallbreak
+The computation of flavor observables is done within the weak effective field theory in which the heavy ($W,Z,h,t$ and any BSM particle with mass greater or equal to the $W$ boson) degrees of freedom are integrated out to yield an effective Hamiltonian. This Hamiltonian takes the form of a sum of effective operators with effective numerical coefficients, called \textit{Wilson coefficients} in front of them. For the $b\to s\gamma$ decays the relevant effective Hamiltonian reads \cite{Chetyrkin:1997gb}
+\NF{Check sign}
+\begin{equation}
+    \mathcal{H}(b\to sX) = -\frac{4 G_F}{\sqrt{2}} V_{tb}V_{ts}^*\sum_{i=1}^{8} C_i(\mu)\mathcal{O}_i(\mu)+\mathrm{h.c.},
+\end{equation}
+while for the $b\to s\ell\ell$ decays is includes semileptonic vectorial $\mathcal{O}_{9,10}$ and scalar $\mathcal{O}_{Q_1,Q_2}$ operators \cite{Yan:2000dc}. \hi~also implements other effective Hamiltonians for charged-current $P\to\ell\nu$ decays \cite{Sakaki:2013bfa}, where $P$ stands for any pseudoscalar meson, as well as $\Delta F=2$ neutral-meson mixing operators \cite{Aebischer:2020dsw} and $s\to d\nu\nu$ decays \cite{Brod:2010hi}. \smallbreak
+The Wilson coefficients are expanded perturbatively in the strong coupling strength,
+\begin{equation}
+    C_i(\mu) = \sum_{j=0}^\infty \left(\frac{\alpha_s(\mu)}{4\pi}\right)^j C_{i}^{(j)}(\mu),
+\end{equation}
+where in practice this expansion is known up to $j=2$.
+The Wilson coefficients are first calculated at at a scale $\mu_W\sim M_W$ by matching the full and the effective theories, and ran down to the hadronic scale $\mu_b\sim m_b$ (for $B$ meson decays) using the known renormalisation group equations (RGEs) \cite{Aebischer:2020dsw,Czakon:2006ss,Bobeth:2013tba}.
+
+In \hi~there are two ways to compute the Wilson coefficients. The SM, 2-HDM and MSSM contributions are natively implemented up to NNLO as legacy from \spi, and their calculation can be triggered by using the corresponding \texttt{Model} flag when initializing \texttt{HyperisoMaster}. In any model, one can also use \mty~to compute the LO BSM contribution to the Wilson coefficients. In this case the SM contribution can either be computed at LO using \mty~as well, or at NNLO using the analytical expressions from \spi~(recommended). This is triggered by using the \texttt{Model::MARTY} flag and the choice of the SM values is set by the flag \texttt{HYP\_AS\_SM\_MARTY}.
+
+\subsection{Observables}
+
+\hi~natively implements the most constraining flavour  observables, with particular emphasis on the $B$-meson decay channels measured at current flavour facilities. It also provides extension mechanisms for user-defined observables and effective coefficients. \smallbreak
+The base structure encapsulating all observable calculation mechanics is called \texttt{DecayParent}. This structure stores useful information such as the scale and QCD order at which the observable needs to be calculated, the Wilson coefficient groups it depends on, and it has internal methods to trigger the calculation of the appropriate Wilson coefficients. The \texttt{DecayParent} class also stores a polymorphic configuration structure, which can then be specified in derived decays to pass specific flags or attributes to the calculator. Each physical decay is then described by a derived class from \texttt{DecayParent} and implements the actual calculation of the observables related to this decay. Table~\ref{tab:decays} gives a compact overview of the main native decay families and representative observables, while a more detailed summary can be found in \ref{app:observable_catalogue}.\smallbreak
+Whenever a \texttt{DecayParent} subclass is asked to evaluate one of its observables, it first triggers the calculation of the needed Wilson coefficients at the right low-energy scale, then retrieves all the needed parameters from the core memory, and finally performs all the calculations using these inputs. Whenever possible, \hi~uses the GNU Scientific Library (GSL) \cite{gsl} in order to benefit from its optimized algorithms. In practice, most special functions, except for the highest-order polylogarithms, and all numerical integrals are evaluated using GSL.\smallbreak
+Notable changes from \spi~\texttt{v5.0} include
+\begin{itemize}
+    \item Generalized $P\to\ell\nu$ decay calculator (see \ref{app:plnu})
+    \item Generalized form-factor and QCD factorization calculators for all $B\to V$ and $B\to P$ neutral-current transitions ($V$ denotes any vector meson such as $K^*$ or $\phi$). This allows to remove duplicated code by centralizing common sub-calculations among similar decays.
+    \item Correction of several minor bugs or inconsistencies in the \spi~code base.
+\end{itemize}
+
+\begin{table}[!ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.20\textwidth}X X@{}}
+\toprule
+\textbf{Sector} & \textbf{Native decay families} & \textbf{Representative outputs} \\
+\midrule
+Rare and radiative $B$ decays &
+$B\to X_s\gamma$, $B\to X_s\ell\ell$, $B\to K^{(*)}\ell\ell$, $B_s\to\phi\ell\ell$, $\Lambda_b\to\Lambda\ell\ell$ &
+Branching fractions, differential rates, forward--backward asymmetries, angular coefficients and optimized observables. \\
+\addlinespace
+Leptonic and charged-current decays &
+$B_{s,d}\to\ell\ell$, $B_u\to\ell\nu$, $B\to D^{(*)}\ell\nu$ &
+Leptonic branching fractions, $R(D^{(*)})$, polarization and angular observables. \\
+\addlinespace
+Kaon, charm and mixing observables &
+$K\to\pi\nu\bar\nu$, $K_{L,S}\to\mu\mu$, $K\to\ell\nu$, $D_{(s)}\to\ell\nu$, neutral-meson mixing &
+Rare-kaon branching fractions, leptonic ratios, $D_{(s)}$ leptonic modes, mass differences and CP phases. \\
+\addlinespace
+Extensions &
+Custom decay and observable registration layer &
+User-defined observables attached to native or custom decay families. \\
+\bottomrule
+\end{tabularx}
+\caption{Compact overview of the main observable sectors natively covered by \hi~. A more detailed decay-by-decay catalogue is given in \ref{app:observable_catalogue}; the exact canonical identifiers are distributed with the observable mapper and can be queried through the public interfaces.}
+\label{tab:decays}
+\end{table}
+
+% \subsubsection{Neutral meson mixing: general view}
+% \subsubsection{$B_{s,d}^0-\overline{B_{s,d}^0}$ mixing}
+% The effective $\Delta F=2$ hamiltonian for $B_q^0$ oscillations reads
+% \begin{equation}
+%     \mathcal{H}^{\Delta F=2}_{\rm eff}=\frac{G_F^2M_W^2}{4\pi^2}\lambda_t^2C_1^q\mathcal{Q}_1^q\qc \lambda_t=V_{tq}^*V_{tb}
+% \end{equation}
+% In the following we use the usual convention for the expansion of Wilson coefficients in powers of the QCD coupling $\alpha_s$,
+% \begin{equation}
+%     C_1(\mu)=\sum_{k=0}^{n}\qty(\frac{\alpha_s(\mu)}{4\pi})^kC_1^{(k)}(\mu)+\mathcal{O}(\alpha_s^{n+1})
+% \end{equation}
+% In the SM, the only one effective operator contributing is,
+% \begin{equation}
+%     \mathcal{Q}_1=\qty(\bar q\gamma^\mu P_Lb)\qty(\bar q\gamma_\mu P_L b)\qc q=d,s.
+% \end{equation}
+% The associated Wilson coefficient is known up to NLO in QCD and reads at matching scale $\mu_W\sim m_W$,
+% \begin{equation}
+%     C_1^{(0)}(\mu_W)=S_0(x_t)\qc C_1^{(1)}(\mu_W)=S_{1t}(x_t)+F_{S,1}(x_t).
+% \end{equation}
+% Here $x_t=\bar m_t^2(\mu_W)/M_W^2$, $S_0$ is the Inami-Lim function \cite{Inami:1980fz}, and $S_{1t}$, $F_{S,1}$ are defined in \cite{Buras:1990fn}. Using the RGEs in the $\overline{\rm MS}$ scheme, we compute the values of these coefficients at $\mu_b\sim m_b$,
+% \begin{gather}
+%     C_1^{(0)}(\mu_b)=\eta^{6/23}C_1^{(0)}(\mu_W),\\
+%     C_1^{(1)}(\mu_b)=\eta\qty[\eta^{6/23}C_1^{(1)}(\mu_W)+\qty(\frac{7733}{1587}\eta^{6/23}+\frac{5165}{3174}\eta^{-17/23})C_1^{(0)}(\mu_W)],
+% \end{gather}
+% where $\eta=\alpha_s(\mu_W)/\alpha_s(\mu_b)$. The SM contribution to the $M_{12}^q$ mixing matrix element then reads
+% \begin{equation}
+%     M_{12}^q=\frac{1}{2m_{B_q}}C_1^q(\mu_b)\ev{\mathcal{Q}_1^q(\mu_b)},
+% \end{equation}
+% and we compute the matrix element $\ev{\mathcal{Q}_1^q}$ from the bag parameter $B_q^{(1)}$,
+% \begin{equation}
+%     \ev{\mathcal{Q}_1^q(\mu_b)}=\frac{2}{3}\qty(m_{B_q}f_{B_q})^2B_q^{(1)}(\mu_b).
+% \end{equation}
+
+\subsection{Statistics}
+One of the major improvements of \hi~ is found in its completely overhauled statistical engine. Most HEP softwares rely on gaussian approximation and $\chi^2$ statistics for their prediction and fitting routines. However, an increasing amount of experimental data is available with non-gaussian uncertainties, ranging from simple asymmetric split-gaussians $y={\bar y}^{\,+\sigma_+}_{\,-\sigma_-}$ to full likelihood profiles. We expect that taking a conservative gaussian estimate with the largest standard deviation (which \spi~among other does) leads to a decrease in the fit power by overestimating some uncertainties.
+
+The major difficulty that arises when one wants to take into account non-gaussian distributions is dealing with correlations properly. Indeed, correlation matrices given by experimental fits are calculated under the gaussian approximation, and only describe joint multivariate-normal distributions. If one wants to consider different marginal distributions for the individual components, one has to also change the way correlations are described. In \hi~, this is achieved using \textit{copulas}, which are mathematical tools which allow us to decouple the marginal distributions from the correlation structure of a random vector.
+
+Mathematically speaking, a \textit{copula} $C$ is a joint cumulative distribution function (CDF) of a $d$-dimensional random vector on $[0,1]^d$ with uniform $\mathcal{U}(0,1)$ marginals. These objects can be used to describe any multivariate probability distribution, as stated by Sklar's theorem~\cite{Sklar1959} \smallbreak
+\textbf{Theorem} (Sklar) Let $X=(X_1,\dots,X_d)\in \mathbb R^d$ be a random vector with joint CDF $F(x)=\mathbb{P}(X_1\leq x_1,\dots,X_d\leq x_d)$ and marginal CDFs $F_i(x_i)=\mathbb{P}(X_i\leq x_i)$. There exists a copula $C:[0,1]^d\to[0,1]$ such that
+\begin{equation}
+    F(x)=C(F_1(x_1),\dots,F_d(x_d)).
+\end{equation}
+If the marginal CDFs are continuous, then the copula $C$ is unique. Assuming existence of the derivatives, the joint probability density function (PDF) $h(x)$ of $X$ reads
+\begin{equation}
+    h(x)=\partial_1\dots\partial_dC(F_1(x_1),\dots,F_d(x_d))\prod_{i=1}^d F_i'(x_i).
+\end{equation}
+\smallbreak
+Using copulas, we will then be able to choose independently the marginal distributions of our input variables and their correlation structure. In practice, as experimental input correlation is often given in the form of a correlation matrix with an underlying gaussian assumption, we will use a gaussian copula to model the correlation. The gaussian copula has the following form, given a $d$-dimensional positive definite correlation matrix $R$:
+\begin{equation}
+    C(u)=\Phi_d(\Phi^{-1}(u_1),\dots,\Phi^{-1}(u_d)),
+\end{equation}
+where $\Phi_d$ is the joint CDF of a multivariate normal distribution with mean vector $0$ and covariance matrix $R$, and $\Phi^{-1}$ is the quantile function of the standard normal distribution.
+
+\subsubsection{Inputs}
+In order to perform its statistical evaluations, \hi~ takes the following inputs :
+\begin{enumerate}
+    \item The experimental measurements of the implemented observables, separated in a vector of expected values $\mathcal{O}_{\rm exp.}$ and an experimental covariance matrix $\Sigma_\mathcal{O}$ (gaussian assumption),
+    \item The central values $\eta_0$ and covariance matrix $\Sigma_\eta$ of the nuisance parameters if they are gaussian, else the marginal distribution of each nuisance parameter which can be either gaussian, split-gaussian or flat.
+\end{enumerate}
+The statistical distributions of both the nuisance parameters and the experimental observables are modelled using copulas taking into account the different marginal distributions and the global covariance of the parameters. This allows to relax the gaussian assumption while still modelling the correlations accurately. The central values and standard deviations of the experimental observables are stored in the \texttt{observables.json} asset file which should be overriden by adding entries in the \texttt{observables.yaml} file. Similarly, the correlations among experimental observables values are stored in the \texttt{observables\_corr}, and correlation among input parameters in the \texttt{parameters\_corr} files.
+\subsubsection{Observable prediction}
+Given a set of model/fit parameters $p$, \hi~ uses a Monte-Carlo sampling of the nuisance parameters distribution to evaluate the distribution of model predictions. \hi~ then computes the skewness of each marginal distribution corresponding to the various observables, and decides whether it can be assumed to be gaussian or not. If the skewness is below a user-defined threshold, set by the \texttt{skew\_abs\_threshold} parameter in the \texttt{StatisticConfig}, a gaussian approximation is made and the prediction for a given observable is
+\begin{equation}
+    \mathcal{O}_{\rm th}=\mu\pm s,
+\end{equation}
+where $\mu$ is the population mean of the distribution and $s$ is the unbiased population standard deviation. If the skewness is above the threshold, then the result is returned in the form of a split-gaussian distribution
+\begin{equation}
+    \mathcal{O}_{\rm th}=m^{+\sigma_+}_{-\sigma_-},
+\end{equation}
+with mode $m$, and asymmetric standard deviations $(\sigma_-,\sigma_+)$.\smallbreak
+This calculation is launched by the \texttt{compute\_observables\_uncertainties()} method of the \texttt{StatisticInterface} once the latter has been fully initialized with the desired observables. The number of Monte-Carlo samples drawn can be set in the \texttt{StatisticConfig} by changing the value of the \texttt{MC\_draws} parameter. Empirically, a value of \num{500} to \num{1000} samples has been observed to yield stable estimates for the observable uncertainties, while taking as few as 50 samples gives a usable central value and a rough estimate of the uncertainty.
+\subsubsection{Model fitting}
+Another use case of \hi~ is to perform a maximum-likelihood fit for some set of parameters $p$ (which can be model parameters, form factors, Wilson coefficients\dots), given a set of nuisance parameters $\eta$ with known statistical distribution. Such a fit is a solution to the constrained optimization problem
+\begin{equation}
+    \mathrm{argmin}\,\ell(p,\eta),
+\end{equation}
+where $\ell$ is a negative-log-likelihood function on the predicted values for the observables incorporating the constraint that the nuisance parameters $\eta$ cannot vary significantly outside of their confidence regions. In \hi~, we model our theoretical predictions by a function $f(p,\eta)$, and we define the log-likelihood function
+\begin{equation}
+    \ell(p,\eta)=\ell_{\mathcal O}(p,\eta)+\ell_{\eta}(\eta),
+\end{equation}
+where the first term corresponds to the log-likelihood of our prediction for the observables and the second term is a penalization term that blows up whenever the nuisance parameters take values outside of their confidence intervals. The prediction likelihood is modeled as a joint copula distribution of the residues $r(p,\eta)=f(p,\eta)-\mathcal{O}_{\rm exp}$, and the nuisance penalization likelihood is modeled as a separate copula distribution of the nuisances themselves, hence peaked at the central values of each. \smallbreak
+Then we implemented two distinct algorithms to manage the nuisance term and reduce the likelihood to a function $\tilde\ell(p)$ of the fit parameters only.
+The first one consists in profiling the general likelihood over the nuisances to find the best available combination of values for the nuisance parameters for a given set of fit parameters $p$
+\begin{equation}
+    \tilde\ell(p)=\min_{\eta}\ell(p,\eta).
+\end{equation}
+The second one consists in marginalizing the nuisance parameters by computing the (gaussian) covariance matrix $\Sigma_{\rm th}$ of the model prediction vector in the SM\footnote{Deviation of the model covariance from the SM has been tested to be small.}, adding it to the covariance matrix of the experimental data that is used to define the copula entering the expression of $\ell_{\mathcal O}$
+\begin{equation}
+    \tilde\ell(p)=\eval{\ell_{\mathcal{O}}(p,\eta_0)}_{\Sigma=\Sigma_{\rm exp}+\Sigma_{\rm th}}.
+\end{equation}
+Compared with the legacy \spi~approximation, where theory uncertainties were estimated from a first-order Taylor expansion of each observable, this mode keeps the full configured nuisance distributions at the sampling stage and only makes a Gaussian approximation at the level of the induced observable covariance.  It is therefore well suited for global scans and graphical-interface best-fit studies: the expensive nuisance propagation is amortised in the covariance construction, and the subsequent minimization involves only the parameters of interest.  It is complementary to the profiled-nuisance likelihood described above, which retains a more explicitly frequentist interpretation but is more expensive when the number of nuisance parameters is large.\smallbreak
+We use \texttt{MINUIT2}~\cite{James:1975dr} to perform the minimization of the log-likelihood and find the best fit point $\hat p$ along with the full covariance matrix around $\hat p$. Then, one can compute a 2-dimensional confidence contour for a given $z$ value. For this we make use of the Wilks approximation, stating that near the best fit point the likelihood behaves like a $\chi^2$ distribution, and we define the confidence contour as the set of points in 2-d space such that
+\begin{equation}
+    \Delta\ell(p_1,p_2)=\bar\ell(p_1,p_2)-\ell(\hat p)=\Delta\chi^2_n(z),
+\end{equation}
+where $\bar\ell(p_1,p_2)$ is a new log-likelihood function in which all fit parameters $p_\perp$ orthogonal to the $(p_1,p_2)$ plane have been integrated in some way, and $\Delta\chi_n^2(z)$ is the $n$-degrees of freedom chi-squared variation corresponding to a $z\sigma$ deviation from the best fit value. In \hi~we implemented three ways of integrating the orthogonal parameters :
+\begin{enumerate}
+    \item \texttt{SLICE}: The orthogonal parameters are fixed to their best-fit value, i.e. $\bar\ell(p_1,p_2)=\ell(p_1,p_2,\hat p_\perp)$
+    \item \texttt{PROJECTION\_FREE}: The likelihood is profiled over the orthogonal parameters which are let completely free, i.e. $\bar\ell(p_1,p_2)=\min_{p_\perp}\ell(p_1,p_2,p_\perp)$
+    \item \texttt{PROJECTION\_CONSTRAINED}: The likelihood is profiled over the orthogonal parameters which are constrained by a gaussian distribution built using the best fit information, i.e. $\bar\ell(p_1,p_2)=\min_{p_\perp}\qty[\ell(p_1,p_2,p_\perp)+\ell_\perp(p_\perp)]$ and $\ell_\perp(p_\perp)=(p_\perp-\hat p_\perp)^T\Sigma_\perp(p_\perp-\hat p_\perp)$.
+\end{enumerate}
+Another usual way of dealing with the orthogonal fit parameters is to fix them to their SM value, but this amounts to perform a 2-d fit only on $(p_1,p_2)$ in the first place, therefore it is not implemented separately in \hi. \smallbreak
+There are two contouring algorithms implemented in \hi: the first one uses the already existing algorithm in \texttt{MINUIT2} and the second one is an adaptive marching squares (AMS) algorithm. Although \texttt{MINUIT2}'s algorithm is usually faster, it is targeted at ellipsoidal contours around best-fit points which are not too far from the quadratic approximation. On the other hand, the general-purpose AMS algorithm is usually slower but works well for any contour topology.\smallbreak
+We demonstrate on fig. \ref{fig:contours_proj} the result of these three projections. We performed a 4-dimensional fit of new physics contributions $\delta C_9,\delta C_{10},\delta C_{Q_1},\delta C_{Q_2}$ to the CMS measurements of the angular distributions of  the $B^0\to {K^*}^0\mu^+\mu^-$ decay \cite{CMS:2024atz}. The best fit point in 4-d space is found to be coherent with \cite{Hurth:2025vfx}. As expected, the slice method yields the smallest confidence contour, while the unconstrained profiling yields the largest. The constrained profiling is theoretically bound to sit in between the other two, and will be closer to the slice contour the smallest the fit uncertainty is. Interestingly, the enlargement on this particular fit is only found in the right-handed $C_9+C_{10}$ direction, while no enlargement is found in the orthogonal left-handed $C_9-C_{10}$ direction.
+
+\begin{figure}[ht]
+    \centering
+    \includegraphics[width=0.75\linewidth]{Figures/contours_global_fit_4d.png}
+    \caption{Effect of the three projection methods on the $(C_9,C_{10})$ $1\sigma$ confidence level contour from a 4-dimensional fit including the scalar operators $C_{Q_1},C_{Q_2}$ to CMS measurements of the angular distributions of the $B^0\to {K^*}^0\mu^+\mu^-$ decay.}
+    \label{fig:contours_proj}
+\end{figure}
+
+% \NF{Sample code ?}
+
+% Then our algorithm works as follows :
+% \begin{enumerate}
+%     \item Compute the maximum-likelihood estimator $(\hat p,\hat\eta)$ for $p$ and $\eta$ by minimizing $\ell(p,\eta)$ :
+%     \begin{equation}
+%         (\hat p,\hat\eta)=\mathrm{argmin}\,\ell(p,\eta).
+%     \end{equation}
+%     \item For each value of $p$, compute the corresponding profiled likelihood $\tilde\ell(p)$ by minimizing $\ell$ only w.r.t. $\eta$ :
+
+%     \item Compute the test statistic $T(p)$ from the profiled likelihood and MLE :
+%     \begin{equation}
+%         T(p)=\tilde\ell(p)-\ell(\hat p,\hat\eta).
+%     \end{equation}
+%     \item Use $T(p)$ as a chi-squared estimator: the confidence region for $p$ is given at a confidence level $\alpha$ by
+%     \begin{equation}
+%         I_\alpha=\qty{p\,|\,T(p)\leq \chi^2_{n-1;1-\alpha}}.
+%     \end{equation}
+%     This is essentially Wilk's approximation provided the likelihood is not too far from gaussian around its minimum.
+% \end{enumerate}
+
+% \subsubsection{Chi-square likelihood with Monte-Carlo theory covariance}
+% \hi~also provides a compact $\chi^2$ backend for scans in which the nuisance parameters are not treated as explicit fit variables.  Instead, their effect is propagated once through the observable calculator.  For a fixed reference point, typically the Standard Model point or the central values of the fit parameters, nuisance parameters are drawn from their configured joint distribution and the selected observables are recomputed.  The empirical covariance of these predictions defines a theory covariance matrix, $\mathbf{\Sigma}_{\rm th}^{\rm MC}$, which is then added to the experimental covariance matrix,
+% \begin{equation}
+%     \mathbf{\Sigma}=\mathbf{\Sigma}_{\mathcal{O}}+
+%     \mathbf{\Sigma}_{\rm th}^{\rm MC}.
+% \end{equation}
+% The likelihood used in the fit is the corresponding quadratic form,
+% \begin{equation}
+%     -\log \mathcal{L}_{\chi^2}(p)
+%     =\frac{1}{2}\,\vec r(p)^{\,T}\mathbf{\Sigma}^{-1}\vec r(p),
+%     \qquad
+%     \vec r(p)=\vec f(p,\eta_0)-\vec{\mathcal{O}}_{\rm exp},
+%     \label{eq:chi2_backend}
+% \end{equation}
+% where $\eta_0$ denotes the central nuisance point used for the deterministic prediction during the minimization.  The covariance inversion is performed after symmetrising the matrix and adding a small ridge in correlation space, which stabilises fits involving strongly correlated observables or nearly degenerate experimental inputs.
+
+In the public API, this workflow is exposed by registering the selected observables in an \texttt{ObservableInterface} and passing it to the statistical layer together with the nuisance configuration.  The same observable vector can then be used for a central-value prediction, a Monte-Carlo theory covariance estimate, or a full profiled-likelihood calculation.  This avoids duplicating observable definitions between prediction and fitting workflows.
+
+% \subsection{Wilson coefficients and \mty~integration}
+
+% The Wilson-coefficient layer separates native implementations from generic model generation.  Native routines are provided for the SM, THDM and SUSY scenarios supported by the built-in backend, with the perturbative order selected according to the observable and coefficient group.  For user-defined BSM models, the \mty~interface generates the leading-order matching contribution and exports it to the same internal coefficient containers used by the native calculations.
+
+\subsection{Calculation workflow}
+
+The calculation workflow in \hi~is modular.  Short-distance effects are encoded in Wilson coefficients, as introduced in Section~\ref{sec:user_guide} and in the effective-Hamiltonian examples above.  The \texttt{PhysicalModel} layer manages the model-dependent short-distance part, while the \texttt{BusinessLogic} layer implements decay-specific long-distance quantities, observable projections and numerical integrations.  A typical computation therefore follows three steps: first the Wilson coefficients are computed or imported at the matching scale; second, the requested coefficients are evolved to the scale used by the decay calculator; third, observables and statistical quantities are evaluated from the shared runtime parameter database.
+
+This framework accommodates both established scenarios, such as the SM, THDM and SUSY models implemented natively, and new BSM models interfaced through \mty~at leading order.  In all cases, the observable and statistical layers receive the same coefficient objects, which keeps validation and interface behaviour independent of the origin of the short-distance input.
+
+\section{Validation \& benchmarks}
+
+The validation of \hi~has two main goals: to compare the native hard-coded calculations with \spi~for the common SM, THDM and SUSY benchmarks, and to compare the native route with the \mty-based route on models available in both workflows.
+
+
+\subsection{Validation of \spi~legacy}
+
+In order to validate the new \hi~framework, we first compared the hard-coded calculations with \spi~for the models available in the legacy code.  Since the model dependence enters primarily through the short-distance coefficients, the first validation step is a direct comparison of Wilson coefficients at matching scale.  The long-distance observables are then checked separately in the SM, where the calculation is faster and the observable implementation is model independent once the Wilson coefficients are fixed.
+
+Table~\ref{tab:comparison_superiso_B} shows the comparison for the standard \(B\)-sector coefficients.  The SM, THDM and SUSY benchmarks are displayed as stacked blocks rather than parallel column groups, which keeps the numerical entries readable while preserving the same information.  The full set of coefficients used in the validation, including scalar and primed operators, is reported in App.~\ref{app:extended_validation_tables}.  The relative differences remain below the per-mille level in the displayed benchmark, confirming that the native \hi~implementation reproduces the corresponding \spi~short-distance calculation.  Additional comparisons were performed after QCD running to the low-energy scale and showed agreement with \spi~within numerical precision.
+
+
+\begin{table}[!h]
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{adjustbox}{max width=0.72\textwidth}
+\begin{tabular}{lSSS}
+\hline
+\textbf{coefs} & \textbf{SI} & \textbf{HI} & \textbf{\%} \\
+\hline
+\multicolumn{4}{c}{\(\mu_W=\mathcal{O}(M_W)\)} \\
+\hline
+\multicolumn{4}{c}{\textbf{SM}} \\
+\hline
+C1 & 0.1583963453 & 0.1583963451 & 0 \\
+C2 & 1.001843983 & 1.001843983 & 0 \\
+C3 & -0.0002931687782 & -0.0002931687782 & 0 \\
+C4 & -0.003248811761 & -0.003247432028 & 0.042478 \\
+C5 & 3.386474459e-05 & 3.386879571e-05 & 0.011962 \\
+C6 & 6.349639566e-05 & 6.349639566e-05 & 0 \\
+C7 & -0.2107427536 & -0.2106774232 & 0.031005 \\
+C8 & -0.1151167202 & -0.1150915551 & 0.021863 \\
+C9 & 1.930302269 & 1.92962599 & 0.035041 \\
+C10 & -4.171695742 & -4.168626236 & 0.073606 \\
+\hline
+\multicolumn{4}{c}{\textbf{THDM}} \\
+\hline
+C1 & 0 & 0 & 0 \\
+C2 & 0 & 0 & 0 \\
+C3 & -3.723792155e-08 & -3.723792155e-08 & 0 \\
+C4 & 9.296889404e-06 & 9.296896376e-06 & 0.000075 \\
+C5 & 1.400574929e-08 & 1.400577667e-08 & 0.000195 \\
+C6 & 2.626083695e-08 & 2.626083695e-08 & 0 \\
+C7 & 0.0008007874546 & 0.0008004786918 & 0.038565 \\
+C8 & 0.0008704866784 & 0.0008704864666 & 0.000024 \\
+C9 & -0.0002778553141 & -0.0002778544545 & 0.000309 \\
+C10 & -0.004887954445 & -0.004887955214 & 0.000016 \\
+\hline
+\multicolumn{4}{c}{\textbf{SUSY}} \\
+\hline
+C1 & -5.594240306e-07 & -5.594240306e-07 & 0 \\
+C2 & 0 & 0 & 0 \\
+C3 & 4.9344336e-07 & 4.934424585e-07 & 0.000183 \\
+C4 & 4.003675142e-06 & 4.003666186e-06 & 0.000224 \\
+C5 & -4.44468528e-08 & -4.444694295e-08 & 0.000203 \\
+C6 & -8.333807436e-08 & -8.333798422e-08 & 0.000108 \\
+C7 & 0.0008455493107 & 0.0008451479372 & 0.047480 \\
+C8 & -0.0101108152 & -0.010110883 & 0.000671 \\
+C9 & 0.00588099578 & 0.005879457677 & 0.026157 \\
+C10 & 0.005718707991 & 0.00571869065 & 0.000303 \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Comparison between \spi~(SI) and \hi~(HI) for the standard \(B\)-sector Wilson coefficients at matching scale.  The three benchmark models are displayed in stacked blocks to improve readability.  The complete table, including scalar and primed coefficients, is given in App.~\ref{app:extended_validation_tables}.}
+\label{tab:comparison_superiso_B}
+\end{table}
+
+
+We compared the Wilson coefficients in all the models common to \spi~and \hi, namely the SM, THDM and SUSY benchmarks, using identical input parameters.  This establishes the consistency of the native \hi~implementation for the hard-coded legacy scenarios.
+
+We next compared the long-distance implementation. This being model independent, we only made the comparison in the SM. An example is given in Fig.\ref{fig:hyp_sup_comparison_BKstarGamma} for the angular observables $F_L$ and $P'_5$ of the $B\to K^*\mu\mu$ semileptonic decay as a function of the transferred momentum $q^2$. Excellent agreement is found for the central value and the uncertainty bands. This validates both the implementation of the observables in \hi~and the linear approximation made in \spi~for the estimation of uncertainties.
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=.499\linewidth]{Figures/F_L_sym_GRvDV_comp_si.jpg}\hfill
+    \includegraphics[width=.499\linewidth]{Figures/Pp_5_sym_GRvDV_comp_si.jpg}
+    \caption{Comparison between \spi~and \hi~for some $B\to K^*\mu\mu$ angular observables.}
+    \label{fig:hyp_sup_comparison_BKstarGamma}
+\end{figure}
+
+
+\subsection{Validation of \mty~'s interface}
+
+The second validation step is internal to \hi~and checks the agreement between the native hard-coded Wilson-coefficient implementation and the generic \mty-based route.  We perform this comparison on the SM and on a type-II THDM benchmark, using the same LHA input and the same normalization conventions.  The comparison is made at matching scale, where the Wilson coefficients are produced either by the native analytical implementation or by the \mty~workflow.  This is the relevant scale for validating the interface itself: after matching, the QCD evolution to the hadronic scale is performed by the same \hi~running code in both workflows.  The running part has already been validated against \spi~in the previous subsection.
+
+The present \mty~interface is used for the leading-order calculation.  We therefore restrict the direct native--\mty~comparison to LO coefficients.  Higher-order QCD corrections are not generated by \mty~in this workflow; they are instead part of the native \hi~implementation and of the common QCD-running stage.  In the tables we show only coefficients that are non-zero in at least one of the compared SM or type-II THDM BSM entries, after removing entries that are redundant for the displayed benchmark.  In particular, the printed tables keep the muonic scalar coefficients but omit the electron and tau scalar entries, and they do not list the full set of \(C^\prime_Q\) coefficients.  This keeps the comparison focused on the operators used in the reference phenomenological channels while the complete machine-readable export is kept in the validation files.
+
+It is important to note that the \mty-based route used here should not be interpreted as a one-to-one implementation of the dedicated matching procedure employed in \hi~or in \spi.  In the current interface, \mty~generates amplitudes which are then projected directly onto the effective-operator basis used by \hi.  This direct projection is sufficient to validate the normalization, basis conventions and the generic-model data flow, but it is not yet equivalent to a dedicated EFT matching calculation with all the convention-dependent rearrangements, projections and operator reductions implemented at the same level as in the native code.  Consequently, small but visible differences can appear for some coefficients, especially in sectors where the projection is numerically sensitive or where scalar and primed structures are involved.  A dedicated matching layer in \mty~is under development; once available, it is expected to provide a closer analogue of the native \hi/\spi~matching workflow and may be included in a future release.
+
+Table~\ref{tab:comparison_marty_B} summarizes the numerical comparison for the non-zero standard \(B\)-sector coefficients.  The complete set of displayed matching-scale entries, including the selected primed and scalar operators, is reported in App.~\ref{app:extended_validation_tables}.  For each coefficient we display only the SM contribution and the genuine type-II THDM contribution.  The total THDM coefficient is not shown as an independent column because it is obtained by summing the two displayed contributions.  We report the relative difference
+\begin{equation}
+  \delta_{\rm rel}(C_i)=\frac{\left|C_i^{\rm HI}-C_i^{\rm MARTY}\right|}{\left|C_i^{\rm HI}\right|},
+  \label{eq:marty_relative_difference}
+\end{equation}
+whenever the native coefficient is non-zero; a dash denotes entries for which this normalization is not defined. An interesting feature is the apparition of nonzero, yet small imaginary parts in MARTY's calculation. The reason for this is twofold: first, exact CKM unitarity is not enforced numerically as we rely on the Wolfenstein parameterization, and second, the light quark masses ($c$ and $u$) are not set to zero but rather kept at their physical value in the $\overline{\rm MS}$ renormalization scheme, leading to very good yet not exact GIM cancellation, and the apparition of nonzero imaginary parts as a distinctive feature of this approximation being relaxed.
+
+\begin{table}[!ht]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=1.0\textwidth}
+\begin{tabular}{lcccccc}
+\hline
+\textbf{Coefficient} & \multicolumn{3}{c}{\textbf{SM}} & \multicolumn{3}{c}{\textbf{THDM type-II BSM}} \\
+ & \textbf{HI} & \textbf{\mty} & \(\boldsymbol{\delta_{\rm rel}}\) & \textbf{HI} & \textbf{\mty} & \(\boldsymbol{\delta_{\rm rel}}\) \\
+\hline
+\multicolumn{7}{c}{\(\mu_W=\mathcal{O}(M_W)\), matching scale, LO} \\
+\hline
+\(C_{2}\) & \num{1} & \num{1.000064} & \num{6.4e-05} & \num{0} & \num{0} & \multicolumn{1}{c}{--} \\
+\(C_{7}\) & \num{-0.19411475} & \num{-0.1942087} & \num{0.000484} & \num{-0.099068547} & \num{-0.0990574} & \num{0.000113} \\
+\(C_{8}\) & \num{-0.096902814} & \num{-0.09697558} & \num{0.000751} & \num{-0.099275045} & \num{-0.09925882} & \num{0.000163} \\
+\(C_{9}\) & \num{2.0076248} & \num{2.0076248} & \num{0} & \num{0.00012406279} & \num{0.0001228477} & \num{0.00979} \\
+\(C_{10}\) & \num{-4.4637361} & \(\num{-4.479714}+\num{0.08860065}\,i\) & \num{0.0202} & \num{-0.0065801945} & \num{-0.006560991} & \num{0.00292} \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Native-\hi~/\mty~comparison for the non-zero standard \(B\)-sector Wilson coefficients at matching scale.  Only the SM and genuine type-II THDM contributions are displayed, since the total THDM coefficient is obtained by their sum.  The last column in each block gives the relative difference defined in Eq.~\eqref{eq:marty_relative_difference}.  The complete displayed table is given in App.~\ref{app:extended_validation_tables}.}
+\label{tab:comparison_marty_B}
+\end{table}
+
+\section{Performance and scaling}\label{sec:performance}
+
+The computational cost of \hi~is not uniform across the available observables.  Wilson coefficients are evaluated once for a chosen model, perturbative order and scale configuration, whereas the long-distance part is organised by decay channel and may involve bin-by-bin integrations, form-factor evaluations, QCD factorisation terms and angular projections.  For a selected set $S$ of observables grouped into decay families $d$, the wall time of a call to \texttt{ObservableInterface::compute\_all()} may be schematically written as
+\begin{equation}
+    T_{\rm obs}(S)\simeq T_{\rm WC}
+    +\sum_{d}\left[T_{\rm cache}^{(d)}
+    +N_{\rm bin}^{(d)}N_q^{(d)}C_{\rm amp}^{(d)}
+    +N_{\rm obs}^{(d)}C_{\rm proj}^{(d)}\right],
+    \label{eq:obs_complexity}
+\end{equation}
+where $T_{\rm WC}$ is the Wilson-coefficient setup cost, $T_{\rm cache}^{(d)}$ denotes decay-specific cached quantities, $N_{\rm bin}^{(d)}$ is the number of selected $q^2$ bins, $N_q^{(d)}$ is the effective number of quadrature points per bin, $C_{\rm amp}^{(d)}$ is the cost of evaluating the amplitudes or form-factor combinations entering the integrand, and $C_{\rm proj}^{(d)}$ is the comparatively small cost of projecting the cached angular coefficients onto the requested observables.  This separation is useful in practice because most of the speed-critical work is decay-local: once a decay cache has been filled, many observables can be extracted from the same intermediate quantities.
+
+This hierarchy is visible in the per-decay benchmark shown in Fig.~\ref{fig:decay_benchmark}.  Each entry reports the mean time of one \texttt{compute\_all()} call at NLO over 30 timed repetitions after warm-up calls, using the same input point. The horizontal axis is logarithmic because the dynamic range is very large: the fastest leptonic modes are below the millisecond scale, whereas the most expensive binned semileptonic modes can require seconds to tens of seconds.  The dominant entries are the angular decays with many binned observables, in particular $B\to K^*\ell\ell$ and $B_s\to\phi\ell\ell$.  The former contains 350 observable entries in this benchmark and is more than four orders of magnitude slower than the simplest leptonic channels, even after using the threaded implementation.  This behaviour is expected from Eq.~\eqref{eq:obs_complexity}: the cost is driven not only by the number of published observables but also by the shared amplitude and QCD-factorisation evaluations needed for each bin.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Figures/decay_benchmark.pdf}
+    \caption{Per-decay benchmark of the mean wall time of \texttt{ObservableInterface::compute\_all()} at NLO.  The benchmark uses 30 timed repetitions after warm-up calls and displays the number of observable entries associated with each decay family.  Since all channels are measured on the same setup, the figure is intended primarily as a relative cost comparison; absolute timings depend on the compiler, CPU and runtime configuration.}
+    \label{fig:decay_benchmark}
+\end{figure}
+
+The largest gains are therefore obtained by optimising the heavy decay caches rather than the lightweight observable projections.  In the $B\to K^*\ell\ell$ implementation, the binned angular observables are expressed through a common set of angular coefficients $J_i$.  These coefficients are integrated in a single pass per bin and per CP conjugation using a fixed Gauss--Legendre rule.  At each quadrature point the transversity amplitudes are evaluated once, and the set of $J_i$ combinations is accumulated simultaneously.  This avoids the repeated-integral pattern in which many observables would independently re-evaluate the same amplitudes.  In addition, the expensive QCD-factorisation lookup tables entering the amplitudes are filled in parallel.  The lookup grid is split into contiguous chunks over worker threads; each worker owns local form-factor and QCD-factorisation calculator instances and writes to disjoint cache entries.  Apart from exception collection, the inner loop is therefore lock-free.  For a lookup size $N_{\rm lookup}$ and $n_t$ worker threads, the cache-filling contribution scales approximately as
+\begin{equation}
+    T_{\rm cache}^{B\to K^*\ell\ell}(n_t)
+    \simeq
+    \frac{N_{\rm lookup} C_{\rm QCDf}}{\min(n_t,N_{\rm lookup})}
+    + T_{\rm launch}+T_{\rm memory},
+    \label{eq:bkstar_cache_scaling}
+\end{equation}
+up to load imbalance, thread-launch overhead and memory-bandwidth effects. The number of threads allocated to this parallelization step can be set in the individual \texttt{DecayConfig} structures of the relevant decays.
+
+Figure~\ref{fig:bkstarll_thread_scaling} shows the corresponding thread-scaling study for a representative binned semileptonic benchmark.  The one-thread runtime is about $3.79\,\mathrm{s}$ per \texttt{compute\_all()} call.  Increasing the number of worker threads gives a rapid reduction at small thread counts, reaching a speedup of about $4.2$ at 8 threads and about $5.4$ at 20 threads.  The best point in the supplied scan is around 25 threads, with a mean time of about $0.64\,\mathrm{s}$, corresponding to a speedup close to 6.  Beyond roughly 15--20 threads the curve flattens: the remaining serial work, cache construction outside the parallel region, memory traffic and thread scheduling overhead dominate over the parallel QCD-factorisation work.  The measured curve is therefore far from ideal linear scaling at large $n_t$, but the reduction by a factor of five to six is sufficient to make binned scans and repeated fits substantially more practical.
+
+\begin{figure}[!ht]
+    \centering
+    \includegraphics[width=0.95\textwidth]{Figures/BKll_threads_scaling_cpc.pdf}
+    \caption{Thread-scaling benchmark for a binned semileptonic \texttt{compute\_all()} workload at NLO.  The left panel shows the mean wall time per call as a function of the requested number of threads.  The right panel shows the measured speedup relative to one thread and the ideal linear behaviour.  The saturation beyond approximately 15--20 threads indicates the transition from amplitude/QCD-factorisation dominated work to serial overheads and memory effects.}
+    \label{fig:bkstarll_thread_scaling}
+\end{figure}
+
+The same considerations determine the cost of statistical analyses.  In the $\chi^2$ backend of Eq.~\eqref{eq:chi2_backend}, the nuisance parameters are sampled once to construct the Monte-Carlo theory covariance, after which the fit itself is performed in the lower-dimensional space of the parameters of interest.  If $D$ observables enter the fit, $N_{\rm MC}$ accepted nuisance samples are used for the covariance estimate, and $N_{\rm eval}$ model evaluations are required by the minimizer, the leading cost is
+\begin{equation}
+    T_{\chi^2}\simeq
+    N_{\rm MC}\,T_{\rm pred}(D)
+    +\mathcal{O}(N_{\rm MC}D^2)
+    +\mathcal{O}(D^3)
+    +N_{\rm eval}\,T_{\rm pred}(D),
+    \label{eq:chi2_complexity}
+\end{equation}
+where $T_{\rm pred}(D)$ is the time needed to evaluate the selected observable vector.  The second term is the empirical covariance construction, the third is the inversion of the total covariance matrix, and the last term is the deterministic minimization.  The memory usage is $\mathcal{O}(N_{\rm MC}D+D^2)$ when all accepted samples are kept for diagnostics or written to CSV.  Consequently, for global fits involving expensive binned observables, the dominant scaling variable is often the cost of repeated observable prediction rather than the linear algebra.
+
+For this reason, \hi~uses two complementary levels of parallelism.  The decay-level parallelism described above remains the most efficient acceleration mechanism for a single expensive prediction, and it is used by deterministic stages such as central-value evaluations, likelihood minimization, Hessian or profile scans, and contour construction.  However, Fig.~\ref{fig:bkstarll_thread_scaling} also shows that this inner parallelism is not asymptotically linear: once the QCD-factorisation part has been distributed over enough workers, the residual serial work, memory traffic and scheduling overhead set a practical speedup plateau.  The Monte-Carlo covariance stage has a different structure.  The accepted nuisance draws are statistically independent, so the outer loop over samples is embarrassingly parallel.  In the multi-threaded Monte-Carlo mode, \hi~therefore gives priority to this outer parallelism: each worker owns an independent observable model and parameter runtime context, draws nuisance points from the shared sampler in a synchronised way, and evaluates its assigned predictions without modifying the global parameter state.  To avoid nested over-subscription, the internal decay thread count is temporarily reduced, by default to one, while the Monte-Carlo workers are running.  After the covariance sample has been filled, the original decay-thread configuration is restored automatically and the subsequent deterministic stages again use the decay-local threaded caches. The number of threads allocated to Monte-Carlo sampling is set by the \texttt{MC\_threads} parameter of the \texttt{StatisticConfig}.
+
+With this scheduling policy, the covariance-building part of Eq.~\eqref{eq:chi2_complexity} is better represented as
+\begin{equation}
+    T_{\rm cov}(n_{\rm MC})
+    \simeq
+    \frac{N_{\rm MC}}{n_{\rm MC}}\,
+    T_{\rm pred}(D; n_t=1)
+    +\mathcal{O}(N_{\rm MC}D^2)
+    +T_{\rm sched},
+    \label{eq:mc_parallel_covariance}
+\end{equation}
+where $n_{\rm MC}$ is the number of Monte-Carlo workers and $T_{\rm sched}$ collects sampler synchronisation, worker setup and result-merging overheads.  Since the dominant term is usually the prediction time, the scaling of the covariance stage is close to linear in $n_{\rm MC}$ until the number of active workers approaches the available hardware parallelism or the bookkeeping terms become comparable to the prediction cost.  The full workflow therefore uses the parallelism at the level where it is most effective: sample-level parallelism for the Monte-Carlo covariance construction, and decay-level parallelism for the remaining repeated predictions required by fits and scans.
+
+
+\section{Software availability and reproducibility}\label{sec:software_availability}
+
+The version of \hi~ described in this article is intended to be distributed through the CPC Program Library and through a public developer repository. The release metadata should be frozen before submission so that the manuscript, source archive, validation material and performance figures all refer to the same code state. The fields below are deliberately written as publication placeholders to be completed when the first public release is created:
+\begin{itemize}
+    \item source release: \texttt{HyperIso v1.0.0};
+    \item git commit: \texttt{[commit hash]};
+    \item developer repository: \texttt{[repository URL]};
+    \item software archive DOI: \texttt{[Zenodo/Mendeley/CPC DOI]};
+    \item Python package: \texttt{pyhyperiso} version \texttt{1.0.0};
+    \item documentation: \texttt{[documentation URL]};
+    \item license: GNU General Public License, version 3 or later.
+\end{itemize}
+
+Until the PyPI package is released, the Python bindings are built from the source tree together with the C++ libraries. After release, the intended user-facing installation route will be
+\begin{terminal}
+pip install pyhyperiso==1.0.0
+\end{terminal}
+for the Python interface, and the standard CMake workflow for the C++ and CLI interfaces,
+\begin{terminal}
+cmake -S Hyperiso/Hyperiso/core -B build \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_WITH_CLI=ON \
+  -DBUILD_WITH_PYTHON=ON
+cmake --build build -j
+cmake --install build --prefix <install-prefix>
+\end{terminal}
+for source installations.  Here \texttt{-DBUILD\_WITH\_CLI=ON} builds only the standalone \texttt{hyperiso-ui} executable.  The separate option \texttt{-DBUILD\_WITH\_APP=ON} is reserved for development applications and benchmark executables distributed inside the C++ modules.
+
+The generic \mty-based workflow requires an external \mty~installation. Native examples require GSL, Eigen and a C++20-compatible compiler.  Optional spectrum-generation workflows may also rely on \texttt{2HDMC}~\cite{Eriksson:2009ws} or \texttt{SOFTSUSY}~\cite{Allanach:2001kg}.
+
+The release archive contains a root-level \texttt{reproducibility/} directory with Standard Model, THDM and SUSY spectrum-file benchmarks.  This directory is the canonical location for the frozen input files, run scripts, expected text outputs and numerical tolerances used to reproduce the compact reference examples reported in this paper.  The suite is intentionally command-line based: the CLI provides the most stable release-level interface, while the C++ and Python examples distributed with the source tree expose the same workflows programmatically.
+
+\begin{terminal}
+reproducibility/
+  README.md
+  manifest.json
+  inputs/sm_reference.flha
+  scripts/run_cli_suite.sh
+  scripts/check_expected_outputs.py
+  expected_outputs/
+\end{terminal}
+
+The reference suite is summarized in Table~\ref{tab:repro_suite}.  Deterministic examples are compared using absolute and relative tolerances.  The Monte-Carlo example is run with a fixed seed through the \texttt{--seed} option and with the serial MC path by default; it is therefore suitable for release-to-release comparisons.  Parallel MC runs are kept for performance studies rather than bitwise reproducibility checks.
+
+\begin{table}[!ht]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.08\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{ID} & \textbf{Workflow} & \textbf{Reference check} \\
+\midrule
+R1 & $B$-sector Wilson coefficients &
+\texttt{BCoefficients}; $C_7,C_8,C_9,C_{10}$ at matching and low scales. \\
+R2 & Scalar Wilson coefficients &
+\texttt{BScalarCoefficients}; $C_{Q_1}^{\mu},C_{Q_2}^{\mu}$ in the scalar sector. \\
+R3 & Inclusive and leptonic observables &
+\texttt{BR\_Bs\_\_mu\_mu} and \texttt{BR\_B\_\_Xs\_gamma}. \\
+R4 & Binned angular observable &
+\texttt{F\_L\_B0\_\_K*0\_mu\_mu} in the fixed $q^2$ bin $[1.1,6.0]~\mathrm{GeV}^2$. \\
+R5 & Seeded MC uncertainty propagation &
+\texttt{statistic summary --uncertainties --draws 500 --seed 123456}, with optional accepted-sample CSV output. \\
+\bottomrule
+\end{tabularx}
+\caption{Compact reference reproducibility suite shipped with the release archive.  The commands, input file, expected output names and tolerances are defined in \texttt{reproducibility/manifest.json}.}
+\label{tab:repro_suite}
+\end{table}
+
+The same directory also records the compiler, build type, operating system, dependency versions and hardware information used for the benchmark figures in Section~\ref{sec:performance}.  The values quoted there should therefore be read as relative timings for a fixed setup rather than universal constants.
+
+
+\section{Conclusion}
+
+We have presented \hi~, a new standalone modular program, building on the physics heritage of \spi~, designed to evaluate Wilson coefficients, flavour observables and statistical quantities in a unified framework. The C++ core provides the common calculation backend, while the Python, terminal and Dash interfaces make the tool accessible for scripted, automated and interactive workflows. \hi~ combines native implementations for established scenarios with a \mty-based route for arbitrary BSM models at leading order, while retaining the internal machinery for observable calculations, uncertainty propagation and statistical interpretation.
+
+The validation against \spi~confirms the consistency of the native calculations for the supported benchmark models. The comparison between the native \hi~ route and the \mty~ route on common benchmark models provides the complementary validation of the generic-model interface; the numerical interpretation of these differences is documented in the validation section and fixed together with the released \mty~benchmark inputs. Together with the user-guide examples and reproducibility package, this makes \hi~ a practical tool for both phenomenological studies and software extensions.
+
+\section*{CRediT authorship contribution statement}
+\textbf{Théo Reymermier:} Conceptualization, Methodology, Software, Architecture, Wilson coefficients implementation, statistical framework, external-dependency integration, \mty~interface, common infrastructure, Python bindings and wrappers, command-line interface, graphical interface, documentation strings, tests, examples, validation workflows, Writing original draft, Writing review and editing.  \textbf{Niels Fardeau:} Methodology, Software, mathematical routines, statistical framework, LHA parsing, observable calculations, observable validation tests and comparisons with \spi, Writing review and editing.  \textbf{Nazila Mahmoudi:} Conceptualization, Supervision, Methodology, validation guidance, decision support, legacy \spi~expertise and scientific oversight, Writing review and editing.
+
+\section*{Declaration of competing interest}
+The authors declare that they have no known competing financial interests or personal relationships that could have appeared to influence the work reported in this paper.
+
+\section*{Funding}
+This research did not receive any specific grant from funding agencies in the public, commercial, or not-for-profit sectors.
+
+\section*{Acknowledgements}
+The authors acknowledge the open-source scientific software ecosystem on which \hi~builds, including \mty, \texttt{GSL}, \texttt{pybind11}, \texttt{2HDMC} and \texttt{SOFTSUSY}.  The development of \hi~also benefited from the physics conventions and validation experience accumulated in \spi.
+
+\section*{Data and code availability}
+The \hi~source code, build scripts, examples, input files and reference reproducibility suite will be distributed through the CPC Program Library and through the public repository associated with the release.  The exact release tag, commit hash, software archive DOI, documentation URL and Python-package version are listed in Section~\ref{sec:software_availability}.  The numerical results shown in the validation and performance sections are reproducible from the release archive using the scripts and reference inputs distributed in the root-level \texttt{reproducibility/} directory.
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+During the preparation of this work the authors used ChatGPT to assist with manuscript-structure review and checklist-style consistency checks.  After using this tool, the authors reviewed and edited the content as needed and take full responsibility for the content of the submitted manuscript.
+
+\appendix
+
+\section{Observable catalogue by decay family}\label{app:observable_catalogue}
+
+This appendix gives a decay-by-decay view of the native observable coverage summarized in Table~\ref{tab:decays}.  The entries are grouped by physics channel rather than by internal C++ class name.  Canonical mapper names are intentionally not exhaustively listed here because the full list is generated by the observable registry and distributed with the code.
+
+\begin{table}[!ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{Decay family} & \textbf{Internal family} & \textbf{Representative observables} \\
+\midrule
+$B\to X_s\gamma$ & \texttt{B\_\_Xs} &
+Inclusive radiative branching fraction and related radiative observables. \\
+$B\to X_s\ell^+\ell^-$ & \texttt{B\_\_Xs\_ll} &
+Inclusive rare-decay branching fractions and forward--backward asymmetries for $e$, $\mu$ and $\tau$ channels. \\
+$B\to K^*\gamma$ & \texttt{B\_\_Kstar\_gamma} &
+Exclusive radiative branching fractions and isospin asymmetries for charged and neutral modes. \\
+$B\to K^*\ell^+\ell^-$ & \texttt{B\_\_Kstar\_l\_l} &
+Differential rates, $A_{FB}$, $F_L$, $F_T$, $A_T^{(i)}$, $H_T^{(i)}$, $P_i^{(\prime)}$, $S_i$ and CP-asymmetry observables. \\
+$B\to K\ell^+\ell^-$ & \texttt{B\_\_K\_l\_l} &
+Differential rates, branching fractions, $A_{FB}$, $F_H$ and lepton-universality ratios. \\
+$B_s\to\phi\ell^+\ell^-$ & \texttt{Bs\_\_phi\_l\_l} &
+Differential rates, angular observables, optimized observables and CP-sensitive combinations. \\
+$\Lambda_b\to\Lambda\ell^+\ell^-$ & \shortstack[l]{\texttt{Lambda\_b\_\_}\\\texttt{Lambda\_l\_l}} &
+Differential rates, longitudinal/transverse polarization fractions and lepton/hadron forward--backward asymmetries. \\
+\bottomrule
+\end{tabularx}
+\caption{Native rare and radiative $B$-sector observables.}
+\label{tab:observable_catalogue_b_rare}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{Decay family} & \textbf{Internal family} & \textbf{Representative observables} \\
+\midrule
+$B_{s,d}\to\ell^+\ell^-$ & \texttt{B\_\_l\_l} &
+Leptonic branching fractions, untagged $B_s$ modes and related lifetime-sensitive quantities. \\
+$B_u\to\ell\nu$ & \texttt{B\_\_l\_nu} &
+Charged-$B$ leptonic branching fractions and charged-current ratios. \\
+$B\to D\ell\nu$ & \texttt{B\_\_D\_l\_nu} &
+Branching fractions, $R(D)$, forward--backward asymmetry and charged-lepton polarization. \\
+$B\to D^*\ell\nu$ & \shortstack[l]{\texttt{B\_\_Dstar}\\\texttt{\_l\_nu}} &
+Branching fractions, $R(D^*)$, forward--backward asymmetry, $\tau$ polarization and $D^*$ polarization. \\
+$D\to\ell\nu$ & \texttt{D\_\_l\_nu} &
+Charm leptonic branching fractions. \\
+$D_s\to\ell\nu$ & \texttt{Ds\_\_l\_nu} &
+$D_s\to\mu\nu$ and $D_s\to\tau\nu$ branching fractions. \\
+\bottomrule
+\end{tabularx}
+\caption{Native leptonic and charged-current observables.}
+\label{tab:observable_catalogue_charged_current}
+\end{table}
+
+\begin{table}[!ht]
+\centering
+\footnotesize
+\renewcommand{\arraystretch}{1.15}
+\begin{tabularx}{\textwidth}{@{}p{0.23\textwidth}p{0.28\textwidth}X@{}}
+\toprule
+\textbf{Decay family} & \textbf{Internal family} & \textbf{Representative observables} \\
+\midrule
+$K\to\pi\nu\bar\nu$ & \texttt{K\_\_pi\_nu\_nu} &
+$K^+\to\pi^+\nu\bar\nu$ and $K_L\to\pi^0\nu\bar\nu$ branching fractions. \\
+$K_{L,S}\to\mu^+\mu^-$ & \texttt{K\_\_l\_l} &
+Rare kaon dimuon branching fractions and short-/long-distance components. \\
+$K\to\ell\nu$ & \texttt{K\_\_l\_nu} &
+Leptonic kaon ratios such as $R_{\mu 23}$. \\
+Neutral-meson mixing & \texttt{M0\_Mix} &
+$\Delta M_{B_d}$, $\Delta M_{B_s}$, $\Delta M_K$, $|\epsilon_K|$, CP phases and semileptonic asymmetries. \\
+Custom observable layer & runtime registry &
+User-defined observables attached to native or user-defined decay families. \\
+\bottomrule
+\end{tabularx}
+\caption{Native kaon, mixing and extension-layer observables.}
+\label{tab:observable_catalogue_kaon_mixing}
+\end{table}
+
+\section{Leptonic decays of charged pseudoscalar mesons}\label{app:plnu}
+The purely leptonic decays of pseudoscalar mesons $P^\pm\to\ell^\pm\nu$ happens in the SM through a virtual $W$ boson. In extensions of the SM with two higgs doublets, charged scalars interfere destructively with the SM. The most general effective Hamiltonian for such decays (at dimension 6) reads
+\begin{equation}
+    \mathcal{H}_{CC}=\frac{4G_F}{\sqrt{2}}V_{q_uq_d}\sum C_k\mathcal{O}_k+\mathrm{h.c.},
+\end{equation}
+where $V_{q_uq_d}$ is a CKM matrix element and the 5 independent operators read
+\begin{gather*}
+    \mathcal{O}_{V_1}=\qty(\bar q_u\gamma^\mu P_Lq_d)\qty(\bar\ell\gamma_\mu P_L\nu)\\
+    \mathcal{O}_{V_2}=\qty(\bar q_u\gamma^\mu P_Rq_d)\qty(\bar\ell\gamma_\mu P_L\nu)\\
+    \mathcal{O}_{S_1}=\qty(\bar q_uP_Lq_d)\qty(\bar\ell P_L\nu)\numberthis{}\\
+    \mathcal{O}_{S_2}=\qty(\bar q_uP_Rq_d)\qty(\bar\ell P_L\nu)\\
+    \mathcal{O}_{T}=\qty(\bar q_u\sigma^{\mu\nu} P_Lq_d)\qty(\bar\ell\sigma^{\mu\nu} P_L\nu).
+\end{gather*}
+
+Using then the definition of the meson's decay constant and the quark EoM,
+\begin{equation}
+    \mel{0}{\bar q_u\gamma^\mu\gamma^5 q_d}{\bar P}=ip^\mu f_P\qc \mel{0}{\bar q_u\gamma^5 q_d}{\bar P}=-i\frac{m_P^2}{m_{q_u}+m_{q_d}}f_P,
+\end{equation}
+while the other currents do not contribute. The complete matrix elements for the effective operators then read
+\begin{gather*}
+    \mel{\ell\bar\nu}{\mathcal{O}_{V_{1,2}}}{\bar P}=\mp\frac{i}{2}f_P\qty(\bar\ell\fsl{p}P_L\nu),\\
+    \mel{\ell\bar\nu}{\mathcal{O}_{S_{1,2}}}{\bar P}=\pm\frac{i}{2}\frac{m_P^2}{m_{q_u}+m_{q_d}}f_P\qty(\bar\ell P_L\nu),\numberthis{}\\
+    \mel{\ell\bar\nu}{\mathcal{O}_{T}}{\bar P}=0.
+\end{gather*}
+The decaying pseudoscalar meson has spin 0, and the outgoing (anti-)neutrino must be (right) left-handed, thus the outgoing (anti-)lepton must have the same chirality. Using the chirality eigenstates of Dirac spinors, and the CoM kinematics where $P$ is at rest and $\ell,\nu$ are back-to-back, the leptonic part of the matrix elements evaluates to
+\begin{equation}
+    \bar\ell\fsl{p}P_L\nu=m_\ell m_P\sqrt{1-r_\ell}\qc \bar\ell P_L\nu=m_P\sqrt{1-r_\ell},
+\end{equation}
+where $r_\ell=m_\ell^2/m_P^2$. Further defining $C_A=C_{V_2}-C_{V_1}$ and $C_P=C_{S_2}-C_{S_1}$, the squared amplitude reads
+\begin{equation}
+    \qty|\mathcal{M}|^2=2G_F^2\qty|V_{q_uq_d}|^2f_P^2m_P^2(1-r_\ell)\qty|m_\ell C_A-\frac{m_P^2}{m_{q_u}+m_{q_d}}C_P|^2.
+\end{equation}
+And finally, using
+\begin{equation}
+    \Gamma=\frac{\beta}{16\pi m_P}\qty|\mathcal{M}|^2\qc\beta=1-r_\ell,
+\end{equation}
+the branching ratio reads
+\begin{equation}
+    \mathcal{B}(P\to\ell\nu)=\frac{G_F^2}{8\pi}|V_{q_uq_d}|^2f_P^2m_P\tau_P(1-r_\ell)^2\qty|m_\ell C_A-\frac{m_P^2}{m_{q_u}+m_{q_d}}C_P|^2
+\end{equation}
+
+\section{Extended validation tables}\label{app:extended_validation_tables}
+
+This appendix collects the complete Wilson-coefficient validation tables.  The \spi--\hi~comparison is split into SM, THDM and SUSY benchmarks.  The native-\hi~/\mty~comparison is split into SM and type-II THDM BSM contributions at matching scale.  This avoids very wide tables while preserving the benchmark values.
+
+\begin{table}[!ht]
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{adjustbox}{max width=0.72\textwidth}
+\begin{tabular}{lSSS}
+\hline
+\textbf{coefs} & \textbf{SI} & \textbf{HI} & \textbf{\%} \\
+\hline
+\multicolumn{4}{c}{\(\mu_W=\mathcal{O}(M_W)\)} \\
+\hline
+\multicolumn{4}{c}{\textbf{SM}} \\
+\hline
+C1 & 0.1583963453 & 0.1583963451 & 0 \\
+C2 & 1.001843983 & 1.001843983 & 0 \\
+C3 & -0.0002931687782 & -0.0002931687782 & 0 \\
+C4 & -0.003248811761 & -0.003247432028 & 0.042478 \\
+C5 & 3.386474459e-05 & 3.386879571e-05 & 0.011962 \\
+C6 & 6.349639566e-05 & 6.349639566e-05 & 0 \\
+C7 & -0.2107427536 & -0.2106774232 & 0.031005 \\
+C8 & -0.1151167202 & -0.1150915551 & 0.021863 \\
+C9 & 1.930302269 & 1.92962599 & 0.035041 \\
+C10 & -4.171695742 & -4.168626236 & 0.073606 \\
+CQ1 & -0.00026039 & -0.000260394 & 0.001536 \\
+CQ2 & 0.000485819217 & 0.000484792 & 0.000413 \\
+CP7 & -0.00423707 & -0.00423707 & 0 \\
+CP8 & -0.00221976 & -0.00221976 & 0 \\
+CP9 & 0 & 0 & 0 \\
+CP10 & 0 & 0 & 0 \\
+CPQ1 & 0 & 0 & 0 \\
+CPQ2 & 0 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Complete comparison between \spi~(SI) and \hi~(HI) for the SM benchmark at matching scale.}
+\label{tab:comparison_superiso_full_sm}
+\end{table}
+
+
+\begin{table}[!ht]
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{adjustbox}{max width=0.72\textwidth}
+\begin{tabular}{lSSS}
+\hline
+\textbf{coefs} & \textbf{SI} & \textbf{HI} & \textbf{\%} \\
+\hline
+\multicolumn{4}{c}{\(\mu_W=\mathcal{O}(M_W)\)} \\
+\hline
+\multicolumn{4}{c}{\textbf{THDM}} \\
+\hline
+C1 & 0 & 0 & 0 \\
+C2 & 0 & 0 & 0 \\
+C3 & -3.723792155e-08 & -3.723792155e-08 & 0 \\
+C4 & 9.296889404e-06 & 9.296896376e-06 & 0.000075 \\
+C5 & 1.400574929e-08 & 1.400577667e-08 & 0.000195 \\
+C6 & 2.626083695e-08 & 2.626083695e-08 & 0 \\
+C7 & 0.0008007874546 & 0.0008004786918 & 0.038565 \\
+C8 & 0.0008704866784 & 0.0008704864666 & 0.000024 \\
+C9 & -0.0002778553141 & -0.0002778544545 & 0.000309 \\
+C10 & -0.004887954445 & -0.004887955214 & 0.000016 \\
+CQ1 & -0.00038257 & -0.000382573 & 0.000784 \\
+CQ2 & 6.37e-06 & 6.3716e-06 & 0.025115 \\
+CP7 & 0 & 0 & 0 \\
+CP8 & 0 & 0 & 0 \\
+CP9 & 0 & 0 & 0 \\
+CP10 & 0 & 0 & 0 \\
+CPQ1 & 0 & 0 & 0 \\
+CPQ2 & 0 & 0 & 0 \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Complete comparison between \spi~(SI) and \hi~(HI) for the THDM benchmark at matching scale.}
+\label{tab:comparison_superiso_full_thdm}
+\end{table}
+
+
+\begin{table}[!ht]
+\centering
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.1}
+\begin{adjustbox}{max width=0.72\textwidth}
+\begin{tabular}{lSSS}
+\hline
+\textbf{coefs} & \textbf{SI} & \textbf{HI} & \textbf{\%} \\
+\hline
+\multicolumn{4}{c}{\(\mu_W=\mathcal{O}(M_W)\)} \\
+\hline
+\multicolumn{4}{c}{\textbf{SUSY}} \\
+\hline
+C1 & -5.594240306e-07 & -5.594240306e-07 & 0 \\
+C2 & 0 & 0 & 0 \\
+C3 & 4.9344336e-07 & 4.934424585e-07 & 0.000183 \\
+C4 & 4.003675142e-06 & 4.003666186e-06 & 0.000224 \\
+C5 & -4.44468528e-08 & -4.444694295e-08 & 0.000203 \\
+C6 & -8.333807436e-08 & -8.333798422e-08 & 0.000108 \\
+C7 & 0.0008455493107 & 0.0008451479372 & 0.047480 \\
+C8 & -0.0101108152 & -0.010110883 & 0.000671 \\
+C9 & 0.00588099578 & 0.005879457677 & 0.026157 \\
+C10 & 0.005718707991 & 0.00571869065 & 0.000303 \\
+CQ1 & -0.0004304081933 & -0.0004303745802 & 0.007810 \\
+CQ2 & 0.0001911053555 & 0.0001910728092 & 0.017032 \\
+CP7 & 0.000219408 & 0.000219408 & 0 \\
+CP8 & 1.0434e-05 & 1.04337e-05 & 0.002875 \\
+CP9 & -2.968e-06 & -2.96754e-06 & 0.015500 \\
+CP10 & 7.0043e-05 & 7.0043e-05 & 0 \\
+CPQ1 & -6.9317e-06 & -6.93174e-06 & 0.000577 \\
+CPQ2 & -6.9315e-06 & -6.93149e-06 & 0.000144 \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Complete comparison between \spi~(SI) and \hi~(HI) for the SUSY benchmark at matching scale.}
+\label{tab:comparison_superiso_full_susy}
+\end{table}
+
+
+The next tables show the displayed native-\hi~/\mty~LO export at the matching scale for the type-II THDM benchmark.  Coefficients that vanish in both calculations are omitted.  The printed validation subset keeps the standard \(B\)-sector coefficients, the non-zero primed coefficients and the muonic scalar coefficients \(C_{Q_1}^\mu\) and \(C_{Q_2}^\mu\).  Electron and tau scalar entries, as well as the \(C^\prime_Q\) family, are omitted from the paper tables for compactness.
+
+
+\begin{table}[!ht]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=0.9\textwidth}
+\begin{tabular}{llccc}
+\hline
+\textbf{Group} & \textbf{Coefficient} & \textbf{HI} & \textbf{\mty} & \(\boldsymbol{\delta_{\rm rel}}\) \\
+\hline
+\(B\) & \(C_{2}\) & \num{1} & \num{1.000064} & \num{6.4e-05} \\
+\(B\) & \(C_{7}\) & \num{-0.19411475} & \num{-0.1942087} & \num{0.000484} \\
+\(B\) & \(C_{8}\) & \num{-0.096902814} & \num{-0.09697558} & \num{0.000751} \\
+\(B\) & \(C_{9}\) & \num{2.0076248} & \num{2.0076248} & \num{0} \\
+\(B\) & \(C_{10}\) & \num{-4.4637361} & \(\num{-4.479714}+\num{0.08860065}\,i\) & \num{0.0202} \\
+\(B^\prime\) & \(C^\prime_{7}\) & \num{-0.0066274482} & \num{-0.00653486} & \num{0.014} \\
+\(B^\prime\) & \(C^\prime_{8}\) & \num{-0.0033084471} & \num{-0.003262563} & \num{0.0139} \\
+\(B_{\rm S}\) & \(C_{Q_1}^{\mu}\) & \num{-0.00036956518} & \num{-0.0003589897} & \num{0.0289} \\
+\(B_{\rm S}\) & \(C_{Q_2}^{\mu}\) & \num{0.00033655824} & \num{0.0003354648} & \num{0.00464} \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Complete displayed native-\hi~/\mty~comparison for the SM contribution at matching scale.  The comparison is restricted to LO, the order generated by the \mty~interface in this workflow.  The last column gives the relative difference defined in Eq.~\ref{eq:marty_relative_difference}.}
+\label{tab:comparison_marty_full_sm}
+\end{table}
+
+
+
+\begin{table}[!ht]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=0.9\textwidth}
+\begin{tabular}{llccc}
+\hline
+\textbf{Group} & \textbf{Coefficient} & \textbf{HI} & \textbf{\mty} & \(\boldsymbol{\delta_{\rm rel}}\) \\
+\hline
+\(B\) & \(C_{7}\) & \num{-0.099068547} & \num{-0.0990574} & \num{0.000113} \\
+\(B\) & \(C_{8}\) & \num{-0.099275045} & \num{-0.09925882} & \num{0.000163} \\
+\(B\) & \(C_{9}\) & \num{0.00012406279} & \num{0.0001228477} & \num{0.00979} \\
+\(B\) & \(C_{10}\) & \num{-0.0065801945} & \num{-0.006560991} & \num{0.00292} \\
+\(B^\prime\) & \(C^\prime_{7}\) & \num{-0.0033823893} & \num{-0.003327419} & \num{0.0163} \\
+\(B^\prime\) & \(C^\prime_{8}\) & \num{-0.0033894395} & \num{-0.003333466} & \num{0.0165} \\
+\(B^\prime\) & \(C^\prime_{9}\) & \num{-7.3827472e-05} & \num{-7.365517e-05} & \num{0.00233} \\
+\(B^\prime\) & \(C^\prime_{10}\) & \num{0.00055986823} & \num{0.000557905} & \num{0.00351} \\
+\(B_{\rm S}\) & \(C_{Q_1}^{\mu}\) & \num{-0.0022734188} & \(\num{-0.0018731}-\num{0.000322062}\,i\) & \num{0.226} \\
+\(B_{\rm S}\) & \(C_{Q_2}^{\mu}\) & \num{0.0020599269} & \(\num{0.001624921}+\num{0.0003148968}\,i\) & \num{0.261} \\
+\hline
+\end{tabular}
+\end{adjustbox}
+\caption{Complete displayed native-\hi~/\mty~comparison for the genuine type-II THDM BSM contribution at matching scale.  The comparison is restricted to LO, the order generated by the \mty~interface in this workflow.  The last column gives the relative difference defined in Eq.~\ref{eq:marty_relative_difference}.}
+\label{tab:comparison_marty_full_bsm}
+\end{table}
+
+\section{Efficient computation of the profiled likelihood}
+For a given set of observables, there are usually many nuisance parameters (typically $\mathcal{O}(100)$) that we need to optimize in order to compute the profiled likelihood function $\hat\ell(p)$. Even the best algorithms cannot solve such high-dimensional optimization problems efficiently enough, especially as this step would be performed thousands of times to compute the confidence contours. We need to use some additional information that we may have on the nuisances to reduce the dimensionality of this problem. One way we can do this is to separate the nuisances in two groups, the ``well-behaved'' $\eta_W$ and the ``ill-behaved'' $\eta_I$. A nuisance parameter $\eta_a$ is``well-behaved'' if its marginal distribution is gaussian and the model function $f(p,\eta)$ is linear in $\eta_a$ with good approximation. All the other nuisances are then called ``ill-behaved''. Testing if the model is linear in a given nuisance only requires 3 calls to the model function and can be performed once for all provided the confidence contour is not too large. \smallbreak
+The profiling over the well-behaved nuisances can be performed analytically using the Laplace approximation. Let $\eta_0$ be the mode of the nuisance distribution. If the nuisances are well-behaved, the log-likelihood around $\eta_0$ is quadratic with good approximation:
+\begin{equation}
+    \ell(p,\eta_0+\delta\eta)=\ell(p,\eta_0)+\sum_k\eval{\pdv{\ell}{\eta_k}}_{\eta_0}\delta\eta_k+\frac{1}{2}\sum_{k,\ell}\eval{\pdv{\ell}{\eta_k}{\eta_\ell}}_{\eta_0}\delta\eta_k\delta\eta_\ell.
+\end{equation}
+For clarity we define
+\begin{equation}
+    [\vec g_\eta]_k=\eval{\pdv{\ell}{\eta_k}}_{\eta_0}\qc [\mathbf{H}_\eta]_{k\ell}=\eval{\pdv{\ell}{\eta_k}{\eta_\ell}}_{\eta_0},
+\end{equation}
+so that
+\begin{equation}
+    \ell(p,\eta_0+\delta\eta)=\ell(p,\eta_0)+\vec g_\eta\cdot\delta\vec\eta+\frac{1}{2}\delta\vec\eta\cdot\mathbf{H}_\eta\delta\vec\eta.
+\end{equation}
+At a local minimum $\eta^*$ of $\ell$, its gradient vanishes
+\begin{equation}
+    \grad\ell(p,\hat\eta)=\vec g_\eta+\mathbf{H}_\eta\delta{\vec\eta}^{\,*}=0\Longleftrightarrow \delta{\vec\eta}^{\,*}=-\mathbf{H}_\eta^{-1}\vec g_\eta,
+\end{equation}
+hence the analytic expression of the profiled likelihood
+\begin{equation}
+    \hat\ell(p)=\ell(p,\eta_0+\delta{\vec\eta}^{\,*})=\ell(p,\eta_0)-\frac{1}{2}\vec g_\eta\cdot\mathbf{H}_\eta^{-1}\vec g_\eta.
+\end{equation}
+We still need to compute the hessian of the likelihood function at the nuisances' central values. It reads explicitly
+\begin{equation}
+    [\mathbf{H}_\eta]_{ij}=\sum_{k,\ell}\pdv{\ell_\mathcal{O}}{r_k}{r_\ell}\pdv{r_k}{\eta_i}\pdv{r_\ell}{\eta_j}+\sum_{k}\pdv{\ell_{\mathcal{O}}}{r_k}\pdv{r_k}{\eta_i}{\eta_j}+\pdv{\ell_\eta}{\eta_i}{\eta_j},
+\end{equation}
+and as $r_k$ is just the model's prediction shifted by a constant,
+\begin{equation}
+    \pdv{r_k}{\eta_i}=\pdv{f_k}{\eta_i}.
+\end{equation}
+Near the minimum of $\ell$, the first derivatives of the likelihood function are close to zero, we can therefore neglect the second sum in the expression of the hessian, leaving the so-called \textit{Gauss-Newton} matrix
+\begin{equation}
+    \mathbf{H}_\eta=J_\eta^TW_{\mathcal{O}}J_\eta+W_\eta,
+\end{equation}
+where $J_\eta$ is the jacobian matrix of the model function $f$ w.r.t. the nuisance parameters and $W_{\mathcal{O}}$, $W_\eta$ are the local curvatures of the likelihood functions, which can be computed analytically using our copula distributions. The only numerically challenging task is to compute the first-order derivatives of the likelihood function, $\vec g_\eta$ and the jacobian of the model function $J_\eta$. \smallbreak
+In terms of the copula log-density $c(u)$ and the marginal densities $p_k(z)$, the curvature matrices read
+\begin{equation}
+    W_{ij}=-\pdv{c}{u_i}{u_j}p_ip_j+\delta_{ij}\qty[-\pdv{c}{u_i}p'_i-\frac{p''_ip_i-{p_i'}^2}{p_i^2}],
+\end{equation}
+and the expressions of the first and second derivatives of the copulas' log-densities are analytical for the Gaussian and Student copulas. They are implemented explicitly in the statistical backend; the resulting expressions are lengthy but follow directly from differentiating the corresponding log-density with respect to the transformed normal or Student variables.
+
+
+\section{Parameter block structure}\label{app:block_structure}
+\subsection{SM Parameters}
+\paragraph{Block \texttt{SMINPUTS}}
+This block is defined by the SLHA convention. We added two entries to store the redundant parameter $\sin^2\theta_W$ as precise values of this parameter are needed in order to comply with some author's conventions in observable calculation.
+\renewcommand{\arraystretch}{1.3}
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1}&$\alpha_{\rm em}^{-1}(M_Z)$&\num{127.930}&--\\
+        \texttt{2}&$G_F$&\SI{1.1663787(6)e-5}{\per\gev\squared}&--\\
+        \texttt{3}&$\alpha_s(M_Z)$&\num{0.1179(10)}&--\\
+        \texttt{4}&$M_{Z,\rm pole}$&\SI{91.1876(21)}{\gev}&\cite{ParticleDataGroup:2024cfk}\\
+        \texttt{5}&$m_b^{\overline{\rm MS}}(m_b)$&\SI{4.18(3)}{\gev}&--\\
+        \texttt{6}&$m_{t,\rm pole}$&\SI{173.34(98)}{\gev}&--\\
+        \texttt{7\_1}&$s_w^{2, \overline{\rm MS}}$&\num{0.23116(4)}&\cite{ParticleDataGroup:2024cfk}\\
+        \texttt{7\_2}&$s_w^{2, \rm OS}$&\num{0.22348(10)}&\cite{ParticleDataGroup:2024cfk}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{SMINPUTS} block.}
+    \label{tab:SMINPUTS}
+\end{table}
+
+\subsection{Flavor Parameters}
+Here we only consider flavor parameters that are explicitly defined in the FLHA format \cite{Sakaki:2013bfa}. Flavor parameters (such as specific formfactors, hadronic and leptonic moments\dots) which could technically be classified in the \texttt{FPARAM} block are instead stored in observable-specific custom blocks (see §\ref{sec:obs_params}) for improved readability.
+\paragraph{Block \texttt{FBAG}}
+This block contains the so-called \textit{bag parameters} $B^{ij}_a$ which are defined from neutral meson mixing matrix elements. The latter can be retrieved using \cite{Aebischer:2020dsw}
+\begin{subequations}
+    \begin{gather}
+        \langle\mathcal{O}^{ij}_1\rangle(\mu)=\frac{2}{3}(f_Mm_M)^2B_1^{ij}(\mu)\\
+        \langle\mathcal{O}^{ij}_{2\leq a\leq5}\rangle(\mu)=N_a^{ij}(r_\chi^{ij}+d_a^{ij})(f_Mm_M)^2B_a^{ij}(\mu),
+    \end{gather}
+\end{subequations}
+where $f_M$ is the leptonic decay constant of the neutral meson $M$, $m_M$ its mass, and $r_\chi^{ij}$ is the chiral enhancement factor for the given meson system. $N_a^{ij}$ and $d_a^{ij}$ are numerical factors that can be found in \cite{Aebischer:2020dsw}. When overriding these values with bag parameters calculated directly from matrix elements (either determined from experiments or LQCD), one shall provide the corresponding value of $r_\chi^{ij}$ in the Block \texttt{M0\_Mix} (see Table \ref{tab:M0_Mix} of \ref{sec:obs_params}).\smallbreak
+In \hi~, we use bag parameters as the input for $B_{s,d}^0$ and $K^0$ mixings, while for $D^0$ mixing we rely on the matrix elements directly. The default values are gathered in table \ref{tab:FBAG}.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. & Scale \\
+        \hline
+        \texttt{511\_1}&$B_1^{db}$&\num{0.806(40)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{511\_2}&$B_2^{db}$&\num{0.769(44)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{511\_3}&$B_3^{db}$&\num{0.747(59)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{511\_4}&$B_4^{db}$&\num{1.077(55)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{511\_5}&$B_5^{db}$&\num{0.973(46)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{531\_1}&$B_1^{sb}$&\num{0.831(35)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{531\_2}&$B_2^{sb}$&\num{0.817(43)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{531\_3}&$B_3^{sb}$&\num{0.816(57)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{531\_4}&$B_4^{sb}$&\num{1.033(47)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{531\_5}&$B_5^{sb}$&\num{0.941(38)}&\cite{Dowdall:2019bea}&$\SI{4.16}{\gev}$\\
+        \texttt{311\_1}&$B_1^{sd}$&\num{0.5324(64)}&\cite{FLAG:2024oxs}&$\SI{3}{\gev}$\\
+        \texttt{311\_2}&$B_2^{sd}$&\num{0.488(15)}&\cite{FLAG:2024oxs}&$\SI{3}{\gev}$\\
+        \texttt{311\_3}&$B_3^{sd}$&\num{0.757(27)}&\cite{FLAG:2024oxs}&$\SI{3}{\gev}$\\
+        \texttt{311\_4}&$B_4^{sd}$&\num{0.903(14)}&\cite{FLAG:2024oxs}&$\SI{3}{\gev}$\\
+        \texttt{311\_5}&$B_5^{sd}$&\num{0.691(14)}&\cite{FLAG:2024oxs}&$\SI{3}{\gev}$\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{FBAG} block.}
+    \label{tab:FBAG}
+\end{table}
+
+\paragraph{Block \texttt{FCONST}}
+This block contains the leptonic decay constants $f_P$ of pseudoscalar mesons, which are defined from the matrix element of the axial current between the meson state and the vacuum,
+\begin{equation}
+    \mel{0}{\bar q_1\gamma_\mu\gamma^5q_2}{P(p)}=-if_Pp_\mu.
+\end{equation}
+The default values of these decay constants are gathered in table \ref{tab:FCONST}.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. & Scale \\
+        \hline
+        \texttt{111\_1}&$f_\pi$&\SI{0.1302(12)}{\gev}&\cite{FLAG:2024oxs}&$\SI{1}{\gev}$\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{FCONST} block.}
+    \label{tab:FCONST}
+\end{table}
+
+\subsection{Observable related parameters}\label{sec:obs_params}
+\paragraph{Block \texttt{B\_Ks}}
+This block contains the parameters needed to compute observables related to $B\to K^*$ decays.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. & Scale & Comment \\
+        \hline
+        \texttt{1}&$a_1^\perp$&\num{0.04(7)}&\cite{Ball:2004rg}&$\SI{1}{\gev}$&--\\
+        \texttt{2}&$a_2^\perp$&\num{0.10(8)}&\cite{Ball:2004rg}&$\SI{1}{\gev}$&--\\
+        \texttt{3}&$a_1^\parallel$&\num{0.06(07)}&\cite{Ball:2004rg}&$\SI{1}{\gev}$&--\\
+        \texttt{4}&$a_2^\parallel$&\num{0.16(5)}&\cite{Ball:2004rg}&$\SI{1}{\gev}$&--\\
+        \texttt{5}&$\zeta_3^A$&\num{0.032}&\cite{Ball:1998sk}&$\SI{1}{\gev}$&--\\
+        \texttt{6}&$\zeta_3^V$&\num{0.013}&\cite{Ball:1998sk}&$\SI{1}{\gev}$&--\\
+        \texttt{7}&$\omega_{1,0}^A$&\num{-2.1}&\cite{Ball:1998sk}&$\SI{1}{\gev}$&--\\
+        \texttt{8}&$\tilde\delta_+$&\num{0.16}&\cite{Ball:1998sk}&$\SI{1}{\gev}$&--\\
+        \texttt{9}&$\tilde\delta_-$&\num{-0.16}&\cite{Ball:1998sk}&$\SI{1}{\gev}$&--\\
+        \texttt{10}&$\lambda_B$&\SI{0.46(11)}{\gev}&\cite{Ball:2006nr}&$\SI{1}{\gev}$&\\
+        \texttt{11}&$T_1^{B\to K^*}$&\num{0.312(32)}& ?? & $\SI{1}{\gev}$&LCSR + Lattice\\
+        \texttt{12}&$\Lambda_h$&\SI{0.5(1)}{\gev}&--&--&Hadronic scale\\
+        \texttt{13}&$\mu_0$&\SI{-1}{\gev}\footnotemark&--&--&--\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Ks} block.}
+    \label{tab:B_Ks}
+\end{table}
+\footnotetext{When this parameter is set to $-1$, then $\mu_0=\mu_b$ is enforced at runtime.}
+
+\paragraph{Block \texttt{B\_ll}}
+This block contains the parameters needed to compute observables related to $B\to \ell^+\ell^-$ decays.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1}&$y_s$&\num{0.0635(14)}&\cite{ParticleDataGroup:2024cfk}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_ll} block.}
+    \label{tab:B_ll}
+\end{table}
+
+\paragraph{Block \texttt{B\_Xs}}
+This block contains the parameters needed to compute observables related to the $B\to X_s\gamma$ inclusive decay.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. & Comment \\
+        \hline
+        \texttt{1}&$E_0$&\SI{1.6}{\gev}&--&--\\
+        \texttt{2}&$\mathrm{BR}(B\to X_c e\bar\nu)_{\rm exp.}$&\num{0.1065(16)}&\cite{Gambino:2013rza}&--\\
+        \texttt{3}&$\mu_G^2$&\num{0.336(64)}&\cite{Gambino:2013rza}&--\\
+        \texttt{4}&$\rho_D^3$&\num{0.153(45)}&\cite{Gambino:2013rza}&--\\
+        \texttt{5}&$\rho_{LS}^3$&\num{-0.145(98)}&\cite{Gambino:2013rza}&--\\
+        \texttt{6}&$\lambda_2$&\SI{0.120(18)}{\gev\squared}&\cite{ParticleDataGroup:2024cfk,Misiak:2006ab}&--\\
+        \texttt{7}&$\mu_c$&\SI{2}{\gev}&--&--\\
+        \texttt{8}&$z_0$&$10^{10}$&--&For interpolation\\
+        \texttt{9}&$z_1$&$10^{20}$&--&For interpolation\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Xs} block.}
+    \label{tab:B_Xs}
+\end{table}
+
+\paragraph{Block \texttt{B\_Dlnu}}
+This block contains the parameters needed to compute observables related to $B\to D$ decays.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1}&$V_1(1)$&\num{1.074(24)}&\cite{Sakaki:2013bfa}\\
+        \texttt{2}&$\rho_D^2$&\num{1.186(54)}&\cite{Sakaki:2013bfa}\\
+        \texttt{3}&$\Delta(w)$&\num{1(1)}&\cite{Sakaki:2013bfa}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Dlnu} block.}
+    \label{tab:B_Dlnu}
+\end{table}
+
+\paragraph{Block \texttt{B\_Dslnu}}
+This block contains the parameters needed to compute observables related to $B\to D^*$ decays.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1}&$h_{A_1}(1)$&\num{0.921(17)}&\cite{Sakaki:2013bfa}\\
+        \texttt{2}&$\rho_{D^*}^2$&\num{1.214(26)}&\cite{Sakaki:2013bfa}\\
+        \texttt{3}&$R_1(1)$&\num{1.403(33)}&\cite{Sakaki:2013bfa}\\
+        \texttt{4}&$R_2(1)$&\num{0.864(20)}&\cite{Sakaki:2013bfa}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Dslnu} block.}
+    \label{tab:B_Dslnu}
+\end{table}
+
+\paragraph{Block \texttt{B\_Xsll}}
+This block contains the parameters needed to compute observables related to $B\to X_s\ell\ell$ inclusive decay.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1}&$\lambda_1$&\SI{-0.15(10)}{\gev\squared}&\cite{Proceedings:2003xqt}\\
+        \texttt{2}&$\rho_1$&\SI{0.06(6)}{\gev\cubed}&\cite{Proceedings:2003xqt}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Xsll} block.}
+    \label{tab:B_Xsll}
+\end{table}
+
+\paragraph{Block \texttt{M0\_Mix}}
+This block contains the parameters needed to compute observables related to neutral meson mixings.
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{ccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Scale & Ref. \\
+        \hline
+        \texttt{1}&$r_\chi^{db}$&\num{1.607(37)}&\SI{4.16}{\gev}&\cite{Dowdall:2019bea}\\
+        \texttt{2}&$r_\chi^{sb}$&\num{1.601(37)}&\SI{4.16}{\gev}&\cite{Dowdall:2019bea}\\
+        \texttt{3}&$r_\chi^{ds}$&\num{33.05(71)}&\SI{3}{\gev}&\cite{FLAG:2024oxs}\\
+        \texttt{4\_1}&$\ev{\mathcal{O}_1^{cu}}$&\num{0.0806(54)}(16)\,\si{\gev^4}&\SI{3}{\gev}&\cite{Bazavov:2017weg}\\
+        \texttt{4\_2}&$\ev{\mathcal{O}_2^{cu}}$&\num{-0.1442(66)}(29)\,\si{\gev^4}&\SI{3}{\gev}&\cite{Bazavov:2017weg}\\
+        \texttt{4\_3}&$\ev{\mathcal{O}_3^{cu}}$&\num{0.0452(30)}(9)\,\si{\gev^4}&\SI{3}{\gev}&\cite{Bazavov:2017weg}\\
+        \texttt{4\_4}&$\ev{\mathcal{O}_4^{cu}}$&\num{0.2745(129)}(55)\,\si{\gev^4}&\SI{3}{\gev}&\cite{Bazavov:2017weg}\\
+        \texttt{4\_5}&$\ev{\mathcal{O}_5^{cu}}$&\num{0.1035(71)}(21)\,\si{\gev^4}&\SI{3}{\gev}&\cite{Bazavov:2017weg}\\
+        \texttt{5\_1}&$\qty|\Gamma_{12}^{B_s}|$&\SI{0.0435}{\per\pico\second}&--&--\\
+        \texttt{5\_2}&$\arg\Gamma_{12}^{B_s}$&\num{-0.04}&--&--\\
+        \texttt{6}&$\Delta\Gamma_{B_s}$&\SI{0.082(5)}{\per\pico\second}&--&\cite{ParticleDataGroup:2024cfk}\\
+        \texttt{7}&$\kappa_\epsilon$&\num{0.94(2)}&--&\cite{Buras:2010pza}\\
+        \texttt{8}&$\mu_B$&\SI{4.16}{\gev}&--&--\\
+        \texttt{9}&$\mu_K$&\SI{3}{\gev}&--&--\\
+        \texttt{10}&$\mu_D$&\SI{3}{\gev}&--&--\\
+        \texttt{11}&$\eta_{cc}$&\num{1.87(76)}&\SI{1.279}{\gev}&\cite{Brod:2011ty}\\
+        \texttt{12}&$\eta_{ct}$&\num{0.496(47)}&$[1,2]$\,\si{\gev}&\cite{Brod:2010mj}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{M0\_Mix} block.  Entries without a reference are internal default inputs used by the current release configuration.}
+    \label{tab:M0_Mix}
+\end{table}
+
+\paragraph{Block \texttt{B\_Ksll}}
+This block contains the parameters needed to compute observables related to the $B\to K^*(\to K\pi)\ell^+\ell^-$ decay. Due to the different published values of the $B\to K^*$ formfactors leading to phenomenologically significant differences in the final observables, \hi~ lets the user choose among several options gathered in the enum \texttt{BKstarllDecay::FF\_SRC}. The possible options are:
+\begin{enumerate}[label=$\diamond$]
+    \item \texttt{FF\_SRC::BSZ\_SR\_LAT}: LCSR + Lattice fit from \cite{Bharucha:2015bzk} (Table 15 p. 56)
+    \item \texttt{FF\_SRC::BSZ\_SR}: LCSR only fit from \cite{Bharucha:2015bzk} (Table 14 p. 55)
+    \item \texttt{FF\_SRC::GRvDV}: LCSR + Lattice fit from \cite{Gubernari:2023puw}
+    \item \texttt{FF\_SRC::GKvD\_SR\_LAT}: LCSR + Lattice fit from \cite{Gubernari:2018wyi}
+    \item \texttt{FF\_SRC::GKvD\_SR}: LCSR only fit from \cite{Gubernari:2018wyi}
+    \item \texttt{FF\_SRC::HLMW}: Lattice fit from \cite{Horgan:2013hoa} and \cite{Horgan:2015vla} (Tables 5 and 6 p. 9)
+\end{enumerate}
+
+\begin{table}[!ht]
+    \centering
+    \begin{tabular}{cccccc}
+        \hline
+        \texttt{ID} & Parameter & Default value & Ref. \\
+        \hline
+        \texttt{1\_0\_1}&$m_{R,0^-}$&\SI{5.366}{\gev}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_0\_2}&$m_{R,1^-}$&\SI{5.415}{\gev}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_0\_3}&$m_{R,1^+}$&\SI{5.829}{\gev}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_1\_0}&$\alpha_0^{A_0}$&\num{0.369(29)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_1\_1}&$\alpha_1^{A_0}$&\num{-1.37(26)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_1\_2}&$\alpha_2^{A_0}$&\num{0.1(1.6)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_2\_0}&$\alpha_0^{A_1}$&\num{0.297(26)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_2\_1}&$\alpha_1^{A_1}$&\num{0.39(19)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_2\_2}&$\alpha_2^{A_1}$&\num{1.2(1.0)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_3\_0}&$\alpha_0^{A_{12}}$&\num{0.265(21)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_3\_1}&$\alpha_1^{A_{12}}$&\num{0.53(13)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_3\_2}&$\alpha_2^{A_{12}}$&\num{0.48(65)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_4\_0}&$\alpha_0^{V}$&\num{0.376(33)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_4\_1}&$\alpha_1^{V}$&\num{-1.17(26)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_4\_2}&$\alpha_2^{V}$&\num{2.4(1.5)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_5\_0}&$\alpha_0^{T_1}$&\num{0.312(27)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_5\_1}&$\alpha_1^{T_1}$&\num{-1.01(19)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_5\_2}&$\alpha_2^{T_1}$&\num{1.5(1.6)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_6\_0}&$\alpha_0^{T_2}$&\num{0.312(27)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_6\_1}&$\alpha_1^{T_2}$&\num{0.50(17)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_6\_2}&$\alpha_2^{T_2}$&\num{1.61(80)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_7\_0}&$\alpha_0^{T_{23}}$&\num{0.667(63)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_7\_1}&$\alpha_1^{T_{23}}$&\num{1.32(22)}&\cite{Bharucha:2015bzk}\\
+        \texttt{1\_7\_2}&$\alpha_2^{T_{23}}$&\num{3.8(2.2)}&\cite{Bharucha:2015bzk}\\
+        \hline
+    \end{tabular}
+    \caption{Entries of the \texttt{B\_Ksll} block.}
+    \label{tab:B_Ksll}
+\end{table}
+
+
+\newpage
+
+\bibliographystyle{elsarticle-num}
+\bibliography{references}
+
+
+\end{document}
+
+%%
+%% End of file

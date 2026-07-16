@@ -1,0 +1,224 @@
+cmake_minimum_required(VERSION 3.20)
+project(Hyperiso VERSION 1.0.0 LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED True)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}/Cmake/")
+include(Docs)
+include(Warnings)
+include(Tools)
+include(CMakePackageConfigHelpers)
+include(GNUInstallDirs)
+include(FetchContent)
+
+
+if (NOT DEFINED BUILD_WITH_SOFTSUSY)
+    option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_MARTY)
+    option(BUILD_WITH_MARTY "Build project with MARTY support" OFF)
+endif()
+
+if (NOT DEFINED BUILD_WITH_APP)
+    option(BUILD_WITH_APP "Build development app/benchmark executable targets" OFF)
+endif()
+if (NOT DEFINED BUILD_WITH_CLI)
+    option(BUILD_WITH_CLI "Build the hyperiso-ui command-line executable" OFF)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    add_compile_definitions(BUILD_WITH_SOFTSUSY)
+endif()
+
+if (BUILD_WITH_SOFTSUSY)
+    if(CMAKE_CXX_STANDARD LESS 14)
+        message(FATAL_ERROR "SOFTSUSY requires at least C++14 support.")
+    endif()
+
+    find_program(MAKE_EXEC make PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT MAKE_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires GNU Make. Install it before proceeding.")
+    endif()
+
+    find_program(FORTRAN_EXEC gfortran PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT FORTRAN_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires a Fortran compiler (e.g., gfortran).")
+    endif()
+
+    find_program(LATEX_EXEC pdflatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LATEX_EXEC)
+        message(FATAL_ERROR "SOFTSUSY requires LaTeX. Install pdflatex and other LaTeX tools.")
+    endif()
+endif()
+
+if (BUILD_WITH_MARTY)
+    find_program(CMAKE_EXEC cmake PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT CMAKE_EXEC)
+        message(FATAL_ERROR "MARTY requires CMake. Install it before proceeding.")
+    endif()
+
+    find_program(LATEX_EXEC pdflatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LATEX_EXEC)
+        message(FATAL_ERROR "MARTY requires pdflatex for generating documentation.")
+    endif()
+
+    find_program(LUALATEX_EXEC lualatex PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT LUALATEX_EXEC)
+        message(FATAL_ERROR "MARTY requires lualatex. Install it before proceeding.")
+    endif()
+
+    find_program(DVIPNG_EXEC dvipng PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT DVIPNG_EXEC)
+        message(FATAL_ERROR "MARTY requires dvipng for documentation. Install dvipng.")
+    endif()
+
+    find_program(CONVERT_EXEC convert PATHS /usr/local/bin /usr/bin /bin)
+    if(NOT CONVERT_EXEC)
+        message(FATAL_ERROR "MARTY requires ImageMagick (convert tool). Install it before proceeding.")
+    endif()
+endif()
+
+option(ENABLE_TESTS "Enable building of tests" OFF)
+
+option(ENABLE_WARNINGS "Enable warnings" OFF)
+option(ENABLE_WARNINGS_AS_ERRORS "Enable warnings as errors" OFF)
+
+option(ENABLE_ADDRESS_SANITIZER "Enable AddressSanitizer" OFF)
+option(ENABLE_ADRESS_SANITIZER "Deprecated alias for ENABLE_ADDRESS_SANITIZER" OFF)
+option(ENABLE_UNDEFINED_SANITIZER "Enable UndefinedBehaviorSanitizer" OFF)
+
+if(ENABLE_ADRESS_SANITIZER)
+    message(DEPRECATION "ENABLE_ADRESS_SANITIZER is deprecated; use ENABLE_ADDRESS_SANITIZER")
+    set(ENABLE_ADDRESS_SANITIZER ON)
+endif()
+
+option(ENABLE_CLANG_TIDY "Enable to add clang tidy." OFF)
+
+option(ENABLE_CLANG_FORMAT "Enable to add clang-format." OFF)
+option(ENABLE_CMAKE_FORMAT "Enable to add cmake-format." OFF)
+
+
+if (ENABLE_ADDRESS_SANITIZER OR ENABLE_UNDEFINED_SANITIZER)
+    include(Sanitizers)
+    add_sanitizer_flags()
+endif()
+
+add_cmake_format_target()
+add_clang_format_target()
+
+add_subdirectory(src/Common CommonLib)
+add_subdirectory(src/Configured ConfiguredModule)
+add_subdirectory(src/Math MathLib)
+add_subdirectory(src/DataBase DataBaseLib)
+add_subdirectory(src/ExternalIntegration ExternalIntegrationLib)
+add_subdirectory(src/Core CoreLib)
+add_subdirectory(src/ExternalIntegration/MartyInterface MartyInterfaceLib)
+add_subdirectory(src/PhysicalModel PhysicalModelLib)
+add_subdirectory(src/BusinessLogic BusinessLogicLib)
+add_subdirectory(src/Statistic StatisticLib)
+add_subdirectory(src/UserInterface UserInterfaceLib)
+
+if (ENABLE_TESTS)
+    enable_testing()
+    add_subdirectory(Test)
+endif()
+
+if (NOT DEFINED BUILD_WITH_PYTHON)
+    option(BUILD_WITH_PYTHON "Build project with PYTHON support" OFF)
+endif()
+
+if (BUILD_WITH_PYTHON)
+    add_subdirectory(src/Python pyhyperiso)
+endif()
+
+
+add_library(Hyperiso INTERFACE)
+
+add_library(Hyperiso::Hyperiso ALIAS Hyperiso)
+
+target_link_libraries(Hyperiso INTERFACE
+    CommonLib
+    ConfiguredModule
+    MathLib
+    DataBaseLib
+    ExternalIntegrationLib
+    CoreLib
+    MartyInterfaceLib
+    PhysicalModelLib
+    BusinessLogicLib
+    StatisticLib
+    UserInterfaceLib
+)
+
+target_include_directories(Hyperiso
+    INTERFACE
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}>
+)
+
+include(GNUInstallDirs)
+
+set(HYPERISO_MODULES
+    Common
+    Configured
+    Math
+    DataBase
+    ExternalIntegration
+    Core
+    ExternalIntegration/MartyInterface
+    PhysicalModel
+    BusinessLogic
+    Statistic
+    UserInterface
+)
+
+foreach(MOD IN LISTS HYPERISO_MODULES)
+    install(DIRECTORY ${PROJECT_SOURCE_DIR}/src/${MOD}/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso/${MOD}
+        FILES_MATCHING
+            PATTERN "*.hpp"
+            PATTERN "*.h"
+            PATTERN "CMakeFiles" EXCLUDE
+            PATTERN "*.cpp" EXCLUDE
+    )
+endforeach()
+
+install(FILES ${PROJECT_SOURCE_DIR}/include/hyperiso.hpp
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/hyperiso)
+
+
+install(TARGETS Hyperiso
+    EXPORT HyperisoTargets
+)
+
+# Export pour find_package()
+install(EXPORT HyperisoTargets
+    NAMESPACE Hyperiso::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)
+
+include(CMakePackageConfigHelpers)
+
+set(BUILD_WITH_SOFTSUSY ${BUILD_WITH_SOFTSUSY})
+set(BUILD_WITH_MARTY    ${BUILD_WITH_MARTY})
+
+configure_package_config_file(
+    ${PROJECT_SOURCE_DIR}/Cmake/HyperisoConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)
+
+write_basic_package_version_file(
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfigVersion.cmake
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+install(FILES
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfig.cmake
+    ${CMAKE_CURRENT_BINARY_DIR}/HyperisoConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Hyperiso
+)

@@ -1,0 +1,20 @@
+services:
+  hyperiso-dev:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: hyperiso:dev
+    command: hyperiso-ui --help
+
+  hyperiso-dash:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.dash
+    image: hyperiso:dash
+    ports:
+      - "8050:8050"
+    volumes:
+      - ./Assets/lha:/opt/hyperiso/Assets/lha:ro
+    environment:
+      DASH_HOST: 0.0.0.0
+      DASH_PORT: 8050

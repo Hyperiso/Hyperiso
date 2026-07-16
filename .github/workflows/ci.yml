@@ -1,0 +1,114 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  cpp:
+    name: C++ ${{ matrix.compiler }} ${{ matrix.build_type }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Release
+          - compiler: clang
+            cc: clang
+            cxx: clang++
+            build_type: Release
+          - compiler: gcc
+            cc: gcc
+            cxx: g++
+            build_type: Debug
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang cmake ninja-build pkg-config libgsl-dev libeigen3-dev
+
+      - name: Configure
+        env:
+          CC: ${{ matrix.cc }}
+          CXX: ${{ matrix.cxx }}
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }} \
+            -DENABLE_TESTS=ON \
+            -DBUILD_WITH_CLI=ON \
+            -DHYPERISO_BUILD_COMPARISON_TESTS=ON
+
+      - name: Build
+        run: cmake --build build --parallel 2
+
+      - name: Test
+        run: ctest --test-dir build --output-on-failure
+
+      - name: Install smoke test
+        run: |
+          cmake --install build --prefix "$PWD/install"
+          test -n "$(find "$PWD/install" -type f -print -quit)"
+
+      - name: CLI smoke test
+        run: |
+          CLI="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
+          test -n "${CLI}"
+          test "$("${CLI}" --version)" = "1.0.0"
+          "${CLI}" --help >/dev/null
+
+  examples-cpp:
+    name: C++ examples against install
+    runs-on: ubuntu-latest
+    needs: cpp
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential cmake ninja-build pkg-config libgsl-dev libeigen3-dev
+
+      - name: Build and install HyperIso
+        run: |
+          cmake -S Hyperiso/Hyperiso/core -B build \
+            -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_WITH_CLI=ON
+          cmake --build build --parallel 2
+          cmake --install build --prefix "$PWD/install"
+
+      - name: Build examples
+        run: |
+          cmake -S Hyperiso/Hyperiso/examples_cpp -B build-examples \
+            -G Ninja \
+            -DCMAKE_PREFIX_PATH="$PWD/install"
+          cmake --build build-examples --parallel 2
+
+      - name: Run database-writer example
+        run: |
+          ./build-examples/core_database_writer \
+            "$PWD/Assets/lha/si_input.flha" \
+            "$PWD/database_exports_cpp"
+          test -s database_exports_cpp/database.json
+          test -s database_exports_cpp/database.yaml
+          test -s database_exports_cpp/database.flha
+          grep -q '^BLOCK MASS' database_exports_cpp/database.flha
