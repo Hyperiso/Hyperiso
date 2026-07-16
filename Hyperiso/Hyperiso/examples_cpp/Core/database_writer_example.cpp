@@ -14,7 +14,7 @@ int main(int argc, char** argv) {
     config.flags[ExternalFlag::IS_LHA_SPECTRUM] = false;
     config.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
     config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT] = false;
-    config.flags[ExternalFlag::HYP_AS_SM_MARTY] = true;
+    config.flags[ExternalFlag::HYP_AS_SM_MARTY] = false;
 
     const std::filesystem::path lha_path =
         argc > 1 ? std::filesystem::path(argv[1])

@@ -12,7 +12,7 @@ int main() {
     config.flags[ExternalFlag::IS_LHA_SPECTRUM] = false;        // If true, all spectrum parameters are read from the LHA. Useful mostly with THDM or SUSY.
     config.flags[ExternalFlag::HAS_WILSON_INPUT] = false;       // If true, Hyperiso searches Wilson coefficients in the FLHA input.
     config.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT] = false;// If true, Hyperiso searches theoretical observable values in the FLHA input.
-    config.flags[ExternalFlag::HYP_AS_SM_MARTY] = true;         // If true, Hyperiso computes SM Wilsons and lets MARTY provide only BSM contributions.
+    config.flags[ExternalFlag::HYP_AS_SM_MARTY] = false;         // If true, Hyperiso computes SM Wilsons and lets MARTY provide only BSM contributions.
 
     config.model = Model::SM;                                   // Model: SM, THDM, SUSY or MARTY.
     config.mty_model_name = "marty_model_name";                 // Only used in Model::MARTY mode.

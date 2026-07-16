@@ -15,7 +15,7 @@ int main() {
     config_hyp.flags[ExternalFlag::IS_LHA_SPECTRUM] = false;
     config_hyp.flags[ExternalFlag::HAS_WILSON_INPUT] = false;
     config_hyp.flags[ExternalFlag::HAS_TH_OBSERVABLE_INPUT] = false;
-    config_hyp.flags[ExternalFlag::HYP_AS_SM_MARTY] = true;
+    config_hyp.flags[ExternalFlag::HYP_AS_SM_MARTY] = false;
     config_hyp.model = Model::SM;
     config_hyp.mty_model_name = "marty_model_name";
     config_hyp.mty_model_path = "/my/custom/marty/path";
