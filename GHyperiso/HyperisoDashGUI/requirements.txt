@@ -1,4 +1,4 @@
 dash>=2.16
-plotly>=5.18
+plotly>=6.9.0
 pandas>=2.0
 numpy>=1.24
