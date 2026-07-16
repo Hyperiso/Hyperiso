@@ -280,12 +280,8 @@ class AdvancedStatisticConfig:
         cpp.fit_parameter_sensitivity_probe_fraction = float(
             self.fit_parameter_sensitivity_probe_fraction
         )
-        cpp.fit_parameter_sensitivity_rel_cutoff = float(
-            self.fit_parameter_sensitivity_rel_cutoff
-        )
-        cpp.fit_parameter_sensitivity_abs_cutoff = float(
-            self.fit_parameter_sensitivity_abs_cutoff
-        )
+        cpp.fit_parameter_sensitivity_rel_cutoff = float(self.fit_parameter_sensitivity_rel_cutoff)
+        cpp.fit_parameter_sensitivity_abs_cutoff = float(self.fit_parameter_sensitivity_abs_cutoff)
         cpp.fit_parameter_sensitivity_keep_on_failure = bool(
             self.fit_parameter_sensitivity_keep_on_failure
         )
