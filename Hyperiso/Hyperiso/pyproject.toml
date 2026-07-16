@@ -118,9 +118,10 @@ build = "cp310-* cp311-* cp312-*"
 skip = "pp* *-musllinux*"
 build-verbosity = 1
 test-requires = ["pytest>=8"]
+test-sources = ["Hyperiso/Hyperiso/pyhyperiso/test"]
 test-command = [
   "python -c \"import pyhyperiso; assert pyhyperiso.__version__ == '1.0.0'; from pyhyperiso.phyperiso import pyhyperiso as native; assert native.__version__ == '1.0.0'\"",
-  "python -m pytest {package}/pyhyperiso/test -q --import-mode=importlib",
+  "python -m pytest Hyperiso/Hyperiso/pyhyperiso/test -q --import-mode=importlib",
 ]
 
 [tool.cibuildwheel.environment]
