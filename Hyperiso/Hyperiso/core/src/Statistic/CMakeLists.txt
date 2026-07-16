@@ -8,7 +8,6 @@ project(Statistic)
 if (NOT DEFINED BUILD_WITH_APP)
     option(BUILD_WITH_APP "Build development app/benchmark executable targets" OFF)
 endif()
-add_compile_options(-O1)
 
 if (NOT DEFINED BUILD_WITH_SOFTSUSY)
     option(BUILD_WITH_SOFTSUSY "Build project with SOFTSUSY support" OFF)
