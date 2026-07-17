@@ -47,8 +47,10 @@ jobs:
         run: |
           python - <<'PY'
           import pyhyperiso
-          assert pyhyperiso.__version__ == '1.0.1'
-          print('pyhyperiso import OK')
+          from pyhyperiso.phyperiso import pyhyperiso as native
+
+          assert pyhyperiso.__version__ == native.__version__
+          print(f'pyhyperiso {pyhyperiso.__version__} import OK')
           PY
 
       - name: Run Python tests

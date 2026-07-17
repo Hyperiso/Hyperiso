@@ -71,7 +71,12 @@ jobs:
         run: |
           CLI="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
           test -n "${CLI}"
-          test "$("${CLI}" --version)" = "1.0.1"
+          EXPECTED_VERSION="$(
+            sed -n 's/^project(Hyperiso VERSION \([0-9.]*\).*/\1/p' \
+              Hyperiso/Hyperiso/core/CMakeLists.txt
+          )"
+          test -n "${EXPECTED_VERSION}"
+          test "$("${CLI}" --version)" = "${EXPECTED_VERSION}"
           "${CLI}" --help >/dev/null
 
   examples-cpp:

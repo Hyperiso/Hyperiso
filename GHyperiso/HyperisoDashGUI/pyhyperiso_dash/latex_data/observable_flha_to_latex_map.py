@@ -1,20 +1,20 @@
 #!/usr/bin/env python3
 """FLHA-id -> LaTeX map for observables.
 
-Generated from observable_maps(2).py.
+Generated from Hyperiso/InputHelper/observable_maps.py.
 
 Main public mapping:
     OBSERVABLE_FLHA_TO_LATEX_MAP[flha_id] -> tuple of LaTeX labels
 
-The value is always a tuple because a few FLHA identifiers are reused by
-multiple observables in the input map. For convenience, the primary/first label
-is also exposed in OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP.
+The value is always a tuple to keep the public lookup API stable. Builtin
+observable identifiers are unique in v1.0.2. For convenience, the primary/first
+label is also exposed in OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP.
 
 Counts
 ------
 - Observable enum -> FLHA entries: 489
-- Unique FLHA ids: 483
-- Colliding FLHA ids: 6
+- Unique FLHA ids: 489
+- Colliding FLHA ids: 0
 - Enum entries with a derived raw name, missing from OBSERVABLE_MAPPING: 6
 """
 
@@ -518,12 +518,12 @@ OBSERVABLE_ENUM_TO_NAME_MAP = {
 
 OBSERVABLE_ENUM_TO_FLHA_MAP = {
     "ABS_EPSILON_K": (311, 75, 1, -311),
-    "ALPHA_K_B0__KSTAR0_E_E": (511, 932, 3, 313, 11, -11),
-    "ALPHA_K_B0__KSTAR0_MU_MU": (511, 932, 3, 313, 13, -13),
-    "ALPHA_K_B0__KSTAR0_TAU_TAU": (511, 932, 3, 313, 15, -15),
-    "ALPHA_K_B__KSTAR_E_E": (521, 932, 3, 323, 11, -11),
-    "ALPHA_K_B__KSTAR_MU_MU": (521, 932, 3, 323, 13, -13),
-    "ALPHA_K_B__KSTAR_TAU_TAU": (521, 932, 3, 323, 15, -15),
+    "ALPHA_K_B0__KSTAR0_E_E": (511, 933, 3, 313, 11, -11),
+    "ALPHA_K_B0__KSTAR0_MU_MU": (511, 933, 3, 313, 13, -13),
+    "ALPHA_K_B0__KSTAR0_TAU_TAU": (511, 933, 3, 313, 15, -15),
+    "ALPHA_K_B__KSTAR_E_E": (521, 933, 3, 323, 11, -11),
+    "ALPHA_K_B__KSTAR_MU_MU": (521, 933, 3, 323, 13, -13),
+    "ALPHA_K_B__KSTAR_TAU_TAU": (521, 933, 3, 323, 15, -15),
     "A_1C_B0__KSTAR0_E_E": (511, -95312, 3, 313, 11, -11),
     "A_1C_B0__KSTAR0_MU_MU": (511, -95312, 3, 313, 13, -13),
     "A_1C_B0__KSTAR0_TAU_TAU": (511, -95312, 3, 313, 15, -15),
@@ -848,8 +848,8 @@ OBSERVABLE_ENUM_TO_FLHA_MAP = {
     "P_8_B__KSTAR_E_E": (521, 9518, 3, 323, 11, -11),
     "P_8_B__KSTAR_MU_MU": (521, 9518, 3, 323, 13, -13),
     "P_8_B__KSTAR_TAU_TAU": (521, 9518, 3, 323, 15, -15),
-    "P_D_B0__DSTAR_TAU_NU": (511, 921423, 3, 413, -15, 16),
-    "P_D_B__DSTAR0_TAU_NU": (521, 921423, 3, 423, -15, 16),
+    "P_D_B0__DSTAR_TAU_NU": (511, 9221, 3, 413, -15, 16),
+    "P_D_B__DSTAR0_TAU_NU": (521, 9221, 3, 423, -15, 16),
     "P_PRIME_4_B0__KSTAR0_E_E": (511, 9524, 3, 313, 11, -11),
     "P_PRIME_4_B0__KSTAR0_MU_MU": (511, 9524, 3, 313, 13, -13),
     "P_PRIME_4_B0__KSTAR0_TAU_TAU": (511, 9524, 3, 313, 15, -15),
@@ -910,10 +910,10 @@ OBSERVABLE_ENUM_TO_FLHA_MAP = {
     "P_PRIME_8_CPV_B__KSTAR_E_E": (521, -9528, 3, 323, 11, -11),
     "P_PRIME_8_CPV_B__KSTAR_MU_MU": (521, -9528, 3, 323, 13, -13),
     "P_PRIME_8_CPV_B__KSTAR_TAU_TAU": (521, -9528, 3, 323, 15, -15),
-    "P_TAU_B0__DSTAR_TAU_NU": (511, 92015, 3, 413, -15, 16),
-    "P_TAU_B0__D_TAU_NU": (511, 92015, 3, 411, -15, 16),
-    "P_TAU_B__D0_TAU_NU": (521, 92015, 3, 421, -15, 16),
-    "P_TAU_B__DSTAR0_TAU_NU": (521, 92015, 3, 423, -15, 16),
+    "P_TAU_B0__DSTAR_TAU_NU": (511, 9212, 3, 413, -15, 16),
+    "P_TAU_B0__D_TAU_NU": (511, 9212, 3, 411, -15, 16),
+    "P_TAU_B__D0_TAU_NU": (521, 9212, 3, 421, -15, 16),
+    "P_TAU_B__DSTAR0_TAU_NU": (521, 9212, 3, 423, -15, 16),
     "Q0_A_FB_B0__KSTAR0_E_E": (511, 50, 3, 313, 11, -11),
     "Q0_A_FB_B0__KSTAR0_MU_MU": (511, 50, 3, 313, 13, -13),
     "Q0_A_FB_B0__KSTAR0_TAU_TAU": (511, 50, 3, 313, 15, -15),
@@ -1673,12 +1673,12 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (511, 931, 3, 313, 11, -11): ("F_L_B0__KSTAR0_E_E",),
     (511, 931, 3, 313, 13, -13): ("F_L_B0__KSTAR0_MU_MU",),
     (511, 931, 3, 313, 15, -15): ("F_L_B0__KSTAR0_TAU_TAU",),
-    (511, 932, 3, 313, 11, -11): ("ALPHA_K_B0__KSTAR0_E_E", "F_T_B0__KSTAR0_E_E"),
-    (511, 932, 3, 313, 13, -13): ("ALPHA_K_B0__KSTAR0_MU_MU", "F_T_B0__KSTAR0_MU_MU"),
-    (511, 932, 3, 313, 15, -15): (
-        "ALPHA_K_B0__KSTAR0_TAU_TAU",
-        "F_T_B0__KSTAR0_TAU_TAU",
-    ),
+    (511, 932, 3, 313, 11, -11): ("F_T_B0__KSTAR0_E_E",),
+    (511, 933, 3, 313, 11, -11): ("ALPHA_K_B0__KSTAR0_E_E",),
+    (511, 932, 3, 313, 13, -13): ("F_T_B0__KSTAR0_MU_MU",),
+    (511, 933, 3, 313, 13, -13): ("ALPHA_K_B0__KSTAR0_MU_MU",),
+    (511, 932, 3, 313, 15, -15): ("F_T_B0__KSTAR0_TAU_TAU",),
+    (511, 933, 3, 313, 15, -15): ("ALPHA_K_B0__KSTAR0_TAU_TAU",),
     (511, 934, 3, 311, 11, -11): ("F_H_B0__K0_E_E",),
     (511, 934, 3, 311, 13, -13): ("F_H_B0__K0_MU_MU",),
     (511, 942, 3, 313, 11, -11): ("A_IM_B0__KSTAR0_E_E",),
@@ -1760,8 +1760,8 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (511, 9539, 3, 313, 11, -11): ("S_9_B0__KSTAR0_E_E",),
     (511, 9539, 3, 313, 13, -13): ("S_9_B0__KSTAR0_MU_MU",),
     (511, 9539, 3, 313, 15, -15): ("S_9_B0__KSTAR0_TAU_TAU",),
-    (511, 92015, 3, 411, -15, 16): ("P_TAU_B0__D_TAU_NU",),
-    (511, 92015, 3, 413, -15, 16): ("P_TAU_B0__DSTAR_TAU_NU",),
+    (511, 9212, 3, 411, -15, 16): ("P_TAU_B0__D_TAU_NU",),
+    (511, 9212, 3, 413, -15, 16): ("P_TAU_B0__DSTAR_TAU_NU",),
     (511, 95312, 3, 313, 11, -11): ("S_1C_B0__KSTAR0_E_E",),
     (511, 95312, 3, 313, 13, -13): ("S_1C_B0__KSTAR0_MU_MU",),
     (511, 95312, 3, 313, 15, -15): ("S_1C_B0__KSTAR0_TAU_TAU",),
@@ -1771,7 +1771,7 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (511, 95362, 3, 313, 11, -11): ("S_6C_B0__KSTAR0_E_E",),
     (511, 95362, 3, 313, 13, -13): ("S_6C_B0__KSTAR0_MU_MU",),
     (511, 95362, 3, 313, 15, -15): ("S_6C_B0__KSTAR0_TAU_TAU",),
-    (511, 921423, 3, 413, -15, 16): ("P_D_B0__DSTAR_TAU_NU",),
+    (511, 9221, 3, 413, -15, 16): ("P_D_B0__DSTAR_TAU_NU",),
     (521, -95362, 3, 323, 11, -11): ("A_6C_B__KSTAR_E_E",),
     (521, -95362, 3, 323, 13, -13): ("A_6C_B__KSTAR_MU_MU",),
     (521, -95362, 3, 323, 15, -15): ("A_6C_B__KSTAR_TAU_TAU",),
@@ -1859,9 +1859,12 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (521, 931, 3, 323, 11, -11): ("F_L_B__KSTAR_E_E",),
     (521, 931, 3, 323, 13, -13): ("F_L_B__KSTAR_MU_MU",),
     (521, 931, 3, 323, 15, -15): ("F_L_B__KSTAR_TAU_TAU",),
-    (521, 932, 3, 323, 11, -11): ("ALPHA_K_B__KSTAR_E_E", "F_T_B__KSTAR_E_E"),
-    (521, 932, 3, 323, 13, -13): ("ALPHA_K_B__KSTAR_MU_MU", "F_T_B__KSTAR_MU_MU"),
-    (521, 932, 3, 323, 15, -15): ("ALPHA_K_B__KSTAR_TAU_TAU", "F_T_B__KSTAR_TAU_TAU"),
+    (521, 932, 3, 323, 11, -11): ("F_T_B__KSTAR_E_E",),
+    (521, 933, 3, 323, 11, -11): ("ALPHA_K_B__KSTAR_E_E",),
+    (521, 932, 3, 323, 13, -13): ("F_T_B__KSTAR_MU_MU",),
+    (521, 933, 3, 323, 13, -13): ("ALPHA_K_B__KSTAR_MU_MU",),
+    (521, 932, 3, 323, 15, -15): ("F_T_B__KSTAR_TAU_TAU",),
+    (521, 933, 3, 323, 15, -15): ("ALPHA_K_B__KSTAR_TAU_TAU",),
     (521, 934, 3, 321, 11, -11): ("F_H_B__K_E_E",),
     (521, 934, 3, 321, 13, -13): ("F_H_B__K_MU_MU",),
     (521, 942, 3, 323, 11, -11): ("A_IM_B__KSTAR_E_E",),
@@ -1944,8 +1947,8 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (521, 9539, 3, 323, 11, -11): ("S_9_B__KSTAR_E_E",),
     (521, 9539, 3, 323, 13, -13): ("S_9_B__KSTAR_MU_MU",),
     (521, 9539, 3, 323, 15, -15): ("S_9_B__KSTAR_TAU_TAU",),
-    (521, 92015, 3, 421, -15, 16): ("P_TAU_B__D0_TAU_NU",),
-    (521, 92015, 3, 423, -15, 16): ("P_TAU_B__DSTAR0_TAU_NU",),
+    (521, 9212, 3, 421, -15, 16): ("P_TAU_B__D0_TAU_NU",),
+    (521, 9212, 3, 423, -15, 16): ("P_TAU_B__DSTAR0_TAU_NU",),
     (521, 95312, 3, 323, 11, -11): ("S_1C_B__KSTAR_E_E",),
     (521, 95312, 3, 323, 13, -13): ("S_1C_B__KSTAR_MU_MU",),
     (521, 95312, 3, 323, 15, -15): ("S_1C_B__KSTAR_TAU_TAU",),
@@ -1955,7 +1958,7 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (521, 95362, 3, 323, 11, -11): ("S_6C_B__KSTAR_E_E",),
     (521, 95362, 3, 323, 13, -13): ("S_6C_B__KSTAR_MU_MU",),
     (521, 95362, 3, 323, 15, -15): ("S_6C_B__KSTAR_TAU_TAU",),
-    (521, 921423, 3, 423, -15, 16): ("P_D_B__DSTAR0_TAU_NU",),
+    (521, 9221, 3, 423, -15, 16): ("P_D_B__DSTAR0_TAU_NU",),
     (531, -9539, 3, 333, 11, -11): ("A_9_BS_PHI_E_E",),
     (531, -9539, 3, 333, 13, -13): ("A_9_BS_PHI_MU_MU",),
     (531, -9539, 3, 333, 15, -15): ("A_9_BS_PHI_TAU_TAU",),
@@ -2162,9 +2165,12 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (511, 931, 3, 313, 11, -11): ("F_L_B0__K*0_e_e",),
     (511, 931, 3, 313, 13, -13): ("F_L_B0__K*0_mu_mu",),
     (511, 931, 3, 313, 15, -15): ("F_L_B0__K*0_tau_tau",),
-    (511, 932, 3, 313, 11, -11): ("alpha_K_B0__K*0_e_e", "F_T_B0__K*0_e_e"),
-    (511, 932, 3, 313, 13, -13): ("alpha_K_B0__K*0_mu_mu", "F_T_B0__K*0_mu_mu"),
-    (511, 932, 3, 313, 15, -15): ("alpha_K_B0__K*0_tau_tau", "F_T_B0__K*0_tau_tau"),
+    (511, 932, 3, 313, 11, -11): ("F_T_B0__K*0_e_e",),
+    (511, 933, 3, 313, 11, -11): ("alpha_K_B0__K*0_e_e",),
+    (511, 932, 3, 313, 13, -13): ("F_T_B0__K*0_mu_mu",),
+    (511, 933, 3, 313, 13, -13): ("alpha_K_B0__K*0_mu_mu",),
+    (511, 932, 3, 313, 15, -15): ("F_T_B0__K*0_tau_tau",),
+    (511, 933, 3, 313, 15, -15): ("alpha_K_B0__K*0_tau_tau",),
     (511, 934, 3, 311, 11, -11): ("F_H_B0__K0_e_e",),
     (511, 934, 3, 311, 13, -13): ("F_H_B0__K0_mu_mu",),
     (511, 942, 3, 313, 11, -11): ("A_IM_B0__K*0_e_e",),
@@ -2246,8 +2252,8 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (511, 9539, 3, 313, 11, -11): ("S_9_B0__K*0_e_e",),
     (511, 9539, 3, 313, 13, -13): ("S_9_B0__K*0_mu_mu",),
     (511, 9539, 3, 313, 15, -15): ("S_9_B0__K*0_tau_tau",),
-    (511, 92015, 3, 411, -15, 16): ("P_tau_B0__D_tau_nu",),
-    (511, 92015, 3, 413, -15, 16): ("P_tau_B0__D*_tau_nu",),
+    (511, 9212, 3, 411, -15, 16): ("P_tau_B0__D_tau_nu",),
+    (511, 9212, 3, 413, -15, 16): ("P_tau_B0__D*_tau_nu",),
     (511, 95312, 3, 313, 11, -11): ("S_1c_B0__K*0_e_e",),
     (511, 95312, 3, 313, 13, -13): ("S_1c_B0__K*0_mu_mu",),
     (511, 95312, 3, 313, 15, -15): ("S_1c_B0__K*0_tau_tau",),
@@ -2257,7 +2263,7 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (511, 95362, 3, 313, 11, -11): ("S_6c_B0__K*0_e_e",),
     (511, 95362, 3, 313, 13, -13): ("S_6c_B0__K*0_mu_mu",),
     (511, 95362, 3, 313, 15, -15): ("S_6c_B0__K*0_tau_tau",),
-    (511, 921423, 3, 413, -15, 16): ("P_D*_B0__D*_tau_nu",),
+    (511, 9221, 3, 413, -15, 16): ("P_D*_B0__D*_tau_nu",),
     (521, -95362, 3, 323, 11, -11): ("A_6c_B__K*_e_e",),
     (521, -95362, 3, 323, 13, -13): ("A_6c_B__K*_mu_mu",),
     (521, -95362, 3, 323, 15, -15): ("A_6c_B__K*_tau_tau",),
@@ -2345,9 +2351,12 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (521, 931, 3, 323, 11, -11): ("F_L_B__K*_e_e",),
     (521, 931, 3, 323, 13, -13): ("F_L_B__K*_mu_mu",),
     (521, 931, 3, 323, 15, -15): ("F_L_B__K*_tau_tau",),
-    (521, 932, 3, 323, 11, -11): ("alpha_K_B__K*_e_e", "F_T_B__K*_e_e"),
-    (521, 932, 3, 323, 13, -13): ("alpha_K_B__K*_mu_mu", "F_T_B__K*_mu_mu"),
-    (521, 932, 3, 323, 15, -15): ("alpha_K_B__K*_tau_tau", "F_T_B__K*_tau_tau"),
+    (521, 932, 3, 323, 11, -11): ("F_T_B__K*_e_e",),
+    (521, 933, 3, 323, 11, -11): ("alpha_K_B__K*_e_e",),
+    (521, 932, 3, 323, 13, -13): ("F_T_B__K*_mu_mu",),
+    (521, 933, 3, 323, 13, -13): ("alpha_K_B__K*_mu_mu",),
+    (521, 932, 3, 323, 15, -15): ("F_T_B__K*_tau_tau",),
+    (521, 933, 3, 323, 15, -15): ("alpha_K_B__K*_tau_tau",),
     (521, 934, 3, 321, 11, -11): ("F_H_B+__K+_e_e",),
     (521, 934, 3, 321, 13, -13): ("F_H_B+__K+_mu_mu",),
     (521, 942, 3, 323, 11, -11): ("A_IM_B__K*_e_e",),
@@ -2430,8 +2439,8 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (521, 9539, 3, 323, 11, -11): ("S_9_B__K*_e_e",),
     (521, 9539, 3, 323, 13, -13): ("S_9_B__K*_mu_mu",),
     (521, 9539, 3, 323, 15, -15): ("S_9_B__K*_tau_tau",),
-    (521, 92015, 3, 421, -15, 16): ("P_tau_B__D0_tau_nu",),
-    (521, 92015, 3, 423, -15, 16): ("P_tau_B__D0*_tau_nu",),
+    (521, 9212, 3, 421, -15, 16): ("P_tau_B__D0_tau_nu",),
+    (521, 9212, 3, 423, -15, 16): ("P_tau_B__D0*_tau_nu",),
     (521, 95312, 3, 323, 11, -11): ("S_1c_B__K*_e_e",),
     (521, 95312, 3, 323, 13, -13): ("S_1c_B__K*_mu_mu",),
     (521, 95312, 3, 323, 15, -15): ("S_1c_B__K*_tau_tau",),
@@ -2441,7 +2450,7 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (521, 95362, 3, 323, 11, -11): ("S_6c_B__K*_e_e",),
     (521, 95362, 3, 323, 13, -13): ("S_6c_B__K*_mu_mu",),
     (521, 95362, 3, 323, 15, -15): ("S_6c_B__K*_tau_tau",),
-    (521, 921423, 3, 423, -15, 16): ("P_D0*_B__D0*_tau_nu",),
+    (521, 9221, 3, 423, -15, 16): ("P_D0*_B__D0*_tau_nu",),
     (531, -9539, 3, 333, 11, -11): ("A_9_Bs__phi_e_e",),
     (531, -9539, 3, 333, 13, -13): ("A_9_Bs__phi_mu_mu",),
     (531, -9539, 3, 333, 15, -15): ("A_9_Bs__phi_tau_tau",),
@@ -2802,17 +2811,21 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (511, 931, 3, 313, 15, -15): (
         "$F_L\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     ),
-    (511, 932, 3, 313, 11, -11): (
+    (511, 932, 3, 313, 11, -11): ("$F_T\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",),
+    (511, 933, 3, 313, 11, -11): (
         "$\\alpha_K\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
-        "$F_T\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
     ),
     (511, 932, 3, 313, 13, -13): (
-        "$\\alpha_K\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
         "$F_T\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
     ),
+    (511, 933, 3, 313, 13, -13): (
+        "$\\alpha_K\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
+    ),
     (511, 932, 3, 313, 15, -15): (
-        "$\\alpha_K\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
         "$F_T\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
+    ),
+    (511, 933, 3, 313, 15, -15): (
+        "$\\alpha_K\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     ),
     (511, 934, 3, 311, 11, -11): ("$F_H\\left(B^0 \\to K^0\\,e^+e^-\\right)$",),
     (511, 934, 3, 311, 13, -13): ("$F_H\\left(B^0 \\to K^0\\,\\mu^+\\mu^-\\right)$",),
@@ -3027,10 +3040,10 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (511, 9539, 3, 313, 15, -15): (
         "$S_{9}\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     ),
-    (511, 92015, 3, 411, -15, 16): (
+    (511, 9212, 3, 411, -15, 16): (
         "$P_{\\tau}\\left(B^0 \\to D\\,\\tau\\,\\nu\\right)$",
     ),
-    (511, 92015, 3, 413, -15, 16): (
+    (511, 9212, 3, 413, -15, 16): (
         "$P_{\\tau}\\left(B^0 \\to D^{*}\\,\\tau\\,\\nu\\right)$",
     ),
     (511, 95312, 3, 313, 11, -11): ("$S_{1c}\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",),
@@ -3054,7 +3067,7 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (511, 95362, 3, 313, 15, -15): (
         "$S_{6c}\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     ),
-    (511, 921423, 3, 413, -15, 16): (
+    (511, 9221, 3, 413, -15, 16): (
         "$P_{D^{*}}\\left(B^0 \\to D^{*}\\,\\tau\\,\\nu\\right)$",
     ),
     (521, -95362, 3, 323, 11, -11): ("$A_{6c}\\left(B \\to K^{*}\\,e^+e^-\\right)$",),
@@ -3265,17 +3278,15 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (521, 931, 3, 323, 11, -11): ("$F_L\\left(B \\to K^{*}\\,e^+e^-\\right)$",),
     (521, 931, 3, 323, 13, -13): ("$F_L\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",),
     (521, 931, 3, 323, 15, -15): ("$F_L\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",),
-    (521, 932, 3, 323, 11, -11): (
-        "$\\alpha_K\\left(B \\to K^{*}\\,e^+e^-\\right)$",
-        "$F_T\\left(B \\to K^{*}\\,e^+e^-\\right)$",
-    ),
-    (521, 932, 3, 323, 13, -13): (
+    (521, 932, 3, 323, 11, -11): ("$F_T\\left(B \\to K^{*}\\,e^+e^-\\right)$",),
+    (521, 933, 3, 323, 11, -11): ("$\\alpha_K\\left(B \\to K^{*}\\,e^+e^-\\right)$",),
+    (521, 932, 3, 323, 13, -13): ("$F_T\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",),
+    (521, 933, 3, 323, 13, -13): (
         "$\\alpha_K\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
-        "$F_T\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
     ),
-    (521, 932, 3, 323, 15, -15): (
+    (521, 932, 3, 323, 15, -15): ("$F_T\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",),
+    (521, 933, 3, 323, 15, -15): (
         "$\\alpha_K\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
-        "$F_T\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     ),
     (521, 934, 3, 321, 11, -11): ("$F_H\\left(B^+ \\to K^+\\,e^+e^-\\right)$",),
     (521, 934, 3, 321, 13, -13): ("$F_H\\left(B^+ \\to K^+\\,\\mu^+\\mu^-\\right)$",),
@@ -3473,10 +3484,10 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (521, 9539, 3, 323, 15, -15): (
         "$S_{9}\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     ),
-    (521, 92015, 3, 421, -15, 16): (
+    (521, 9212, 3, 421, -15, 16): (
         "$P_{\\tau}\\left(B \\to D^0\\,\\tau\\,\\nu\\right)$",
     ),
-    (521, 92015, 3, 423, -15, 16): (
+    (521, 9212, 3, 423, -15, 16): (
         "$P_{\\tau}\\left(B \\to D^{*0}\\,\\tau\\,\\nu\\right)$",
     ),
     (521, 95312, 3, 323, 11, -11): ("$S_{1c}\\left(B \\to K^{*}\\,e^+e^-\\right)$",),
@@ -3500,7 +3511,7 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
     (521, 95362, 3, 323, 15, -15): (
         "$S_{6c}\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     ),
-    (521, 921423, 3, 423, -15, 16): (
+    (521, 9221, 3, 423, -15, 16): (
         "$P_{D^{*0}}\\left(B \\to D^{*0}\\,\\tau\\,\\nu\\right)$",
     ),
     (531, -9539, 3, 333, 11, -11): ("$A_{9}\\left(B_s \\to \\phi\\,e^+e^-\\right)$",),
@@ -4157,18 +4168,21 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     (511, 931, 3, 313, 11, -11): "$F_L\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
     (511, 931, 3, 313, 13, -13): "$F_L\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
     (511, 931, 3, 313, 15, -15): "$F_L\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
-    (511, 932, 3, 313, 11, -11): "$\\alpha_K\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
+    (511, 932, 3, 313, 11, -11): "$F_T\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
+    (511, 933, 3, 313, 11, -11): "$\\alpha_K\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
+    (511, 932, 3, 313, 13, -13): "$F_T\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
     (
         511,
-        932,
+        933,
         3,
         313,
         13,
         -13,
     ): "$\\alpha_K\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
+    (511, 932, 3, 313, 15, -15): "$F_T\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     (
         511,
-        932,
+        933,
         3,
         313,
         15,
@@ -4650,7 +4664,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$S_{9}\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     (
         511,
-        92015,
+        9212,
         3,
         411,
         -15,
@@ -4658,7 +4672,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$P_{\\tau}\\left(B^0 \\to D\\,\\tau\\,\\nu\\right)$",
     (
         511,
-        92015,
+        9212,
         3,
         413,
         -15,
@@ -4717,7 +4731,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$S_{6c}\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
     (
         511,
-        921423,
+        9221,
         3,
         413,
         -15,
@@ -5047,18 +5061,21 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     (521, 931, 3, 323, 11, -11): "$F_L\\left(B \\to K^{*}\\,e^+e^-\\right)$",
     (521, 931, 3, 323, 13, -13): "$F_L\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
     (521, 931, 3, 323, 15, -15): "$F_L\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
-    (521, 932, 3, 323, 11, -11): "$\\alpha_K\\left(B \\to K^{*}\\,e^+e^-\\right)$",
+    (521, 932, 3, 323, 11, -11): "$F_T\\left(B \\to K^{*}\\,e^+e^-\\right)$",
+    (521, 933, 3, 323, 11, -11): "$\\alpha_K\\left(B \\to K^{*}\\,e^+e^-\\right)$",
+    (521, 932, 3, 323, 13, -13): "$F_T\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
     (
         521,
-        932,
+        933,
         3,
         323,
         13,
         -13,
     ): "$\\alpha_K\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
+    (521, 932, 3, 323, 15, -15): "$F_T\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     (
         521,
-        932,
+        933,
         3,
         323,
         15,
@@ -5386,7 +5403,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     (521, 9539, 3, 323, 15, -15): "$S_{9}\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     (
         521,
-        92015,
+        9212,
         3,
         421,
         -15,
@@ -5394,7 +5411,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$P_{\\tau}\\left(B \\to D^0\\,\\tau\\,\\nu\\right)$",
     (
         521,
-        92015,
+        9212,
         3,
         423,
         -15,
@@ -5432,7 +5449,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$S_{6c}\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
     (
         521,
-        921423,
+        9221,
         3,
         423,
         -15,
@@ -5884,17 +5901,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     ): "$F_T\\left(\\Lambda_b \\to \\Lambda\\,\\tau^+\\tau^-\\right)$",
 }
 
-OBSERVABLE_COLLIDING_FLHA_IDS = {
-    (511, 932, 3, 313, 11, -11): ("ALPHA_K_B0__KSTAR0_E_E", "F_T_B0__KSTAR0_E_E"),
-    (511, 932, 3, 313, 13, -13): ("ALPHA_K_B0__KSTAR0_MU_MU", "F_T_B0__KSTAR0_MU_MU"),
-    (511, 932, 3, 313, 15, -15): (
-        "ALPHA_K_B0__KSTAR0_TAU_TAU",
-        "F_T_B0__KSTAR0_TAU_TAU",
-    ),
-    (521, 932, 3, 323, 11, -11): ("ALPHA_K_B__KSTAR_E_E", "F_T_B__KSTAR_E_E"),
-    (521, 932, 3, 323, 13, -13): ("ALPHA_K_B__KSTAR_MU_MU", "F_T_B__KSTAR_MU_MU"),
-    (521, 932, 3, 323, 15, -15): ("ALPHA_K_B__KSTAR_TAU_TAU", "F_T_B__KSTAR_TAU_TAU"),
-}
+OBSERVABLE_COLLIDING_FLHA_IDS = {}
 
 OBSERVABLE_DERIVED_NAME_MAP = {
     "P_1_B0__KSTAR0_E_E": "P_1_B0__K*0_e_e",
@@ -6017,11 +6024,30 @@ MANUAL_LEGACY_ALIASES = {
 }
 
 
+LEGACY_POLARIZATION_TYPE_ALIASES = {
+    92015: 9212,
+    921423: 9221,
+}
+
+
 def _normalize_flha_id(*flha_id: Union[int, Iterable[int]]) -> LhaID:
-    """Normalize either get(..., 511, 1, ...) or get(..., [511, 1, ...])."""
+    """Normalize and canonicalize an observable FLHA id.
+
+    The unambiguous v1.0.0--v1.0.1 polarization identifiers are accepted for
+    display compatibility. The former alpha_K/F_T collision at type 932 cannot
+    be inferred from the identifier alone and is therefore not auto-migrated.
+    """
     if len(flha_id) == 1 and not isinstance(flha_id[0], int):
-        return tuple(int(x) for x in flha_id[0])  # type: ignore[arg-type]
-    return tuple(int(x) for x in flha_id)  # type: ignore[arg-type]
+        parts = tuple(int(x) for x in flha_id[0])  # type: ignore[arg-type]
+    else:
+        parts = tuple(int(x) for x in flha_id)  # type: ignore[arg-type]
+
+    if len(parts) < 2:
+        return parts
+    replacement = LEGACY_POLARIZATION_TYPE_ALIASES.get(parts[1])
+    if replacement is None:
+        return parts
+    return (parts[0], replacement, *parts[2:])
 
 
 def get_observable_latex_names(

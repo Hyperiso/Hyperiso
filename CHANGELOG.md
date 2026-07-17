@@ -10,6 +10,37 @@ Semantic Versioning.
 - Additional platform wheels after Linux support is validated.
 - Expanded fuzzing and long-running numerical validation.
 
+## [1.0.2] - 2026-07-17
+
+### Changed
+
+- Standardize project-defined FLHA polarization type identifiers as `92ij`,
+  where `i=1` denotes fermion polarization, `i=2` longitudinal vector
+  polarization, `i=3` transverse vector polarization, and `j` is the one-based
+  position of the particle of interest in the ordered daughter list.
+- Write charged-lepton and longitudinal-vector polarization observables with
+  canonical type identifiers `9212` and `9221`, respectively.
+- Synchronize release metadata, public documentation and generated API
+  documentation at version `1.0.2`.
+
+### Fixed
+
+- Separate the FLHA observable types for the transverse fraction `F_T` (`932`)
+  and the angular coefficient `alpha_K` (`933`), removing six duplicate builtin
+  identifiers that made reverse lookup ambiguous.
+- Synchronize the native C++ map, InputHelper map and Dash display map, and add
+  repository checks that reject duplicate or divergent observable identifiers.
+- Accept the unambiguous legacy polarization identifiers `92015` and `921423`
+  on input while always writing the canonical `92ij` form.
+
+### Migration
+
+- Files written by versions 1.0.0--1.0.1 with polarization types `92015` and
+  `921423` remain readable and are canonicalized on input.
+- The former `alpha_K` identifier `932` cannot be migrated automatically because
+  it was identical to the valid `F_T` identifier for the same decay. Such input
+  must be regenerated or changed explicitly to type `933`.
+
 ## [1.0.1] - 2026-07-17
 
 ### Fixed

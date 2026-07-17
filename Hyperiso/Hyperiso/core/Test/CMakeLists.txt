@@ -81,6 +81,7 @@ hyperiso_add_integration(testparamidintegration common Common/integration/test_p
 hyperiso_add_unit(testenummapperunit common Common/unit/test_enummapper_unit.cpp LIBS CommonLib UtilsLib)
 hyperiso_add_integration(testenummapperintegration common Common/integration/test_enummapper_integration.cpp LIBS CommonLib UtilsLib)
 hyperiso_add_unit(testDynamicMappersUnit common Common/unit/test_dynamic_mappers_unit.cpp LIBS CommonLib UtilsLib)
+hyperiso_add_unit(testObservableTypeIdUnit common Common/unit/test_observable_type_id_unit.cpp LIBS CommonLib UtilsLib)
 
 # -----------------------------------------------------------------------------
 # DataBase and Pandas

@@ -68,7 +68,7 @@ python - <<'PY'
 import pyhyperiso
 from pyhyperiso.phyperiso import pyhyperiso as native
 
-assert pyhyperiso.__version__ == native.__version__ == "1.0.0"
+assert pyhyperiso.__version__ == native.__version__ == "1.0.2"
 print(f"pyhyperiso {pyhyperiso.__version__} import OK")
 PY
 ```

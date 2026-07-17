@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.20)
 if(DEFINED SKBUILD_PROJECT_VERSION)
     project(phyperiso VERSION "${SKBUILD_PROJECT_VERSION}" LANGUAGES CXX)
 else()
-    project(phyperiso VERSION 1.0.1 LANGUAGES CXX)
+    project(phyperiso VERSION 1.0.2 LANGUAGES CXX)
 endif()
 
 set(CMAKE_CXX_STANDARD 20)

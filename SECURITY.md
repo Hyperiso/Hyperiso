@@ -10,7 +10,7 @@ HyperIso is active research software. Security fixes are provided for:
 | Latest tagged release | Yes |
 | Older releases | Best effort |
 
-Version 1.0.0 is the first stable release. Long-term support windows are not guaranteed.
+HyperIso 1.0.0 was the first stable release. Long-term support windows are not guaranteed.
 
 ## Reporting a vulnerability
 
