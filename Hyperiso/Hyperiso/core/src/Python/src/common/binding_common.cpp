@@ -11,6 +11,7 @@
 #include "observable_ids.hpp"
 #include "decay_ids.hpp"
 #include "BinnedObservableId.h"
+#include "ExperimentObs.h"
 #include "SourcesView.h"
 #include <optional>
 #include <stdexcept>
@@ -572,6 +573,7 @@ void init_common(py::module &m) {
         .value("A_FB_B__K_TAU_TAU", Observables::A_FB_B__K_TAU_TAU)
         .value("F_H_B__K_TAU_TAU", Observables::F_H_B__K_TAU_TAU)
         .value("R_1_B__K_L_L", Observables::R_1_B__K_L_L)
+        .value("R_1_B0__K0_L_L", Observables::R_1_B0__K0_L_L)
         .value("DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E", Observables::DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E)
         .value("DBR_DQ2_LAMBDA_B__LAMBDA_E_E", Observables::DBR_DQ2_LAMBDA_B__LAMBDA_E_E)
         .value("A_FB_L_LAMBDA_B__LAMBDA_E_E", Observables::A_FB_L_LAMBDA_B__LAMBDA_E_E)
@@ -1274,4 +1276,20 @@ The object is non-owning and should only be used during the callback call.
         [](BinnedObservableId const& x) -> std::size_t { return std::hash<BinnedObservableId>{}(x); },
         py::is_method(m.attr("BinnedObservableId"))
     );
+
+    py::class_<ExperimentObs>(m, "ExperimentObs")
+        .def(py::init<std::string, BinnedObservableId>(),
+             py::arg("experiment"), py::arg("obs"))
+        .def_readwrite("experiment", &ExperimentObs::experiment)
+        .def_readwrite("obs", &ExperimentObs::obs)
+        .def("str", &ExperimentObs::str)
+        .def("__str__", &ExperimentObs::str)
+        .def("__repr__", [](ExperimentObs const& x) {
+            return std::string("ExperimentObs(") + x.str() + ")";
+        })
+        .def("__hash__", [](ExperimentObs const& x) {
+            return std::hash<ExperimentObs>{}(x);
+        })
+        .def(py::self == py::self)
+        .def(py::self < py::self);
 }

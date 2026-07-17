@@ -747,6 +747,15 @@ void init_statistic_interface(py::module_& m) {
         .def("select_experiments_all", &StatisticInterface::select_experiments_all)
         .def("has_experiment_selection", &StatisticInterface::has_experiment_selection)
         .def("selected_experiments", &StatisticInterface::selected_experiments)
+        .def("select_experiment_observables",
+             &StatisticInterface::select_experiment_observables,
+             py::arg("observables"))
+        .def("select_experiment_observables_all",
+             &StatisticInterface::select_experiment_observables_all)
+        .def("has_experiment_observable_selection",
+             &StatisticInterface::has_experiment_observable_selection)
+        .def("selected_experiment_observables",
+             &StatisticInterface::selected_experiment_observables)
         .def("compute_uncertainties", &StatisticInterface::compute_uncertainties,
              py::call_guard<py::gil_scoped_release>())
         .def("compute_uncertainties_and_sampling", &StatisticInterface::compute_uncertainties_and_sampling,

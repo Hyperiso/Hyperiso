@@ -101,6 +101,11 @@ def _param_nested_float_map_from_cpp(cpp_map) -> Dict[ParamId, Dict[ParamId, flo
     return {_param_from_cpp(k): _param_float_map_from_cpp(v) for k, v in dict(cpp_map).items()}
 
 
+def _cpp_experiment_obs(obs: ExperimentObs):
+    """Convert a Python ``ExperimentObs`` to its bound C++ value."""
+    return _require(obs, ExperimentObs, "ExperimentObs").to_cpp()
+
+
 def _experiment_float_map_from_cpp(cpp_map) -> Dict[ExperimentObs, float]:
     """Convert a C++ ``map<ExperimentObs, double>`` to Python."""
     return {ExperimentObs.from_cpp(k): float(v) for k, v in dict(cpp_map).items()}
@@ -497,6 +502,27 @@ class StatisticInterface:
     def selected_experiments(self) -> List[str]:
         """Return the currently selected experiment names."""
         return [str(x) for x in self._cpp.selected_experiments()]
+
+    def select_experiment_observables(self, observables: Sequence[ExperimentObs]) -> None:
+        """Restrict statistics to exact experiment/observable/bin entries.
+
+        Args:
+            observables: Exact measurements to retain. Each item combines an
+                experiment label with a binned observable identifier.
+        """
+        self._cpp.select_experiment_observables([_cpp_experiment_obs(obs) for obs in observables])
+
+    def select_experiment_observables_all(self) -> None:
+        """Clear the exact experimental-observable selection."""
+        self._cpp.select_experiment_observables_all()
+
+    def has_experiment_observable_selection(self) -> bool:
+        """Return whether an exact measurement filter is active."""
+        return bool(self._cpp.has_experiment_observable_selection())
+
+    def selected_experiment_observables(self) -> List[ExperimentObs]:
+        """Return the active exact measurement selection."""
+        return [ExperimentObs.from_cpp(obs) for obs in self._cpp.selected_experiment_observables()]
 
     def reload_nuisance_specs(self) -> None:
         """Reload default and user nuisance specifications in the C++ manager."""

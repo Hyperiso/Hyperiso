@@ -71,7 +71,7 @@ jobs:
         run: |
           CLI="$(find build -type f -name hyperiso-ui -perm -111 -print -quit)"
           test -n "${CLI}"
-          test "$("${CLI}" --version)" = "1.0.0"
+          test "$("${CLI}" --version)" = "1.0.1"
           "${CLI}" --help >/dev/null
 
   examples-cpp:

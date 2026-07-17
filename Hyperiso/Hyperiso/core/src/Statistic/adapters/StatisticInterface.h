@@ -8,7 +8,6 @@
 #include "ObservableInterface.h"
 #include "StatParamSourcesProxy.h"
 #include "StatDependencyPruner.h"
-#include "DefaultNuisancePathsProvider.h"
 #include "NuisanceReader.h"
 
 /**
@@ -74,6 +73,32 @@ public:
      *         are selected.
      */
     std::set<std::string> selected_experiments() const;
+
+    /**
+     * @brief Restricts the analysis to exact experiment/observable/bin entries.
+     *
+     * @param observables Exact experimental measurements to keep.
+     */
+    void select_experiment_observables(const std::vector<ExperimentObs>& observables);
+
+    /**
+     * @brief Clears any exact experimental-observable restriction.
+     */
+    void select_experiment_observables_all();
+
+    /**
+     * @brief Tests whether an exact experimental-observable selection is active.
+     *
+     * @return True if exact measurements were selected explicitly.
+     */
+    bool has_experiment_observable_selection() const noexcept;
+
+    /**
+     * @brief Returns the active exact experimental-observable selection.
+     *
+     * @return Selected measurements, or an empty set when no exact selection is active.
+     */
+    std::set<ExperimentObs> selected_experiment_observables() const;
 
     /**
      * @brief Computes Gaussian uncertainty summaries for all active observables.

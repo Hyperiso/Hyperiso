@@ -4,7 +4,7 @@ from pyhyperiso.phyperiso import pyhyperiso as native
 
 
 def test_native_module_imports_and_reports_release_version():
-    assert native.__version__ == "1.0.0"
+    assert native.__version__ == "1.0.1"
     assert native.common is not None
     assert native.core is not None
     assert native.statistic is not None

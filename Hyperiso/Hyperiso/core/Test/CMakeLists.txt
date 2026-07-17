@@ -179,6 +179,7 @@ hyperiso_add_integration(testObsManagerIntegration businesslogic BusinessLogic/i
 # -----------------------------------------------------------------------------
 # Statistic
 # -----------------------------------------------------------------------------
+hyperiso_add_unit(testRuntimeNuisancePathsAdapterUnit statistic Statistic/unit/test_runtime_nuisance_paths_adapter_unit.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_unit(testMarginalsUnit statistic Statistic/unit/test_marginals_unit.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_integration(testMarginalsIntegration statistic Statistic/integration/test_marginals_integration.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_unit(testCopulasUnit statistic Statistic/unit/test_copulas_unit.cpp LIBS StatisticLib UtilsLib)
@@ -195,6 +196,7 @@ hyperiso_add_unit(testIndexingUnit statistic Statistic/unit/test_indexing_unit.c
 hyperiso_add_integration(testIndexingIntegration statistic Statistic/integration/test_indexing_integration.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_unit(testChiSquaredLikelihoodUnit statistic Statistic/unit/test_chisquaredlikelihood_unit.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_integration(testChiSquaredLikelihoodIntegration statistic Statistic/integration/test_chisquaredlikelihood_integration.cpp LIBS StatisticLib UtilsLib)
+hyperiso_add_unit(testFitProfileHessianUnit statistic Statistic/unit/test_fit_profile_hessian_unit.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_unit(testProfilingStrategyUnit statistic Statistic/unit/test_profilingstrategy_unit.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_integration(testProfilingStrategyIntegration statistic Statistic/integration/test_profilingstrategy_integration.cpp LIBS StatisticLib UtilsLib)
 hyperiso_add_unit(testProfiledLikelihood2DUnit statistic Statistic/unit/test_profiledlikelihood2d_unit.cpp LIBS StatisticLib UtilsLib)

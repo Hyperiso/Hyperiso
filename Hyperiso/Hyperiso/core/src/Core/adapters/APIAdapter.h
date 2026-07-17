@@ -49,7 +49,9 @@
  * @see IMonitor
  * @see IPathProvider
  */
-class APIAdapter : public IMonitor<ExternalFlag>, IPathProvider<APIPath>, IDataMonitor {
+class APIAdapter : public IMonitor<ExternalFlag>,
+                   public IPathProvider<APIPath>,
+                   public IDataMonitor {
 public:
     /**
      * @brief Checks the status of a specific external flag.
@@ -71,7 +73,7 @@ public:
      * @param path_name The requested path.
      * @return The filesystem path corresponding to the enum.
      */
-    fs::path get_path(APIPath path_name);
+    fs::path get_path(APIPath path_name) override;
 
     /**
      * @brief Retrieves all block names across all available model types.
