@@ -676,6 +676,7 @@ class Observables(Enum):
     A_FB_B__K_TAU_TAU = _CppObservables.A_FB_B__K_TAU_TAU
     F_H_B__K_TAU_TAU = _CppObservables.F_H_B__K_TAU_TAU
     R_1_B__K_L_L = _CppObservables.R_1_B__K_L_L
+    R_1_B0__K0_L_L = _CppObservables.R_1_B0__K0_L_L
     DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E = _CppObservables.DGAMMA_DQ2_LAMBDA_B__LAMBDA_E_E
     DBR_DQ2_LAMBDA_B__LAMBDA_E_E = _CppObservables.DBR_DQ2_LAMBDA_B__LAMBDA_E_E
     A_FB_L_LAMBDA_B__LAMBDA_E_E = _CppObservables.A_FB_L_LAMBDA_B__LAMBDA_E_E

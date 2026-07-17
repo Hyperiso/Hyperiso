@@ -218,6 +218,22 @@ double profiled_nll_at(const fit_app::IFitBackend& minimizer,
                        const std::vector<double>& p_fixed,
                        const fit_app::FitOptions& profile_opt)
 {
+    if (defs.size() == p_dim) {
+        if (p_fixed.size() != p_dim) {
+            throw std::invalid_argument(
+                "Profile point dimension does not match the fit-parameter dimension."
+            );
+        }
+
+        const double direct = objective(p_fixed);
+        if (!std::isfinite(direct)) {
+            throw std::runtime_error(
+                "Direct profile evaluation returned a non-finite value."
+            );
+        }
+        return direct;
+    }
+
     std::vector<fit_app::ParameterDefinition> local_defs = defs;
     for (std::size_t i = 0; i < local_defs.size(); ++i) {
         local_defs[i].value = theta_anchor[i];

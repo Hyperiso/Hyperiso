@@ -1,4 +1,4 @@
-from pyhyperiso.core.Common.GeneralEnum import ParameterType
+from pyhyperiso.core.Common.GeneralEnum import Observables, ParameterType
 from pyhyperiso.core.Common.ParamId import ParamId
 from pyhyperiso.core.Common.LhaID import LhaID
 
@@ -48,3 +48,9 @@ def test_paramid_repr_and_dict():
     assert "ParamId" in repr_str
     d = pid.to_dict()
     assert d == {"type": "SM", "block": "X", "code": "1_2"}
+
+
+def test_neutral_b_to_k_lepton_ratio_observable_is_exposed():
+    """The public Python enum must expose the neutral B-to-K lepton ratio."""
+    assert "R_1_B0__K0_L_L" in Observables.__members__
+    assert Observables["R_1_B0__K0_L_L"] is Observables.R_1_B0__K0_L_L

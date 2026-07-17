@@ -15,3 +15,5 @@ from pyhyperiso.core.Statistic.StatisticInterface import (
     ProfilerMode,
     ProfileBackend,
 )
+
+from pyhyperiso.core.Statistic.ExperimentObs import ExperimentObs

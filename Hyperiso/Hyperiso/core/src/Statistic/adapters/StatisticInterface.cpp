@@ -1,5 +1,7 @@
 #include "StatisticInterface.h"
 
+#include "RuntimeNuisancePathsAdapter.h"
+
 StatisticInterface::StatisticInterface(StatisticConfig config, std::shared_ptr<ObservableInterface> oi_) {
     std::shared_ptr<ObservableInterface> oi = oi_;
     std::shared_ptr<IStatParamOptimizerProxy> spop = std::make_shared<StatParamOptimizerProxy>();
@@ -8,7 +10,8 @@ StatisticInterface::StatisticInterface(StatisticConfig config, std::shared_ptr<O
     std::shared_ptr<IStatParameterProxy> pspp = std::make_shared<StatParameterProxy>();
     std::shared_ptr<IStatSourcesProxy> sp = std::make_shared<StatParamSourcesProxy>();
     std::shared_ptr<IStatDependencyPruner> sdp = std::make_shared<StatDependencyPruner>();
-    std::shared_ptr<INuisancePathsProvider> npp = std::make_shared<DefaultNuisancePathsProvider>();
+    std::shared_ptr<INuisancePathsProvider> npp =
+        std::make_shared<RuntimeNuisancePathsAdapter>();
     std::shared_ptr<INuisanceReader> nr = std::make_shared<NuisanceReader>(npp);
 
     manager = std::make_shared<StatisticManager>(config, oia, pscp, pspp, sp, sdp, nr, spop);
@@ -38,6 +41,26 @@ bool StatisticInterface::has_experiment_selection() const noexcept {
 
 std::set<std::string> StatisticInterface::selected_experiments() const {
     return manager->selected_experiments();
+}
+
+void StatisticInterface::select_experiment_observables(
+    const std::vector<ExperimentObs>& observables
+) {
+    manager->select_experiment_observables(observables);
+    manager->update_cache();
+}
+
+void StatisticInterface::select_experiment_observables_all() {
+    manager->select_experiment_observables_all();
+    manager->update_cache();
+}
+
+bool StatisticInterface::has_experiment_observable_selection() const noexcept {
+    return manager->has_experiment_observable_selection();
+}
+
+std::set<ExperimentObs> StatisticInterface::selected_experiment_observables() const {
+    return manager->selected_experiment_observables();
 }
 
 std::map<BinnedObservableId, GaussianSummary> StatisticInterface::compute_uncertainties() {

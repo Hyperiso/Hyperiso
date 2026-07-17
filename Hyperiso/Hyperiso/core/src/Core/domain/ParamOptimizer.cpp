@@ -20,54 +20,66 @@ void ParamOptimizer::commit(bool coalesce) {
 
     freeze_all_();
 
-    const auto plan = coalesce ? coalesce_ops_() : ops_;
+    try {
+        const auto plan = coalesce ? coalesce_ops_() : ops_;
 
-    std::unordered_map<std::pair<std::string,std::string>, bool, BAKeyHash> existed;
-    existed.reserve(plan.size());
-    for (const auto& v : plan) {
-        std::visit([&](auto&& op){
-            auto blk = find_block_(op.block);
-            existed[{op.block, op.id.to_string()}] = blk->contains(op.id);
-        }, v);
-    }
+        std::unordered_map<std::pair<std::string,std::string>, bool, BAKeyHash> existed;
+        existed.reserve(plan.size());
+        for (const auto& v : plan) {
+            std::visit([&](auto&& op){
+                auto blk = find_block_(op.block);
+                existed[{op.block, op.id.to_string()}] = blk->contains(op.id);
+            }, v);
+        }
 
-    std::unordered_set<std::shared_ptr<Block>> blocks_needing_notify;
+        std::unordered_set<std::shared_ptr<Block>> blocks_needing_notify;
 
-    for (const auto& v : plan) {
-        std::visit([&](auto&& op) {
-            using T = std::decay_t<decltype(op)>;
-            auto blk = find_block_(op.block);
-            const bool had = existed.at({op.block, op.id.to_string()});
+        for (const auto& v : plan) {
+            std::visit([&](auto&& op) {
+                using T = std::decay_t<decltype(op)>;
+                auto blk = find_block_(op.block);
+                const bool had = existed.at({op.block, op.id.to_string()});
 
-            if constexpr (std::is_same_v<T, OpSetValue>) {
-                if (had) {
-                    blk->assign(op.id, op.value); 
-                } else {
-                    blk->store(op.id, std::make_shared<Parameter>(ParamId(blk->get_name(), op.id), op.value, 0., 0.));
-                    blocks_needing_notify.insert(blk);
+                if constexpr (std::is_same_v<T, OpSetValue>) {
+                    if (had) {
+                        blk->assign(op.id, op.value);
+                    } else {
+                        blk->store(op.id, std::make_shared<Parameter>(ParamId(blk->get_name(), op.id), op.value, 0., 0.));
+                        blocks_needing_notify.insert(blk);
+                    }
+                } else if constexpr (std::is_same_v<T, OpSetParam>) {
+                    if (had) {
+                        blk->assign(op.id, op.param);
+                    } else {
+                        blk->store(op.id, op.param);
+                        blocks_needing_notify.insert(blk);
+                    }
+                } else if constexpr (std::is_same_v<T, OpRemove>) {
+                    if (!had) {
+                        return;
+                    }
+                    blk->remove(op.id);
                 }
-            } else if constexpr (std::is_same_v<T, OpSetParam>) {
-                if (had) {
-                    blk->assign(op.id, op.param); 
-                } else {
-                    blk->store(op.id, op.param);
-                    blocks_needing_notify.insert(blk);
-                }
-            } else if constexpr (std::is_same_v<T, OpRemove>) {
-                if (!had) {
-                    return;
-                }
-                blk->remove(op.id);
-            }
-        }, v);
-    }
+            }, v);
+        }
 
-    for (const auto& blk : blocks_needing_notify) {
-        if (blk) blk->notifyObservers();
-    }
+        for (const auto& blk : blocks_needing_notify) {
+            if (blk) blk->notifyObservers();
+        }
 
-    unfreeze_all_();
-    ops_.clear();
+        unfreeze_all_();
+        ops_.clear();
+    } catch (...) {
+        // A failed lookup or assignment must not leave the global parameter
+        // graph frozen, nor replay stale operations on the next likelihood call.
+        try {
+            unfreeze_all_();
+        } catch (...) {
+            // Preserve the original failure.
+        }
+        ops_.clear();
+        throw;
+    }
 }
 
 void ParamOptimizer::clear() { ops_.clear(); }

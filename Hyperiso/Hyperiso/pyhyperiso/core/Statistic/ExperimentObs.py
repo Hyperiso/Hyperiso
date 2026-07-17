@@ -1,98 +1,79 @@
-"""Python representation of experimental observable identifiers.
-
-The C++ backend uses ``ExperimentObs`` keys in maps storing experimental central
-values and correlations. The current binding exposes these objects when they are
-returned by the statistic layer, but does not expose a public pure-Python
-constructor for the underlying C++ type. This wrapper therefore keeps the C++
-object opaque while exposing the associated binned observable identifier.
-"""
+"""Experiment-scoped observable identifiers for statistical selections."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any
 
+from pyhyperiso.phyperiso.pyhyperiso import common
 from pyhyperiso.core.Common.BinnedObservableId import BinnedObservableId
 
 
 @dataclass(frozen=True)
 class ExperimentObs:
-    """Opaque Python wrapper around a C++ ``ExperimentObs`` key.
+    """Identify one experimental measurement by experiment and observable bin.
 
     Args:
-        obs: Binned observable identifier associated with the experimental
-            measurement.
-        _cpp_obj: Bound C++ object. This is normally set by :meth:`from_cpp` and
-            should not be passed by user code.
+        experiment: Experiment label as stored in the experimental database.
+        obs: Binned observable identifier associated with the measurement.
 
     Attributes:
-        obs: Python ``BinnedObservableId`` exposed for display, hashing and map
-            lookups.
-
-    Raises:
-        TypeError: If ``obs`` is not a ``BinnedObservableId``.
+        experiment: Experiment label.
+        obs: Python :class:`BinnedObservableId` wrapper.
 
     Examples:
-        ``ExperimentObs`` instances are usually obtained from statistic calls::
+        Build an exact selection entry for a CMS measurement::
 
-            exp_values = stat.get_obs_exp()
-            for exp_obs, value in exp_values.items():
-                print(exp_obs.obs, value)
+            selection = ExperimentObs(
+                "CMS",
+                BinnedObservableId(Observables.F_L_B0__KSTAR0_MU_MU, (1.1, 2.0)),
+            )
     """
 
+    experiment: str
     obs: BinnedObservableId
-    _cpp_obj: Any = field(default=None, repr=False, compare=False)
+    _cpp_obj: common.ExperimentObs = field(init=False, repr=False, compare=False)
 
     def __post_init__(self) -> None:
-        """Validate the public observable identifier field."""
+        """Validate fields and construct the bound C++ value object."""
+        if not isinstance(self.experiment, str):
+            raise TypeError(f"experiment must be str, received {type(self.experiment)!r}.")
+        if not self.experiment:
+            raise ValueError("experiment must not be empty.")
         if not isinstance(self.obs, BinnedObservableId):
             raise TypeError(
                 f"obs must be a Python BinnedObservableId, received {type(self.obs)!r}."
             )
 
+        object.__setattr__(
+            self,
+            "_cpp_obj",
+            common.ExperimentObs(self.experiment, self.obs.to_cpp()),
+        )
+
     @classmethod
-    def from_cpp(cls, cpp_obj) -> "ExperimentObs":
-        """Create an ``ExperimentObs`` wrapper from a bound C++ object.
-
-        Args:
-            cpp_obj: Bound C++ ``ExperimentObs`` instance.
-
-        Returns:
-            A Python wrapper retaining the original C++ object.
-        """
+    def from_cpp(cls, cpp_obj: common.ExperimentObs) -> "ExperimentObs":
+        """Create a Python wrapper from a bound C++ ``ExperimentObs``."""
         inst = cls.__new__(cls)
+        object.__setattr__(inst, "experiment", str(cpp_obj.experiment))
         object.__setattr__(inst, "obs", BinnedObservableId.from_cpp(cpp_obj.obs))
         object.__setattr__(inst, "_cpp_obj", cpp_obj)
         return inst
 
-    def to_cpp(self):
-        """Return the underlying C++ object.
-
-        Returns:
-            The bound C++ ``ExperimentObs`` instance.
-
-        Raises:
-            RuntimeError: If the object was built without a C++ counterpart.
-        """
-        if self._cpp_obj is None:
-            raise RuntimeError(
-                "ExperimentObs cannot yet be constructed in pure Python: "
-                "use an ExperimentObs returned by StatisticInterface.get_obs_exp() "
-                "or expose a dedicated C++ constructor in the binding."
-            )
+    def to_cpp(self) -> common.ExperimentObs:
+        """Return the bound C++ value object."""
         return self._cpp_obj
 
     def __hash__(self) -> int:
-        """Hash the wrapper through its binned observable identifier."""
-        return hash(self.obs)
+        """Hash both the experiment label and binned observable identifier."""
+        return hash((self.experiment, self.obs))
 
     def __str__(self) -> str:
-        """Return a compact string representation of the observable identifier."""
-        return str(self.obs)
+        """Return a compact human-readable identifier."""
+        return f"{self.experiment} :: {self.obs}"
 
     def __repr__(self) -> str:
         """Return an unambiguous debugging representation."""
-        return f"ExperimentObs(obs={self.obs!r})"
+        return f"ExperimentObs(experiment={self.experiment!r}, obs={self.obs!r})"
 
 
 __all__ = ["ExperimentObs"]

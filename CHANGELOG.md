@@ -10,6 +10,16 @@ Semantic Versioning.
 - Additional platform wheels after Linux support is validated.
 - Expanded fuzzing and long-running numerical validation.
 
+## [1.0.1] - 2026-07-17
+
+### Fixed
+
+- Resolve statistical nuisance files through the active Core runtime path
+  provider, so installed wheels honour packaged assets and pre-initialization
+  path overrides instead of falling back to build-time paths.
+- Add C++ adapter and installed-wheel regression tests for statistical
+  initialization.
+
 ## [1.0.0] - 2026-07-16
 
 ### Added
