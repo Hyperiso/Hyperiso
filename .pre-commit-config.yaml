@@ -41,6 +41,11 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: observable-flha-maps
+        name: Validate observable FLHA mappings
+        entry: python tools/check_observable_flha_consistency.py
+        language: system
+        pass_filenames: false
 
       - id: reproducibility-tests
         name: Test reproducibility tooling

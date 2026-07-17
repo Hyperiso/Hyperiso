@@ -110,6 +110,11 @@ public:
     /**
      * @brief Resolve a FLHA id to a dynamic observable id.
      *
+     * The canonical v1.0.2 polarization pattern is @c 92ij. For input
+     * compatibility, the unambiguous v1.0.0--v1.0.1 polarization identifiers
+     * @c 92015 and @c 921423 are accepted and translated to @c 9212 and
+     * @c 9221, respectively. Output always uses the canonical identifiers.
+     *
      * @param ext FLHA identifier.
      * @return Observable id if the FLHA id is known.
      */

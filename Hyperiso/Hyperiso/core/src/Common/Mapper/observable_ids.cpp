@@ -2,9 +2,35 @@
 
 #include "BinnedObservableId.h"
 #include "decay_ids.hpp"
+#include "ObservableTypeId.h"
 
+#include <optional>
 #include <stdexcept>
 #include <utility>
+
+namespace {
+
+std::optional<LhaID> canonicalize_legacy_polarization_id(const LhaID& ext) {
+    auto parts = ext.get_parts();
+    if (parts.size() < 2) {
+        return std::nullopt;
+    }
+
+    if (parts[1] == kLegacyFermionPolarizationTypeId) {
+        parts[1] = make_polarization_type_id(PolarizationKind::Fermion, 2);
+    } else if (parts[1] == kLegacyLongitudinalVectorPolarizationTypeId) {
+        parts[1] = make_polarization_type_id(
+            PolarizationKind::LongitudinalVector,
+            1
+        );
+    } else {
+        return std::nullopt;
+    }
+
+    return LhaID(std::move(parts));
+}
+
+} // namespace
 
 Observables ObservableMapper::enum_elt_legacy(std::string_view s) {
     const auto key = nk(s);
@@ -19,7 +45,7 @@ Observables ObservableMapper::enum_elt_legacy(std::string_view s) {
 }
 
 Observables ObservableMapper::enum_elt(const LhaID& ext) {
-    auto maybeId = from_external(ext);
+    auto maybeId = from_flha(ext);
     if (!maybeId) {
         throw std::out_of_range("Unknown observable (FLHA): " + ext.to_string());
     }
@@ -33,7 +59,15 @@ Observables ObservableMapper::enum_elt(const LhaID& ext) {
 }
 
 std::optional<ObservableId> ObservableMapper::from_flha(const LhaID& ext) {
-    return from_external(ext);
+    if (auto direct = from_external(ext)) {
+        return direct;
+    }
+
+    const auto canonical = canonicalize_legacy_polarization_id(ext);
+    if (!canonical) {
+        return std::nullopt;
+    }
+    return from_external(*canonical);
 }
 
 std::optional<LhaID> ObservableMapper::flha_of(const ObservableId& id) {

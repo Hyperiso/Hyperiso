@@ -2,10 +2,21 @@
 
 #include "Map.h"
 
+#include "ObservableTypeId.h"
+
 using enum Observables;
 using enum Decays;
 using enum WCoef;
 using enum WGroup;
+
+namespace {
+constexpr long kFermionPolDaughter2 =
+    make_polarization_type_id(PolarizationKind::Fermion, 2);
+constexpr long kLongitudinalVectorPolDaughter1 =
+    make_polarization_type_id(PolarizationKind::LongitudinalVector, 1);
+constexpr long kTransverseFraction = kTransverseFractionTypeId;
+constexpr long kAlphaK = kAlphaKTypeId;
+}
 
 const std::map<Observables, std::string>& observable_mapping() {
     static const std::map<Observables, std::string> m = {
@@ -569,21 +580,21 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {BR_B_XS_GAMMA,                    {5,     1,      2,  3,     22     }},
         {BR_B__D0_TAU_NU,                  {521,   1,      3,  421,  -15,  16}},
         {A_FB_B__D0_TAU_NU,                {521,   5,      3,  421,  -15,  16}},
-        {P_TAU_B__D0_TAU_NU,               {521,   92015,  3,  421,  -15,  16}},
+        {P_TAU_B__D0_TAU_NU,               {521,   kFermionPolDaughter2, 3,  421,  -15,  16}},
         {R_D0,                             {521,   9132,   3,  421,  -15,  16}},
         {BR_B0__D_TAU_NU,                  {511,   1,      3,  411,  -15,  16}},
         {A_FB_B0__D_TAU_NU,                {511,   5,      3,  411,  -15,  16}},
-        {P_TAU_B0__D_TAU_NU,               {511,   92015,  3,  411,  -15,  16}},
+        {P_TAU_B0__D_TAU_NU,               {511,   kFermionPolDaughter2, 3,  411,  -15,  16}},
         {R_D,                              {511,   9132,   3,  411,  -15,  16}},
         {BR_B__DSTAR0_TAU_NU,              {521,   1,      3,  423,  -15,  16}},
         {A_FB_B__DSTAR0_TAU_NU,            {521,   5,      3,  423,  -15,  16}},
-        {P_TAU_B__DSTAR0_TAU_NU,           {521,   92015,  3,  423,  -15,  16}},
-        {P_D_B__DSTAR0_TAU_NU,             {521,   921423, 3,  423,  -15,  16}},
+        {P_TAU_B__DSTAR0_TAU_NU,           {521,   kFermionPolDaughter2, 3,  423,  -15,  16}},
+        {P_D_B__DSTAR0_TAU_NU,             {521,   kLongitudinalVectorPolDaughter1, 3,  423,  -15,  16}},
         {R_DSTAR0,                         {521,   9132,   3,  423,  -15,  16}},
         {BR_B0__DSTAR_TAU_NU,              {511,   1,      3,  413,  -15,  16}},
         {A_FB_B0__DSTAR_TAU_NU,            {511,   5,      3,  413,  -15,  16}},
-        {P_TAU_B0__DSTAR_TAU_NU,           {511,   92015,  3,  413,  -15,  16}},
-        {P_D_B0__DSTAR_TAU_NU,             {511,   921423, 3,  413,  -15,  16}},
+        {P_TAU_B0__DSTAR_TAU_NU,           {511,   kFermionPolDaughter2, 3,  413,  -15,  16}},
+        {P_D_B0__DSTAR_TAU_NU,             {511,   kLongitudinalVectorPolDaughter1, 3,  413,  -15,  16}},
         {R_DSTAR,                          {511,   9132,   3,  413,  -15,  16}},
         {BR_B__Xs_e_e,                     {5,     1,      3,  3,     11, -11}},
         {BR_B__Xs_mu_mu,                   {5,     1,      3,  3,     13, -13}},
@@ -599,7 +610,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B__KSTAR_E_E,             {521,   50,     3,  323,   11, -11}},
         {A_CP_B__KSTAR_E_E,                {521,   3,      3,  323,   11, -11}},      
         {F_L_B__KSTAR_E_E,                 {521,   931,    3,  323,   11, -11}},
-        {F_T_B__KSTAR_E_E,                 {521,   932,    3,  323,   11, -11}},
+        {F_T_B__KSTAR_E_E,                 {521,   kTransverseFraction,    3,  323,   11, -11}},
         {A_T_1_B__KSTAR_E_E,               {521,   9411,   3,  323,   11, -11}},
         {A_T_2_B__KSTAR_E_E,               {521,   9412,   3,  323,   11, -11}},
         {A_T_3_B__KSTAR_E_E,               {521,   9413,   3,  323,   11, -11}},
@@ -608,7 +619,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B__KSTAR_E_E,              {521,   9416,   3,  323,   11, -11}},
         {A_T_RE_CPV_B__KSTAR_E_E,          {521,  -9416,   3,  323,   11, -11}},
         {A_IM_B__KSTAR_E_E,                {521,   942,    3,  323,   11, -11}},
-        {ALPHA_K_B__KSTAR_E_E,             {521,   932,    3,  323,   11, -11}},
+        {ALPHA_K_B__KSTAR_E_E,             {521,   kAlphaK,    3,  323,   11, -11}},
         {H_T_1_B__KSTAR_E_E,               {521,   9431,   3,  323,   11, -11}},
         {H_T_2_B__KSTAR_E_E,               {521,   9432,   3,  323,   11, -11}},
         {H_T_3_B__KSTAR_E_E,               {521,   9433,   3,  323,   11, -11}},
@@ -659,7 +670,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B__KSTAR_MU_MU,           {521,   50,     3,  323,   13, -13}},
         {A_CP_B__KSTAR_MU_MU,              {521,   3,      3,  323,   13, -13}},      
         {F_L_B__KSTAR_MU_MU,               {521,   931,    3,  323,   13, -13}},
-        {F_T_B__KSTAR_MU_MU,               {521,   932,    3,  323,   13, -13}},
+        {F_T_B__KSTAR_MU_MU,               {521,   kTransverseFraction,    3,  323,   13, -13}},
         {A_T_1_B__KSTAR_MU_MU,             {521,   9411,   3,  323,   13, -13}},
         {A_T_2_B__KSTAR_MU_MU,             {521,   9412,   3,  323,   13, -13}},
         {A_T_3_B__KSTAR_MU_MU,             {521,   9413,   3,  323,   13, -13}},
@@ -668,7 +679,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B__KSTAR_MU_MU,            {521,   9416,   3,  323,   13, -13}},
         {A_T_RE_CPV_B__KSTAR_MU_MU,        {521,  -9416,   3,  323,   13, -13}},
         {A_IM_B__KSTAR_MU_MU,              {521,   942,    3,  323,   13, -13}},
-        {ALPHA_K_B__KSTAR_MU_MU,           {521,   932,    3,  323,   13, -13}},
+        {ALPHA_K_B__KSTAR_MU_MU,           {521,   kAlphaK,    3,  323,   13, -13}},
         {H_T_1_B__KSTAR_MU_MU,             {521,   9431,   3,  323,   13, -13}},
         {H_T_2_B__KSTAR_MU_MU,             {521,   9432,   3,  323,   13, -13}},
         {H_T_3_B__KSTAR_MU_MU,             {521,   9433,   3,  323,   13, -13}},
@@ -719,7 +730,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B__KSTAR_TAU_TAU,         {521,   50,     3,  323,   15, -15}},
         {A_CP_B__KSTAR_TAU_TAU,            {521,   3,      3,  323,   15, -15}},      
         {F_L_B__KSTAR_TAU_TAU,             {521,   931,    3,  323,   15, -15}},
-        {F_T_B__KSTAR_TAU_TAU,             {521,   932,    3,  323,   15, -15}},
+        {F_T_B__KSTAR_TAU_TAU,             {521,   kTransverseFraction,    3,  323,   15, -15}},
         {A_T_1_B__KSTAR_TAU_TAU,           {521,   9411,   3,  323,   15, -15}},
         {A_T_2_B__KSTAR_TAU_TAU,           {521,   9412,   3,  323,   15, -15}},
         {A_T_3_B__KSTAR_TAU_TAU,           {521,   9413,   3,  323,   15, -15}},
@@ -728,7 +739,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B__KSTAR_TAU_TAU,          {521,   9416,   3,  323,   15, -15}},
         {A_T_RE_CPV_B__KSTAR_TAU_TAU,      {521,  -9416,   3,  323,   15, -15}},
         {A_IM_B__KSTAR_TAU_TAU,            {521,   942,    3,  323,   15, -15}},
-        {ALPHA_K_B__KSTAR_TAU_TAU,         {521,   932,    3,  323,   15, -15}},
+        {ALPHA_K_B__KSTAR_TAU_TAU,         {521,   kAlphaK,    3,  323,   15, -15}},
         {H_T_1_B__KSTAR_TAU_TAU,           {521,   9431,   3,  323,   15, -15}},
         {H_T_2_B__KSTAR_TAU_TAU,           {521,   9432,   3,  323,   15, -15}},
         {H_T_3_B__KSTAR_TAU_TAU,           {521,   9433,   3,  323,   15, -15}},
@@ -782,7 +793,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B0__KSTAR0_E_E,              {511,   50,     3,  313,   11, -11}},
         {A_CP_B0__KSTAR0_E_E,                 {511,   3,      3,  313,   11, -11}},      
         {F_L_B0__KSTAR0_E_E,                  {511,   931,    3,  313,   11, -11}},
-        {F_T_B0__KSTAR0_E_E,                  {511,   932,    3,  313,   11, -11}},
+        {F_T_B0__KSTAR0_E_E,                  {511,   kTransverseFraction,    3,  313,   11, -11}},
         {A_T_1_B0__KSTAR0_E_E,                {511,   9411,   3,  313,   11, -11}},
         {A_T_2_B0__KSTAR0_E_E,                {511,   9412,   3,  313,   11, -11}},
         {A_T_3_B0__KSTAR0_E_E,                {511,   9413,   3,  313,   11, -11}},
@@ -791,7 +802,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B0__KSTAR0_E_E,               {511,   9416,   3,  313,   11, -11}},
         {A_T_RE_CPV_B0__KSTAR0_E_E,           {511,  -9416,   3,  313,   11, -11}},
         {A_IM_B0__KSTAR0_E_E,                 {511,   942,    3,  313,   11, -11}},
-        {ALPHA_K_B0__KSTAR0_E_E,              {511,   932,    3,  313,   11, -11}},
+        {ALPHA_K_B0__KSTAR0_E_E,              {511,   kAlphaK,    3,  313,   11, -11}},
         {H_T_1_B0__KSTAR0_E_E,                {511,   9431,   3,  313,   11, -11}},
         {H_T_2_B0__KSTAR0_E_E,                {511,   9432,   3,  313,   11, -11}},
         {H_T_3_B0__KSTAR0_E_E,                {511,   9433,   3,  313,   11, -11}},
@@ -842,7 +853,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B0__KSTAR0_MU_MU,            {511,   50,     3,  313,   13, -13}},
         {A_CP_B0__KSTAR0_MU_MU,               {511,   3,      3,  313,   13, -13}},      
         {F_L_B0__KSTAR0_MU_MU,                {511,   931,    3,  313,   13, -13}},
-        {F_T_B0__KSTAR0_MU_MU,                {511,   932,    3,  313,   13, -13}},
+        {F_T_B0__KSTAR0_MU_MU,                {511,   kTransverseFraction,    3,  313,   13, -13}},
         {A_T_1_B0__KSTAR0_MU_MU,              {511,   9411,   3,  313,   13, -13}},
         {A_T_2_B0__KSTAR0_MU_MU,              {511,   9412,   3,  313,   13, -13}},
         {A_T_3_B0__KSTAR0_MU_MU,              {511,   9413,   3,  313,   13, -13}},
@@ -851,7 +862,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B0__KSTAR0_MU_MU,             {511,   9416,   3,  313,   13, -13}},
         {A_T_RE_CPV_B0__KSTAR0_MU_MU,         {511,  -9416,   3,  313,   13, -13}},
         {A_IM_B0__KSTAR0_MU_MU,               {511,   942,    3,  313,   13, -13}},
-        {ALPHA_K_B0__KSTAR0_MU_MU,            {511,   932,    3,  313,   13, -13}},
+        {ALPHA_K_B0__KSTAR0_MU_MU,            {511,   kAlphaK,    3,  313,   13, -13}},
         {H_T_1_B0__KSTAR0_MU_MU,              {511,   9431,   3,  313,   13, -13}},
         {H_T_2_B0__KSTAR0_MU_MU,              {511,   9432,   3,  313,   13, -13}},
         {H_T_3_B0__KSTAR0_MU_MU,              {511,   9433,   3,  313,   13, -13}},
@@ -902,7 +913,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {Q0_A_FB_B0__KSTAR0_TAU_TAU,          {511,   50,     3,  313,   15, -15}},
         {A_CP_B0__KSTAR0_TAU_TAU,             {511,   3,      3,  313,   15, -15}},      
         {F_L_B0__KSTAR0_TAU_TAU,              {511,   931,    3,  313,   15, -15}},
-        {F_T_B0__KSTAR0_TAU_TAU,              {511,   932,    3,  313,   15, -15}},
+        {F_T_B0__KSTAR0_TAU_TAU,              {511,   kTransverseFraction,    3,  313,   15, -15}},
         {A_T_1_B0__KSTAR0_TAU_TAU,            {511,   9411,   3,  313,   15, -15}},
         {A_T_2_B0__KSTAR0_TAU_TAU,            {511,   9412,   3,  313,   15, -15}},
         {A_T_3_B0__KSTAR0_TAU_TAU,            {511,   9413,   3,  313,   15, -15}},
@@ -911,7 +922,7 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_T_RE_B0__KSTAR0_TAU_TAU,           {511,   9416,   3,  313,   15, -15}},
         {A_T_RE_CPV_B0__KSTAR0_TAU_TAU,       {511,  -9416,   3,  313,   15, -15}},
         {A_IM_B0__KSTAR0_TAU_TAU,             {511,   942,    3,  313,   15, -15}},
-        {ALPHA_K_B0__KSTAR0_TAU_TAU,          {511,   932,    3,  313,   15, -15}},
+        {ALPHA_K_B0__KSTAR0_TAU_TAU,          {511,   kAlphaK,    3,  313,   15, -15}},
         {H_T_1_B0__KSTAR0_TAU_TAU,            {511,   9431,   3,  313,   15, -15}},
         {H_T_2_B0__KSTAR0_TAU_TAU,            {511,   9432,   3,  313,   15, -15}},
         {H_T_3_B0__KSTAR0_TAU_TAU,            {511,   9433,   3,  313,   15, -15}},
@@ -1063,21 +1074,21 @@ const std::map<Observables, LhaID>& observable_flha_mapping() {
         {A_FB_H_LAMBDA_B__LAMBDA_E_E,         {5122,  52,     3,  3122,  11, -11}},
         {A_FB_LH_LAMBDA_B__LAMBDA_E_E,        {5122,  53,     3,  3122,  11, -11}},
         {F_L_LAMBDA_B__LAMBDA_E_E,            {5122,  931,    3,  3122,  11, -11}},
-        {F_T_LAMBDA_B__LAMBDA_E_E,            {5122,  932,    3,  3122,  11, -11}},
+        {F_T_LAMBDA_B__LAMBDA_E_E,            {5122,  kTransverseFraction,    3,  3122,  11, -11}},
         {DGAMMA_DQ2_LAMBDA_B__LAMBDA_MU_MU,   {5122,  10,     3,  3122,  13, -13}}, 
         {DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU,      {5122,  1,      3,  3122,  13, -13}}, 
         {A_FB_L_LAMBDA_B__LAMBDA_MU_MU,       {5122,  51,     3,  3122,  13, -13}},
         {A_FB_H_LAMBDA_B__LAMBDA_MU_MU,       {5122,  52,     3,  3122,  13, -13}},
         {A_FB_LH_LAMBDA_B__LAMBDA_MU_MU,      {5122,  53,     3,  3122,  13, -13}},
         {F_L_LAMBDA_B__LAMBDA_MU_MU,          {5122,  931,    3,  3122,  13, -13}},
-        {F_T_LAMBDA_B__LAMBDA_MU_MU,          {5122,  932,    3,  3122,  13, -13}}, 
+        {F_T_LAMBDA_B__LAMBDA_MU_MU,          {5122,  kTransverseFraction,    3,  3122,  13, -13}},
         {DGAMMA_DQ2_LAMBDA_B__LAMBDA_TAU_TAU, {5122,  10,      3,  3122,  15, -15}}, 
         {DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU,    {5122,  1,      3,  3122,  15, -15}}, 
         {A_FB_L_LAMBDA_B__LAMBDA_TAU_TAU,     {5122,  51,     3,  3122,  15, -15}},
         {A_FB_H_LAMBDA_B__LAMBDA_TAU_TAU,     {5122,  52,     3,  3122,  15, -15}},
         {A_FB_LH_LAMBDA_B__LAMBDA_TAU_TAU,    {5122,  53,     3,  3122,  15, -15}},
         {F_L_LAMBDA_B__LAMBDA_TAU_TAU,        {5122,  931,    3,  3122,  15, -15}},
-        {F_T_LAMBDA_B__LAMBDA_TAU_TAU,        {5122,  932,    3,  3122,  15, -15}},
+        {F_T_LAMBDA_B__LAMBDA_TAU_TAU,        {5122,  kTransverseFraction,    3,  3122,  15, -15}},
         {PHI_D,                               {511,   71,     1, -511}},
         {DELTA_M_BD,                          {511,   7,      1, -511}},
         {PHI_S,                               {531,   71,     1, -531}},

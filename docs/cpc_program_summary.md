@@ -1,12 +1,12 @@
-# CPC Program Summary — HyperIso 1.0.0
+# CPC Program Summary — HyperIso 1.0.2
 
 **Program title:** HyperIso
-**Version:** 1.0.0
+**Version:** 1.0.2
 **CPC Library link to program files:** To be assigned by the CPC Technical Editor.
-**Developer's repository:** https://github.com/HyperIso/HyperIso/tree/v1.0.0
+**Developer's repository:** https://github.com/HyperIso/HyperIso/tree/v1.0.2
 **Licensing provisions:** GNU General Public License 3 (GPL), with the option to use any later version.
 **Programming languages:** C++20 and Python 3.10–3.12.
-**Operating systems:** Linux x86-64 for the 1.0.0 binary release; source builds are tested on current Ubuntu runners.
+**Operating systems:** Linux x86-64 for the 1.0.2 binary release; source builds are tested on current Ubuntu runners.
 **External libraries and optional programs:** CMake, GSL, Eigen and pybind11. The source distribution includes 2HDMC and MinuitCpp. MARTY and SOFTSUSY are optional external programs and are not required by the frozen reference suite.
 **Supplementary material:** User and installation guides, API documentation, example LHA/SLHA/FLHA inputs, validation tables, fixed-seed reproducibility scripts, expected outputs and numerical metadata.
 **References:** The associated HyperIso article; the SuperIso/FLHA references cited in the manuscript; the 2HDMC program article for the archived THDM spectrum.
@@ -24,3 +24,4 @@ The generic MARTY backend is optional and must be installed separately. It is va
 **Example input/output:** `reproducibility/inputs/`, `reproducibility/expected_outputs/` and `reproducibility/manifest.json`.
 **Classification:** 11.1, 11.3, 11.6.
 **Related article:** *HyperIso: A general BSM calculator for flavour observables*.
+**Software archive DOI:** https://doi.org/10.5281/zenodo.21419678

@@ -98,3 +98,26 @@ For each scientific result, retain:
 - random seeds and thread settings for Monte-Carlo calculations.
 
 The frozen release suite described in @ref reproducibility follows this model.
+
+
+## Project-defined FLHA observable types
+
+HyperIso extends the FLHA observable-type field for observables that are not
+covered by the original convention. Version 1.0.2 uses the following canonical
+identifiers:
+
+- `92ij` for polarization, where `i=1` denotes a fermion (lepton), `i=2` a
+  longitudinally polarized vector, `i=3` a transversely polarized vector, and
+  `j` is the one-based position of the particle of interest in the ordered
+  daughter list;
+- `932` for the transverse fraction `F_T`;
+- `933` for the angular coefficient `alpha_K`.
+
+For example, the tau in `B -> D(*) tau nu` is the second daughter and therefore
+uses `9212`; the longitudinal `D*` is the first daughter and therefore uses
+`9221`. Output always uses these canonical identifiers. Input produced by
+versions 1.0.0--1.0.1 with the unambiguous legacy polarization identifiers
+`92015` or `921423` is translated automatically. The old `alpha_K` value `932`
+cannot be distinguished from a legitimate `F_T` record and must be changed
+explicitly to `933`. See `docs/flha_observable_ids.md` in the source tree for
+the migration table.

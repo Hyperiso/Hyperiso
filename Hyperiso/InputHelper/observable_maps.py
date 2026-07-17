@@ -496,14 +496,43 @@ OBSERVABLE_MAPPING = {
     'R_1_B0__K0_L_L': 'R-1_B0__K0_l_l',
 }
 
+# Project-defined observable-type ids used below:
+#   92ij: polarization, with i=1 fermion, i=2 longitudinal vector,
+#         i=3 transverse vector, and j the one-based position of the particle
+#         of interest in the ordered FLHA daughter list.
+#   932: transverse polarization fraction F_T.
+#   933: angular coefficient alpha_K.
+# Legacy v1.0.0--v1.0.1 polarization ids are accepted on input only.
+LEGACY_POLARIZATION_TYPE_ALIASES = {
+    92015: 9212,
+    921423: 9221,
+}
+
+
+def canonicalize_observable_flha_id(flha_id):
+    """Return a canonical v1.0.2 observable FLHA id tuple.
+
+    Only the unambiguous legacy polarization ids are migrated. The former
+    alpha_K/F_T collision at type 932 cannot be disambiguated from the FLHA id
+    alone; v1.0.2 therefore writes alpha_K with type 933.
+    """
+    parts = tuple(int(part) for part in flha_id)
+    if len(parts) < 2:
+        return parts
+    replacement = LEGACY_POLARIZATION_TYPE_ALIASES.get(parts[1])
+    if replacement is None:
+        return parts
+    return (parts[0], replacement, *parts[2:])
+
+
 OBSERVABLE_FLHA_MAPPING = {
     "ABS_EPSILON_K": [311, 75, 1, -311],
-    "ALPHA_K_B0__KSTAR0_E_E": [511, 932, 3, 313, 11, -11],
-    "ALPHA_K_B0__KSTAR0_MU_MU": [511, 932, 3, 313, 13, -13],
-    "ALPHA_K_B0__KSTAR0_TAU_TAU": [511, 932, 3, 313, 15, -15],
-    "ALPHA_K_B__KSTAR_E_E": [521, 932, 3, 323, 11, -11],
-    "ALPHA_K_B__KSTAR_MU_MU": [521, 932, 3, 323, 13, -13],
-    "ALPHA_K_B__KSTAR_TAU_TAU": [521, 932, 3, 323, 15, -15],
+    "ALPHA_K_B0__KSTAR0_E_E": [511, 933, 3, 313, 11, -11],
+    "ALPHA_K_B0__KSTAR0_MU_MU": [511, 933, 3, 313, 13, -13],
+    "ALPHA_K_B0__KSTAR0_TAU_TAU": [511, 933, 3, 313, 15, -15],
+    "ALPHA_K_B__KSTAR_E_E": [521, 933, 3, 323, 11, -11],
+    "ALPHA_K_B__KSTAR_MU_MU": [521, 933, 3, 323, 13, -13],
+    "ALPHA_K_B__KSTAR_TAU_TAU": [521, 933, 3, 323, 15, -15],
     "A_1C_B0__KSTAR0_E_E": [511, -95312, 3, 313, 11, -11],
     "A_1C_B0__KSTAR0_MU_MU": [511, -95312, 3, 313, 13, -13],
     "A_1C_B0__KSTAR0_TAU_TAU": [511, -95312, 3, 313, 15, -15],
@@ -828,8 +857,8 @@ OBSERVABLE_FLHA_MAPPING = {
     "P_8_B__KSTAR_E_E": [521, 9518, 3, 323, 11, -11],
     "P_8_B__KSTAR_MU_MU": [521, 9518, 3, 323, 13, -13],
     "P_8_B__KSTAR_TAU_TAU": [521, 9518, 3, 323, 15, -15],
-    "P_D_B0__DSTAR_TAU_NU": [511, 921423, 3, 413, -15, 16],
-    "P_D_B__DSTAR0_TAU_NU": [521, 921423, 3, 423, -15, 16],
+    "P_D_B0__DSTAR_TAU_NU": [511, 9221, 3, 413, -15, 16],
+    "P_D_B__DSTAR0_TAU_NU": [521, 9221, 3, 423, -15, 16],
     "P_PRIME_4_B0__KSTAR0_E_E": [511, 9524, 3, 313, 11, -11],
     "P_PRIME_4_B0__KSTAR0_MU_MU": [511, 9524, 3, 313, 13, -13],
     "P_PRIME_4_B0__KSTAR0_TAU_TAU": [511, 9524, 3, 313, 15, -15],
@@ -890,10 +919,10 @@ OBSERVABLE_FLHA_MAPPING = {
     "P_PRIME_8_CPV_B__KSTAR_E_E": [521, -9528, 3, 323, 11, -11],
     "P_PRIME_8_CPV_B__KSTAR_MU_MU": [521, -9528, 3, 323, 13, -13],
     "P_PRIME_8_CPV_B__KSTAR_TAU_TAU": [521, -9528, 3, 323, 15, -15],
-    "P_TAU_B0__DSTAR_TAU_NU": [511, 92015, 3, 413, -15, 16],
-    "P_TAU_B0__D_TAU_NU": [511, 92015, 3, 411, -15, 16],
-    "P_TAU_B__D0_TAU_NU": [521, 92015, 3, 421, -15, 16],
-    "P_TAU_B__DSTAR0_TAU_NU": [521, 92015, 3, 423, -15, 16],
+    "P_TAU_B0__DSTAR_TAU_NU": [511, 9212, 3, 413, -15, 16],
+    "P_TAU_B0__D_TAU_NU": [511, 9212, 3, 411, -15, 16],
+    "P_TAU_B__D0_TAU_NU": [521, 9212, 3, 421, -15, 16],
+    "P_TAU_B__DSTAR0_TAU_NU": [521, 9212, 3, 423, -15, 16],
     "Q0_A_FB_B0__KSTAR0_E_E": [511, 50, 3, 313, 11, -11],
     "Q0_A_FB_B0__KSTAR0_MU_MU": [511, 50, 3, 313, 13, -13],
     "Q0_A_FB_B0__KSTAR0_TAU_TAU": [511, 50, 3, 313, 15, -15],

@@ -23,7 +23,7 @@ def main() -> int:
     parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]
     )
-    parser.add_argument("--tag", help="Optional Git tag, e.g. v1.0.0")
+    parser.add_argument("--tag", help="Optional Git tag, e.g. v1.0.2")
     args = parser.parse_args()
     root = args.root.resolve()
 
@@ -40,6 +40,50 @@ def main() -> int:
     cff_text = (root / "CITATION.cff").read_text()
     cff_version = require(
         r'^version:\s*["\']?([^"\'\s]+)', cff_text, "CITATION.cff version"
+    )
+
+    python_cmake_text = (
+        root / "Hyperiso/Hyperiso/core/src/Python/CMakeLists.txt"
+    ).read_text()
+    python_cmake_fallback = require(
+        r"project\(phyperiso VERSION ([0-9]+\.[0-9]+\.[0-9]+) LANGUAGES CXX\)",
+        python_cmake_text,
+        "Python CMake fallback version",
+    )
+
+    doxygen_text = (root / "Hyperiso/Docs/Doxyfile").read_text()
+    doxygen_version = require(
+        r"^PROJECT_NUMBER\s*=\s*([0-9]+\.[0-9]+\.[0-9]+)",
+        doxygen_text,
+        "Doxygen project version",
+    )
+
+    doxygen_mainpage_text = (root / "Hyperiso/Docs/pages/mainpage.md").read_text()
+    doxygen_mainpage_version = require(
+        r"hyperiso-kicker[^>]*>HyperIso ([0-9]+\.[0-9]+\.[0-9]+)<",
+        doxygen_mainpage_text,
+        "Doxygen main-page version",
+    )
+
+    package_readme_text = (root / "Hyperiso/Hyperiso/README.md").read_text()
+    package_readme_version = require(
+        r"^CMake project version:\s*([0-9]+\.[0-9]+\.[0-9]+)",
+        package_readme_text,
+        "package README version",
+    )
+
+    cpc_summary_text = (root / "docs/cpc_program_summary.md").read_text()
+    cpc_summary_version = require(
+        r"^\*\*Version:\*\*\s*([0-9]+\.[0-9]+\.[0-9]+)",
+        cpc_summary_text,
+        "CPC summary version",
+    )
+
+    installation_text = (root / "docs/installation.md").read_text()
+    installation_version = require(
+        r'__version__\s*==\s*native\.__version__\s*==\s*["\']([0-9]+\.[0-9]+\.[0-9]+)',
+        installation_text,
+        "installation guide version",
     )
 
     init_text = (root / "Hyperiso/Hyperiso/pyhyperiso/__init__.py").read_text()
@@ -71,6 +115,12 @@ def main() -> int:
         "pyproject.toml": python_version,
         "CMakeLists.txt": cmake_version,
         "CITATION.cff": cff_version,
+        "Python CMake fallback": python_cmake_fallback,
+        "Doxygen PROJECT_NUMBER": doxygen_version,
+        "Doxygen main page": doxygen_mainpage_version,
+        "package README": package_readme_version,
+        "CPC program summary": cpc_summary_version,
+        "installation guide": installation_version,
         "Python fallback": python_fallback,
         "reproducibility manifest": manifest_version,
     }

@@ -45,7 +45,7 @@ def main() -> int:
     parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]
     )
-    parser.add_argument("--tag", required=True, help="Release tag, for example v1.0.0")
+    parser.add_argument("--tag", required=True, help="Release tag, for example v1.0.2")
     args = parser.parse_args()
     root = args.root.resolve()
     expected = root / "reproducibility/expected_outputs"

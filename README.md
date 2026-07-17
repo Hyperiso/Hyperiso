@@ -6,7 +6,7 @@
 
 [![C++20](https://img.shields.io/badge/C%2B%2B-20-blue.svg)](https://isocpp.org/) [![Python](https://img.shields.io/pypi/pyversions/pyhyperiso.svg?label=Python)](https://pypi.org/project/pyhyperiso/) [![PyPI](https://img.shields.io/pypi/v/pyhyperiso.svg?label=PyPI)](https://pypi.org/project/pyhyperiso/) [![CI](https://github.com/HyperIso/HyperIso/actions/workflows/ci.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/ci.yml) [![Python CI](https://github.com/HyperIso/HyperIso/actions/workflows/python.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/python.yml) [![Docs](https://github.com/HyperIso/HyperIso/actions/workflows/docs.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/docs.yml) [![CodeQL](https://github.com/HyperIso/HyperIso/actions/workflows/codeql.yml/badge.svg)](https://github.com/HyperIso/HyperIso/actions/workflows/codeql.yml)
 
-[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE) [![INSPIRE](https://img.shields.io/badge/INSPIRE-3138024-003366.svg)](https://inspirehep.net/literature/3138024) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Hyperiso/Hyperiso/badge)](https://scorecard.dev/viewer/?uri=github.com/Hyperiso/Hyperiso) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md)
+[![License: GPL v3+](https://img.shields.io/badge/License-GPLv3%2B-blue.svg)](LICENSE) [![INSPIRE](https://img.shields.io/badge/INSPIRE-3138024-003366.svg)](https://inspirehep.net/literature/3138024) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Hyperiso/Hyperiso/badge)](https://scorecard.dev/viewer/?uri=github.com/Hyperiso/Hyperiso) [![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-2.0-4baaaa.svg)](CODE_OF_CONDUCT.md) [![Zenodo v1.0.2](https://img.shields.io/badge/Zenodo-v1.0.2-1682D4.svg)](https://doi.org/10.5281/zenodo.21419678)
 
 [Paper](https://inspirehep.net/literature/3138024) | [Documentation](https://hyperiso.github.io/Hyperiso/) | [Examples](#examples) | [Contributing](CONTRIBUTING.md) | [Security](SECURITY.md)
 
@@ -200,7 +200,8 @@ writer.write_blocks("inputs.yaml", ["SMINPUTS", "MASS"])
 
 The filename suffix selects JSON, YAML, LHA, SLHA or FLHA. See
 `Hyperiso/Hyperiso/examples_python/Core/database_writer_example.py` for full
-and block/id-filtered exports.
+and block/id-filtered exports. Project-defined observable type identifiers and
+the v1.0.2 migration rules are documented in `docs/flha_observable_ids.md`.
 
 ### C++
 
@@ -371,16 +372,20 @@ The `.github` configuration includes professional automation for:
 - Dependabot updates;
 - issue and pull-request templates.
 
-Future hardening work is tracked as roadmap work and is not presented as part of the 1.0.0 release guarantees.
+Future hardening work is tracked as roadmap work and is not presented as part of the current stable-release guarantees.
 
 ## Citation
 
 If you use HyperIso in scientific work, please cite the paper and the software release:
 
 - HyperIso paper record: https://inspirehep.net/literature/3138024
+- Archived software v1.0.2: https://doi.org/10.5281/zenodo.21419678
+- Previous archived software v1.0.1: https://doi.org/10.5281/zenodo.21414482
 - Software citation metadata: `CITATION.cff`
 
-BibTeX will be added here once the publication metadata is final.
+Each Zenodo software version has its own DOI. The v1.0.2 DOI is added after a
+new-version draft has been reserved and before the immutable v1.0.2 tag is
+created.
 
 ## Contributing
 
