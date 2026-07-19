@@ -1,7 +1,7 @@
 # HyperIso
 
 <div class="hyperiso-hero">
-  <div class="hyperiso-kicker">HyperIso 1.0.2</div>
+  <div class="hyperiso-kicker">HyperIso 1.0.3</div>
   <h2>Flavour observables, Wilson coefficients and statistical inference through one shared C++ backend</h2>
   <p>
     HyperIso is a modular flavour-physics framework for Standard Model and
@@ -94,7 +94,7 @@ int main() {
 
 ## Installation routes
 
-- Python users: `python -m pip install pyhyperiso==1.0.2` once the release is published.
+- Python users: `python -m pip install pyhyperiso==1.0.3` once the release is published.
 - C++ and CLI users: configure and install the CMake project; see @ref getting_started.
 - GUI users: install the Python package and the Dash requirements, then start `GHyperiso/HyperisoDashGUI/app.py`.
 
