@@ -10,6 +10,26 @@ Semantic Versioning.
 - Additional platform wheels after Linux support is validated.
 - Expanded fuzzing and long-running numerical validation.
 
+## [1.0.3] - 2026-07-19
+
+### Fixed
+
+- Resolve the packaged MARTY Standard Model header through the runtime asset
+  provider instead of the build-time `project_assets_root`, fixing installed
+  wheel failures that attempted to open `/project/Assets/.../sm.h`.
+- Generate the complete MARTY target-model coefficient as `TOTAL`, then derive
+  `BSM = TOTAL - SM`. This prevents the duplicated SM contribution visible as
+  `C2 ~= 2` and also retains BSM effects that modify only SM-particle couplings.
+- Retain Z-prime penguin diagrams, including linkers MARTY classifies as external,
+  while preserving the special `reg_prop` policy for C9, CP9 and CP10 and adding
+  graph-count diagnostics for those split calculations.
+- Replace brittle, mismatched template ABI literals with content-addressed model
+  and template cache signatures plus an explicit generation-mode ABI, and detect
+  the generated marker throughout the source header. This stops permanent C9
+  regeneration while still rebuilding when model or template contents change.
+- Make the bundled Z-prime header independent of the source-tree layout and map
+  the actual MARTY mass symbol `m_X` to `MASS(32)`.
+
 ## [1.0.2] - 2026-07-17
 
 ### Changed

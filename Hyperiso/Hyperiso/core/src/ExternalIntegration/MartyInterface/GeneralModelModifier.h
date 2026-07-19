@@ -75,7 +75,8 @@ public:
                          std::string model_path,
                          std::optional<int> model_template_index,
                          bool disable_non_sm_particles,
-                         bool bsm_split_generation = false);
+                         bool bsm_split_generation = false,
+                         bool full_target_generation = false);
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -101,6 +102,7 @@ public:
 
 private:
     static std::string makeSmFilterHelper();
+    bool usesRegPropSplit() const;
 
     std::string output_model{}; ///< Model label used in generated file/library names.
     std::string target_model{}; ///< Model class name to instantiate.
@@ -108,7 +110,8 @@ private:
     std::string marty_path{};   ///< Path to MARTY's main include.
     std::optional<int> model_template_index{}; ///< Optional template index.
     bool disable_non_sm_particles{false}; ///< Whether to add the SM-like filter.
-    bool bsm_split_generation{false}; ///< Build one BSM-only library by requiring a non-SM internal particle.
+    bool bsm_split_generation{false}; ///< Use the dedicated split-reg_prop generation or BSM-only filter.
+    bool full_target_generation{false}; ///< Keep the complete target-model expression instead of filtering to BSM diagrams.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.

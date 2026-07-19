@@ -8,7 +8,7 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "pyhyperiso"
-version = "1.0.2"
+version = "1.0.3"
 description = "Hyperiso Python binding (C++ backend via pybind11)"
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -120,7 +120,7 @@ build-verbosity = 1
 test-requires = ["pytest>=8"]
 test-sources = ["Hyperiso/Hyperiso/pyhyperiso/test"]
 test-command = [
-  "python -c \"import pyhyperiso; assert pyhyperiso.__version__ == '1.0.2'; from pyhyperiso.phyperiso import pyhyperiso as native; assert native.__version__ == '1.0.2'\"",
+  "python -c \"import pyhyperiso; assert pyhyperiso.__version__ == '1.0.3'; from pyhyperiso.phyperiso import pyhyperiso as native; assert native.__version__ == '1.0.3'\"",
   "python -m pytest Hyperiso/Hyperiso/pyhyperiso/test -q --import-mode=importlib",
 ]
 

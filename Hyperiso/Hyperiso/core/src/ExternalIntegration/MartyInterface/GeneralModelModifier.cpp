@@ -1,9 +1,52 @@
 #include "GeneralModelModifier.h"
 #include "MartyRuntimeConfig.h"
 
-#include <sstream>
 #include <cstddef>
+#include <cstdint>
+#include <filesystem>
+#include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <utility>
+
+namespace fs = std::filesystem;
+
+namespace {
+
+std::string stable_file_fingerprint(const fs::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        throw std::runtime_error("Cannot fingerprint MARTY model file: " + path.string());
+    }
+
+    // FNV-1a is intentionally simple and deterministic.  This is a cache key,
+    // not a cryptographic integrity check.
+    std::uint64_t hash = 14695981039346656037ULL;
+    char buffer[8192];
+    while (input.read(buffer, sizeof(buffer)) || input.gcount() > 0) {
+        const auto count = input.gcount();
+        for (std::streamsize i = 0; i < count; ++i) {
+            hash ^= static_cast<unsigned char>(buffer[i]);
+            hash *= 1099511628211ULL;
+        }
+    }
+
+    std::ostringstream result;
+    result << std::hex << std::setw(16) << std::setfill('0') << hash;
+    return result.str();
+}
+
+std::string normalized_path(const fs::path& path) {
+    std::error_code ec;
+    fs::path normalized = fs::weakly_canonical(path, ec);
+    if (ec) {
+        ec.clear();
+        normalized = fs::absolute(path, ec);
+    }
+    return normalized.lexically_normal().string();
+}
+
+} // namespace
 
 GeneralModelModifier::GeneralModelModifier(std::string wilson,
                                              std::string model,
@@ -16,6 +59,7 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         std::move(model_path),
         model_template_index,
         false,
+        false,
         false
       ) {}
 
@@ -25,7 +69,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
                                              std::string model_path,
                                              std::optional<int> model_template_index,
                                              bool disable_non_sm_particles,
-                                             bool bsm_split_generation) {
+                                             bool bsm_split_generation,
+                                             bool full_target_generation) {
         this->wilson = std::move(wilson);
         this->output_model = std::move(output_model);
         this->target_model = std::move(target_model);
@@ -33,6 +78,7 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         this->model_template_index = model_template_index;
         this->disable_non_sm_particles = disable_non_sm_particles;
         this->bsm_split_generation = bsm_split_generation;
+        this->full_target_generation = full_target_generation;
 
         ModelFileChecker checker(this->model_path);
         this->model_class = checker.resolveModelClass(this->target_model);
@@ -72,7 +118,14 @@ std::string GeneralModelModifier::modelSignature(const std::string& model,
                                                  const std::string& model_path,
                                                  std::optional<int> model_template_index) {
     return "HYPERISO_MARTY_MODEL_SIGNATURE: "
-        + resolveModelInstantiation(model, model_path, model_template_index);
+        + resolveModelInstantiation(model, model_path, model_template_index)
+        + "; path=" + normalized_path(model_path)
+        + "; fnv1a64=" + stable_file_fingerprint(model_path);
+}
+
+bool GeneralModelModifier::usesRegPropSplit() const {
+    return this->bsm_split_generation
+        && (this->wilson == "C9" || this->wilson == "CP9" || this->wilson == "CP10");
 }
 
 std::string GeneralModelModifier::makeSmFilterHelper() {
@@ -125,8 +178,8 @@ bool hyperiso_marty_is_non_sm_particle_name(const std::string& name,
     return sm_particle_names.find(name) == sm_particle_names.end();
 }
 
-bool hyperiso_marty_has_non_sm_internal_particle(mty::FeynmanDiagram const& diag,
-                                                 const std::unordered_set<std::string>& sm_particle_names) {
+bool hyperiso_marty_has_non_sm_diagram_particle(mty::FeynmanDiagram const& diag,
+                                                const std::unordered_set<std::string>& sm_particle_names) {
     for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Loop)) {
         if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
             return true;
@@ -137,13 +190,21 @@ bool hyperiso_marty_has_non_sm_internal_particle(mty::FeynmanDiagram const& diag
             return true;
         }
     }
+    // MARTY may classify a penguin linker (for example Z_X in b -> s l l)
+    // as an External diagram particle even though it is not one of the physical
+    // process legs.  Omitting this category silently removes the Z' diagrams.
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::External)) {
+        if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
+            return true;
+        }
+    }
     return false;
 }
 
-void hyperiso_marty_require_non_sm_internal_particle(mty::FeynOptions& opts) {
+void hyperiso_marty_require_non_sm_diagram_particle(mty::FeynOptions& opts) {
     const auto sm_particle_names = hyperiso_marty_sm_particle_names();
     opts.addFilter([sm_particle_names](mty::FeynmanDiagram const& diag) {
-        return hyperiso_marty_has_non_sm_internal_particle(diag, sm_particle_names);
+        return hyperiso_marty_has_non_sm_diagram_particle(diag, sm_particle_names);
     });
 }
 } // namespace
@@ -151,18 +212,24 @@ void hyperiso_marty_require_non_sm_internal_particle(mty::FeynOptions& opts) {
 }
 
 void GeneralModelModifier::modifyLine(std::string& line) {
-    if (this->bsm_split_generation) {
-        auto replace_all = [](std::string& value, const std::string& from, const std::string& to) {
-            std::size_t pos = 0;
-            while ((pos = value.find(from, pos)) != std::string::npos) {
-                value.replace(pos, from.size(), to);
-                pos += to.size();
-            }
-        };
-        replace_all(line, "mty::Order::TreeLevel", "hyperiso_marty_order");
-        replace_all(line, "mty::Order::OneLoop", "hyperiso_marty_order");
-        replace_all(line, "TreeLevel", "hyperiso_marty_order");
-        replace_all(line, "OneLoop", "hyperiso_marty_order");
+    if (this->usesRegPropSplit()) {
+        // The semileptonic templates contain an order literal as the standalone
+        // first argument of computeWilsonCoefficients().  Replace only that
+        // argument.  A broad textual replacement also rewrites helper logic such
+        // as `order == mty::Order::TreeLevel` into `order == order`, causing all
+        // one-loop calls to be treated as tree-level and disabling the C9 linker
+        // policy.
+        const auto first = line.find_first_not_of(" \t");
+        const auto last = line.find_last_not_of(" \t");
+        const std::string trimmed = first == std::string::npos
+            ? std::string{}
+            : line.substr(first, last - first + 1);
+        if (trimmed == "mty::Order::TreeLevel,"
+            || trimmed == "mty::Order::OneLoop,"
+            || trimmed == "TreeLevel,"
+            || trimmed == "OneLoop,") {
+            line.replace(first, last - first + 1, "hyperiso_marty_order,");
+        }
         return;
     }
 
@@ -185,7 +252,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         return;
     }
 
-    if (this->bsm_split_generation) {
+    if (this->usesRegPropSplit()) {
         if (currentLine.find("<iostream>") != std::string::npos) {
             outputFile << currentLine << "\n";
             outputFile << "#include <string>\n";
@@ -196,9 +263,14 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include \"" + this->model_path + "\"" << "\n";
             outputFile << "#include \"" + this->marty_path + "\"" << "\n";
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM internal particle in "
-                       << this->model_instantiation << "\n";
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v24\n";
+            if (this->full_target_generation) {
+                outputFile << "// HYPERISO_MARTY_TARGET_SPLIT: complete target-model diagrams in "
+                           << this->model_instantiation << "\n";
+            } else {
+                outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM diagram particle in "
+                           << this->model_instantiation << "\n";
+            }
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v26\n";
             return;
         }
 
@@ -213,6 +285,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                        << "(Model &model, gauge::Type gauge, mty::Order hyperiso_marty_order, "
                        << "bool hyperiso_marty_sm_like_filter = false) {\n";
             outputFile << "    std::size_t hyperiso_marty_graph_count = 0;\n";
+            outputFile << "    hyperiso_marty_set_semileptonic_order(hyperiso_marty_order);\n";
             this->inside_calculate_function = true;
             this->expression_returned = false;
             this->pending_wilson_graph_count = false;
@@ -224,8 +297,12 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << currentLine << "\n";
             outputFile << "    if (hyperiso_marty_sm_like_filter) {\n";
             outputFile << "        hyperiso_marty_disable_non_sm_particles(opts, model);\n";
-            outputFile << "    } else {\n";
-            outputFile << "        hyperiso_marty_require_non_sm_internal_particle(opts);\n";
+            if (!this->full_target_generation) {
+                outputFile << "    } else {\n";
+            }
+            if (!this->full_target_generation) {
+            outputFile << "        hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+            }
             outputFile << "    }\n";
             return;
         }
@@ -314,27 +391,69 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             const bool split_linker_components = (this->wilson == "CP10");
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
+            outputFile << "    // Semileptonic BSM matching is tree-first.  A non-zero tree-level\n";
+            outputFile << "    // coefficient suppresses the one-loop calculation entirely; otherwise\n";
+            outputFile << "    // MARTY falls back to the one-loop split-reg_prop path.\n";
             outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
-            outputFile << "    auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
+            outputFile << "    auto hyperiso_marty_bsm_tree = hyperiso_marty_build_" << this->wilson
+                       << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, false);\n";
+            outputFile << "    const bool hyperiso_marty_use_tree_level = hyperiso_marty_bsm_tree.first != CSL_0;\n";
+            outputFile << "    const char* hyperiso_marty_selected_order = hyperiso_marty_use_tree_level ? \"TreeLevel\" : \"OneLoop\";\n";
+            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_bsm_tree.first;\n";
+            outputFile << "    Expr hyperiso_marty_bsm_photon = CSL_0;\n";
+            outputFile << "    Expr hyperiso_marty_bsm_scalar = CSL_0;\n";
+            outputFile << "    Expr hyperiso_marty_bsm_vector = hyperiso_marty_bsm_tree.first;\n";
+            outputFile << "    std::size_t hyperiso_marty_non_photon_graph_count = hyperiso_marty_bsm_tree.second;\n";
+            outputFile << "    std::size_t hyperiso_marty_photon_graph_count = 0;\n";
+            outputFile << "    std::size_t hyperiso_marty_scalar_graph_count = 0;\n";
+            outputFile << "    std::size_t hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_tree.second;\n";
+            outputFile << "    if (!hyperiso_marty_use_tree_level) {\n";
+            outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
+            outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
                        << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-            outputFile << "    Expr hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
-            outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
-            outputFile << "    auto hyperiso_marty_bsm_photon_loop = hyperiso_marty_build_" << this->wilson
+            outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
+            outputFile << "        hyperiso_marty_non_photon_graph_count = hyperiso_marty_bsm_loop.second;\n";
+            outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
+            outputFile << "        auto hyperiso_marty_bsm_photon_loop = hyperiso_marty_build_" << this->wilson
                        << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-            outputFile << "    Expr hyperiso_marty_bsm_photon = hyperiso_marty_bsm_photon_loop.first;\n";
+            outputFile << "        hyperiso_marty_bsm_photon = hyperiso_marty_bsm_photon_loop.first;\n";
+            outputFile << "        hyperiso_marty_photon_graph_count = hyperiso_marty_bsm_photon_loop.second;\n";
             if (split_linker_components) {
-                outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::ScalarOnly);\n";
-                outputFile << "    auto hyperiso_marty_bsm_scalar_loop = hyperiso_marty_build_" << this->wilson
+                outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::ScalarOnly);\n";
+                outputFile << "        auto hyperiso_marty_bsm_scalar_loop = hyperiso_marty_build_" << this->wilson
                            << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-                outputFile << "    Expr hyperiso_marty_bsm_scalar = hyperiso_marty_bsm_scalar_loop.first;\n";
-                outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::VectorOnly);\n";
-                outputFile << "    auto hyperiso_marty_bsm_vector_loop = hyperiso_marty_build_" << this->wilson
+                outputFile << "        hyperiso_marty_bsm_scalar = hyperiso_marty_bsm_scalar_loop.first;\n";
+                outputFile << "        hyperiso_marty_scalar_graph_count = hyperiso_marty_bsm_scalar_loop.second;\n";
+                outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::VectorOnly);\n";
+                outputFile << "        auto hyperiso_marty_bsm_vector_loop = hyperiso_marty_build_" << this->wilson
                            << "(model, gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
-                outputFile << "    Expr hyperiso_marty_bsm_vector = hyperiso_marty_bsm_vector_loop.first;\n";
+                outputFile << "        hyperiso_marty_bsm_vector = hyperiso_marty_bsm_vector_loop.first;\n";
+                outputFile << "        hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_vector_loop.second;\n";
             } else {
-                outputFile << "    Expr hyperiso_marty_bsm_scalar = CSL_0;\n";
-                outputFile << "    Expr hyperiso_marty_bsm_vector = hyperiso_marty_bsm;\n";
+                outputFile << "        hyperiso_marty_bsm_vector = hyperiso_marty_bsm;\n";
+                outputFile << "        hyperiso_marty_vector_graph_count = hyperiso_marty_non_photon_graph_count;\n";
             }
+            outputFile << "    }\n";
+            if (split_linker_components) {
+                outputFile << "    else {\n";
+                outputFile << "        // At tree level the penguin linker split is disabled.  Expose the\n";
+                outputFile << "        // complete tree coefficient as VECTOR for diagnostics and do not\n";
+                outputFile << "        // trigger additional tree or one-loop calculations.\n";
+                outputFile << "        hyperiso_marty_bsm_vector = hyperiso_marty_bsm;\n";
+                outputFile << "        hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_tree.second;\n";
+                outputFile << "    }\n";
+            }
+            outputFile << "    std::cout << \"[MARTY " << this->wilson << "] "
+                       << (this->full_target_generation ? "target" : "BSM")
+                       << " selected order=\" << hyperiso_marty_selected_order"
+                       << " << \", tree=\" << hyperiso_marty_bsm_tree.second"
+                       << " << \", non-photon=\" << hyperiso_marty_non_photon_graph_count"
+                       << " << \", photon=\" << hyperiso_marty_photon_graph_count";
+            if (split_linker_components) {
+                outputFile << " << \", scalar=\" << hyperiso_marty_scalar_graph_count"
+                           << " << \", vector=\" << hyperiso_marty_vector_graph_count";
+            }
+            outputFile << " << std::endl;\n";
             if (split_sm_components) {
                 outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
                 outputFile << "    auto hyperiso_marty_sm_loop = hyperiso_marty_build_" << this->wilson
@@ -388,7 +507,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
 
     if (currentLine.find("<iostream>") != std::string::npos) {
         outputFile << currentLine << "\n";
-        if (this->disable_non_sm_particles) {
+        if (this->disable_non_sm_particles || this->bsm_split_generation) {
             outputFile << "#include <string>\n";
             outputFile << "#include <unordered_set>\n";
             outputFile << "#include <vector>\n";
@@ -399,9 +518,12 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         if (this->disable_non_sm_particles) {
             outputFile << "// HYPERISO_MARTY_SM_LIKE_FILTER: disable non-SM particles in "
                        << this->model_instantiation << "\n";
+        } else if (this->bsm_split_generation) {
+            outputFile << "// HYPERISO_MARTY_BSM_ONLY_FILTER: require a non-SM diagram particle in "
+                       << this->model_instantiation << "\n";
         }
     }
-    else if (this->disable_non_sm_particles
+    else if ((this->disable_non_sm_particles || this->bsm_split_generation)
              && currentLine.find("using namespace sm_input;") != std::string::npos) {
         outputFile << currentLine << "\n";
         outputFile << makeSmFilterHelper() << "\n";
@@ -410,6 +532,11 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
              && currentLine.find("FeynOptions opts;") != std::string::npos) {
         outputFile << currentLine << "\n";
         outputFile << "    hyperiso_marty_disable_non_sm_particles(opts, model);\n";
+    }
+    else if (this->bsm_split_generation
+             && currentLine.find("FeynOptions opts;") != std::string::npos) {
+        outputFile << currentLine << "\n";
+        outputFile << "    hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
     }
     else {
         outputFile << currentLine << "\n";

@@ -3,6 +3,11 @@
 
 MartyWilson::MartyWilson(MartyWilsonConfig config)
     : WilsonCoefficient(WCoefMapper::str(WCoefMapper::from_flha(config.coeff_id.get_parts()[0], config.coeff_id.get_parts()[1])), config.storage_block) {
+    if (config.model_path.empty()) {
+        throw std::invalid_argument(
+            "MartyWilson requires an explicit runtime-resolved MARTY model path"
+        );
+    }
     this->type = static_cast<ContributionType>(config.coeff_id.get_parts()[3]);
     this->set_model(config.model_name);
     std::string name = this->get_name();
@@ -12,12 +17,13 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
     std::string marty_generation_model = config.generation_model_name;
     bool marty_sm_like_filter = config.sm_like_filter;
     bool marty_bsm_split_generation = config.bsm_split_generation;
+    bool marty_full_target_generation = config.full_target_generation;
     std::string marty_model_path = config.model_path;
 
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy = config.marty_proxy;
     ContributionType contribution_type = this->type;
 
-    matching_info[QCDOrder::LO].compute = [name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_bsm_split_generation, marty_model_path, marty_proxy, contribution_type] (const ParamSrc& src) -> scalar_t {
+    matching_info[QCDOrder::LO].compute = [name, csv_path, marty_model, marty_generation_model, marty_sm_like_filter, marty_bsm_split_generation, marty_full_target_generation, marty_model_path, marty_proxy, contribution_type] (const ParamSrc& src) -> scalar_t {
         LOG_DEBUG("Updating coeff", name);
         double epsi = 1e-4;
         double ew_scale = src.get_val({ParameterType::WILSON, "EW_SCALE", 1});
@@ -33,7 +39,16 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         CSVReader csv_reader;
         DataFrame df;
 
-        marty_proxy->calculate(name, marty_model, marty_generation_model, ew_scale, marty_model_path, marty_sm_like_filter, marty_bsm_split_generation);
+        marty_proxy->calculate(
+            name,
+            marty_model,
+            marty_generation_model,
+            ew_scale,
+            marty_model_path,
+            marty_sm_like_filter,
+            marty_bsm_split_generation,
+            marty_full_target_generation
+        );
         df = csv_reader.read_csv(csv_path);
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 

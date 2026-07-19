@@ -16,6 +16,13 @@ static void write_file(const fs::path& p, const std::string& content) {
     f.flush();
 }
 
+static std::string slurp(const fs::path& p) {
+    std::ifstream f(p);
+    std::stringstream ss;
+    ss << f.rdbuf();
+    return ss.str();
+}
+
 int main() {
     std::cout << "== GeneralModelModifier UNIT ==\n";
 
@@ -92,6 +99,100 @@ int main() {
         assert(s.find(zprime_hdr.string()) != std::string::npos);
         assert(s.find("marty.h") != std::string::npos);
         assert(s.find("// nothing") != std::string::npos);
+    }
+
+    {
+        // Generic coefficients must keep their original tree/loop policy while
+        // filtering the target model down to diagrams containing a non-SM
+        // particle.  This is what prevents TOTAL = SM + BSM from doubling SM.
+        GeneralModelModifier mod(
+            "C2", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true
+        );
+
+        std::string model_line = "SM_Model sm;";
+        mod.modifyLine(model_line);
+        assert(model_line.find("ZPrime_Model sm;") != std::string::npos);
+
+        std::string order_line = "auto order = mty::Order::TreeLevel;";
+        mod.modifyLine(order_line);
+        assert(order_line.find("mty::Order::TreeLevel") != std::string::npos);
+
+        fs::path out = root / "generic_bsm.cpp";
+        {
+            std::ofstream f(out);
+            mod.addLine(f, "#include <iostream>");
+            mod.addLine(f, "using namespace sm_input;");
+            mod.addLine(f, "    FeynOptions opts;");
+        }
+        const std::string generated = slurp(out);
+        assert(generated.find("HYPERISO_MARTY_BSM_ONLY_FILTER") != std::string::npos);
+        assert(generated.find("DiagramParticleType::External") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
+    }
+
+    {
+        // C9 keeps its specialised order/reg_prop source rewrite and generates
+        // a tree-first main: a non-zero tree coefficient prevents OneLoop from
+        // being evaluated, while loop-only models fall back to OneLoop.
+        GeneralModelModifier mod(
+            "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true
+        );
+        std::string order_line = "        mty::Order::OneLoop,";
+        mod.modifyLine(order_line);
+        assert(order_line.find("hyperiso_marty_order,") != std::string::npos);
+
+        std::string setter_line =
+            "    hyperiso_marty_tree_level_matching = (order == mty::Order::TreeLevel);";
+        mod.modifyLine(setter_line);
+        assert(setter_line.find("order == mty::Order::TreeLevel") != std::string::npos);
+        assert(setter_line.find("order == hyperiso_marty_order") == std::string::npos);
+
+        fs::path out = root / "c9_tree_first.cpp";
+        {
+            std::ofstream f(out);
+            mod.addLine(f, "int main() {");
+        }
+        const std::string generated = slurp(out);
+        assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
+        assert(generated.find("if (!hyperiso_marty_use_tree_level)") != std::string::npos);
+        assert(generated.find("mty::Order::OneLoop") != std::string::npos);
+        assert(generated.find("selected order=") != std::string::npos);
+    }
+
+    {
+        // The explicit full-target path remains available for diagnostics and
+        // must keep every target diagram.  The normal WilsonBuilder path no
+        // longer uses it to infer BSM through a cross-backend subtraction.
+        GeneralModelModifier mod(
+            "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, true
+        );
+        fs::path out = root / "target_c9.cpp";
+        {
+            std::ofstream f(out);
+            mod.addLine(f, "#include <iostream>");
+            mod.addLine(f, "using namespace sm_input;");
+            mod.addLine(f, "int calculate() {");
+            mod.addLine(f, "    FeynOptions opts;");
+        }
+        const std::string generated = slurp(out);
+        assert(generated.find("HYPERISO_MARTY_TARGET_SPLIT") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") == std::string::npos);
+    }
+
+    {
+        const std::string before = GeneralModelModifier::modelSignature(
+            "ZPrime", zprime_hdr.string()
+        );
+        write_file(zprime_hdr,
+            "class ZPrime_Model : public mty::Model { int cache_revision; };\n"
+        );
+        const std::string after = GeneralModelModifier::modelSignature(
+            "ZPrime", zprime_hdr.string()
+        );
+        assert(before != after && "MARTY cache signatures must track model header content");
     }
 
     MartyRuntimeConfig::clear_external_install_path();

@@ -169,4 +169,3 @@ void readParams(std::ifstream& inputFile,
         }
     }
 }
-

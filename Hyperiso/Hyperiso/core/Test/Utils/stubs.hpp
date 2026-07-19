@@ -35,6 +35,10 @@ struct DummyCoreAPI : ICoreAPI<T> {
 
 template<typename T>
 struct DummyMartyProxy : IMartyWilsonProxy<T> {
+    static inline bool last_sm_like_filter = false;
+    static inline bool last_bsm_only_generation = false;
+    static inline bool last_full_target_generation = false;
+
     static void write_result(const std::string& wilson,
                              const std::string& output_model,
                              double matching_scale) {
@@ -58,7 +62,7 @@ struct DummyMartyProxy : IMartyWilsonProxy<T> {
                    std::string model,
                    double matching_scale,
                    std::string model_path) override {
-        calculate(std::move(wilson), model, model, matching_scale, std::move(model_path), false, false);
+        calculate(std::move(wilson), model, model, matching_scale, std::move(model_path), false, false, false);
     }
 
     void calculate(std::string wilson,
@@ -66,8 +70,12 @@ struct DummyMartyProxy : IMartyWilsonProxy<T> {
                    std::string,
                    double matching_scale,
                    std::string,
-                   bool,
-                   bool) override {
+                   bool sm_like_filter,
+                   bool bsm_only_generation,
+                   bool full_target_generation) override {
+        last_sm_like_filter = sm_like_filter;
+        last_bsm_only_generation = bsm_only_generation;
+        last_full_target_generation = full_target_generation;
         write_result(wilson, output_model, matching_scale);
     }
 

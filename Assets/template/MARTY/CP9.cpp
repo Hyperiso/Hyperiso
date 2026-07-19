@@ -2,7 +2,7 @@
 #include <string>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-split-regprop-top-only-v17
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-tree-first-split-regprop-v18
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -20,6 +20,12 @@ HyperisoMartyC9LinkerSelection hyperiso_marty_c9_linker_selection =
 
 void hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection selection) {
     hyperiso_marty_c9_linker_selection = selection;
+}
+
+bool hyperiso_marty_tree_level_matching = false;
+
+void hyperiso_marty_set_semileptonic_order(mty::Order order) {
+    hyperiso_marty_tree_level_matching = (order == mty::Order::TreeLevel);
 }
 
 bool hyperiso_marty_is_photon_name(std::string const& name) {
@@ -112,6 +118,9 @@ bool hyperiso_marty_has_forbidden_c9_linker(mty::FeynmanDiagram const& diag) {
 }
 
 bool hyperiso_marty_accept_c9_linker(mty::FeynmanDiagram const& diag) {
+    if (hyperiso_marty_tree_level_matching) {
+        return true;
+    }
     switch (hyperiso_marty_c9_linker_selection) {
         case HyperisoMartyC9LinkerSelection::NonPhotonVector:
             return !hyperiso_marty_has_forbidden_c9_linker(diag);

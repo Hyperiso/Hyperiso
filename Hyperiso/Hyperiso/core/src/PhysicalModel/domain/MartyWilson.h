@@ -6,13 +6,11 @@
 #include <math.h>
 
 #include "Wilson.h"
-#include "config.hpp"
 #include "DataFrame.h"
 #include "CSVReader.h"
 #include "InterpretedParam.h" //Only for template argument !!
 #include "IMartyWilsonProxy.h"
 #include "IMartyWilsonPathProxy.h"
-#include "config.hpp"
 #include "Utils.h"
 
 /**
@@ -76,10 +74,16 @@ struct MartyWilsonConfig {
     /// all particles not present in SM_Model.
     bool sm_like_filter{false};
 
-    /// If true, generated MARTY code writes a pure BSM piece directly.  This is
-    /// currently used by C9/CP9/CP10, where selected MARTY photon-linker
-    /// subtraction is not a valid short-distance matching coefficient.
+    /// If true, use the dedicated reg_prop split generation.  For BSM-only
+    /// requests the generated diagrams are filtered; for a full target-model
+    /// request the complete target expression is kept.
     bool bsm_split_generation{false};
+
+    /// If true, generate the complete target-model coefficient for explicit
+    /// diagnostics.  The normal WilsonBuilder path does not use this mode for
+    /// physical BSM composition because subtracting a separately implemented
+    /// SM can leak C9/C10 convention differences into the BSM result.
+    bool full_target_generation{false};
     
     /// Full coefficient id used to store the matching value (including order/type parts).
     LhaID coeff_id;
@@ -88,7 +92,7 @@ struct MartyWilsonConfig {
     std::string storage_block;
 
     /// Path to the MARTY model header file.
-    fs::path model_path{project_assets_root.data() + std::string() + "/input_files/marty_model/sm.h"};
+    fs::path model_path{};
 
     /// Proxy used to run MARTY and retrieve dependencies/special blocks.
     std::shared_ptr<IMartyWilsonProxy<InterpretedParam>> marty_proxy;
@@ -180,6 +184,7 @@ struct MartyWilsonConfig {
                       const std::string& generation_model_name,
                       bool sm_like_filter,
                       bool bsm_split_generation,
+                      bool full_target_generation,
                       const LhaID& id,
                       const std::string& storage_block_name,
                       fs::path model_path,
@@ -189,6 +194,7 @@ struct MartyWilsonConfig {
           generation_model_name(generation_model_name),
           sm_like_filter(sm_like_filter),
           bsm_split_generation(bsm_split_generation),
+          full_target_generation(full_target_generation),
           coeff_id(id),
           storage_block(storage_block_name),
           model_path(model_path),

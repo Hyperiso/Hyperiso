@@ -7,11 +7,26 @@
 #include <algorithm>
 #include <cmath>
 #include <cctype>
+#include <cstdint>
 #include <fstream>
-#include <unordered_set>
+#include <iomanip>
 #include <optional>
+#include <sstream>
 
 namespace fs = std::filesystem;
+
+namespace {
+std::string template_signature(const std::string& wilson,
+                               const std::shared_ptr<FileNameManager>& files);
+std::string generation_mode_marker(const std::string& wilson,
+                                   bool sm_like_filter,
+                                   bool bsm_only_generation,
+                                   bool full_target_generation);
+void append_cache_metadata_if_missing(const fs::path& generated_file,
+                                      const std::string& model_signature,
+                                      const std::string& template_signature_value,
+                                      const std::string& mode_marker);
+} // namespace
 
 
 MartyInterface::MartyInterface() {
@@ -28,13 +43,14 @@ void MartyInterface::compile_run(std::string wilson, std::string model) {
     }
 
     GppCompilerStrategy compiler(model, wilson);
-    if (!this->already_run(FileNameManager::getInstance(wilson, model)->getNumGeneratedFileName())){
-        compiler.compile_run(FileNameManager::getInstance(wilson, model)->getGeneratedFileName(), FileNameManager::getInstance(wilson, model)->getExecutableFileName());
+    const auto files = FileNameManager::getInstance(wilson, model);
+    if (!this->already_run(files->getExecutableFileName())) {
+        compiler.compile_run(files->getGeneratedFileName(), files->getExecutableFileName());
     }
 }
 
 void MartyInterface::generate(std::string wilson, std::string model, std::string model_path) {
-    generate(std::move(wilson), model, model, std::move(model_path), false, false);
+    generate(std::move(wilson), model, model, std::move(model_path), false, false, false);
 }
 
 void MartyInterface::generate(std::string wilson,
@@ -42,38 +58,49 @@ void MartyInterface::generate(std::string wilson,
                               std::string target_model,
                               std::string model_path,
                               bool sm_like_filter,
-                              bool bsm_split_generation) {
+                              bool bsm_split_generation,
+                              bool full_target_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::generate").valid) {
         return;
     }
 
     const auto model_template_index = resolve_model_template_index(target_model);
     invalidate_template_model_cache_if_needed(
-        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter, bsm_split_generation
+        wilson, output_model, target_model, model_path, model_template_index,
+        sm_like_filter, bsm_split_generation, full_target_generation
     );
 
     std::unique_ptr<ModelModifier> smModifier;
     smModifier = std::make_unique<GeneralModelModifier>(
-        wilson, output_model, target_model, model_path, model_template_index, sm_like_filter, bsm_split_generation
+        wilson, output_model, target_model, model_path, model_template_index,
+        sm_like_filter, bsm_split_generation, full_target_generation
     );
 
-    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(FileNameManager::getInstance(wilson, output_model)->getTemplateDir());
+    const auto files = FileNameManager::getInstance(wilson, output_model);
+    std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(files->getTemplateDir());
     templateManager->setModelAndWilson(output_model, wilson);
     templateManager->setModelModifier(std::move(smModifier));
 
     CodeGenerator codeGenerator(std::move(templateManager));
 
-    codeGenerator.generate(wilson, FileNameManager::getInstance(wilson, output_model)->getGeneratedFileName());
+    codeGenerator.generate(wilson, files->getGeneratedFileName());
+    append_cache_metadata_if_missing(
+        files->getGeneratedFileName(),
+        GeneralModelModifier::modelSignature(target_model, model_path, model_template_index),
+        template_signature(wilson, files),
+        generation_mode_marker(wilson, sm_like_filter, bsm_split_generation, full_target_generation)
+    );
 }
 
 void MartyInterface::generate_numlib(std::string wilson, std::string model) {
-    generate_numlib(std::move(wilson), model, model, false);
+    generate_numlib(std::move(wilson), model, model, false, false);
 }
 
 void MartyInterface::generate_numlib(std::string wilson,
                                      std::string output_model,
                                      std::string target_model,
-                                     bool bsm_split_generation) {
+                                     bool bsm_split_generation,
+                                     bool full_target_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::generate_numlib").valid) {
         return;
     }
@@ -98,7 +125,8 @@ void MartyInterface::generate_numlib(std::string wilson,
         core_api,
         ports,
         forceMode,
-        bsm_split_generation
+        bsm_split_generation,
+        full_target_generation
     );
     
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NumericTemplateManager>(file_names->getLibDir());
@@ -121,7 +149,7 @@ void MartyInterface::compile_run_libs(std::string wilson, std::string model, dou
 }
 
 void MartyInterface::calculate(std::string wilson, std::string model, double Q_match, std::string model_path) {
-    calculate(std::move(wilson), model, model, Q_match, std::move(model_path), false, false);
+    calculate(std::move(wilson), model, model, Q_match, std::move(model_path), false, false, false);
 }
 
 void MartyInterface::calculate(std::string wilson,
@@ -130,14 +158,21 @@ void MartyInterface::calculate(std::string wilson,
                                double Q_match,
                                std::string model_path,
                                bool sm_like_filter,
-                               bool bsm_split_generation) {
+                               bool bsm_split_generation,
+                               bool full_target_generation) {
     if (!MartyRuntimeConfig::require_available("MartyInterface::calculate").valid) {
         return;
     }
 
-    generate(wilson, output_model, target_model, model_path, sm_like_filter, bsm_split_generation);
+    generate(
+        wilson, output_model, target_model, model_path,
+        sm_like_filter, bsm_split_generation, full_target_generation
+    );
     compile_run(wilson, output_model);
-    generate_numlib(wilson, output_model, target_model, bsm_split_generation);
+    generate_numlib(
+        wilson, output_model, target_model,
+        bsm_split_generation, full_target_generation
+    );
     compile_run_libs(wilson, output_model, Q_match);
 }
 
@@ -171,41 +206,118 @@ std::optional<int> MartyInterface::resolve_model_template_index(const std::strin
 
 namespace {
 
-std::optional<std::string> expected_semileptonic_template_abi_for(const std::string& wilson) {
-    if (wilson == "C9") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-split-regprop-photon-component-v15"};
-    }
-    if (wilson == "CP9") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp9-split-regprop-photon-component-v15"};
-    }
-    if (wilson == "C10") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8"};
-    }
-    if (wilson == "CP10") {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-split-regprop-linker-components-v18"};
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.3-v2";
+
+std::string stable_file_fingerprint(const fs::path& path) {
+    std::ifstream input(path, std::ios::binary);
+    if (!input) {
+        throw std::runtime_error("Cannot fingerprint MARTY template file: " + path.string());
     }
 
-    static const std::unordered_set<std::string> scalar_bqll_wilsons = {
-        "CQ1", "CQ2",
-        "CQ1_E", "CQ1_MU", "CQ1_TA",
-        "CQ2_E", "CQ2_MU", "CQ2_TA",
-        "CPQ1", "CPQ2",
-        "CPQ1_E", "CPQ1_MU", "CPQ1_TA",
-        "CPQ2_E", "CPQ2_MU", "CPQ2_TA"
-    };
-    if (scalar_bqll_wilsons.contains(wilson)) {
-        return std::string{"HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-finite-scheme-v12"};
+    std::uint64_t hash = 14695981039346656037ULL;
+    char buffer[8192];
+    while (input.read(buffer, sizeof(buffer)) || input.gcount() > 0) {
+        const auto count = input.gcount();
+        for (std::streamsize i = 0; i < count; ++i) {
+            hash ^= static_cast<unsigned char>(buffer[i]);
+            hash *= 1099511628211ULL;
+        }
     }
 
-    return std::nullopt;
+    std::ostringstream result;
+    result << std::hex << std::setw(16) << std::setfill('0') << hash;
+    return result.str();
 }
 
-bool expects_ew_operator_norm_abi(const std::string& wilson) {
-    static const std::unordered_set<std::string> wilsons = {
-        "C1", "C2", "C3", "C4", "C5", "C6", "C7", "C8", "C9", "C10",
-        "CP9", "CP10"
-    };
-    return wilsons.contains(wilson);
+std::string normalized_path(const fs::path& path) {
+    std::error_code ec;
+    fs::path normalized = fs::weakly_canonical(path, ec);
+    if (ec) {
+        ec.clear();
+        normalized = fs::absolute(path, ec);
+    }
+    return normalized.lexically_normal().string();
+}
+
+std::string template_signature(const std::string& wilson,
+                               const std::shared_ptr<FileNameManager>& files) {
+    const fs::path path = fs::path(files->getTemplateDir()) / (wilson + ".cpp");
+    return "HYPERISO_MARTY_TEMPLATE_SIGNATURE: path=" + normalized_path(path)
+         + "; fnv1a64=" + stable_file_fingerprint(path);
+}
+
+bool uses_split_regprop_policy(const std::string& wilson) {
+    return wilson == "C9" || wilson == "CP9" || wilson == "CP10";
+}
+
+std::string generation_mode(const std::string& wilson,
+                            bool sm_like_filter,
+                            bool bsm_only_generation,
+                            bool full_target_generation) {
+    if (sm_like_filter) {
+        return "sm-like";
+    }
+    if (full_target_generation && bsm_only_generation && uses_split_regprop_policy(wilson)) {
+        return "target-regprop-split";
+    }
+    if (full_target_generation) {
+        return "target-full";
+    }
+    if (bsm_only_generation && uses_split_regprop_policy(wilson)) {
+        return "bsm-regprop-split";
+    }
+    if (bsm_only_generation) {
+        return "bsm-only";
+    }
+    return "full";
+}
+
+std::string generation_mode_marker(const std::string& wilson,
+                                   bool sm_like_filter,
+                                   bool bsm_only_generation,
+                                   bool full_target_generation) {
+    return "HYPERISO_MARTY_GENERATION_MODE: "
+         + generation_mode(
+             wilson,
+             sm_like_filter,
+             bsm_only_generation,
+             full_target_generation
+         );
+}
+
+void append_cache_metadata_if_missing(const fs::path& generated_file,
+                                      const std::string& model_signature,
+                                      const std::string& template_signature_value,
+                                      const std::string& mode_marker) {
+    std::ifstream input(generated_file);
+    if (!input) {
+        throw std::runtime_error(
+            "MARTY source generation did not create the expected file: " + generated_file.string()
+        );
+    }
+
+    bool has_cache_abi = false;
+    std::string line;
+    while (std::getline(input, line)) {
+        if (line.find(kMartyCacheAbi) != std::string::npos) {
+            has_cache_abi = true;
+            break;
+        }
+    }
+    if (has_cache_abi) {
+        return;
+    }
+
+    std::ofstream output(generated_file, std::ios::app);
+    if (!output) {
+        throw std::runtime_error(
+            "Cannot append MARTY cache metadata to: " + generated_file.string()
+        );
+    }
+    output << "\n// " << kMartyCacheAbi << "\n";
+    output << "// " << model_signature << "\n";
+    output << "// " << template_signature_value << "\n";
+    output << "// " << mode_marker << "\n";
 }
 
 } // namespace
@@ -216,59 +328,45 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
                                                                const std::string& model_path,
                                                                std::optional<int> model_template_index,
                                                                bool sm_like_filter,
-                                                               bool bsm_split_generation) const {
+                                                               bool bsm_split_generation,
+                                                               bool full_target_generation) const {
     const auto files = FileNameManager::getInstance(wilson, output_model);
-    const std::string expected_signature = GeneralModelModifier::modelSignature(
+    const std::string expected_model_signature = GeneralModelModifier::modelSignature(
         target_model,
         model_path,
         model_template_index
     );
-
-    const auto expected_template_abi = expected_semileptonic_template_abi_for(wilson);
-    const bool needs_template_abi = expected_template_abi.has_value();
-
-    constexpr const char* expected_operator_norm_abi =
-        "HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1";
-    const bool needs_operator_norm_abi = expects_ew_operator_norm_abi(wilson);
+    const std::string expected_template_signature = template_signature(wilson, files);
+    const std::string expected_mode = generation_mode_marker(
+        wilson,
+        sm_like_filter,
+        bsm_split_generation,
+        full_target_generation
+    );
 
     bool file_present = false;
-    bool has_expected_signature = false;
-    bool has_expected_filter_mode = !sm_like_filter;
-    bool has_expected_template_abi = !needs_template_abi;
-    bool has_expected_operator_norm_abi = !needs_operator_norm_abi;
-    bool found_unexpected_sm_like_filter = false;
-    bool has_expected_bsm_split_mode = !bsm_split_generation;
+    bool has_cache_abi = false;
+    bool has_model_signature = false;
+    bool has_template_signature = false;
+    bool has_generation_mode = false;
 
     {
         std::ifstream in(files->getGeneratedFileName());
         file_present = static_cast<bool>(in);
         std::string line;
         while (std::getline(in, line)) {
-            if (line.find(expected_signature) != std::string::npos) {
-                has_expected_signature = true;
-            }
-            if (line.find("HYPERISO_MARTY_SM_LIKE_FILTER:") != std::string::npos) {
-                has_expected_filter_mode = sm_like_filter;
-                found_unexpected_sm_like_filter = !sm_like_filter;
-            }
-            if (line.find("HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v23") != std::string::npos) {
-                has_expected_bsm_split_mode = bsm_split_generation;
-            }
-            if (needs_template_abi && line.find(*expected_template_abi) != std::string::npos) {
-                has_expected_template_abi = true;
-            }
-            if (needs_operator_norm_abi && line.find(expected_operator_norm_abi) != std::string::npos) {
-                has_expected_operator_norm_abi = true;
-            }
+            has_cache_abi = has_cache_abi || line.find(kMartyCacheAbi) != std::string::npos;
+            has_model_signature = has_model_signature || line.find(expected_model_signature) != std::string::npos;
+            has_template_signature = has_template_signature || line.find(expected_template_signature) != std::string::npos;
+            has_generation_mode = has_generation_mode || line.find(expected_mode) != std::string::npos;
         }
     }
 
     const bool stale = !file_present
-                    || !has_expected_signature
-                    || !has_expected_filter_mode
-                    || !has_expected_template_abi
-                    || !has_expected_operator_norm_abi
-                    || !has_expected_bsm_split_mode;
+                    || !has_cache_abi
+                    || !has_model_signature
+                    || !has_template_signature
+                    || !has_generation_mode;
 
     if (!stale) {
         return;
@@ -286,24 +384,21 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
     std::string reason;
     if (!file_present) {
         reason = "generated file is missing";
-    } else if (!has_expected_signature) {
-        reason = "model signature mismatch";
-    } else if (!has_expected_filter_mode) {
-        reason = found_unexpected_sm_like_filter
-            ? "SM-like filter marker is present but this output is not SM-like"
-            : "SM-like filter marker is missing";
-    } else if (!has_expected_template_abi) {
-        reason = "template ABI mismatch";
-    } else if (!has_expected_operator_norm_abi) {
-        reason = "operator-normalization ABI mismatch";
-    } else if (!has_expected_bsm_split_mode) {
-        reason = bsm_split_generation ? "BSM split ABI missing" : "BSM split ABI present but not expected";
+    } else if (!has_cache_abi) {
+        reason = "cache ABI mismatch";
+    } else if (!has_model_signature) {
+        reason = "model path/content signature mismatch";
+    } else if (!has_template_signature) {
+        reason = "template content signature mismatch";
+    } else if (!has_generation_mode) {
+        reason = "generation mode mismatch";
     } else {
         reason = "cache metadata mismatch";
     }
 
     LOG_INFO("MartyInterface", "Invalidated stale MARTY cache for ", wilson, " / ", output_model,
-             " because ", reason, ". Expected model signature: ", expected_signature);
+             " because ", reason, ". Expected mode: ", expected_mode,
+             "; expected model signature: ", expected_model_signature);
 }
 
 std::unordered_set<InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {

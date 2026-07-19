@@ -8,7 +8,6 @@
 #include "ICoreAPI.h"
 #include "IMartyWilsonProxy.h"
 #include "IParameterProxy.h"
-#include "config.hpp"
 
 /**
  * @file WilsonGroupAdapterConfig.h
@@ -85,7 +84,7 @@ struct WilsonGroupAdapterConfig {
      *
      * Used as a fallback/reference when building resolver/configuration.
      */
-    fs::path sm_path = fs::path(std::string(project_assets_root.data())+"input_files/marty_model/sm.h");
+    fs::path sm_path{};
 };
 
 #endif // WILSON_GROUP_ADAPTER_CONFIG_H

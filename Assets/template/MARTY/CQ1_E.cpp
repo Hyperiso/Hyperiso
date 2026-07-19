@@ -1,4 +1,5 @@
 #include <iostream>
+// HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-finite-scheme-v12
 
 using namespace csl;
 using namespace mty;
@@ -23,7 +24,7 @@ int calculate_CQ1e(Model &model, gauge::Type gauge) {
     model.getParticle("Z")->setGaugeChoice(gauge);
 
     undefineNumericalValues(); // Allow for HIso to set all the parameters' values
-    mty::option::excludeExternalLegsCorrections = true;
+    mty::option::excludeExternalLegsCorrections = false;
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
@@ -35,8 +36,8 @@ int calculate_CQ1e(Model &model, gauge::Type gauge) {
          Outgoing("e"), Outgoing(AntiPart("e"))},
         opts);
 
-    auto Q1_mu = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {0, 2, 1, 3});
-    Expr CQ1_e = getWilsonCoefficient(wil, Q1_mu);
+    auto Q1 = dimension6Operator(model, wil, DiracCoupling::R, DiracCoupling::S, {1, 0, 2, 3});
+    Expr CQ1_e = getWilsonCoefficient(wil, Q1);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CQ1_E_SM");
     mty::Library wilsonLib("CQ1_E_SM", "libs");

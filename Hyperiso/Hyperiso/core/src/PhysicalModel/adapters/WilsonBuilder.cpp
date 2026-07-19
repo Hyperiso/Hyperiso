@@ -3,6 +3,7 @@
 #include "GroupDefinition.h"
 #include "WilsonCoefficientRegistry.h"
 #include "CoefficientGroupBuilder.h"
+#include "MartyAdapter.h"
 
 WilsonBuilder::WilsonBuilder(WilsonBuildConfig config) {
     this->build(config);
@@ -70,6 +71,7 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         marty_proxy = std::make_shared<MartyWilsonProxy>(); 
     }
     WilsonGroupAdapterConfig adapters(wilson_proxy, iblock_c, use_marty, marty_model_name, marty_model_path, marty_proxy);
+    adapters.sm_path = MartyAdapter().get_path(MartyPath::SM_MODEL_FILE);
     this->current_group_adapters = std::make_shared<WilsonGroupAdapterConfig>(adapters);
     this->current_marty_paths = marty_paths;
 
@@ -92,7 +94,14 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     const bool marty = use_marty->get();
 
     for (auto& g_id : config.groups) {
-        ContributionType ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
+        // A non-SM model is stored as a pure BSM calculation, including for
+        // the MARTY backend.  CoefficientManager then composes TOTAL = SM + BSM.
+        // Do not store the complete MARTY target model as TOTAL and subtract a
+        // separately implemented SM: C9 photon-penguin conventions and tiny C10
+        // normalization differences would leak into the inferred BSM component.
+        ContributionType ct = (model == Model::SM)
+            ? ContributionType::SM
+            : ContributionType::BSM;
         auto grp = build_group_fn(g_id, model, marty, ct);
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
@@ -172,7 +181,14 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         : std::make_shared<MartyWilsonPathProxy>();
 
     for (auto& g_id : config.groups) {
-        ContributionType ct = (model == Model::SM) ? ContributionType::SM : ContributionType::BSM;
+        // A non-SM model is stored as a pure BSM calculation, including for
+        // the MARTY backend.  CoefficientManager then composes TOTAL = SM + BSM.
+        // Do not store the complete MARTY target model as TOTAL and subtract a
+        // separately implemented SM: C9 photon-penguin conventions and tiny C10
+        // normalization differences would leak into the inferred BSM component.
+        ContributionType ct = (model == Model::SM)
+            ? ContributionType::SM
+            : ContributionType::BSM;
 
         BuildContext ctx{
             .adapters = *this->current_group_adapters,

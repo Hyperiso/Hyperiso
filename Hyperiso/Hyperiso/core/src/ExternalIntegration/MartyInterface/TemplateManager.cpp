@@ -110,9 +110,15 @@ bool TemplateManagerBase::already_generated(const std::string &path)
         return false;
     }
 
-    std::string firstLine;
-    if (std::getline(file, firstLine)) {
-        if (firstLine.find("//42") != std::string::npos) {
+    // Non-numeric MARTY sources preserve the template's first include and put
+    // the generation marker on the following line.  Checking only line one
+    // therefore caused every calculate() call to rewrite the analytical source
+    // even when its ABI/model/template cache metadata was still valid.
+    std::string line;
+    for (std::size_t line_number = 0;
+         line_number < 16 && std::getline(file, line);
+         ++line_number) {
+        if (line.find("//42") != std::string::npos) {
             return true;
         }
     }

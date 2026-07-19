@@ -47,6 +47,18 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: marty-template-sync
+        name: Check MARTY template mirrors
+        entry: python tools/check_marty_template_sync.py
+        language: system
+        pass_filenames: false
+
+      - id: marty-v103-regressions
+        name: Validate MARTY v1.0.3 regressions
+        entry: python tools/test_marty_v103.py --static-only
+        language: system
+        pass_filenames: false
+
       - id: reproducibility-tests
         name: Test reproducibility tooling
         entry: python -m unittest discover -s reproducibility/tests -v

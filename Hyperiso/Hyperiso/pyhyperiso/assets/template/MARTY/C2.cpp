@@ -40,11 +40,8 @@ int calculate_C2(Model &model, gauge::Type gauge) {
         opts
     );
 
-    Show(wil_LO);
-    Display(wil_LO);
     Expr C2_LO = getWilsonCoefficient(wil_LO, dimension6Operator(model, wil_LO, DiracCoupling::VL, DiracCoupling::VL, {1, 3, 0, 2}));
 
-    Display(C2_LO);
     // opts.discardLowerOrders = true;
     // auto wil_NLO = model.computeWilsonCoefficients(
     //     mty::Order::OneLoop,

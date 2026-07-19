@@ -21,10 +21,20 @@ const std::unordered_set<std::string>& wilsons_with_marty_split_sm_components() 
 bool should_read_marty_split_sm_components(const std::string& wilson) {
     return wilsons_with_marty_split_sm_components().find(wilson) != wilsons_with_marty_split_sm_components().end();
 }
+
+bool uses_split_regprop_policy(const std::string& wilson) {
+    return wilson == "C9" || wilson == "CP9" || wilson == "CP10";
+}
 }
 
-MartyFileWriter::MartyFileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation) :
-    wilson(wilson), model(model), bsm_split_generation(bsm_split_generation) {}
+MartyFileWriter::MartyFileWriter(const std::string& wilson,
+                                 const std::string& model,
+                                 bool bsm_split_generation,
+                                 bool full_target_generation) :
+    wilson(wilson),
+    model(model),
+    bsm_split_generation(bsm_split_generation),
+    full_target_generation(full_target_generation) {}
 
 bool MartyFileWriter::should_set_mudim() const {
     return wilsons_without_mudim().find(this->wilson) == wilsons_without_mudim().end();
@@ -40,7 +50,7 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
                    << " because LoopTools mudim must stay at its default value.\n";
     }
 
-    if (bsm_split_generation) {
+    if (bsm_split_generation && uses_split_regprop_policy(this->wilson)) {
         outputFile << "\t// Split MARTY coefficient policy. " << wilson
                    << " is generated as non-photon and photon-linker pieces.\n";
         outputFile << "\t// Non-photon pieces use reg_prop = 1e-6. Photon-linker pieces use reg_prop = 1.\n";
@@ -100,7 +110,13 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\tauto hyperiso_bsm_split = hyperiso_bsm_non_photon + hyperiso_bsm_photon;\n";
         outputFile << "\tauto hyperiso_sm_split = hyperiso_sm_non_photon + hyperiso_sm_photon;\n";
         outputFile << "\tauto hyperiso_total_split = hyperiso_sm_split + hyperiso_bsm_split;\n";
-        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+        if (full_target_generation) {
+            outputFile << "\t// The analytical split contains the complete target model.\n";
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TARGET_SPLIT\", hyperiso_bsm_split, Q_match, path);\n";
+        } else {
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+        }
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_BSM_SPLIT\", hyperiso_bsm_split, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_SPLIT\", hyperiso_sm_split, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_SPLIT\", hyperiso_total_split, Q_match, path);\n";
