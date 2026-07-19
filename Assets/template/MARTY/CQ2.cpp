@@ -1,5 +1,6 @@
 #include <iostream>
 // HYPERISO_MARTY_TEMPLATE_ABI: scalar-bqll-finite-scheme-v12
+// HYPERISO_MARTY_GENERIC_TREE_FIRST_SIGNATURE_ABI: v2
 
 using namespace csl;
 using namespace mty;

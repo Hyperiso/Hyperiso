@@ -4,6 +4,7 @@
 #include <set>
 #include <unordered_set>
 #include <string>
+#include <utility>
 
 /**
  * @file IMartyWilsonProxy.h
@@ -61,6 +62,35 @@ public:
                            bool sm_like_filter,
                            bool bsm_split_generation = false,
                            bool full_target_generation = false) = 0;
+
+    /**
+     * @brief Runs a calculation with invocation-local parameter/output files.
+     *
+     * The default implementation preserves compatibility with older mocks and
+     * adapters by calling @ref calculate and returning an empty path. Concrete
+     * MARTY implementations return the isolated Wilson CSV path so callers never
+     * need to read a process-wide shared CSV.
+     */
+    virtual std::string calculate_isolated(std::string wilson,
+                                           std::string output_model,
+                                           std::string target_model,
+                                           double Q_match,
+                                           std::string model_path,
+                                           bool sm_like_filter,
+                                           bool bsm_split_generation = false,
+                                           bool full_target_generation = false) {
+        calculate(
+            std::move(wilson),
+            std::move(output_model),
+            std::move(target_model),
+            Q_match,
+            std::move(model_path),
+            sm_like_filter,
+            bsm_split_generation,
+            full_target_generation
+        );
+        return {};
+    }
 
     /**
      * @brief Returns the set of special parameter blocks.

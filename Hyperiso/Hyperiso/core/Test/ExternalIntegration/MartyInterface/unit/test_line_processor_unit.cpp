@@ -62,6 +62,9 @@ int main(){
     assert(s.find("int main(int argc, char** argv)") != std::string::npos);
     assert(s.find("param_t param;") != std::string::npos);
     assert(s.find("--Q_match") != std::string::npos);
+    assert(s.find("--param-file") != std::string::npos);
+    assert(s.find("--output-file") != std::string::npos);
+    assert(s.find("std::string param_file_path") < s.find("std::ifstream ParamFile(param_file_path)"));
 
     const fs::path csv = root / "params.csv";
     {

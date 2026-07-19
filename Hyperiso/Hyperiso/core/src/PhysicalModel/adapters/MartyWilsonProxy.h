@@ -4,6 +4,8 @@
 #include "IMartyWilsonProxy.h"
 #include "MartyWilsonAdapter.h"
 
+#include <utility>
+
 /**
  * @file MartyWilsonProxy.h
  * @brief Concrete proxy for Wilson coefficient calculations via MARTY.
@@ -53,6 +55,26 @@ public:
             target_model,
             Q_match,
             model_path,
+            sm_like_filter,
+            bsm_split_generation,
+            full_target_generation
+        );
+    }
+
+    std::string calculate_isolated(std::string wilson,
+                                   std::string output_model,
+                                   std::string target_model,
+                                   double Q_match,
+                                   std::string model_path,
+                                   bool sm_like_filter,
+                                   bool bsm_split_generation = false,
+                                   bool full_target_generation = false) override {
+        return martyAdapter.calculate_isolated(
+            std::move(wilson),
+            std::move(output_model),
+            std::move(target_model),
+            Q_match,
+            std::move(model_path),
             sm_like_filter,
             bsm_split_generation,
             full_target_generation

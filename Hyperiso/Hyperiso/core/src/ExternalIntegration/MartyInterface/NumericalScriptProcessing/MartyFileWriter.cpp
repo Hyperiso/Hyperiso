@@ -41,7 +41,7 @@ bool MartyFileWriter::should_set_mudim() const {
 }
 
 void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
-    outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
+    outputFile << "\tconst std::string& path = output_file_path;\n";
 
     if (should_set_mudim()) {
         outputFile << "\tsetMu(Q_match);\n";
@@ -139,15 +139,26 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
 }
 
 void MartyFileWriter::add_argpars(std::ofstream& outputFile) {
-    
+    const auto files = FileNameManager::getInstance(this->wilson, this->model);
     outputFile << "\tdouble Q_match = 80.379;\n";
+    outputFile << "\tstd::string param_file_path = \"" << files->getParamFileName() << "\";\n";
+    outputFile << "\tstd::string output_file_path = \"" << files->getCsvWilsonFileName() << "\";\n";
     outputFile << "\tfor (int i = 1; i < argc; i++) {\n";
     outputFile << "\t\tif (std::string(argv[i]) == \"--Q_match\" || std::string(argv[i]) == \"-Q\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --Q_match\"); }\n";
     outputFile << "\t\t\tQ_match = std::stod(argv[i + 1]);\n";
     outputFile << "\t\t\ti++;\n";
+    outputFile << "\t\t} else if (std::string(argv[i]) == \"--param-file\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --param-file\"); }\n";
+    outputFile << "\t\t\tparam_file_path = argv[++i];\n";
+    outputFile << "\t\t} else if (std::string(argv[i]) == \"--output-file\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --output-file\"); }\n";
+    outputFile << "\t\t\toutput_file_path = argv[++i];\n";
     outputFile << "\t\t} else if (std::string(argv[i]) == \"--help\" || std::string(argv[i]) == \"-h\") {\n";
     outputFile << "\t\t\tstd::cout << \"Options availables :\" << std::endl;\n";
     outputFile << "\t\t\tstd::cout << \"--Q_match/-Q : Value of Q_match (default 80.379)\" << std::endl;\n";
+    outputFile << "\t\t\tstd::cout << \"--param-file : Per-invocation parameter CSV\" << std::endl;\n";
+    outputFile << "\t\t\tstd::cout << \"--output-file : Per-invocation Wilson CSV\" << std::endl;\n";
     outputFile << "\t\t\tstd::cout << \"--help/-h : Affiche ce message.\" << std::endl;\n";
     outputFile << "\t\t\treturn 0;\n";
     outputFile << "\t\t}\n";
@@ -157,9 +168,8 @@ void MartyFileWriter::add_argpars(std::ofstream& outputFile) {
 
 void MartyFileWriter::add_input_reader(std::ofstream& outputFile) {
     outputFile << "\tparam_t param;\n";
-
-    outputFile << "\tstd::string ParamFilePath = \"" << FileNameManager::getInstance(this->wilson, this->model)->getParamFileName() << "\";\n";
-    outputFile << "\tstd::ifstream ParamFile(ParamFilePath);" << "\n";
+    outputFile << "\tstd::ifstream ParamFile(param_file_path);" << "\n";
+    outputFile << "\tif (!ParamFile) { throw std::runtime_error(\"Cannot open MARTY parameter file: \" + param_file_path); }\n";
     outputFile << "\treadParams(ParamFile, param.realParams, param.complexParams);" << "\n";
 
 

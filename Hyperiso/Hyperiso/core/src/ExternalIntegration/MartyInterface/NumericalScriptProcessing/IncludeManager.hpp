@@ -35,6 +35,8 @@ public:
      */
     void addIncludes(std::ofstream& outputFile) {
         outputFile << "#include <fstream>\n";
+        outputFile << "#include <stdexcept>\n";
+        outputFile << "#include <string>\n";
         outputFile << "#include \"csv_helper.h\"\n";
     }
 };

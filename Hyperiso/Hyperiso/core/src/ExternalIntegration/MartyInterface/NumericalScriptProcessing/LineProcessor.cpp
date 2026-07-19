@@ -15,8 +15,9 @@ void LineProcessor::processLine(std::ofstream& outputFile, const std::string& cu
         outputFile << "int main(int argc, char** argv) {\n";
     } 
     else if (currentLine.find("return 0;") != std::string::npos) {
-        fileWriter.add_input_reader(outputFile);
+        // Parse invocation-local paths before opening the parameter file.
         fileWriter.add_argpars(outputFile);
+        fileWriter.add_input_reader(outputFile);
         fileWriter.add_output_writer(outputFile);
         outputFile << currentLine << "\n";
     } else if (currentLine.find("using namespace") != std::string::npos) {

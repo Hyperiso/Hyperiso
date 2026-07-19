@@ -1,5 +1,8 @@
 #include "MartyWilson.h"
 
+#include <filesystem>
+#include <system_error>
+
 
 MartyWilson::MartyWilson(MartyWilsonConfig config)
     : WilsonCoefficient(WCoefMapper::str(WCoefMapper::from_flha(config.coeff_id.get_parts()[0], config.coeff_id.get_parts()[1])), config.storage_block) {
@@ -39,7 +42,7 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         CSVReader csv_reader;
         DataFrame df;
 
-        marty_proxy->calculate(
+        const std::string isolated_csv = marty_proxy->calculate_isolated(
             name,
             marty_model,
             marty_generation_model,
@@ -49,7 +52,22 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
             marty_bsm_split_generation,
             marty_full_target_generation
         );
-        df = csv_reader.read_csv(csv_path);
+        const std::filesystem::path csv_to_read = isolated_csv.empty()
+            ? std::filesystem::path(csv_path)
+            : std::filesystem::path(isolated_csv);
+
+        struct InvocationCsvCleanup {
+            std::filesystem::path directory;
+            ~InvocationCsvCleanup() {
+                if (directory.empty()) {
+                    return;
+                }
+                std::error_code ec;
+                std::filesystem::remove_all(directory, ec);
+            }
+        } cleanup {isolated_csv.empty() ? std::filesystem::path{} : csv_to_read.parent_path()};
+
+        df = csv_reader.read_csv(csv_to_read.string());
         df.setIndex(df.getColumn<double>("Q_match").to_string_vec());
 
         std::string csv_column_base = name;

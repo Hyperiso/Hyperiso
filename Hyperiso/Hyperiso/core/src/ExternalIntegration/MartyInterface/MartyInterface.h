@@ -190,6 +190,22 @@ public:
                   bool full_target_generation = false);
 
     /**
+     * @brief Thread-safe calculation using invocation-local parameter and CSV files.
+     *
+     * Generated analytical/numeric artifacts remain shared and read-only after
+     * construction, while each evaluation receives its own run directory. The
+     * returned CSV path is owned by the caller and may be removed after reading.
+     */
+    std::string calculate_isolated(std::string wilson,
+                                   std::string output_model,
+                                   std::string target_model,
+                                   double Q_match,
+                                   std::string model_path,
+                                   bool sm_like_filter,
+                                   bool bsm_split_generation = false,
+                                   bool full_target_generation = false);
+
+    /**
      * @brief Retrieves the set of parameter dependencies for a given Wilson basis.
      *
      * The dependencies are discovered via numeric template generation, and
@@ -261,6 +277,36 @@ private:
                                                    bool sm_like_filter,
                                                    bool bsm_split_generation,
                                                    bool full_target_generation) const;
+
+    /** Check that the exact analytical/numeric artifacts required by a run exist. */
+    bool artifacts_ready(const std::string& wilson,
+                         const std::string& output_model,
+                         const std::string& target_model,
+                         const std::string& model_path,
+                         bool sm_like_filter,
+                         bool bsm_split_generation,
+                         bool full_target_generation) const;
+
+    /** Ensure shared generated sources, libraries and executable exist. */
+    void ensure_built(const std::string& wilson,
+                      const std::string& output_model,
+                      const std::string& target_model,
+                      const std::string& model_path,
+                      bool sm_like_filter,
+                      bool bsm_split_generation,
+                      bool full_target_generation);
+
+    /** Snapshot the current thread's SM/BSM parameters for one numeric run. */
+    std::unordered_map<std::string, double> snapshot_numeric_params(
+        const std::string& wilson,
+        const std::string& output_model,
+        const std::string& target_model,
+        bool bsm_split_generation,
+        bool full_target_generation
+    );
+
+    /** Compile the numeric executable without executing it. */
+    void compile_numlib(const std::string& wilson, const std::string& model);
 
     /// Set of block names requiring special SM handling (e.g. kinematics, angles).
     std::set<std::string> specials_block {"KIN", "WEIN", "Finite", "REGPROP", "BETA"};

@@ -2,8 +2,9 @@
 """Validation suite for the HyperIso 1.0.3 MARTY patch.
 
 The default mode is safe and dependency-light: it checks repository assets,
-release metadata, the Z-prime mapping, critical C9/C10 template ABI markers,
-SM-path portability, and the source-level SM/BSM/TOTAL/cache fixes.
+release metadata, the Z-prime mapping, MARTY template ABI markers, the
+all-coefficient TreeLevel-first policy, SM-path portability, source-level
+SM/BSM/TOTAL/cache fixes, and invocation-local thread-safe MARTY I/O.
 
 Optional modes:
 
@@ -284,20 +285,38 @@ def check_tree_first_policy() -> str:
         / "MartyInterface"
         / "GeneralModelModifier.cpp"
     )
+    interface = modifier.with_name("MartyInterface.cpp")
     c10 = CANONICAL_TEMPLATES / "C10.cpp"
     _require_contains(
         modifier,
         (
             "HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v26",
+            'signature.insert(close, ", mty::Order hyperiso_marty_order")',
+            'signature.replace(int_pos, 3, "Expr")',
+            "HYPERISO_MARTY_TREE_FIRST: TreeLevel then OneLoop fallback",
             "hyperiso_marty_require_non_sm_diagram_particle",
             "DiagramParticleType::External",
-            "mty::Order::TreeLevel",
-            'trimmed == "mty::Order::TreeLevel,"',
-            'line.replace(first, last - first + 1, "hyperiso_marty_order,")',
+            "replaceWilsonOrderArgument",
+            "hyperiso_marty_use_tree",
+            "if (!hyperiso_marty_use_tree)",
             "hyperiso_marty_use_tree_level",
             "if (!hyperiso_marty_use_tree_level)",
-            "mty::Order::OneLoop",
             "selected order=",
+        ),
+    )
+    modifier_text = _read(modifier)
+    insertion_pos = modifier_text.find('signature.insert(close, ", mty::Order hyperiso_marty_order")')
+    replacement_pos = modifier_text.find('signature.replace(int_pos, 3, "Expr")', insertion_pos)
+    _require(
+        insertion_pos >= 0 and replacement_pos > insertion_pos,
+        "generic TreeLevel-first signature must insert the order argument before widening int to Expr",
+    )
+
+    _require_contains(
+        interface,
+        (
+            "template_needs_generic_tree_first",
+            "std::regex_search(source, loop_call) && !std::regex_search(source, tree_call)",
         ),
     )
     _require_contains(
@@ -309,7 +328,86 @@ def check_tree_first_policy() -> str:
             "[MARTY C10] selected order=",
         ),
     )
-    return "C9/CP9/CP10 and C10 use tree-first matching with one-loop fallback"
+
+    loop_only: list[str] = []
+    tree_only: list[str] = []
+    explicit_tree_then_loop: list[str] = []
+    compute_tree = re.compile(r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?TreeLevel")
+    compute_loop = re.compile(r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?OneLoop")
+    for template in sorted(CANONICAL_TEMPLATES.glob("*.cpp")):
+        if template.name == "csv_helper.cpp":
+            continue
+        source = _read(template)
+        has_tree = bool(compute_tree.search(source))
+        has_loop = bool(compute_loop.search(source))
+        if has_tree and has_loop:
+            explicit_tree_then_loop.append(template.stem)
+        elif has_loop:
+            loop_only.append(template.stem)
+        elif has_tree:
+            tree_only.append(template.stem)
+
+    special = {"C9", "CP9", "CP10"}
+    _require(special.issubset(loop_only), "special semileptonic templates changed order inventory")
+    _require("C10" in explicit_tree_then_loop, "C10 lost its explicit TreeLevel-first fallback")
+    _require(loop_only, "no loop-only templates found; policy inventory is unexpectedly empty")
+
+    # The generic source transformer deliberately keeps the coefficient formulas
+    # untouched and only lifts the existing expression out of the conventional
+    # template skeleton. Validate that every template routed through it still
+    # has that skeleton, so a future template edit fails loudly instead of
+    # silently generating a different coefficient.
+    malformed: list[str] = []
+    marker = "HYPERISO_MARTY_GENERIC_TREE_FIRST_SIGNATURE_ABI: v2"
+    for name in sorted(set(loop_only) - special):
+        template_path = CANONICAL_TEMPLATES / f"{name}.cpp"
+        template_source = _read(template_path)
+        if marker not in template_source:
+            malformed.append(f"{name}: missing generic signature ABI marker")
+            continue
+        lines = template_source.splitlines()
+        counts = {
+            "calculate": sum("int calculate" in line for line in lines),
+            "addFunction": sum("wilsonLib.addFunction" in line for line in lines),
+            "main": sum("int main" in line for line in lines),
+            "opts": sum("FeynOptions opts;" in line for line in lines),
+        }
+        if counts != {"calculate": 1, "addFunction": 1, "main": 1, "opts": 1}:
+            malformed.append(f"{name}: {counts}")
+            continue
+        calculate_index = next(i for i, line in enumerate(lines) if "int calculate" in line)
+        add_index = next(i for i, line in enumerate(lines) if "wilsonLib.addFunction" in line)
+        if any(line.strip() == "}" for line in lines[calculate_index + 1:add_index]):
+            malformed.append(f"{name}: nested standalone scope before addFunction")
+        add_line = lines[add_index].strip()
+        if add_line.count(",") != 1 or not add_line.endswith(");"):
+            malformed.append(f"{name}: unsupported addFunction form: {add_line}")
+    modifier = (
+        ROOT
+        / "Hyperiso"
+        / "Hyperiso"
+        / "core"
+        / "src"
+        / "ExternalIntegration"
+        / "MartyInterface"
+        / "GeneralModelModifier.cpp"
+    )
+    _require_contains(
+        modifier,
+        (
+            "computeAmplitude",
+            "hyperiso_marty_tree_probe.empty()",
+            "getWilsonCoefficients(hyperiso_marty_tree_probe",
+            "return std::make_pair(CSL_0, std::size_t{0})",
+        ),
+    )
+
+    return (
+        f"all {len(loop_only)} loop-only templates are dispatched TreeLevel-first "
+        f"({len(special)} specialised, {len(loop_only) - len(special)} generic); "
+        f"{len(tree_only)} tree-only templates stay unchanged and "
+        f"{len(explicit_tree_then_loop)} template(s) implement an explicit fallback"
+    )
 
 
 def check_cache_source_signatures() -> str:
@@ -336,7 +434,7 @@ def check_cache_source_signatures() -> str:
     _require_contains(
         interface,
         (
-            "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.3-v2",
+            "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.3-v5",
             "HYPERISO_MARTY_GENERATION_MODE",
             "has_cache_abi = has_cache_abi ||",
             "has_model_signature",
@@ -348,6 +446,201 @@ def check_cache_source_signatures() -> str:
     _require_contains(modifier, ("FNV-1a", "modelSignature"))
     return "cache key covers ABI, full model content, template content and generation mode"
 
+
+def check_thread_safe_runtime_io() -> str:
+    base = (
+        ROOT
+        / "Hyperiso"
+        / "Hyperiso"
+        / "core"
+        / "src"
+    )
+    interface = base / "ExternalIntegration" / "MartyInterface" / "MartyInterface.cpp"
+    writer = (
+        base
+        / "ExternalIntegration"
+        / "MartyInterface"
+        / "NumericalScriptProcessing"
+        / "MartyFileWriter.cpp"
+    )
+    compiler = base / "ExternalIntegration" / "MartyInterface" / "MakeCompilerStrategy.cpp"
+    wilson = base / "PhysicalModel" / "domain" / "MartyWilson.cpp"
+    runtime = base / "Core" / "domain" / "ParameterRuntimeContext.cpp"
+    helper = CANONICAL_TEMPLATES / "csv_helper.cpp"
+    param_writer = (
+        base
+        / "ExternalIntegration"
+        / "MartyInterface"
+        / "NumericalScriptProcessing"
+        / "ParamWriter.cpp"
+    )
+
+    _require_contains(
+        interface,
+        (
+            "std::shared_mutex marty_artifact_mutex",
+            "make_invocation_directory",
+            'run_dir / "paramlist.csv"',
+            'run_dir / "wilson.csv"',
+            "write_parameter_snapshot",
+            "calculate_isolated",
+            "std::shared_lock<std::shared_mutex>",
+            "std::unique_lock<std::shared_mutex>",
+            "set_param_file(param_file)",
+            "set_output_file(output_file)",
+            "ParamWriter parameter_writer",
+            "parameter_writer.writeParams(output, params)",
+        ),
+    )
+    _require(
+        "setprecision(17)" not in _read(interface),
+        "invocation-local parameter snapshots must not change legacy MARTY precision",
+    )
+    _require_contains(
+        param_writer,
+        (
+            "std::defaultfloat",
+            "std::setprecision(6)",
+        ),
+    )
+    _require_contains(
+        writer,
+        (
+            '--param-file',
+            '--output-file',
+            "std::ifstream ParamFile(param_file_path)",
+            "const std::string& path = output_file_path",
+        ),
+    )
+    _require_contains(
+        compiler,
+        (
+            '" --param-file "',
+            '" --output-file "',
+            "MartyRuntimeConfig::shell_quote",
+        ),
+    )
+    _require_contains(
+        wilson,
+        (
+            "calculate_isolated",
+            "csv_to_read",
+            "InvocationCsvCleanup",
+        ),
+    )
+    _require_contains(
+        helper,
+        (
+            "temp_counter",
+            "std::filesystem::rename(tempFile, destination, ec)",
+        ),
+    )
+    _require_contains(runtime, ("thread_local ParameterRuntimeContext*",))
+    return (
+        "shared build artifacts are read-locked, each evaluation uses unique parameter/output "
+        "files, parameter serialization preserves the legacy six-significant-digit ABI, "
+        "CSV publication is atomic, and statistics parameters remain thread-local"
+    )
+
+
+
+def check_csv_concurrency_smoke() -> str:
+    """Compile the shipped CSV helper and stress invocation-local outputs in parallel."""
+    compiler = shutil.which("g++") or shutil.which("c++")
+    if compiler is None:
+        raise FileNotFoundError("no C++ compiler available for the CSV concurrency smoke test")
+
+    helper_source = CANONICAL_TEMPLATES / "csv_helper.cpp"
+    with tempfile.TemporaryDirectory(prefix="hyperiso-marty-csv-smoke-") as tmp_raw:
+        tmp = Path(tmp_raw)
+        shutil.copy2(helper_source, tmp / "csv_helper.cpp")
+        (tmp / "csv_helper.h").write_text(
+            r"""
+#pragma once
+#include <complex>
+#include <fstream>
+#include <map>
+#include <string>
+namespace csl {
+template <typename T> struct InitSanitizer {
+    T value{};
+    InitSanitizer& operator=(const T& next) { value = next; return *this; }
+};
+}
+using real_t = double;
+using complex_t = std::complex<double>;
+void writeWilsonCoefficients(const std::string&, std::complex<double>, double, const std::string&);
+void readParams(std::ifstream&,
+                std::map<std::string, csl::InitSanitizer<real_t>*>&,
+                std::map<std::string, csl::InitSanitizer<complex_t>*>&);
+""".lstrip(),
+            encoding="utf-8",
+        )
+        (tmp / "smoke.cpp").write_text(
+            r"""
+#include "csv_helper.h"
+#include <filesystem>
+#include <string>
+#include <thread>
+#include <vector>
+
+int main(int argc, char** argv) {
+    if (argc != 2) return 2;
+    const std::filesystem::path root(argv[1]);
+    std::filesystem::create_directories(root);
+    constexpr int workers = 12;
+    constexpr int scales = 8;
+    std::vector<std::thread> threads;
+    threads.reserve(workers);
+    for (int worker = 0; worker < workers; ++worker) {
+        threads.emplace_back([=] {
+            const auto output = (root / ("worker_" + std::to_string(worker) + ".csv")).string();
+            for (int index = 0; index < scales; ++index) {
+                const double q = 80.0 + index;
+                writeWilsonCoefficients("C7", {worker + 0.1 * index, -worker}, q, output);
+                writeWilsonCoefficients("C9", {worker + 0.2 * index, index}, q, output);
+            }
+        });
+    }
+    for (auto& thread : threads) thread.join();
+    return 0;
+}
+""".lstrip(),
+            encoding="utf-8",
+        )
+        executable = tmp / "csv_smoke"
+        _run_command(
+            [
+                compiler,
+                "-std=c++20",
+                "-O0",
+                "-pthread",
+                str(tmp / "csv_helper.cpp"),
+                str(tmp / "smoke.cpp"),
+                "-o",
+                str(executable),
+            ],
+            cwd=tmp,
+            timeout=120,
+        )
+        output_dir = tmp / "outputs"
+        _run_command([str(executable), str(output_dir)], cwd=tmp, timeout=120)
+
+        csv_files = sorted(output_dir.glob("worker_*.csv"))
+        _require(len(csv_files) == 12, f"expected 12 isolated CSV files, got {len(csv_files)}")
+        expected_header = ["Q_match", "C7_real", "C7_img", "C9_real", "C9_img"]
+        for csv_file in csv_files:
+            rows = [line.split(",") for line in csv_file.read_text(encoding="utf-8").splitlines()]
+            _require(rows and rows[0] == expected_header, f"invalid header in {csv_file.name}: {rows[:1]}")
+            _require(len(rows) == 9, f"expected 8 scales in {csv_file.name}, got {len(rows) - 1}")
+            _require(
+                all(len(row) == len(expected_header) and "NaN" not in row for row in rows[1:]),
+                f"incomplete concurrent CSV rows in {csv_file.name}",
+            )
+        leftovers = list(output_dir.glob("*.tmp.*"))
+        _require(not leftovers, f"temporary CSV files were not cleaned: {leftovers}")
+
+    return "compiled csv_helper.cpp and validated 12 concurrent invocation-local outputs"
 
 def check_python_compilation() -> str:
     with tempfile.TemporaryDirectory(prefix="hyperiso-pyc-") as pycache:
@@ -1047,8 +1340,10 @@ def main() -> int:
         ("packaged model portability", check_packaged_model_portability),
         ("packaged SM path", check_sm_path_resolution),
         ("SM/BSM/TOTAL source composition", check_contribution_composition_sources),
-        ("tree-first semileptonic policy", check_tree_first_policy),
+        ("all-coefficient tree-first policy", check_tree_first_policy),
         ("MARTY cache signatures", check_cache_source_signatures),
+        ("thread-safe MARTY runtime I/O", check_thread_safe_runtime_io),
+        ("concurrent CSV helper smoke", check_csv_concurrency_smoke),
         ("Python compilation", check_python_compilation),
     ]
     if not args.static_only:

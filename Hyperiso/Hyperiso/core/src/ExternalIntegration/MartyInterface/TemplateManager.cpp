@@ -39,9 +39,26 @@ void NumericTemplateManager::generateTemplateImpl(const std::string&,
 
     const fs::path paramPath = mgr->getParamFileName();
     fs::create_directories(paramPath.parent_path());
-    std::ofstream paramFile(paramPath);
-    std::unordered_map<std::string, double> params = numModifier->get_params();
-    numModifier->createparamfile(paramFile, params);
+    const fs::path paramTmpPath = paramPath.string() + ".tmp";
+    {
+        std::ofstream paramFile(paramTmpPath, std::ios::trunc);
+        if (!paramFile) {
+            throw std::runtime_error("Cannot write MARTY parameter file: " + paramTmpPath.string());
+        }
+        std::unordered_map<std::string, double> params = numModifier->get_params();
+        numModifier->createparamfile(paramFile, params);
+        paramFile.flush();
+        if (!paramFile) {
+            throw std::runtime_error("Failed while writing MARTY parameter file: " + paramTmpPath.string());
+        }
+    }
+    std::error_code paramEc;
+    fs::rename(paramTmpPath, paramPath, paramEc);
+    if (paramEc) {
+        std::error_code cleanupEc;
+        fs::remove(paramTmpPath, cleanupEc);
+        throw std::runtime_error("Cannot atomically publish MARTY parameter file: " + paramEc.message());
+    }
 
     const fs::path outPathFs = outputPath;
     fs::create_directories(outPathFs.parent_path());

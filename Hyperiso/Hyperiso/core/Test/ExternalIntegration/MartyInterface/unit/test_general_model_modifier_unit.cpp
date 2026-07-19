@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdexcept>
+#include <vector>
 #include <iostream>
 #include "GeneralModelModifier.h"
 #include "MartyRuntimeConfig.h"
@@ -132,6 +133,102 @@ int main() {
     }
 
     {
+        // Every coefficient template that previously requested OneLoop directly
+        // is rewritten into a generic TreeLevel-first builder. Tree-only
+        // templates (such as C2) remain untouched, and C9/CP9/CP10 keep their
+        // specialised reg_prop implementation.
+        GeneralModelModifier mod(
+            "C7", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, false, true
+        );
+        fs::path out = root / "c7_generic_tree_first.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_C7(Model &model, gauge::Type gauge) {",
+            "    FeynOptions opts;",
+            "    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop, process, opts);",
+            "    Expr C7 = getWilsonCoefficient(wil, O7);",
+            "    mty::Library wilsonLib(\"C7_SM\", \"libs\");",
+            "    wilsonLib.cleanExistingSources();",
+            "    wilsonLib.addFunction(\"C7\", C7);",
+            "    defineLibPath(wilsonLib);",
+            "    wilsonLib.print();",
+            "    return 0;",
+            "}",
+            "int main() {",
+            "    SM_Model sm;",
+            "    return calculate_C7(sm, gauge::Type::Feynman);",
+            "}",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+
+        const std::string generated = slurp(out);
+        assert(generated.find("HYPERISO_MARTY_TREE_FIRST") != std::string::npos);
+        assert(generated.find("computeWilsonCoefficients(hyperiso_marty_order") != std::string::npos);
+        assert(generated.find("model.computeAmplitude(hyperiso_marty_order") != std::string::npos);
+        assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
+        assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
+        assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
+        assert(generated.find("if (!hyperiso_marty_use_tree)") != std::string::npos);
+        assert(generated.find("mty::Order::OneLoop") != std::string::npos);
+        assert(generated.find("selected order=") != std::string::npos);
+        assert(generated.find("ZPrime_Model model;") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
+    }
+
+    {
+        // Regression test for suffixed scalar coefficients such as CQ1_E.  The
+        // closing-parenthesis index must remain valid when `int` is rewritten
+        // to the longer `Expr`; otherwise the generated signature becomes
+        // `gaug, ... hyperiso_marty_ordere` and does not compile.
+        GeneralModelModifier mod(
+            "CQ1_E", "THDM", "THDM", thdm_hdr.string(), 2,
+            false, true, false, true
+        );
+        fs::path out = root / "cq1e_generic_tree_first.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_CQ1e(Model &model, gauge::Type gauge) {",
+            "    model.getParticle(\"W\")->setGaugeChoice(gauge);",
+            "    FeynOptions opts;",
+            "    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop, process, opts);",
+            "    Expr CQ1_e = getWilsonCoefficient(wil, Q1);",
+            "    mty::Library wilsonLib(\"CQ1_E_SM\", \"libs\");",
+            "    wilsonLib.addFunction(\"CQ1_E\", CQ1_e);",
+            "    return 0;",
+            "}",
+            "int main() {",
+            "    SM_Model sm;",
+            "    return calculate_CQ1e(sm, gauge::Type::Feynman);",
+            "}",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+
+        const std::string generated = slurp(out);
+        assert(generated.find(
+            "Expr calculate_CQ1e(Model &model, gauge::Type gauge, mty::Order hyperiso_marty_order) {"
+        ) != std::string::npos);
+        assert(generated.find("setGaugeChoice(gauge)") != std::string::npos);
+        assert(generated.find("computeWilsonCoefficients(hyperiso_marty_order") != std::string::npos);
+        assert(generated.find("model.computeAmplitude(hyperiso_marty_order") != std::string::npos);
+        assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
+        assert(generated.find("gaug,") == std::string::npos);
+        assert(generated.find("hyperiso_marty_ordere") == std::string::npos);
+    }
+
+    {
         // C9 keeps its specialised order/reg_prop source rewrite and generates
         // a tree-first main: a non-zero tree coefficient prevents OneLoop from
         // being evaluated, while loop-only models fall back to OneLoop.
@@ -152,13 +249,41 @@ int main() {
         fs::path out = root / "c9_tree_first.cpp";
         {
             std::ofstream f(out);
-            mod.addLine(f, "int main() {");
+            const std::vector<std::string> source = {
+                "#include <iostream>",
+                "using namespace sm_input;",
+                "int calculate_C9mu(Model &model, gauge::Type gauge) {",
+                "    FeynOptions opts;",
+                "    auto wil = model.computeWilsonCoefficients(",
+                "        mty::Order::OneLoop,",
+                "        process,",
+                "        opts",
+                "    );",
+                "    Expr C9_mu = getWilsonCoefficient(wil, O9);",
+                "    mty::Library wilsonLib(\"C9_SM\", \"libs\");",
+                "    wilsonLib.addFunction(\"C9\", C9_mu);",
+                "    return 0;",
+                "}",
+                "int main() {",
+            };
+            for (auto line : source) {
+                mod.modifyLine(line);
+                mod.addLine(f, line);
+            }
         }
         const std::string generated = slurp(out);
         assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
         assert(generated.find("if (!hyperiso_marty_use_tree_level)") != std::string::npos);
         assert(generated.find("mty::Order::OneLoop") != std::string::npos);
         assert(generated.find("selected order=") != std::string::npos);
+        assert(generated.find("ZPrime_Model tree_model;") != std::string::npos);
+        assert(generated.find("ZPrime_Model loop_model;") != std::string::npos);
+        assert(generated.find("hyperiso_marty_build_C9(tree_model") != std::string::npos);
+        assert(generated.find("hyperiso_marty_build_C9(loop_model") != std::string::npos);
+        assert(generated.find("model.computeAmplitude(") != std::string::npos);
+        assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
+        assert(generated.find("return std::make_pair(CSL_0, std::size_t{0})") != std::string::npos);
+        assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
     }
 
     {
