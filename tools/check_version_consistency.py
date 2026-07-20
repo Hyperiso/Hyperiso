@@ -7,7 +7,6 @@ import argparse
 import json
 import re
 import sys
-import tomllib
 from pathlib import Path
 
 
@@ -27,8 +26,12 @@ def main() -> int:
     args = parser.parse_args()
     root = args.root.resolve()
 
-    with (root / "Hyperiso/Hyperiso/pyproject.toml").open("rb") as handle:
-        python_version = tomllib.load(handle)["project"]["version"]
+    pyproject_text = (root / "Hyperiso/Hyperiso/pyproject.toml").read_text()
+    python_version = require(
+        r'(?ms)^\[project\]\s*$.*?^version\s*=\s*["\']([^"\']+)["\']',
+        pyproject_text,
+        "pyproject.toml project version",
+    )
 
     cmake_text = (root / "Hyperiso/Hyperiso/core/CMakeLists.txt").read_text()
     cmake_version = require(
