@@ -291,7 +291,7 @@ Flavour physics \sep Wilson coefficients \sep Beyond the Standard Model \sep Eff
 \noindent
 {\em Program Title:} \hi~ \\
 {\em CPC Library link to program files:} (to be added by the Technical Editor) \\
-{\em Developer's repository link:} \url{https://github.com/HyperIso/HyperIso} (the immutable \texttt{v1.0.2} tag identifies the submitted code) \\
+{\em Developer's repository link:} \url{https://github.com/HyperIso/HyperIso} (the immutable \texttt{v1.0.3} tag identifies the submitted code) \\
 {\em Licensing provisions:} GNU General Public License, version 3 or (at your option) any later version \\
 {\em Programming language:} C++20 and Python 3.10--3.12 \\
 {\em Supplementary material:} User and installation guides, generated API documentation, example LHA/SLHA/FLHA files, validation tables, benchmark executables, reproducibility scripts and frozen numerical outputs. \\
@@ -301,7 +301,7 @@ Precision flavour observables constrain the Standard Model and a broad range of 
 \hi~uses a modular C++20 architecture with explicit ports and adapters for parameter loading, spectrum handling, Wilson-coefficient construction, observable evaluation and statistical inference. Distributed JSON files define the reference database, user YAML files provide controlled overrides, and LHA-family files supply model-dependent numerical inputs. Native Wilson-coefficient implementations support the Standard Model, THDM and SUSY paths at the perturbative orders available for each coefficient group. The same backend is exposed through C++, Python, a command-line interface and a graphical interface. Statistical routines combine nuisance marginals and correlations, propagate uncertainties by fixed-seed Monte Carlo sampling and provide chi-square-based profiling. The release archive includes deterministic SM cases and spectrum-file-based THDM and SUSY benchmarks; these use already generated spectra and therefore do not require 2HDMC or SOFTSUSY during reproduction. \\
 {\em Additional comments including restrictions and unusual features:}\\
 The generic \mty~backend is optional and must be installed separately. It is validated in this article against native calculations, but is deliberately excluded from the mandatory release reproducibility gate because a clean reproduction would otherwise depend on an external symbolic-software installation and its version. Native THDM and SUSY reference cases instead consume archived spectrum files with the \texttt{--spectrum} option. Generic BSM coefficients produced through \mty~are limited to the perturbative order implemented by that workflow. Features listed as experimental or unsupported in \texttt{KNOWN\_LIMITATIONS.md} are documented separately and fail explicitly where applicable. The fixed-seed 200-draw statistical example is a software non-regression test rather than a Monte Carlo convergence study. \\
-{\em Release metadata:} source release \texttt{v1.0.2}; the version-specific Zenodo DOI is reserved before tagging and inserted in the final manuscript; PyPI package \texttt{pyhyperiso==1.0.2}; documentation at \url{https://hyperiso.github.io/Hyperiso/}. \\
+{\em Release metadata:} source release \texttt{v1.0.3}; the version-specific Zenodo DOI is reserved before tagging and inserted in the final manuscript; PyPI package \texttt{pyhyperiso==1.0.3}; documentation at \url{https://hyperiso.github.io/Hyperiso/}. \\
 {\em External routines/libraries:} CMake, GSL, Eigen and pybind11; vendored 2HDMC and MinuitCpp; optional external \mty~and SOFTSUSY installations. \\
 {\em Operating systems and compilers tested:} Linux x86-64 on the release CI matrix; exact distribution, compiler and dependency versions are recorded in the frozen reference metadata. \\
 {\em Example input/output:} archived inputs and expected numerical outputs in \texttt{reproducibility/}. \\
@@ -511,7 +511,7 @@ We expand the FLHA convention \cite{Mahmoudi:2010iz} in order to account for all
     \label{tab:obs_ids}
 \end{table}
 
-Version 1.0.2 writes only these canonical identifiers. For backward input compatibility, the unambiguous legacy polarization types \texttt{92015} and \texttt{921423} are translated to \texttt{9212} and \texttt{9221}, respectively. In versions 1.0.0--1.0.1, $F_T$ and $\alpha_K$ shared type \texttt{932}; because those records are indistinguishable from the identifier alone, legacy $\alpha_K$ inputs must be changed explicitly to type \texttt{933}.
+Version 1.0.3 writes only these canonical identifiers. For backward input compatibility, the unambiguous legacy polarization types \texttt{92015} and \texttt{921423} are translated to \texttt{9212} and \texttt{9221}, respectively. In versions 1.0.0--1.0.1, $F_T$ and $\alpha_K$ shared type \texttt{932}; because those records are indistinguishable from the identifier alone, legacy $\alpha_K$ inputs must be changed explicitly to type \texttt{933}.
 
 \section{User guide and interfaces}\label{sec:user_guide}
 
@@ -1102,18 +1102,18 @@ where $n_{\rm MC}$ is the number of Monte-Carlo workers and $T_{\rm sched}$ coll
 
 The version of \hi~ described in this article is distributed through the public developer repository, PyPI and a versioned Zenodo software archive. The release metadata are frozen so that the manuscript, source archive and reproducibility material refer to the same code state:
 \begin{itemize}
-    \item source release: \texttt{HyperIso v1.0.2};
-    \item git commit: the commit pointed to by the immutable \texttt{v1.0.2} tag;
+    \item source release: \texttt{HyperIso v1.0.3};
+    \item git commit: the commit pointed to by the immutable \texttt{v1.0.3} tag;
     \item developer repository: \url{https://github.com/HyperIso/HyperIso};
-    \item software archive DOI: the version-specific Zenodo DOI reserved for v1.0.2;
-    \item Python package: \texttt{pyhyperiso} version \texttt{1.0.2};
+    \item software archive DOI: the version-specific Zenodo DOI reserved for v1.0.3;
+    \item Python package: \texttt{pyhyperiso} version \texttt{1.0.3};
     \item documentation: \url{https://hyperiso.github.io/Hyperiso/};
     \item license: GNU General Public License, version 3 or later.
 \end{itemize}
 
 The user-facing installation route for the released Python interface is
 \begin{terminal}
-python -m pip install "pyhyperiso==1.0.2"
+python -m pip install "pyhyperiso==1.0.3"
 \end{terminal}
 for the Python interface, and the standard CMake workflow for the C++ and CLI interfaces,
 \begin{terminal}

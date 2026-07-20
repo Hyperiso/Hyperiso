@@ -1,4 +1,4 @@
-# Known limitations — HyperIso 1.0.2
+# Known limitations — HyperIso 1.0.3
 
 This file distinguishes supported release behaviour from experimental or incomplete
 paths. Unsupported operations fail explicitly where possible instead of returning
@@ -10,7 +10,7 @@ placeholder numerical values.
   precomputed values populated in the `EW` block. The generic method throws
   `std::logic_error`.
 - Analytical methods of `LikelihoodMarginal` (`logpdf`, derivatives, CDF, inverse
-  CDF, mean and standard deviation) are not defined in 1.0.2. The class is a
+  CDF, mean and standard deviation) are not defined in 1.0.3. The class is a
   sampler; unsupported analytical calls throw `std::logic_error`.
 - Direct theoretical-observable input through the LHA input flag is not implemented
   and throws instead of being silently ignored.
@@ -28,9 +28,9 @@ placeholder numerical values.
   inherited from the validated implementation. Its provenance must be discussed in
   the accompanying scientific documentation before changing it.
 - Student-t copula and some extended covariance/correlation paths are not part of
-  the seven-case 1.0.2 reproducibility gate.
+  the seven-case 1.0.3 reproducibility gate.
 
 ## Platform support
 
-The 1.0.2 Python binary release targets Linux x86-64 with CPython 3.10–3.12.
-macOS, Windows, PyPy and musllinux are not release targets for 1.0.2.
+The 1.0.3 Python binary release targets Linux x86-64 with CPython 3.10–3.12.
+macOS, Windows, PyPy and musllinux are not release targets for 1.0.3.
