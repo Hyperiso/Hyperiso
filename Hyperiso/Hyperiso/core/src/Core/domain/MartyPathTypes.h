@@ -6,6 +6,7 @@
  * @brief Enumerates MARTY-related filesystem resources.
  *
  * MODEL_FILE: path to the MARTY model header file.
+ * SM_MODEL_FILE: packaged Standard Model MARTY header used by the SM backend.
  * TEMPLATE_DIR: read-only MARTY template directory.
  * PARAM_MAPPING_DIR: read-only directory containing mapping JSON files.
  * SM_MAPPING_FILE: read-only Hyperiso/SM mapping file.
@@ -14,6 +15,7 @@
  */
 enum class MartyPath {
     MODEL_FILE,
+    SM_MODEL_FILE,
     TEMPLATE_DIR,
     PARAM_MAPPING_DIR,
     SM_MAPPING_FILE,

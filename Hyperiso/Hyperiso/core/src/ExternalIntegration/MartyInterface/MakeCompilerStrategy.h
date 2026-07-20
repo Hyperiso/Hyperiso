@@ -3,6 +3,9 @@
 
 #include "CompilerStrategy.h"
 
+#include <filesystem>
+#include <utility>
+
 /**
  * @file MakeCompilerStrategy.h
  * @brief Declares a compilation strategy based on `make`.
@@ -64,8 +67,18 @@ public:
      */
     void set_Q_match(double Q_match) {this->Q_match = Q_match;}
 
+    /** Use an invocation-local parameter CSV instead of the shared default. */
+    void set_param_file(std::filesystem::path path) { param_file_ = std::move(path); }
+
+    /** Use an invocation-local Wilson CSV instead of the shared default. */
+    void set_output_file(std::filesystem::path path) { output_file_ = std::move(path); }
+
     /// Matching scale (default: 80.379 GeV, the physical W mass).
     double Q_match = 80.379;
+
+private:
+    std::filesystem::path param_file_{};
+    std::filesystem::path output_file_{};
 
 };
 

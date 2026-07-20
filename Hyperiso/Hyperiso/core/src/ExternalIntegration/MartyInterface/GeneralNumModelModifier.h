@@ -48,6 +48,7 @@ private:
     std::string wilson;     ///< Wilson basis name.
     std::string model;      ///< Model name (e.g. "SM", "THDM", ...).
     bool bsm_split_generation{false}; ///< Numeric wrapper writes extra diagnostic columns for BSM-only libraries.
+    bool full_target_generation{false}; ///< Numeric wrapper treats the split result as the complete target model.
     bool forceMode; ///< If true, forces rewriting even if marker `//42` is found.
     
     Interpreter                 interpreter;
@@ -86,7 +87,7 @@ public:
                             std::shared_ptr<ICoreAPI<Model>> api,
                             std::shared_ptr<IInterpreterPortsFactory> ports,
                             bool force = false)
-        : GeneralNumModelModifier(wilson, model, model, std::move(param_setter), std::move(api), std::move(ports), force, false)
+        : GeneralNumModelModifier(wilson, model, model, std::move(param_setter), std::move(api), std::move(ports), force, false, false)
     {}
 
     /**
@@ -104,14 +105,16 @@ public:
                             std::shared_ptr<ICoreAPI<Model>> api,
                             std::shared_ptr<IInterpreterPortsFactory> ports,
                             bool force = false,
-                            bool bsm_split_generation = false)
+                            bool bsm_split_generation = false,
+                            bool full_target_generation = false)
         : wilson(wilson),
           model(model),
           bsm_split_generation(bsm_split_generation),
+          full_target_generation(full_target_generation),
           forceMode(force),
           interpreter(mapping_model, api, ports),
           paramSetter(std::move(param_setter)),
-          fileWriter(wilson, model, bsm_split_generation),
+          fileWriter(wilson, model, bsm_split_generation, full_target_generation),
           lineProcessor(includeManager, fileWriter, force),
           modelWriter(lineProcessor, paramWriter) {
         initializeParams();
@@ -124,10 +127,11 @@ public:
     : wilson(other.wilson),
       model(other.model),
       bsm_split_generation(other.bsm_split_generation),
+      full_target_generation(other.full_target_generation),
       forceMode(other.forceMode),
       interpreter(other.interpreter),
       paramSetter(other.paramSetter ? std::make_unique<SMParamSetter>(*other.paramSetter) : nullptr),
-      fileWriter(other.wilson, other.model, other.bsm_split_generation),
+      fileWriter(other.wilson, other.model, other.bsm_split_generation, other.full_target_generation),
       lineProcessor(includeManager, fileWriter, other.forceMode),
       modelWriter(lineProcessor, paramWriter),
       paramWriter(other.paramWriter),

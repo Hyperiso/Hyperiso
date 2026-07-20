@@ -1,5 +1,5 @@
 #include "marty.h"
-#include "../../../Third_party/MARTY/MARTY_INSTALL/include/marty/models/sm.h"
+#include <marty/models/sm.h>
 #include <vector>
 
 using namespace mty::sm_input;
@@ -39,9 +39,10 @@ class ZPrime_Model : public mty::SM_Model {
 
 ZPrime_Model::ZPrime_Model(bool initialize) : SM_Model(false)
 {
-    if (initialize)
+    if (initialize) {
         init();
         refresh();
+    }
 }
 
 void ZPrime_Model::initHiggsPotential()
@@ -70,21 +71,15 @@ void ZPrime_Model::initHiggsPotential()
     //           (With H0 -> (v + h0) / sqrt(2))
 
     Particle Phi = scalarboson_s("Phi", *this);
-    std::cout << "higgstest1" << std::endl;
     // Phi->setGroupRep("L", 1);
     Phi->setGroupRep("X", 2);
-    std::cout << "higgstest2" << std::endl;
     addParticle(Phi);
-    std::cout << "higgstest3" << std::endl;
 
     m_X = constant_s("m_X");
     vphi = constant_s("v_phi");
     csl::Expr mphi  = m_X;
-    std::cout << "higgstest4" << std::endl;
     csl::Expr Phi2  = csl::GetComplexConjugate(Phi()) * Phi();
-    std::cout << "higgstest5" << std::endl;
     csl::Expr lamphi = mphi * mphi / (2 * vphi * vphi);
-    std::cout << "higgstest6" << std::endl;
     // Mexican hat potential
     //why isn't there a lamphi in the first added term? cam
     addLagrangianTerm(mphi * mphi * Phi2);
@@ -100,9 +95,7 @@ void ZPrime_Model::initHiggsPotential()
 void ZPrime_Model::init()
 {
     initContent();
-    std::cout << "1" << std::endl;
     getToLowEnergyLagrangian();
-    std::cout << "2" << std::endl;
 }
 
 void ZPrime_Model::getToLowEnergyLagrangian()
@@ -119,13 +112,9 @@ void ZPrime_Model::getToLowEnergyLagrangian()
 
 void ZPrime_Model::initContent()
 {
-    std::cout << "test1" << std::endl;
     ZPrime_Model::initGauge();
-    std::cout << "test2" << std::endl;
     ZPrime_Model::initFermions();
-    std::cout << "test3" << std::endl;
     ZPrime_Model::initHiggsPotential();
-    std::cout << "test4" << std::endl;
     ZPrime_Model::initYukawas();
 }
 

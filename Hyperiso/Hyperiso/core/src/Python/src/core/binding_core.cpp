@@ -720,6 +720,7 @@ Args:
 
             py::enum_<MartyPath>(m, "MartyPath")
         .value("MODEL_FILE", MartyPath::MODEL_FILE)
+        .value("SM_MODEL_FILE", MartyPath::SM_MODEL_FILE)
         .value("TEMPLATE_DIR", MartyPath::TEMPLATE_DIR)
         .value("PARAM_MAPPING_DIR", MartyPath::PARAM_MAPPING_DIR)
         .value("SM_MAPPING_FILE", MartyPath::SM_MAPPING_FILE)

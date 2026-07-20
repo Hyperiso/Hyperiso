@@ -89,7 +89,7 @@ struct DummyScaleSetter : IParamSetter<ScaleType> {
 
 struct DummyMartyProxy : IMartyWilsonProxy<InterpretedParam> {
     void calculate(std::string, std::string, double, std::string) override {}
-    void calculate(std::string, std::string, std::string, double, std::string, bool, bool) override {}
+    void calculate(std::string, std::string, std::string, double, std::string, bool, bool, bool) override {}
     std::set<std::string>  get_special_blocks() override { return {}; }
     std::unordered_set<InterpretedParam> get_dependencies(std::string) override { return {}; }
 };

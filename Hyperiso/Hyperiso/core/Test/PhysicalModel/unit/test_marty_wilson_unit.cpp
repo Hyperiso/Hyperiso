@@ -41,12 +41,12 @@ public:
     void calculate(std::string wilson, std::string model, double Q_match,
                    std::string model_path) override
     {
-        calculate(wilson, model, model, Q_match, model_path, false, false);
+        calculate(wilson, model, model, Q_match, model_path, false, false, false);
     }
 
     void calculate(std::string wilson, std::string output_model, std::string /*target_model*/,
                    double Q_match, std::string model_path, bool /*sm_like_filter*/,
-                   bool /*bsm_split_generation*/) override
+                   bool /*bsm_split_generation*/, bool /*full_target_generation*/) override
     {
         last_wilson = wilson; last_model = output_model; last_Q = Q_match; last_model_path = model_path;
 

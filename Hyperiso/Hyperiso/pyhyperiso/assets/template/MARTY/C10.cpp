@@ -6,7 +6,7 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-full-4f-externallegs-v8
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-v9
 
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
@@ -75,17 +75,24 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
     );
     Expr C10_tree = extract_C10(wil_tree);
 
-    auto wil_full = model.computeWilsonCoefficients(
-        mty::Order::OneLoop,
-        insertions,
-        opts
-    );
-    Expr C10_full = extract_C10(wil_full);
+    // Tree-first policy: when the selected operator already has a non-zero
+    // tree-level coefficient (for example a Z' or leptoquark mediator), do not
+    // evaluate OneLoop at all.  This avoids mixing loop corrections into a
+    // matching problem whose leading BSM contribution is tree level.
+    Expr C10_full = CSL_0;
+    if (C10_tree == CSL_0) {
+        auto wil_full = model.computeWilsonCoefficients(
+            mty::Order::OneLoop,
+            insertions,
+            opts
+        );
+        C10_full = extract_C10(wil_full);
+    }
 
-    // Generic behavior: tree-level semileptonic models such as Z' or
-    // leptoquarks use their tree coefficient directly.  Otherwise, use the full
-    // one-loop four-fermion coefficient as in the original C10 template.
     Expr C10_mu = (C10_tree != CSL_0) ? C10_tree : C10_full;
+    std::cout << "[MARTY C10] selected order="
+              << ((C10_tree != CSL_0) ? "TreeLevel" : "OneLoop")
+              << std::endl;
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C10_SM");
 

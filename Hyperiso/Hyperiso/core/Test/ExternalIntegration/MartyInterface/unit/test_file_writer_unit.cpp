@@ -29,8 +29,8 @@ int main() {
     const fs::path out = root / "snippet.cpp";
     {
         std::ofstream ofs(out);
-        fw.add_input_reader(ofs);
         fw.add_argpars(ofs);
+        fw.add_input_reader(ofs);
         fw.add_output_writer(ofs);
     }
     const std::string s = read_all(out);
@@ -38,6 +38,11 @@ int main() {
     assert(s.find(mgr->getParamFileName()) != std::string::npos);
     assert(s.find(mgr->getCsvWilsonFileName()) != std::string::npos);
     assert(s.find("--Q_match") != std::string::npos);
+    assert(s.find("--param-file") != std::string::npos);
+    assert(s.find("--output-file") != std::string::npos);
+    assert(s.find("std::ifstream ParamFile(param_file_path)") != std::string::npos);
+    assert(s.find("const std::string& path = output_file_path") != std::string::npos);
+    assert(s.find("std::string param_file_path") < s.find("std::ifstream ParamFile(param_file_path)"));
 
     FileNameManager::clearTestingRoots();
     std::cout << "UNIT OK\n";

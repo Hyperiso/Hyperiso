@@ -1,9 +1,9 @@
 cff-version: 1.2.0
 message: "If you use HyperIso in scientific work, please cite the software and the associated paper."
 title: "HyperIso: A general BSM calculator for flavour observables"
-version: "1.0.2"
-date-released: "2026-07-17"
-doi: "10.5281/zenodo.21419678"
+version: "1.0.3"
+date-released: "2026-07-20"
+doi: "10.5281/zenodo.21447072"
 license: "GPL-3.0-or-later"
 repository-code: "https://github.com/HyperIso/HyperIso"
 url: "https://hyperiso.in2p3.fr/"

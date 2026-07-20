@@ -43,6 +43,12 @@ jobs:
           python -m pip install --upgrade pip build
           python -m pip install -e "./Hyperiso/Hyperiso[test]"
 
+      - name: Check MARTY template mirrors
+        run: python tools/check_marty_template_sync.py
+
+      - name: Validate MARTY v1.0.3 regressions
+        run: python tools/test_marty_v103.py --static-only
+
       - name: Import smoke test
         run: |
           python - <<'PY'

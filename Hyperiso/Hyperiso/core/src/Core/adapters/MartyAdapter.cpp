@@ -1,5 +1,6 @@
 #include "MartyAdapter.h"
 
+#include <filesystem>
 #include <stdexcept>
 
 fs::path MartyAdapter::get_path(MartyPath path_name) {
@@ -12,6 +13,17 @@ fs::path MartyAdapter::get_path(MartyPath path_name) {
             throw std::logic_error("MARTY model path is not defined in HyperisoConfig::mty_model_path.");
         }
         return config.mty_model_path.value();
+    }
+
+    case MartyPath::SM_MODEL_FILE: {
+        const fs::path path = mm->get_path(APIPath::ASSETS_ROOT)
+                            / "input_files" / "marty_model" / "sm.h";
+        if (!fs::is_regular_file(path)) {
+            throw std::runtime_error(
+                "Packaged MARTY SM model header is missing: " + path.string()
+            );
+        }
+        return path;
     }
 
     case MartyPath::PARAM_MAPPING_DIR:

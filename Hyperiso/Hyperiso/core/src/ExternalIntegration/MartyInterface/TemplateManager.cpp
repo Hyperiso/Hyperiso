@@ -39,9 +39,26 @@ void NumericTemplateManager::generateTemplateImpl(const std::string&,
 
     const fs::path paramPath = mgr->getParamFileName();
     fs::create_directories(paramPath.parent_path());
-    std::ofstream paramFile(paramPath);
-    std::unordered_map<std::string, double> params = numModifier->get_params();
-    numModifier->createparamfile(paramFile, params);
+    const fs::path paramTmpPath = paramPath.string() + ".tmp";
+    {
+        std::ofstream paramFile(paramTmpPath, std::ios::trunc);
+        if (!paramFile) {
+            throw std::runtime_error("Cannot write MARTY parameter file: " + paramTmpPath.string());
+        }
+        std::unordered_map<std::string, double> params = numModifier->get_params();
+        numModifier->createparamfile(paramFile, params);
+        paramFile.flush();
+        if (!paramFile) {
+            throw std::runtime_error("Failed while writing MARTY parameter file: " + paramTmpPath.string());
+        }
+    }
+    std::error_code paramEc;
+    fs::rename(paramTmpPath, paramPath, paramEc);
+    if (paramEc) {
+        std::error_code cleanupEc;
+        fs::remove(paramTmpPath, cleanupEc);
+        throw std::runtime_error("Cannot atomically publish MARTY parameter file: " + paramEc.message());
+    }
 
     const fs::path outPathFs = outputPath;
     fs::create_directories(outPathFs.parent_path());
@@ -110,9 +127,15 @@ bool TemplateManagerBase::already_generated(const std::string &path)
         return false;
     }
 
-    std::string firstLine;
-    if (std::getline(file, firstLine)) {
-        if (firstLine.find("//42") != std::string::npos) {
+    // Non-numeric MARTY sources preserve the template's first include and put
+    // the generation marker on the following line.  Checking only line one
+    // therefore caused every calculate() call to rewrite the analytical source
+    // even when its ABI/model/template cache metadata was still valid.
+    std::string line;
+    for (std::size_t line_number = 0;
+         line_number < 16 && std::getline(file, line);
+         ++line_number) {
+        if (line.find("//42") != std::string::npos) {
             return true;
         }
     }

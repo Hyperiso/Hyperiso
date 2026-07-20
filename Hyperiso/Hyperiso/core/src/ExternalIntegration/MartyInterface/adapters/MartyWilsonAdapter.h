@@ -4,6 +4,8 @@
 #include "MartyInterface.h"
 #include "IMartyWilsonAdapter.h"
 
+#include <utility>
+
 /**
  * @file MartyWilsonAdapter.h
  * @brief Declares a concrete IMartyWilsonAdapter implementation built on MartyInterface.
@@ -52,8 +54,38 @@ public:
                    double Q_match,
                    std::string model_path,
                    bool sm_like_filter,
-                   bool bsm_split_generation = false) override {
-        martyInterface.calculate(wilson, output_model, target_model, Q_match, model_path, sm_like_filter, bsm_split_generation);
+                   bool bsm_split_generation = false,
+                   bool full_target_generation = false) override {
+        martyInterface.calculate(
+            wilson,
+            output_model,
+            target_model,
+            Q_match,
+            model_path,
+            sm_like_filter,
+            bsm_split_generation,
+            full_target_generation
+        );
+    }
+
+    std::string calculate_isolated(std::string wilson,
+                                   std::string output_model,
+                                   std::string target_model,
+                                   double Q_match,
+                                   std::string model_path,
+                                   bool sm_like_filter,
+                                   bool bsm_split_generation = false,
+                                   bool full_target_generation = false) override {
+        return martyInterface.calculate_isolated(
+            std::move(wilson),
+            std::move(output_model),
+            std::move(target_model),
+            Q_match,
+            std::move(model_path),
+            sm_like_filter,
+            bsm_split_generation,
+            full_target_generation
+        );
     }
 
     /**

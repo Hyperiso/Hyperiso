@@ -6,6 +6,12 @@
 #include <map>
 #include <complex>
 #include <algorithm>
+#include <atomic>
+#include <chrono>
+#include <filesystem>
+#include <functional>
+#include <stdexcept>
+#include <thread>
 #include "csv_helper.h"
 
 std::vector<std::string> split(const std::string& s, char delimiter) {
@@ -98,7 +104,19 @@ void writeWilsonCoefficients(const std::string& coefficientName,
         data.push_back(newRow);
     }
 
-    std::ofstream outFile(fileName);
+    static std::atomic<unsigned long long> temp_counter {0};
+    const auto stamp = std::chrono::steady_clock::now().time_since_epoch().count();
+    const auto thread_hash = std::hash<std::thread::id>{}(std::this_thread::get_id());
+    const std::filesystem::path destination(fileName);
+    const std::filesystem::path tempFile = fileName + ".tmp."
+        + std::to_string(stamp) + "."
+        + std::to_string(thread_hash) + "."
+        + std::to_string(temp_counter.fetch_add(1, std::memory_order_relaxed));
+
+    std::ofstream outFile(tempFile, std::ios::trunc);
+    if (!outFile) {
+        throw std::runtime_error("Cannot open temporary Wilson CSV: " + tempFile.string());
+    }
     
     for (size_t i = 0; i < headers.size(); ++i) {
         outFile << headers[i];
@@ -118,7 +136,23 @@ void writeWilsonCoefficients(const std::string& coefficientName,
         outFile << "\n";
     }
 
+    outFile.flush();
+    if (!outFile) {
+        std::error_code cleanup_ec;
+        std::filesystem::remove(tempFile, cleanup_ec);
+        throw std::runtime_error("Failed while writing Wilson CSV: " + tempFile.string());
+    }
     outFile.close();
+
+    std::error_code ec;
+    std::filesystem::rename(tempFile, destination, ec);
+    if (ec) {
+        std::error_code cleanup_ec;
+        std::filesystem::remove(tempFile, cleanup_ec);
+        throw std::runtime_error(
+            "Cannot atomically publish Wilson CSV " + destination.string() + ": " + ec.message()
+        );
+    }
 }
 
 
@@ -169,4 +203,3 @@ void readParams(std::ifstream& inputFile,
         }
     }
 }
-

@@ -21,17 +21,27 @@ const std::unordered_set<std::string>& wilsons_with_marty_split_sm_components() 
 bool should_read_marty_split_sm_components(const std::string& wilson) {
     return wilsons_with_marty_split_sm_components().find(wilson) != wilsons_with_marty_split_sm_components().end();
 }
+
+bool uses_split_regprop_policy(const std::string& wilson) {
+    return wilson == "C9" || wilson == "CP9" || wilson == "CP10";
+}
 }
 
-MartyFileWriter::MartyFileWriter(const std::string& wilson, const std::string& model, bool bsm_split_generation) :
-    wilson(wilson), model(model), bsm_split_generation(bsm_split_generation) {}
+MartyFileWriter::MartyFileWriter(const std::string& wilson,
+                                 const std::string& model,
+                                 bool bsm_split_generation,
+                                 bool full_target_generation) :
+    wilson(wilson),
+    model(model),
+    bsm_split_generation(bsm_split_generation),
+    full_target_generation(full_target_generation) {}
 
 bool MartyFileWriter::should_set_mudim() const {
     return wilsons_without_mudim().find(this->wilson) == wilsons_without_mudim().end();
 }
 
 void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
-    outputFile << "\tstd::string path = \"" << FileNameManager::getInstance(this->wilson, this->model)->getCsvWilsonFileName() <<"\";\n";
+    outputFile << "\tconst std::string& path = output_file_path;\n";
 
     if (should_set_mudim()) {
         outputFile << "\tsetMu(Q_match);\n";
@@ -40,7 +50,7 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
                    << " because LoopTools mudim must stay at its default value.\n";
     }
 
-    if (bsm_split_generation) {
+    if (bsm_split_generation && uses_split_regprop_policy(this->wilson)) {
         outputFile << "\t// Split MARTY coefficient policy. " << wilson
                    << " is generated as non-photon and photon-linker pieces.\n";
         outputFile << "\t// Non-photon pieces use reg_prop = 1e-6. Photon-linker pieces use reg_prop = 1.\n";
@@ -100,7 +110,13 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\tauto hyperiso_bsm_split = hyperiso_bsm_non_photon + hyperiso_bsm_photon;\n";
         outputFile << "\tauto hyperiso_sm_split = hyperiso_sm_non_photon + hyperiso_sm_photon;\n";
         outputFile << "\tauto hyperiso_total_split = hyperiso_sm_split + hyperiso_bsm_split;\n";
-        outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+        if (full_target_generation) {
+            outputFile << "\t// The analytical split contains the complete target model.\n";
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TARGET_SPLIT\", hyperiso_bsm_split, Q_match, path);\n";
+        } else {
+            outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", hyperiso_bsm_split, Q_match, path);\n";
+        }
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_BSM_SPLIT\", hyperiso_bsm_split, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_SPLIT\", hyperiso_sm_split, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_SPLIT\", hyperiso_total_split, Q_match, path);\n";
@@ -123,15 +139,26 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
 }
 
 void MartyFileWriter::add_argpars(std::ofstream& outputFile) {
-    
+    const auto files = FileNameManager::getInstance(this->wilson, this->model);
     outputFile << "\tdouble Q_match = 80.379;\n";
+    outputFile << "\tstd::string param_file_path = \"" << files->getParamFileName() << "\";\n";
+    outputFile << "\tstd::string output_file_path = \"" << files->getCsvWilsonFileName() << "\";\n";
     outputFile << "\tfor (int i = 1; i < argc; i++) {\n";
     outputFile << "\t\tif (std::string(argv[i]) == \"--Q_match\" || std::string(argv[i]) == \"-Q\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --Q_match\"); }\n";
     outputFile << "\t\t\tQ_match = std::stod(argv[i + 1]);\n";
     outputFile << "\t\t\ti++;\n";
+    outputFile << "\t\t} else if (std::string(argv[i]) == \"--param-file\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --param-file\"); }\n";
+    outputFile << "\t\t\tparam_file_path = argv[++i];\n";
+    outputFile << "\t\t} else if (std::string(argv[i]) == \"--output-file\") {\n";
+    outputFile << "\t\t\tif (i + 1 >= argc) { throw std::runtime_error(\"Missing value after --output-file\"); }\n";
+    outputFile << "\t\t\toutput_file_path = argv[++i];\n";
     outputFile << "\t\t} else if (std::string(argv[i]) == \"--help\" || std::string(argv[i]) == \"-h\") {\n";
     outputFile << "\t\t\tstd::cout << \"Options availables :\" << std::endl;\n";
     outputFile << "\t\t\tstd::cout << \"--Q_match/-Q : Value of Q_match (default 80.379)\" << std::endl;\n";
+    outputFile << "\t\t\tstd::cout << \"--param-file : Per-invocation parameter CSV\" << std::endl;\n";
+    outputFile << "\t\t\tstd::cout << \"--output-file : Per-invocation Wilson CSV\" << std::endl;\n";
     outputFile << "\t\t\tstd::cout << \"--help/-h : Affiche ce message.\" << std::endl;\n";
     outputFile << "\t\t\treturn 0;\n";
     outputFile << "\t\t}\n";
@@ -141,9 +168,8 @@ void MartyFileWriter::add_argpars(std::ofstream& outputFile) {
 
 void MartyFileWriter::add_input_reader(std::ofstream& outputFile) {
     outputFile << "\tparam_t param;\n";
-
-    outputFile << "\tstd::string ParamFilePath = \"" << FileNameManager::getInstance(this->wilson, this->model)->getParamFileName() << "\";\n";
-    outputFile << "\tstd::ifstream ParamFile(ParamFilePath);" << "\n";
+    outputFile << "\tstd::ifstream ParamFile(param_file_path);" << "\n";
+    outputFile << "\tif (!ParamFile) { throw std::runtime_error(\"Cannot open MARTY parameter file: \" + param_file_path); }\n";
     outputFile << "\treadParams(ParamFile, param.realParams, param.complexParams);" << "\n";
 
 

@@ -23,10 +23,10 @@
 #ifndef _2HDM_H_INCLUDED
 #define _2HDM_H_INCLUDED
 
-#include "../../../Third_party/MARTY/MARTY_INSTALL/include/marty/core/ckm.h"
-#include "../../../Third_party/MARTY/MARTY_INSTALL/include/marty/core/ghostField.h"
-#include "../../../Third_party/MARTY/MARTY_INSTALL/include/marty/core/model.h"
-#include "../../../Third_party/MARTY/MARTY_INSTALL/include/marty/core/mrtInterface.h"
+#include <marty/core/ckm.h>
+#include <marty/core/ghostField.h>
+#include <marty/core/model.h>
+#include <marty/core/mrtInterface.h>
 #include "sm.h"
 
 namespace mty {

@@ -37,41 +37,35 @@ static bool is_split_regprop_marty_target(WCoef c) {
     return c == WCoef::C9 || c == WCoef::CP9 || c == WCoef::CP10;
 }
 
-static bool is_split_regprop_with_sm_components(WCoef c) {
-    // SM primed semileptonic C'9/C'10 pieces are zero in the SuperIso
-    // matching convention.  Earlier versions generated a SM-like CP10 MARTY
-    // component for diagnostics, but it is a raw 4-fermion projection and can
-    // leak a small spurious value.  Keep SM from the builtin backend and split
-    // only the BSM MARTY contribution.
-    (void)c;
-    return false;
-}
-
 static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     std::string output_name = "SM";
     std::string generation_name = "SM";
     fs::path path = ctx.adapters.sm_path;
     bool sm_like_filter = false;
     bool bsm_split_generation = false;
+    bool full_target_generation = false;
 
-    if (ctx.model != Model::SM && is_split_regprop_with_sm_components(c)) {
-        // CP10 needs both SM-like and BSM components from the same generated
-        // target model so that the numeric wrapper can combine:
-        //   SM non-A, SM A, BSM non-A, BSM A
-        // with the appropriate reg_prop value for each A/non-A piece.
+    if (ctx.contrib == ContributionType::TOTAL && ctx.model != Model::SM) {
+        // Explicit diagnostic path only.  The normal WilsonBuilder stores a
+        // pure BSM group and composes TOTAL = SM + BSM, because cross-backend
+        // TOTAL - SM subtraction is not safe for C9/C10 conventions.
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
-        bsm_split_generation = true;
+        full_target_generation = true;
+        bsm_split_generation = is_split_regprop_marty_target(c);
     } else if (ctx.contrib == ContributionType::BSM && ctx.model != Model::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
         path = ctx.adapters.marty_model_path->get();
 
-        // The split-reg_prop mode is deliberately limited to the coefficients
-        // whose raw MARTY photon-linker part needs a different reg_prop policy.
-        // All other coefficients keep the historical MARTY path.
-        bsm_split_generation = is_split_regprop_marty_target(c);
+        // A BSM contribution must never contain the SM diagrams of the target
+        // model.  Otherwise CoefficientManager later forms TOTAL = SM + BSM and
+        // doubles the SM matching (most visibly C2 ~= 2).  The MARTY modifier
+        // uses a generic non-SM-particle diagram filter for ordinary
+        // coefficients and keeps the specialised reg_prop split only for the
+        // semileptonic targets selected by is_split_regprop_marty_target().
+        bsm_split_generation = true;
     } else if (ctx.contrib != ContributionType::SM) {
         output_name = ctx.adapters.marty_model_name->get();
         generation_name = output_name;
@@ -85,6 +79,7 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
         generation_name,
         sm_like_filter,
         bsm_split_generation,
+        full_target_generation,
         id,
         block,
         path,
@@ -131,17 +126,15 @@ CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
     if (auto it = table_.find(key(c, ctx.model, ctx.backend)); it != table_.end())
         return it->second(ctx, c);
 
-    // SM-like MARTY generation for a BSM model is intentionally implemented by
-    // the SM/MARTY coefficient factory, but it must receive the original context
-    // (ctx.model != SM) so that MartyWilson can instantiate the target model and
-    // enable the non-SM-particle filter.  This fallback must happen before the
-    // generic Marty->Builtin fallback, otherwise a hardcoded THDM/SUSY coefficient
-    // would be used instead of the SM-like MARTY coefficient.
+    // MARTY generations for a user/BSM model are implemented by the generic
+    // SM/MARTY factory, but it must receive the original context (ctx.model !=
+    // SM).  The normal builder requests BSM here; TOTAL remains an explicit
+    // diagnostic mode.  Resolve this before hardcoded THDM/SUSY fallbacks.
     if (ctx.backend == Backend::Marty
         && ctx.model != Model::SM
         && (ctx.contrib == ContributionType::SM
             || ctx.contrib == ContributionType::BSM
-            || (ctx.contrib == ContributionType::TOTAL && is_split_regprop_with_sm_components(c)))) {
+            || ctx.contrib == ContributionType::TOTAL)) {
         if (auto it_sm_marty = table_.find(key(c, Model::SM, Backend::Marty)); it_sm_marty != table_.end())
             return it_sm_marty->second(ctx, c);
     }

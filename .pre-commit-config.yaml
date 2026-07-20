@@ -41,9 +41,27 @@ repos:
         language: system
         pass_filenames: false
 
+      - id: release-metadata
+        name: Check public release metadata consistency
+        entry: python tools/check_release_metadata_consistency.py
+        language: system
+        pass_filenames: false
+
       - id: observable-flha-maps
         name: Validate observable FLHA mappings
         entry: python tools/check_observable_flha_consistency.py
+        language: system
+        pass_filenames: false
+
+      - id: marty-template-sync
+        name: Check MARTY template mirrors
+        entry: python tools/check_marty_template_sync.py
+        language: system
+        pass_filenames: false
+
+      - id: marty-v103-regressions
+        name: Validate MARTY v1.0.3 regressions
+        entry: python tools/test_marty_v103.py --static-only
         language: system
         pass_filenames: false
 

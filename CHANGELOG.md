@@ -10,6 +10,35 @@ Semantic Versioning.
 - Additional platform wheels after Linux support is validated.
 - Expanded fuzzing and long-running numerical validation.
 
+## [1.0.3] - 2026-07-20
+
+### Fixed
+
+- Resolve the packaged MARTY Standard Model header through the runtime asset
+  provider instead of the build-time `project_assets_root`, fixing installed
+  wheel failures that attempted to open `/project/Assets/.../sm.h`.
+- Generate MARTY BSM coefficients directly from diagrams containing at least
+  one non-SM diagram particle, then compose `TOTAL = SM + BSM`. This prevents
+  the duplicated SM contribution visible as `C2 ~= 2` without contaminating
+  small C9/C10 BSM terms through a subtraction between different SM backends.
+- Retain Z-prime penguin diagrams, including linkers MARTY classifies as external,
+  while preserving the special `reg_prop` policy for C9, CP9 and CP10 and adding
+  graph-count diagnostics for those split calculations.
+- Replace brittle, mismatched template ABI literals with content-addressed model
+  and template cache signatures plus an explicit generation-mode ABI, and detect
+  the generated marker throughout the source header. This stops permanent C9
+  regeneration while still rebuilding when model or template contents change.
+- Make the bundled Z-prime header independent of the source-tree layout and map
+  the actual MARTY mass symbol `m_X` to `MASS(32)`.
+- Make every loop-only MARTY coefficient TreeLevel-first: keep a non-zero tree
+  result and evaluate OneLoop only when the tree coefficient is exactly zero;
+  preserve the dedicated C9/CP9/CP10 `reg_prop` implementation and existing
+  tree-only templates without changing coefficient formulae or normalizations.
+- Isolate numeric MARTY evaluations in per-invocation run directories, pass
+  invocation-local parameter and Wilson CSV paths to the generated executable,
+  atomically publish legacy CSVs, and protect shared generated artifacts with a
+  reader/writer lock so Statistic workers can evaluate coefficients concurrently.
+
 ## [1.0.2] - 2026-07-17
 
 ### Changed

@@ -2,7 +2,7 @@
 #include <string>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-split-regprop-photon-component-v15
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-split-regprop-fresh-loop-model-v17
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -20,6 +20,12 @@ HyperisoMartyC9LinkerSelection hyperiso_marty_c9_linker_selection =
 
 void hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection selection) {
     hyperiso_marty_c9_linker_selection = selection;
+}
+
+bool hyperiso_marty_tree_level_matching = false;
+
+void hyperiso_marty_set_semileptonic_order(mty::Order order) {
+    hyperiso_marty_tree_level_matching = (order == mty::Order::TreeLevel);
 }
 
 bool hyperiso_marty_is_photon_name(std::string const& name) {
@@ -88,6 +94,13 @@ bool hyperiso_marty_has_forbidden_c9_linker(mty::FeynmanDiagram const& diag) {
 }
 
 bool hyperiso_marty_accept_c9_linker(mty::FeynmanDiagram const& diag) {
+    // Linker filtering is a one-loop penguin policy.  At tree level a scalar
+    // leptoquark mediator is a legitimate source of C9 after operator
+    // projection/Fierz rearrangement and must not be mistaken for a neutral
+    // scalar penguin linker.
+    if (hyperiso_marty_tree_level_matching) {
+        return true;
+    }
     switch (hyperiso_marty_c9_linker_selection) {
         case HyperisoMartyC9LinkerSelection::NonPhotonVector:
             return !hyperiso_marty_has_forbidden_c9_linker(diag);

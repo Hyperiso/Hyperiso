@@ -7,6 +7,7 @@
 #include <optional>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "ModelModifier.h"
 #include "ModelFileChecker.h"
@@ -75,7 +76,9 @@ public:
                          std::string model_path,
                          std::optional<int> model_template_index,
                          bool disable_non_sm_particles,
-                         bool bsm_split_generation = false);
+                         bool bsm_split_generation = false,
+                         bool full_target_generation = false,
+                         bool tree_first_fallback = false);
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -101,6 +104,16 @@ public:
 
 private:
     static std::string makeSmFilterHelper();
+    bool usesRegPropSplit() const;
+    bool usesGenericTreeFirst() const;
+    static void replaceWilsonOrderArgument(std::string& line);
+    bool consumeTreeSafeWilsonCall(std::ofstream& outputFile,
+                                   const std::string& currentLine,
+                                   bool pair_return,
+                                   bool count_graphs);
+    void emitTreeSafeWilsonCall(std::ofstream& outputFile,
+                                bool pair_return,
+                                bool count_graphs);
 
     std::string output_model{}; ///< Model label used in generated file/library names.
     std::string target_model{}; ///< Model class name to instantiate.
@@ -108,12 +121,15 @@ private:
     std::string marty_path{};   ///< Path to MARTY's main include.
     std::optional<int> model_template_index{}; ///< Optional template index.
     bool disable_non_sm_particles{false}; ///< Whether to add the SM-like filter.
-    bool bsm_split_generation{false}; ///< Build one BSM-only library by requiring a non-SM internal particle.
+    bool bsm_split_generation{false}; ///< Use the dedicated split-reg_prop generation or BSM-only filter.
+    bool full_target_generation{false}; ///< Keep the complete target-model expression instead of filtering to BSM diagrams.
+    bool tree_first_fallback{false}; ///< For loop-only templates, test TreeLevel before evaluating OneLoop.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.
-    bool pending_wilson_graph_count{false}; ///< True while rewriting a multi-line computeWilsonCoefficients call.
-    std::string pending_wilson_set{}; ///< WilsonSet variable whose graphs must be counted.
+    std::string generic_builder_name{}; ///< Rewritten calculate function name for generic tree-first mode.
+    bool buffering_tree_safe_wilson_call{false}; ///< Buffer a multi-line Wilson call before emitting the safe tree probe.
+    std::vector<std::string> tree_safe_wilson_call_lines{}; ///< Buffered computeWilsonCoefficients call.
     ModelClassInfo model_class{}; ///< Resolved C++ class and whether it is templated.
     std::string model_instantiation{}; ///< Concrete C++ type written in the generated file.
 };

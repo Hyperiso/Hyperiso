@@ -23,7 +23,7 @@ def main() -> int:
     parser.add_argument(
         "--root", type=Path, default=Path(__file__).resolve().parents[1]
     )
-    parser.add_argument("--tag", help="Optional Git tag, e.g. v1.0.2")
+    parser.add_argument("--tag", help="Optional Git tag, e.g. vX.Y.Z")
     args = parser.parse_args()
     root = args.root.resolve()
 

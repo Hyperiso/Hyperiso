@@ -81,6 +81,33 @@ int main() {
         assert(c1_marty && "C1(SUSY, Marty, BSM) should be creatable through MARTY");
         auto as_marty = dynamic_cast<MartyWilson*>(c1_marty.get());
         assert(as_marty && "A BSM MARTY request should use the MARTY coefficient factory");
+        assert(DummyMartyProxy<InterpretedParam>::last_bsm_only_generation
+               && "Every MARTY BSM coefficient must request pure-BSM diagram filtering");
+        assert(!DummyMartyProxy<InterpretedParam>::last_sm_like_filter);
+    }
+
+    {
+        CoefficientRegistry reg;
+        register_B(reg);
+
+        auto ctx = make_ctx(
+            Model::SUSY,
+            Backend::Marty,
+            ContributionType::TOTAL,
+            GroupMapper::to_id(WGroup::B)
+        );
+
+        auto c2_target = reg.create(ctx, WCoef::C2);
+        assert(c2_target && dynamic_cast<MartyWilson*>(c2_target.get()));
+        assert(DummyMartyProxy<InterpretedParam>::last_full_target_generation);
+        assert(!DummyMartyProxy<InterpretedParam>::last_bsm_only_generation
+               && "Ordinary target-model coefficients must be generated without a diagram filter");
+
+        auto c9_target = reg.create(ctx, WCoef::C9);
+        assert(c9_target && dynamic_cast<MartyWilson*>(c9_target.get()));
+        assert(DummyMartyProxy<InterpretedParam>::last_full_target_generation);
+        assert(DummyMartyProxy<InterpretedParam>::last_bsm_only_generation
+               && "C9 target generation still needs the dedicated reg_prop split");
     }
 
     {

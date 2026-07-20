@@ -115,7 +115,12 @@ bool CoefficientManager::apply_matching_patch_to_group(
     if (!(group->get_group_id() == patch.group)) {
         return false;
     }
-    if (group->get_type() != patch.contribution) {
+    const ContributionType group_type = group->get_type();
+    const bool contribution_compatible =
+        group_type == patch.contribution
+        || (group_type == ContributionType::TOTAL
+            && patch.contribution == ContributionType::BSM);
+    if (!contribution_compatible) {
         return false;
     }
 
@@ -470,7 +475,9 @@ void CoefficientManager::compose_missing_from_calculation(
     WGroupId gid = GroupMapper::enum_elt(groupName);
     const std::string final_block = WilsonBlockNames::matching(gid);
 
-    const auto& members = this->coefficientGroups.at(groupName)->get_member_ids();
+    const auto group = this->coefficientGroups.at(groupName);
+    const auto& members = group->get_member_ids();
+    const bool calculation_is_total = group->get_type() == ContributionType::TOTAL;
 
     for (const auto& wcoef_id : members) {
         auto base = WCoefMapper::flha_base(wcoef_id);
@@ -483,13 +490,26 @@ void CoefficientManager::compose_missing_from_calculation(
         ParamId pid_bsm { ParameterType::WILSON, final_block, id_bsm };
         ParamId pid_tot { ParameterType::WILSON, final_block, id_tot };
 
-        ports_config.iblock_c->compose_parameter(
-            pid_tot,
-            std::unordered_set<ParamId>{ pid_sm, pid_bsm },
-            [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
-            }
-        );
+        if (calculation_is_total) {
+            // MARTY generated the complete target model directly into TOTAL.
+            // Preserve that value and derive the genuine new-physics piece.
+            ports_config.iblock_c->compose_parameter(
+                pid_bsm,
+                std::unordered_set<ParamId>{ pid_tot, pid_sm },
+                [pid_tot, pid_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_tot) - src.get_val(pid_sm));
+                }
+            );
+        } else {
+            // Builtin BSM backends calculate the pure BSM contribution.
+            ports_config.iblock_c->compose_parameter(
+                pid_tot,
+                std::unordered_set<ParamId>{ pid_sm, pid_bsm },
+                [pid_sm, pid_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    dep->set_expected(src.get_val(pid_sm) + src.get_val(pid_bsm));
+                }
+            );
+        }
     }
 }
 

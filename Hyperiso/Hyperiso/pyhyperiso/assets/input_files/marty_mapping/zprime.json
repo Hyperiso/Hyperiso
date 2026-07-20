@@ -1,4 +1,5 @@
 {
+    "m_X": {"block": "MASS", "pdgCode": "32"},
     "m_Z_X": {"block": "MASS", "pdgCode": "32"},
     "g_X": {"block" : "GAUGE", "pdgCode": "32"},
     "Ynu_10": {"block" : "GAUGE", "pdgCode": "10"},
