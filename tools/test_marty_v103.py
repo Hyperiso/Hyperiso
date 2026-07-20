@@ -96,7 +96,9 @@ def _run_command(
         check=False,
     )
     if completed.returncode != 0:
-        output = "\n".join(part for part in (completed.stdout, completed.stderr) if part)
+        output = "\n".join(
+            part for part in (completed.stdout, completed.stderr) if part
+        )
         raise ValidationError(
             f"command failed ({completed.returncode}): {' '.join(command)}\n{output.strip()}"
         )
@@ -188,7 +190,10 @@ def check_packaged_model_portability() -> str:
         for token in forbidden:
             if token in text:
                 offending.append(f"{path.relative_to(ROOT)} contains {token!r}")
-    _require(not offending, "non-portable packaged model paths found: " + "; ".join(offending))
+    _require(
+        not offending,
+        "non-portable packaged model paths found: " + "; ".join(offending),
+    )
     return f"checked {len(list(model_dir.glob('*.h')))} packaged model headers"
 
 
@@ -212,7 +217,9 @@ def check_sm_path_resolution() -> str:
             "Packaged MARTY SM model header is missing",
         ),
     )
-    _require("/project/Assets" not in _read(path), f"{path} still embeds /project/Assets")
+    _require(
+        "/project/Assets" not in _read(path), f"{path} still embeds /project/Assets"
+    )
     return "SM model resolves from the runtime packaged assets root"
 
 
@@ -257,7 +264,10 @@ def check_contribution_composition_sources() -> str:
     )
     builder_text = _read(builder)
     _require(
-        builder_text.count("? ContributionType::SM\n            : ContributionType::BSM;") >= 2,
+        builder_text.count(
+            "? ContributionType::SM\n            : ContributionType::BSM;"
+        )
+        >= 2,
         "WilsonBuilder must store non-SM MARTY calculations as pure BSM in build() and add()",
     )
     _require(
@@ -305,8 +315,12 @@ def check_tree_first_policy() -> str:
         ),
     )
     modifier_text = _read(modifier)
-    insertion_pos = modifier_text.find('signature.insert(close, ", mty::Order hyperiso_marty_order")')
-    replacement_pos = modifier_text.find('signature.replace(int_pos, 3, "Expr")', insertion_pos)
+    insertion_pos = modifier_text.find(
+        'signature.insert(close, ", mty::Order hyperiso_marty_order")'
+    )
+    replacement_pos = modifier_text.find(
+        'signature.replace(int_pos, 3, "Expr")', insertion_pos
+    )
     _require(
         insertion_pos >= 0 and replacement_pos > insertion_pos,
         "generic TreeLevel-first signature must insert the order argument before widening int to Expr",
@@ -332,8 +346,12 @@ def check_tree_first_policy() -> str:
     loop_only: list[str] = []
     tree_only: list[str] = []
     explicit_tree_then_loop: list[str] = []
-    compute_tree = re.compile(r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?TreeLevel")
-    compute_loop = re.compile(r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?OneLoop")
+    compute_tree = re.compile(
+        r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?TreeLevel"
+    )
+    compute_loop = re.compile(
+        r"computeWilsonCoefficients\s*\(\s*(?:mty::Order::)?OneLoop"
+    )
     for template in sorted(CANONICAL_TEMPLATES.glob("*.cpp")):
         if template.name == "csv_helper.cpp":
             continue
@@ -348,9 +366,18 @@ def check_tree_first_policy() -> str:
             tree_only.append(template.stem)
 
     special = {"C9", "CP9", "CP10"}
-    _require(special.issubset(loop_only), "special semileptonic templates changed order inventory")
-    _require("C10" in explicit_tree_then_loop, "C10 lost its explicit TreeLevel-first fallback")
-    _require(loop_only, "no loop-only templates found; policy inventory is unexpectedly empty")
+    _require(
+        special.issubset(loop_only),
+        "special semileptonic templates changed order inventory",
+    )
+    _require(
+        "C10" in explicit_tree_then_loop,
+        "C10 lost its explicit TreeLevel-first fallback",
+    )
+    _require(
+        loop_only,
+        "no loop-only templates found; policy inventory is unexpectedly empty",
+    )
 
     # The generic source transformer deliberately keeps the coefficient formulas
     # untouched and only lifts the existing expression out of the conventional
@@ -375,9 +402,13 @@ def check_tree_first_policy() -> str:
         if counts != {"calculate": 1, "addFunction": 1, "main": 1, "opts": 1}:
             malformed.append(f"{name}: {counts}")
             continue
-        calculate_index = next(i for i, line in enumerate(lines) if "int calculate" in line)
-        add_index = next(i for i, line in enumerate(lines) if "wilsonLib.addFunction" in line)
-        if any(line.strip() == "}" for line in lines[calculate_index + 1:add_index]):
+        calculate_index = next(
+            i for i, line in enumerate(lines) if "int calculate" in line
+        )
+        add_index = next(
+            i for i, line in enumerate(lines) if "wilsonLib.addFunction" in line
+        )
+        if any(line.strip() == "}" for line in lines[calculate_index + 1 : add_index]):
             malformed.append(f"{name}: nested standalone scope before addFunction")
         add_line = lines[add_index].strip()
         if add_line.count(",") != 1 or not add_line.endswith(");"):
@@ -444,17 +475,13 @@ def check_cache_source_signatures() -> str:
         ),
     )
     _require_contains(modifier, ("FNV-1a", "modelSignature"))
-    return "cache key covers ABI, full model content, template content and generation mode"
+    return (
+        "cache key covers ABI, full model content, template content and generation mode"
+    )
 
 
 def check_thread_safe_runtime_io() -> str:
-    base = (
-        ROOT
-        / "Hyperiso"
-        / "Hyperiso"
-        / "core"
-        / "src"
-    )
+    base = ROOT / "Hyperiso" / "Hyperiso" / "core" / "src"
     interface = base / "ExternalIntegration" / "MartyInterface" / "MartyInterface.cpp"
     writer = (
         base
@@ -463,7 +490,9 @@ def check_thread_safe_runtime_io() -> str:
         / "NumericalScriptProcessing"
         / "MartyFileWriter.cpp"
     )
-    compiler = base / "ExternalIntegration" / "MartyInterface" / "MakeCompilerStrategy.cpp"
+    compiler = (
+        base / "ExternalIntegration" / "MartyInterface" / "MakeCompilerStrategy.cpp"
+    )
     wilson = base / "PhysicalModel" / "domain" / "MartyWilson.cpp"
     runtime = base / "Core" / "domain" / "ParameterRuntimeContext.cpp"
     helper = CANONICAL_TEMPLATES / "csv_helper.cpp"
@@ -506,8 +535,8 @@ def check_thread_safe_runtime_io() -> str:
     _require_contains(
         writer,
         (
-            '--param-file',
-            '--output-file',
+            "--param-file",
+            "--output-file",
             "std::ifstream ParamFile(param_file_path)",
             "const std::string& path = output_file_path",
         ),
@@ -543,12 +572,13 @@ def check_thread_safe_runtime_io() -> str:
     )
 
 
-
 def check_csv_concurrency_smoke() -> str:
     """Compile the shipped CSV helper and stress invocation-local outputs in parallel."""
     compiler = shutil.which("g++") or shutil.which("c++")
     if compiler is None:
-        raise FileNotFoundError("no C++ compiler available for the CSV concurrency smoke test")
+        raise FileNotFoundError(
+            "no C++ compiler available for the CSV concurrency smoke test"
+        )
 
     helper_source = CANONICAL_TEMPLATES / "csv_helper.cpp"
     with tempfile.TemporaryDirectory(prefix="hyperiso-marty-csv-smoke-") as tmp_raw:
@@ -627,20 +657,38 @@ int main(int argc, char** argv) {
         _run_command([str(executable), str(output_dir)], cwd=tmp, timeout=120)
 
         csv_files = sorted(output_dir.glob("worker_*.csv"))
-        _require(len(csv_files) == 12, f"expected 12 isolated CSV files, got {len(csv_files)}")
+        _require(
+            len(csv_files) == 12,
+            f"expected 12 isolated CSV files, got {len(csv_files)}",
+        )
         expected_header = ["Q_match", "C7_real", "C7_img", "C9_real", "C9_img"]
         for csv_file in csv_files:
-            rows = [line.split(",") for line in csv_file.read_text(encoding="utf-8").splitlines()]
-            _require(rows and rows[0] == expected_header, f"invalid header in {csv_file.name}: {rows[:1]}")
-            _require(len(rows) == 9, f"expected 8 scales in {csv_file.name}, got {len(rows) - 1}")
+            rows = [
+                line.split(",")
+                for line in csv_file.read_text(encoding="utf-8").splitlines()
+            ]
             _require(
-                all(len(row) == len(expected_header) and "NaN" not in row for row in rows[1:]),
+                rows and rows[0] == expected_header,
+                f"invalid header in {csv_file.name}: {rows[:1]}",
+            )
+            _require(
+                len(rows) == 9,
+                f"expected 8 scales in {csv_file.name}, got {len(rows) - 1}",
+            )
+            _require(
+                all(
+                    len(row) == len(expected_header) and "NaN" not in row
+                    for row in rows[1:]
+                ),
                 f"incomplete concurrent CSV rows in {csv_file.name}",
             )
         leftovers = list(output_dir.glob("*.tmp.*"))
         _require(not leftovers, f"temporary CSV files were not cleaned: {leftovers}")
 
-    return "compiled csv_helper.cpp and validated 12 concurrent invocation-local outputs"
+    return (
+        "compiled csv_helper.cpp and validated 12 concurrent invocation-local outputs"
+    )
+
 
 def check_python_compilation() -> str:
     with tempfile.TemporaryDirectory(prefix="hyperiso-pyc-") as pycache:
@@ -648,7 +696,10 @@ def check_python_compilation() -> str:
         sys.pycache_prefix = pycache
         try:
             targets = [ROOT / "tools", PYTHON_PACKAGE]
-            ok = all(compileall.compile_dir(str(path), quiet=1, force=True) for path in targets)
+            ok = all(
+                compileall.compile_dir(str(path), quiet=1, force=True)
+                for path in targets
+            )
         finally:
             sys.pycache_prefix = old_prefix
     _require(ok, "Python byte-compilation failed")
@@ -671,7 +722,11 @@ print(p)
         completed = _run_command([sys.executable, "-c", code], env=env, timeout=60)
     except ValidationError as exc:
         message = str(exc)
-        if "phyperiso" in message or "ModuleNotFoundError" in message or "ImportError" in message:
+        if (
+            "phyperiso" in message
+            or "ModuleNotFoundError" in message
+            or "ImportError" in message
+        ):
             raise FileNotFoundError(
                 "native pyhyperiso extension is not installed/built; import smoke test skipped"
             ) from exc
@@ -697,11 +752,14 @@ def run_ctest(build_dir: Path) -> str:
         timeout=900,
     )
     summary = next(
-        (line.strip() for line in reversed(completed.stdout.splitlines()) if "tests passed" in line),
+        (
+            line.strip()
+            for line in reversed(completed.stdout.splitlines())
+            if "tests passed" in line
+        ),
         "ctest MARTY/Wilson selection passed",
     )
     return summary
-
 
 
 _LHA_BLOCK_RE = re.compile(r"^\s*BLOCK\s+(\S+)", re.IGNORECASE)
@@ -714,13 +772,18 @@ def _parse_float_list(raw: str) -> list[float]:
         if not token:
             continue
         value = float(token)
-        _require(math.isfinite(value) and value > 0.0, f"invalid positive scan value: {token}")
+        _require(
+            math.isfinite(value) and value > 0.0,
+            f"invalid positive scan value: {token}",
+        )
         values.append(value)
     _require(len(values) >= 2, "a decoupling scan needs at least two positive values")
     return values
 
 
-def _rewrite_lha_scalar(source: Path, destination: Path, block: str, code: int, value: float) -> None:
+def _rewrite_lha_scalar(
+    source: Path, destination: Path, block: str, code: int, value: float
+) -> None:
     """Rewrite a one-index Les Houches entry while preserving the rest of the card."""
     lines = source.read_text(encoding="utf-8").splitlines(keepends=True)
     current_block = ""
@@ -760,14 +823,23 @@ def _rewrite_lha_scalar(source: Path, destination: Path, block: str, code: int, 
     destination.write_text("".join(lines), encoding="utf-8")
 
 
-def _coefficient_from_payload(payload: dict[str, object], name: str, contribution: str) -> complex:
+def _coefficient_from_payload(
+    payload: dict[str, object], name: str, contribution: str
+) -> complex:
     coefficients = payload.get("coefficients")
     _require(isinstance(coefficients, dict), "invalid integration coefficient payload")
     raw_coefficient = coefficients.get(name)
-    _require(isinstance(raw_coefficient, dict), f"coefficient {name} is absent from integration payload")
+    _require(
+        isinstance(raw_coefficient, dict),
+        f"coefficient {name} is absent from integration payload",
+    )
     raw_value = raw_coefficient.get(contribution)
-    _require(isinstance(raw_value, dict), f"{name} {contribution} is absent from integration payload")
+    _require(
+        isinstance(raw_value, dict),
+        f"{name} {contribution} is absent from integration payload",
+    )
     return _decode_complex(raw_value)
+
 
 def _complex_payload(value: object) -> dict[str, float]:
     z = complex(value)  # Scalar implements __complex__.
@@ -951,7 +1023,9 @@ def _validate_integration_payload(
     )
 
 
-def _integration_command(args: argparse.Namespace, mode: str, lha_file: Path) -> list[str]:
+def _integration_command(
+    args: argparse.Namespace, mode: str, lha_file: Path
+) -> list[str]:
     return [
         sys.executable,
         str(Path(__file__).resolve()),
@@ -977,7 +1051,9 @@ def _integration_command(args: argparse.Namespace, mode: str, lha_file: Path) ->
     ]
 
 
-def _run_integration_child(args: argparse.Namespace, mode: str, lha_file: Path) -> dict[str, object]:
+def _run_integration_child(
+    args: argparse.Namespace, mode: str, lha_file: Path
+) -> dict[str, object]:
     completed = _run_command(
         _integration_command(args, mode, lha_file),
         timeout=args.integration_timeout,
@@ -990,7 +1066,6 @@ def _run_integration_child(args: argparse.Namespace, mode: str, lha_file: Path) 
         if stripped.startswith("[MARTY "):
             print(f"[HYP_AS_SM_MARTY={mode}] {stripped}")
     return _parse_child_payload(completed.stdout)
-
 
 
 def _parse_coefficient_names(raw: str) -> list[str]:
@@ -1044,7 +1119,10 @@ def _validate_bsm_mode_invariance(
             f"{name} BSM depends on HYP_AS_SM_MARTY: true={left}, false={right}, "
             f"residual={residual:.3e}",
         )
-    return f"BSM is independent of the SM provider for C1..C10 (max residual={worst:.3e})"
+    return (
+        f"BSM is independent of the SM provider for C1..C10 (max residual={worst:.3e})"
+    )
+
 
 def _validate_decoupling_scan(
     points: list[tuple[float, complex]],
@@ -1089,7 +1167,9 @@ def run_integration(args: argparse.Namespace) -> str:
     cache_dir = args.cache_dir.expanduser().resolve()
     if args.clean_model_cache:
         removed = _clean_model_cache(cache_dir, args.model_name)
-        print(f"[INFO] removed {len(removed)} model-specific cache entries from {cache_dir}")
+        print(
+            f"[INFO] removed {len(removed)} model-specific cache entries from {cache_dir}"
+        )
 
     modes = {
         "true": ["true"],
@@ -1097,7 +1177,9 @@ def run_integration(args: argparse.Namespace) -> str:
         "both": ["true", "false"],
     }[args.hyp_as_sm_marty]
 
-    scan_masses = _parse_float_list(args.zprime_mass_scan) if args.zprime_mass_scan else []
+    scan_masses = (
+        _parse_float_list(args.zprime_mass_scan) if args.zprime_mass_scan else []
+    )
     report_coefficients = _parse_coefficient_names(args.report_coefficients)
     coefficient_name = args.decoupling_coefficient.upper()
     _require(
@@ -1112,7 +1194,9 @@ def run_integration(args: argparse.Namespace) -> str:
         base_lha = args.lha_file.resolve()
         if args.thdm_type is not None:
             typed_lha = tmp / f"thdm_type_{args.thdm_type}.lha"
-            _rewrite_lha_scalar(base_lha, typed_lha, "MINPAR", 24, float(args.thdm_type))
+            _rewrite_lha_scalar(
+                base_lha, typed_lha, "MINPAR", 24, float(args.thdm_type)
+            )
             base_lha = typed_lha
 
         for mode in modes:
@@ -1131,7 +1215,10 @@ def run_integration(args: argparse.Namespace) -> str:
 
             if not args.no_cache_check:
                 first_snapshot = _cache_snapshot(cache_dir, args.model_name)
-                _require(first_snapshot, f"no analytical cache artifacts found in {cache_dir}")
+                _require(
+                    first_snapshot,
+                    f"no analytical cache artifacts found in {cache_dir}",
+                )
                 # Filesystems with coarse timestamps benefit from a small boundary.
                 time.sleep(1.05)
                 second_payload = _run_integration_child(args, mode, base_lha)
@@ -1230,7 +1317,9 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--marty-install",
         type=Path,
-        default=Path(os.environ["MARTY_INSTALL"]) if "MARTY_INSTALL" in os.environ else None,
+        default=Path(os.environ["MARTY_INSTALL"])
+        if "MARTY_INSTALL" in os.environ
+        else None,
         help="MARTY installation prefix (or set MARTY_INSTALL)",
     )
     parser.add_argument("--model-file", type=Path, default=default_model)
@@ -1301,10 +1390,14 @@ def parse_args() -> argparse.Namespace:
         help="do not repeat the integration run to verify analytical cache reuse",
     )
     parser.add_argument("--integration-timeout", type=float, default=1800.0)
-    parser.add_argument("--json-report", type=Path, help="write machine-readable results")
+    parser.add_argument(
+        "--json-report", type=Path, help="write machine-readable results"
+    )
 
     # Internal child-process arguments.
-    parser.add_argument("--_integration-child", action="store_true", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--_integration-child", action="store_true", help=argparse.SUPPRESS
+    )
     parser.add_argument(
         "--_child-hyp-as-sm",
         choices=("true", "false"),
@@ -1315,7 +1408,13 @@ def parse_args() -> argparse.Namespace:
 
 
 def main() -> int:
-    global ROOT, PACKAGE_ROOT, PYTHON_PACKAGE, PACKAGED_ASSETS, CANONICAL_TEMPLATES, MIRROR_TEMPLATES
+    global \
+        ROOT, \
+        PACKAGE_ROOT, \
+        PYTHON_PACKAGE, \
+        PACKAGED_ASSETS, \
+        CANONICAL_TEMPLATES, \
+        MIRROR_TEMPLATES
 
     args = parse_args()
     ROOT = args.root.resolve()
@@ -1349,9 +1448,14 @@ def main() -> int:
     if not args.static_only:
         checks.append(("pyhyperiso import", check_import_smoke))
     if args.ctest_build_dir:
-        checks.append(("C++ MARTY/Wilson tests", lambda: run_ctest(args.ctest_build_dir)))
+        checks.append(
+            ("C++ MARTY/Wilson tests", lambda: run_ctest(args.ctest_build_dir))
+        )
     if args.integration:
-        _require(args.marty_install is not None, "--integration requires --marty-install or MARTY_INSTALL")
+        _require(
+            args.marty_install is not None,
+            "--integration requires --marty-install or MARTY_INSTALL",
+        )
         checks.append(("Z-prime MARTY integration", lambda: run_integration(args)))
 
     results: list[CheckResult] = []
@@ -1360,9 +1464,18 @@ def main() -> int:
         try:
             detail = callback()
         except FileNotFoundError as exc:
-            status = "FAIL" if args.require_import and name == "pyhyperiso import" else "SKIP"
+            status = (
+                "FAIL"
+                if args.require_import and name == "pyhyperiso import"
+                else "SKIP"
+            )
             result = CheckResult(name, status, str(exc), time.monotonic() - started)
-        except (ValidationError, OSError, subprocess.SubprocessError, ValueError) as exc:
+        except (
+            ValidationError,
+            OSError,
+            subprocess.SubprocessError,
+            ValueError,
+        ) as exc:
             result = CheckResult(name, "FAIL", str(exc), time.monotonic() - started)
         except Exception as exc:  # Defensive reporting for native/runtime failures.
             result = CheckResult(
@@ -1374,7 +1487,9 @@ def main() -> int:
         else:
             result = CheckResult(name, "PASS", detail, time.monotonic() - started)
         results.append(result)
-        print(f"[{result.status}] {result.name}: {result.detail} ({result.duration_s:.2f}s)")
+        print(
+            f"[{result.status}] {result.name}: {result.detail} ({result.duration_s:.2f}s)"
+        )
 
     if args.json_report:
         args.json_report.parent.mkdir(parents=True, exist_ok=True)

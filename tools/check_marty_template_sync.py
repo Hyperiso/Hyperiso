@@ -17,13 +17,21 @@ from pathlib import Path
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 CANONICAL_DIR = (
-    REPOSITORY_ROOT / "Hyperiso" / "Hyperiso" / "pyhyperiso" / "assets" / "template" / "MARTY"
+    REPOSITORY_ROOT
+    / "Hyperiso"
+    / "Hyperiso"
+    / "pyhyperiso"
+    / "assets"
+    / "template"
+    / "MARTY"
 )
 MIRROR_DIR = REPOSITORY_ROOT / "Assets" / "template" / "MARTY"
 
 
 def relative_files(directory: Path) -> set[Path]:
-    return {path.relative_to(directory) for path in directory.rglob("*") if path.is_file()}
+    return {
+        path.relative_to(directory) for path in directory.rglob("*") if path.is_file()
+    }
 
 
 def differences() -> list[str]:
@@ -61,7 +69,10 @@ def parse_args() -> argparse.Namespace:
 def main() -> int:
     args = parse_args()
     if not CANONICAL_DIR.is_dir():
-        print(f"canonical MARTY template directory not found: {CANONICAL_DIR}", file=sys.stderr)
+        print(
+            f"canonical MARTY template directory not found: {CANONICAL_DIR}",
+            file=sys.stderr,
+        )
         return 2
     if args.write:
         synchronize()

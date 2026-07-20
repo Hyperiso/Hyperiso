@@ -1,6 +1,8 @@
 
 ## Publication order
 
+For the reusable, version-independent checklist, see [`RELEASE_CHECKLIST.md`](../RELEASE_CHECKLIST.md).
+
 HyperIso uses a tag-driven immutable release workflow. First merge the reviewed
 release commit and verify all branch checks. Then create and push the signed
 `v1.0.3` tag. The tag builds the sdist and wheels once, publishes those exact
@@ -62,13 +64,13 @@ Review every numerical diff and `reference_metadata.json` before committing.
 
 ## Reserve the Zenodo v1.0.3 DOI
 
-Open the published v1.0.1 record at
-`https://zenodo.org/records/21414482`, choose **New version**, update the version
-to `1.0.3`, and reserve the new version-specific DOI before tagging. Insert that
-DOI into `CITATION.cff`, the README/software paper and any release notes that
-will be archived. Do not reuse `10.5281/zenodo.21414482`, which identifies only
-v1.0.1. Keep the Zenodo draft unpublished until the final tag archive has been
-created and checked.
+Open the published v1.0.2 record at
+`https://zenodo.org/records/21419678`, choose **New version**, set the version
+to `1.0.3`, and reserve the version-specific DOI before tagging. The reserved
+DOI for this release is `10.5281/zenodo.21447072`. It must be present in
+`CITATION.cff`, `README.md`, `docs/cpc_program_summary.md` and `docs/main.tex`.
+Keep the Zenodo draft unpublished until the final GitHub Release archive has
+been created and checked.
 
 ## Freeze final numerical provenance
 
@@ -107,11 +109,11 @@ The release workflow then:
 7. creates an SPDX SBOM and SHA-256 checksums;
 8. creates the GitHub release with the source archive, SBOM and checksums.
 
-After the tag workflow succeeds, create an exact source archive with
-`git archive v1.0.3`, upload it to the reserved Zenodo new-version draft, verify
-the archive checksum and metadata, and publish the record. Then add the final
-version-specific DOI to the GitHub Release and project website if it was not
-already present.
+After the tag workflow succeeds, download the exact
+`hyperiso-v1.0.3.tar.gz` and `SHA256SUMS` assets created by the GitHub Release
+workflow. Verify the checksum, upload that exact archive to the reserved Zenodo
+new-version draft, verify the metadata, and publish the record. Do not rebuild a
+different archive locally for Zenodo.
 
 Never rebuild artifacts between TestPyPI and PyPI. PyPI versions are immutable;
 a failed release must be corrected with a new version.

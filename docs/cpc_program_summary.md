@@ -24,4 +24,4 @@ The generic MARTY backend is optional and must be installed separately. It is va
 **Example input/output:** `reproducibility/inputs/`, `reproducibility/expected_outputs/` and `reproducibility/manifest.json`.
 **Classification:** 11.1, 11.3, 11.6.
 **Related article:** *HyperIso: A general BSM calculator for flavour observables*.
-**Software archive DOI:** https://doi.org/10.5281/zenodo.21419678
+**Software archive DOI:** https://doi.org/10.5281/zenodo.21447072
