@@ -649,6 +649,11 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 );
             }
             outputFile << "int main() {\n";
+            outputFile << "    // MARTY SM input constants carry default numerical values.  They must\n";
+            outputFile << "    // be undefined before the target model is constructed; doing this only\n";
+            outputFile << "    // inside calculate_*() is too late when a custom model simplifies its\n";
+            outputFile << "    // Lagrangian with theta_W, e_em, or other SM inputs in the constructor.\n";
+            outputFile << "    undefineNumericalValues();\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
             outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order = hyperiso_marty_configured_tree_fermion_order();\n";
             outputFile << "    Expr hyperiso_marty_tree = CSL_0;\n";
@@ -821,6 +826,10 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 isolate_c9_auto_fallback ? "tree_model" : "model";
             const std::string loop_model_name =
                 isolate_c9_auto_fallback ? "loop_model" : "model";
+            outputFile << "    // Keep all MARTY SM inputs symbolic from the beginning of target-model\n";
+            outputFile << "    // construction.  Otherwise constructor-time simplification can bake in\n";
+            outputFile << "    // MARTY defaults before the numerical LHA values are injected.\n";
+            outputFile << "    undefineNumericalValues();\n";
             if (isolate_c9_auto_fallback) {
                 outputFile << "    " << this->model_instantiation << " tree_model;\n";
             } else {
@@ -856,6 +865,9 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    if (!hyperiso_marty_use_tree_level) {\n";
             if (isolate_c9_auto_fallback) {
                 outputFile << "        // Instantiate the fallback model only after the tree probe.\n";
+                outputFile << "        // Re-assert symbolic SM inputs in case model construction or the\n";
+                outputFile << "        // tree probe assigned a process-global MARTY default.\n";
+                outputFile << "        undefineNumericalValues();\n";
                 outputFile << "        " << this->model_instantiation << " loop_model;\n";
             }
             outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";

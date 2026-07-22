@@ -63,3 +63,12 @@ are physically meaningful, and a wrong pairing can also give a non-zero but
 incorrect Fierz projection. The coefficient/model implementation must therefore
 provide the intended fermion order. If it does not, MARTY's normal automatic
 ordering remains enabled.
+
+## Constructor-time SM inputs
+
+Target MARTY models are now constructed only after `undefineNumericalValues()`
+has been called.  This prevents custom model constructors from folding MARTY's
+default values of `theta_W`, `e_em`, or other Standard-Model constants into the
+Lagrangian before HyperIso injects the selected LHA inputs.  Calling the helper
+inside the coefficient function remains useful, but is not sufficient because
+the model has already been built at that point.

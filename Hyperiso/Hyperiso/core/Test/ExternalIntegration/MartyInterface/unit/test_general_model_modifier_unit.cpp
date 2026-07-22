@@ -180,7 +180,12 @@ int main() {
         assert(generated.find("if (!hyperiso_marty_use_tree)") != std::string::npos);
         assert(generated.find("mty::Order::OneLoop") != std::string::npos);
         assert(generated.find("selected order=") != std::string::npos);
-        assert(generated.find("ZPrime_Model model;") != std::string::npos);
+        const auto generic_undefine = generated.find("undefineNumericalValues();");
+        const auto generic_model = generated.find("ZPrime_Model model;");
+        assert(generic_undefine != std::string::npos);
+        assert(generic_model != std::string::npos);
+        assert(generic_undefine < generic_model
+               && "SM inputs must be undefined before target-model construction");
         assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
     }
 
@@ -278,8 +283,17 @@ int main() {
         assert(generated.find("if (!hyperiso_marty_use_tree_level)") != std::string::npos);
         assert(generated.find("mty::Order::OneLoop") != std::string::npos);
         assert(generated.find("selected order=") != std::string::npos);
-        assert(generated.find("ZPrime_Model tree_model;") != std::string::npos);
+        const auto split_undefine = generated.find("undefineNumericalValues();");
+        const auto split_tree_model = generated.find("ZPrime_Model tree_model;");
+        assert(split_undefine != std::string::npos);
+        assert(split_tree_model != std::string::npos);
+        assert(split_undefine < split_tree_model
+               && "SM inputs must be undefined before split target-model construction");
         assert(generated.find("ZPrime_Model loop_model;") != std::string::npos);
+        assert(generated.find(
+            "undefineNumericalValues();", split_tree_model + 1
+        ) != std::string::npos
+               && "The isolated C9 fallback model must also start from symbolic SM inputs");
         assert(generated.find("hyperiso_marty_build_C9(tree_model") != std::string::npos);
         assert(generated.find("hyperiso_marty_build_C9(loop_model") != std::string::npos);
         assert(generated.find("model.computeAmplitude(") != std::string::npos);
