@@ -62,7 +62,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         false,
         false,
         false,
-        MartyOrderPolicy::AUTO
+        MartyOrderPolicy::AUTO,
+        {}
       ) {}
 
 GeneralModelModifier::GeneralModelModifier(std::string wilson,
@@ -74,7 +75,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
                                              bool bsm_split_generation,
                                              bool full_target_generation,
                                              bool tree_first_fallback,
-                                             MartyOrderPolicy order_policy) {
+                                             MartyOrderPolicy order_policy,
+                                             std::vector<int> tree_fermion_order) {
         this->wilson = std::move(wilson);
         this->output_model = std::move(output_model);
         this->target_model = std::move(target_model);
@@ -85,6 +87,7 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         this->full_target_generation = full_target_generation;
         this->tree_first_fallback = tree_first_fallback;
         this->order_policy = order_policy;
+        this->tree_fermion_order = std::move(tree_fermion_order);
 
         ModelFileChecker checker(this->model_path);
         this->model_class = checker.resolveModelClass(this->target_model);
@@ -257,20 +260,23 @@ void hyperiso_marty_require_non_sm_diagram_particle(mty::FeynOptions& opts) {
 }
 
 
-std::string GeneralModelModifier::makeTreeLevelWilsonHelper() {
-    return R"cpp(
+std::string GeneralModelModifier::makeTreeLevelWilsonHelper() const {
+    std::ostringstream configured_order;
+    configured_order << "{";
+    for (std::size_t i = 0; i < this->tree_fermion_order.size(); ++i) {
+        if (i != 0) {
+            configured_order << ", ";
+        }
+        configured_order << this->tree_fermion_order[i];
+    }
+    configured_order << "}";
+
+    std::string helper = R"cpp(
 namespace {
-const std::vector<std::vector<int>>& hyperiso_marty_tree_fermion_orders()
+const std::vector<int>& hyperiso_marty_configured_tree_fermion_order()
 {
-    static const std::vector<std::vector<int>> orders = [] {
-        std::vector<std::vector<int>> result;
-        std::vector<int> order = {0, 1, 2, 3};
-        do {
-            result.push_back(order);
-        } while (std::next_permutation(order.begin(), order.end()));
-        return result;
-    }();
-    return orders;
+    static const std::vector<int> order = HYPERISO_CONFIGURED_TREE_ORDER;
+    return order;
 }
 
 std::string hyperiso_marty_fermion_order_label(const std::vector<int>& order)
@@ -295,17 +301,19 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
     mty::FeynOptions options,
     bool disable_fermion_ordering = false)
 {
-    // MARTY's three-argument overload forces orderExternalFermions=true at
-    // TreeLevel.  That silently overrides an explicit setFermionOrder(), and
-    // the correct four-fermion pairing can differ from the one-loop pairing.
-    // Preserve the template's explicit order for every tree calculation while
-    // retaining MARTY's historical one-loop behaviour.
     int effective_order = order;
 #if defined(HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY)
     effective_order = mty::Order::TreeLevel;
 #elif defined(HYPERISO_MARTY_ORDER_POLICY_ONE_LOOP_ONLY)
     effective_order = mty::Order::OneLoop;
 #endif
+
+    if (effective_order == mty::Order::TreeLevel
+        && !hyperiso_marty_configured_tree_fermion_order().empty()) {
+        options.setFermionOrder(hyperiso_marty_configured_tree_fermion_order());
+        options.orderExternalFermions = false;
+    }
+
     const bool has_explicit_fermion_order = !options.getFermionOrder().empty();
     const bool preserve_explicit_tree_order =
         effective_order == mty::Order::TreeLevel && has_explicit_fermion_order;
@@ -318,6 +326,10 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
 }
 } // namespace
 )cpp";
+
+    const std::string placeholder = "HYPERISO_CONFIGURED_TREE_ORDER";
+    helper.replace(helper.find(placeholder), placeholder.size(), configured_order.str());
+    return helper;
 }
 
 void GeneralModelModifier::replaceWilsonCallWithHelper(std::string& line) {
@@ -434,7 +446,9 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
     outputFile << indent << "mty::WilsonSet " << variable << ";\n";
     outputFile << indent << "if (hyperiso_marty_order == mty::Order::TreeLevel) {\n";
     outputFile << indent << "    auto hyperiso_marty_tree_options = opts;\n";
-    outputFile << indent << "    if (!hyperiso_marty_forced_fermion_order.empty()) {\n";
+    outputFile << indent << "    if (!hyperiso_marty_configured_tree_fermion_order().empty()) {\n";
+    outputFile << indent << "        hyperiso_marty_tree_options.setFermionOrder(hyperiso_marty_configured_tree_fermion_order());\n";
+    outputFile << indent << "    } else if (!hyperiso_marty_forced_fermion_order.empty()) {\n";
     outputFile << indent << "        hyperiso_marty_tree_options.setFermionOrder(hyperiso_marty_forced_fermion_order);\n";
     outputFile << indent << "    }\n";
     outputFile << indent << "    // Preserve opts.setFermionOrder(...). MARTY's automatic tree ordering can\n";
@@ -636,24 +650,11 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             }
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
-            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order;\n";
+            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order = hyperiso_marty_configured_tree_fermion_order();\n";
             outputFile << "    Expr hyperiso_marty_tree = CSL_0;\n";
             if (this->order_policy != MartyOrderPolicy::ONE_LOOP_ONLY) {
                 outputFile << "    hyperiso_marty_tree = " << this->generic_builder_name
-                           << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, {});\n";
-                if (this->tree_four_fermion_projector) {
-                    outputFile << "    if (hyperiso_marty_tree == CSL_0) {\n";
-                    outputFile << "        for (const auto& hyperiso_marty_order : hyperiso_marty_tree_fermion_orders()) {\n";
-                    outputFile << "            Expr hyperiso_marty_candidate = " << this->generic_builder_name
-                               << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, hyperiso_marty_order);\n";
-                    outputFile << "            if (hyperiso_marty_candidate != CSL_0) {\n";
-                    outputFile << "                hyperiso_marty_tree = hyperiso_marty_candidate;\n";
-                    outputFile << "                hyperiso_marty_selected_fermion_order = hyperiso_marty_order;\n";
-                    outputFile << "                break;\n";
-                    outputFile << "            }\n";
-                    outputFile << "        }\n";
-                    outputFile << "    }\n";
-                }
+                           << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, hyperiso_marty_configured_tree_fermion_order());\n";
             }
             if (this->order_policy == MartyOrderPolicy::TREE_LEVEL_ONLY) {
                 outputFile << "    Expr hyperiso_marty_selected = hyperiso_marty_tree;\n";
@@ -825,7 +826,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             } else {
                 outputFile << "    " << this->model_instantiation << " model;\n";
             }
-            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order;\n";
+            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order = hyperiso_marty_configured_tree_fermion_order();\n";
             outputFile << "    // Semileptonic BSM matching is tree-first.  A non-zero tree-level\n";
             outputFile << "    // coefficient suppresses the one-loop calculation entirely; otherwise\n";
             outputFile << "    // MARTY falls back to the one-loop split-reg_prop path.\n";
@@ -836,21 +837,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#else\n";
             outputFile << "    auto hyperiso_marty_bsm_tree = hyperiso_marty_build_" << this->wilson
                        << "(" << tree_model_name
-                       << ", gauge::Type::Feynman, mty::Order::TreeLevel, false, {});\n";
-            if (this->tree_four_fermion_projector) {
-                outputFile << "    if (hyperiso_marty_bsm_tree.first == CSL_0) {\n";
-                outputFile << "        for (const auto& hyperiso_marty_order : hyperiso_marty_tree_fermion_orders()) {\n";
-                outputFile << "            auto hyperiso_marty_candidate = hyperiso_marty_build_" << this->wilson
-                           << "(" << tree_model_name
-                           << ", gauge::Type::Feynman, mty::Order::TreeLevel, false, hyperiso_marty_order);\n";
-                outputFile << "            if (hyperiso_marty_candidate.first != CSL_0) {\n";
-                outputFile << "                hyperiso_marty_bsm_tree = hyperiso_marty_candidate;\n";
-                outputFile << "                hyperiso_marty_selected_fermion_order = hyperiso_marty_order;\n";
-                outputFile << "                break;\n";
-                outputFile << "            }\n";
-                outputFile << "        }\n";
-                outputFile << "    }\n";
-            }
+                       << ", gauge::Type::Feynman, mty::Order::TreeLevel, false, hyperiso_marty_configured_tree_fermion_order());\n";
             outputFile << "#if defined(HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY)\n";
             outputFile << "    const bool hyperiso_marty_use_tree_level = true;\n";
             outputFile << "#else\n";

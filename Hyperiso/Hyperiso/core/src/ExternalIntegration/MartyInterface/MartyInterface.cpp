@@ -32,7 +32,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v2";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v3";
 
 std::string sanitize_path_component(std::string value) {
     for (char& c : value) {
@@ -232,11 +232,15 @@ std::string template_signature(const std::string& wilson,
 MartyOrderPolicy effective_order_policy(bool sm_like_filter,
                                           bool bsm_only_generation,
                                           bool full_target_generation);
+std::vector<int> effective_tree_fermion_order(bool sm_like_filter,
+                                               bool bsm_only_generation,
+                                               bool full_target_generation);
 std::string generation_mode_marker(const std::string& wilson,
                                    bool sm_like_filter,
                                    bool bsm_only_generation,
                                    bool full_target_generation,
-                                   MartyOrderPolicy order_policy);
+                                   MartyOrderPolicy order_policy,
+                                   const std::vector<int>& tree_fermion_order);
 void append_cache_metadata_if_missing(const fs::path& generated_file,
                                       const std::string& model_signature,
                                       const std::string& template_signature_value,
@@ -287,6 +291,9 @@ void MartyInterface::generate(std::string wilson,
     const MartyOrderPolicy order_policy = effective_order_policy(
         sm_like_filter, bsm_split_generation, full_target_generation
     );
+    const std::vector<int> tree_fermion_order = effective_tree_fermion_order(
+        sm_like_filter, bsm_split_generation, full_target_generation
+    );
     invalidate_template_model_cache_if_needed(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation
@@ -296,7 +303,7 @@ void MartyInterface::generate(std::string wilson,
     smModifier = std::make_unique<GeneralModelModifier>(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation,
-        tree_first_fallback, order_policy
+        tree_first_fallback, order_policy, tree_fermion_order
     );
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(files->getTemplateDir());
@@ -311,7 +318,8 @@ void MartyInterface::generate(std::string wilson,
         GeneralModelModifier::modelSignature(target_model, model_path, model_template_index),
         template_signature(wilson, files),
         generation_mode_marker(
-            wilson, sm_like_filter, bsm_split_generation, full_target_generation, order_policy
+            wilson, sm_like_filter, bsm_split_generation, full_target_generation,
+            order_policy, tree_fermion_order
         )
     );
 }
@@ -501,7 +509,8 @@ bool MartyInterface::artifacts_ready(const std::string& wilson,
         sm_like_filter,
         bsm_split_generation,
         full_target_generation,
-        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation)
+        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation),
+        effective_tree_fermion_order(sm_like_filter, bsm_split_generation, full_target_generation)
     );
 
     std::ifstream generated(files->getGeneratedFileName());
@@ -768,6 +777,17 @@ MartyOrderPolicy effective_order_policy(bool sm_like_filter,
     return MartyAdapter{}.get_marty_order_policy();
 }
 
+std::vector<int> effective_tree_fermion_order(bool sm_like_filter,
+                                               bool bsm_only_generation,
+                                               bool full_target_generation) {
+    // The explicit order belongs only to the configured BSM target.  Never
+    // leak it into the independently generated SM baseline.
+    if (sm_like_filter || (!bsm_only_generation && !full_target_generation)) {
+        return {};
+    }
+    return MartyAdapter{}.get_marty_tree_fermion_order();
+}
+
 std::string order_policy_name(MartyOrderPolicy policy) {
     switch (policy) {
     case MartyOrderPolicy::TREE_LEVEL_ONLY:
@@ -784,7 +804,19 @@ std::string generation_mode_marker(const std::string& wilson,
                                    bool sm_like_filter,
                                    bool bsm_only_generation,
                                    bool full_target_generation,
-                                   MartyOrderPolicy order_policy) {
+                                   MartyOrderPolicy order_policy,
+                                   const std::vector<int>& tree_fermion_order) {
+    std::ostringstream order;
+    if (tree_fermion_order.empty()) {
+        order << "template-default";
+    } else {
+        for (std::size_t i = 0; i < tree_fermion_order.size(); ++i) {
+            if (i != 0) {
+                order << '-';
+            }
+            order << tree_fermion_order[i];
+        }
+    }
     return "HYPERISO_MARTY_GENERATION_MODE: "
          + generation_mode(
              wilson,
@@ -792,7 +824,8 @@ std::string generation_mode_marker(const std::string& wilson,
              bsm_only_generation,
              full_target_generation
          )
-         + "; order-policy=" + order_policy_name(order_policy);
+         + "; order-policy=" + order_policy_name(order_policy)
+         + "; tree-fermion-order=" + order.str();
 }
 
 void append_cache_metadata_if_missing(const fs::path& generated_file,
@@ -852,7 +885,8 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         sm_like_filter,
         bsm_split_generation,
         full_target_generation,
-        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation)
+        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation),
+        effective_tree_fermion_order(sm_like_filter, bsm_split_generation, full_target_generation)
     );
 
     bool file_present = false;

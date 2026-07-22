@@ -42,6 +42,9 @@ public:
 
     /** @brief Retrieves the configured MARTY perturbative-order policy. */
     MartyOrderPolicy get_marty_order_policy() const;
+
+    /** @brief Retrieves the configured explicit MARTY tree fermion order. */
+    std::vector<int> get_marty_tree_fermion_order() const;
 };
 
 #endif // MARTYADAPTER_H

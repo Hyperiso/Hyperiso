@@ -76,3 +76,7 @@ std::string MartyAdapter::get_marty_model_name() const {
 MartyOrderPolicy MartyAdapter::get_marty_order_policy() const {
     return MemoryManager::GetInstance()->getMemoryCache().config.mty_order_policy;
 }
+
+std::vector<int> MartyAdapter::get_marty_tree_fermion_order() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_tree_fermion_order;
+}

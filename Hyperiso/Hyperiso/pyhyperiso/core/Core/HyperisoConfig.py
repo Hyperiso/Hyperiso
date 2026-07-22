@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional, Union
+from typing import Dict, Optional, Sequence, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.core import ExternalFlag as _CppExternalFlag
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoConfig as _CppHyperisoConfig
@@ -45,6 +45,7 @@ class HyperisoConfig:
         mty_model_path: Optional path to the MARTY model directory or file.
         mty_bsm_mapping_path: Optional user-provided BSM MARTY/Hyperiso mapping JSON.
         mty_order_policy: Explicit MARTY order policy for BSM Wilson coefficients.
+        mty_tree_fermion_order: Optional common TreeLevel external-fermion order.
 
     Examples:
         >>> from pathlib import Path
@@ -70,6 +71,7 @@ class HyperisoConfig:
     mty_model_path: Optional[PathLike] = None
     mty_bsm_mapping_path: Optional[PathLike] = None
     mty_order_policy: MartyOrderPolicy = MartyOrderPolicy.AUTO
+    mty_tree_fermion_order: Optional[Sequence[int]] = None
 
     def to_cpp(self) -> _CppHyperisoConfig:
         """Convert this Python config into the bound C++ config.
@@ -91,6 +93,14 @@ class HyperisoConfig:
             cpp.mty_bsm_mapping_path = str(self.mty_bsm_mapping_path)
 
         cpp.mty_order_policy = self.mty_order_policy.value
+        if self.mty_tree_fermion_order is not None:
+            order = [int(value) for value in self.mty_tree_fermion_order]
+            if sorted(order) != list(range(len(order))):
+                raise ValueError(
+                    "mty_tree_fermion_order must be a permutation of 0..N-1; "
+                    f"received {order}"
+                )
+            cpp.mty_tree_fermion_order = order
         return cpp
 
     def __repr__(self) -> str:
@@ -102,7 +112,8 @@ class HyperisoConfig:
             f"mty_model_name={self.mty_model_name!r}, "
             f"mty_model_path={self.mty_model_path!r}, "
             f"mty_bsm_mapping_path={self.mty_bsm_mapping_path!r}, "
-            f"mty_order_policy={self.mty_order_policy}"
+            f"mty_order_policy={self.mty_order_policy}, "
+            f"mty_tree_fermion_order={self.mty_tree_fermion_order}"
             ")"
         )
 

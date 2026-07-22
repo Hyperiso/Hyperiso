@@ -80,7 +80,8 @@ public:
                          bool bsm_split_generation = false,
                          bool full_target_generation = false,
                          bool tree_first_fallback = false,
-                         MartyOrderPolicy order_policy = MartyOrderPolicy::AUTO);
+                         MartyOrderPolicy order_policy = MartyOrderPolicy::AUTO,
+                         std::vector<int> tree_fermion_order = {});
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -106,7 +107,7 @@ public:
 
 private:
     static std::string makeSmFilterHelper();
-    static std::string makeTreeLevelWilsonHelper();
+    std::string makeTreeLevelWilsonHelper() const;
     static void replaceWilsonCallWithHelper(std::string& line);
     std::string orderPolicyPreamble() const;
     bool usesRegPropSplit() const;
@@ -130,6 +131,7 @@ private:
     bool full_target_generation{false}; ///< Keep the complete target-model expression instead of filtering to BSM diagrams.
     bool tree_first_fallback{false}; ///< For loop-only templates, test TreeLevel before evaluating OneLoop.
     MartyOrderPolicy order_policy{MartyOrderPolicy::AUTO}; ///< Explicit BSM MARTY order policy.
+    std::vector<int> tree_fermion_order{}; ///< Common explicit TreeLevel order for every generated coefficient.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.

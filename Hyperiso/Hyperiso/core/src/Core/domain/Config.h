@@ -4,6 +4,7 @@
 #include <map>
 #include <optional>
 #include <filesystem>
+#include <vector>
 
 #include "Include.h"
 
@@ -55,6 +56,18 @@ struct HyperisoConfig {
      * ONE_LOOP_ONLY skips the tree probe and is intended for loop-leading models.
      */
     MartyOrderPolicy mty_order_policy {MartyOrderPolicy::AUTO};
+
+    /**
+     * @brief Optional explicit external-fermion order for MARTY tree matching.
+     *
+     * When non-empty, this order overrides the order embedded in a coefficient
+     * template for every BSM TreeLevel calculation.  This is required for
+     * four-fermion processes whose correct tree pairing differs from the
+     * one-loop pairing used by the stock MARTY templates.  The same order is
+     * applied consistently to all coefficients of the process; HyperIso never
+     * selects a different "first non-zero" permutation per coefficient.
+     */
+    std::vector<int> mty_tree_fermion_order {};
 };
 
 #endif // CONFIG_H
