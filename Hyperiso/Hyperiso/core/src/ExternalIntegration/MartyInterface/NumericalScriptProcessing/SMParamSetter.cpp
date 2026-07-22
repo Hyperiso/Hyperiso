@@ -129,6 +129,15 @@ scalar_t SMParamSetter::calculateValue(const InterpretedParam& interpretedParam)
     }
     if(interpretedParam.block == "GAUGE") {
         if (interpretedParam.code == LhaID(4)) {
+            // MARTY's e_em is the electromagnetic coupling.  In the standard
+            // LHA input scheme SMINPUTS(1) is alpha_em^{-1}; use it directly
+            // instead of reconstructing e from G_F, M_Z and sin^2(theta_W).
+            // The latter over-constrains independent electroweak inputs and
+            // caused a model-independent normalization shift in C9/C10.
+            const scalar_t alpha_inverse = (*sm_proxy)("SMINPUTS", LhaID(1));
+            if (alpha_inverse.real() > 0.0) {
+                return std::sqrt(4.0 * std::acos(-1.0) / alpha_inverse.real());
+            }
             return std::sqrt((*sm_proxy)("SMINPUTS", 2) * std::sqrt(2))
                  * (*sm_proxy)("SMINPUTS", 4)
                  * std::sin(2 * asin(sqrt((*sm_proxy)("SMINPUTS", LhaID(7, 1)))));

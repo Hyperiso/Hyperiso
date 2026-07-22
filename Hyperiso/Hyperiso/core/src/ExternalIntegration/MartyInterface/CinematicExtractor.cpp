@@ -117,10 +117,26 @@ CinematicProcess CinematicExtractor::extract_process(const std::string& filename
     };
 
     CinematicProcess best_process;
+    auto process_score = [](const CinematicProcess& candidate) {
+        // Generated MARTY sources often repeat the same insertion list in a
+        // helper and in one or more calls.  Scanning an enclosing function body
+        // can therefore produce artificial 2->6 or 2->4 processes.  Prefer the
+        // physical topologies supported by SMParamSetter over the raw number of
+        // regex matches in a large C++ block.
+        if (candidate.incoming_count() == 1 && candidate.outgoing_count() == 3) {
+            return 300;
+        }
+        if (candidate.incoming_count() == 1 && candidate.outgoing_count() == 2) {
+            return 200;
+        }
+        if (candidate.incoming_count() == 2 && candidate.outgoing_count() == 2) {
+            return 100;
+        }
+        return static_cast<int>(candidate.incoming_count() + candidate.outgoing_count());
+    };
+
     auto keep_best = [&](CinematicProcess candidate) {
-        const auto candidate_legs = candidate.incoming_count() + candidate.outgoing_count();
-        const auto best_legs = best_process.incoming_count() + best_process.outgoing_count();
-        if (candidate_legs > best_legs) {
+        if (process_score(candidate) > process_score(best_process)) {
             best_process = std::move(candidate);
         }
     };

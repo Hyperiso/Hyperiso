@@ -32,7 +32,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v1";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v2";
 
 std::string sanitize_path_component(std::string value) {
     for (char& c : value) {

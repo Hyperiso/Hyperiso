@@ -260,6 +260,34 @@ void hyperiso_marty_require_non_sm_diagram_particle(mty::FeynOptions& opts) {
 std::string GeneralModelModifier::makeTreeLevelWilsonHelper() {
     return R"cpp(
 namespace {
+const std::vector<std::vector<int>>& hyperiso_marty_tree_fermion_orders()
+{
+    static const std::vector<std::vector<int>> orders = [] {
+        std::vector<std::vector<int>> result;
+        std::vector<int> order = {0, 1, 2, 3};
+        do {
+            result.push_back(order);
+        } while (std::next_permutation(order.begin(), order.end()));
+        return result;
+    }();
+    return orders;
+}
+
+std::string hyperiso_marty_fermion_order_label(const std::vector<int>& order)
+{
+    if (order.empty()) {
+        return "template-default";
+    }
+    std::ostringstream stream;
+    for (std::size_t i = 0; i < order.size(); ++i) {
+        if (i != 0) {
+            stream << '-';
+        }
+        stream << order[i];
+    }
+    return stream.str();
+}
+
 mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
     mty::Model& model,
     int order,
@@ -406,6 +434,9 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
     outputFile << indent << "mty::WilsonSet " << variable << ";\n";
     outputFile << indent << "if (hyperiso_marty_order == mty::Order::TreeLevel) {\n";
     outputFile << indent << "    auto hyperiso_marty_tree_options = opts;\n";
+    outputFile << indent << "    if (!hyperiso_marty_forced_fermion_order.empty()) {\n";
+    outputFile << indent << "        hyperiso_marty_tree_options.setFermionOrder(hyperiso_marty_forced_fermion_order);\n";
+    outputFile << indent << "    }\n";
     outputFile << indent << "    // Preserve opts.setFermionOrder(...). MARTY's automatic tree ordering can\n";
     outputFile << indent << "    // select a different four-fermion pairing from the one-loop projector.\n";
     outputFile << indent << "    hyperiso_marty_tree_options.orderExternalFermions = false;\n";
@@ -472,6 +503,10 @@ void GeneralModelModifier::modifyLine(std::string& line) {
 }
 
 void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine) {
+    if (currentLine.find("dimension6Operator") != std::string::npos) {
+        this->tree_four_fermion_projector = true;
+    }
+
     auto is_comment_line = [](const std::string& value) {
         const auto first = value.find_first_not_of(" \t");
         return first != std::string::npos
@@ -487,6 +522,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << currentLine << "\n";
             outputFile << "#include <vector>\n";
             outputFile << "#include <utility>\n";
+            outputFile << "#include <algorithm>\n";
+            outputFile << "#include <sstream>\n";
             if (this->disable_non_sm_particles || this->bsm_split_generation) {
                 outputFile << "#include <string>\n";
                 outputFile << "#include <unordered_set>\n";
@@ -525,7 +562,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             // previously computed closing-parenthesis index and used to turn
             // `gauge` / `hyperiso_marty_order` into `gaug` /
             // `hyperiso_marty_ordere` in every generic TreeLevel-first wrapper.
-            signature.insert(close, ", mty::Order hyperiso_marty_order");
+            signature.insert(close, ", mty::Order hyperiso_marty_order, const std::vector<int>& hyperiso_marty_forced_fermion_order = {}");
             signature.replace(int_pos, 3, "Expr");
             outputFile << signature << "\n";
             this->inside_calculate_function = true;
@@ -599,27 +636,44 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             }
             outputFile << "int main() {\n";
             outputFile << "    " << this->model_instantiation << " model;\n";
+            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order;\n";
+            outputFile << "    Expr hyperiso_marty_tree = CSL_0;\n";
+            if (this->order_policy != MartyOrderPolicy::ONE_LOOP_ONLY) {
+                outputFile << "    hyperiso_marty_tree = " << this->generic_builder_name
+                           << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, {});\n";
+                if (this->tree_four_fermion_projector) {
+                    outputFile << "    if (hyperiso_marty_tree == CSL_0) {\n";
+                    outputFile << "        for (const auto& hyperiso_marty_order : hyperiso_marty_tree_fermion_orders()) {\n";
+                    outputFile << "            Expr hyperiso_marty_candidate = " << this->generic_builder_name
+                               << "(model, gauge::Type::Feynman, mty::Order::TreeLevel, hyperiso_marty_order);\n";
+                    outputFile << "            if (hyperiso_marty_candidate != CSL_0) {\n";
+                    outputFile << "                hyperiso_marty_tree = hyperiso_marty_candidate;\n";
+                    outputFile << "                hyperiso_marty_selected_fermion_order = hyperiso_marty_order;\n";
+                    outputFile << "                break;\n";
+                    outputFile << "            }\n";
+                    outputFile << "        }\n";
+                    outputFile << "    }\n";
+                }
+            }
             if (this->order_policy == MartyOrderPolicy::TREE_LEVEL_ONLY) {
-                outputFile << "    Expr hyperiso_marty_selected = " << this->generic_builder_name
-                           << "(model, gauge::Type::Feynman, mty::Order::TreeLevel);\n";
+                outputFile << "    Expr hyperiso_marty_selected = hyperiso_marty_tree;\n";
                 outputFile << "    const char* hyperiso_marty_selected_order = \"TreeLevelOnly\";\n";
             } else if (this->order_policy == MartyOrderPolicy::ONE_LOOP_ONLY) {
                 outputFile << "    Expr hyperiso_marty_selected = " << this->generic_builder_name
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, {});\n";
                 outputFile << "    const char* hyperiso_marty_selected_order = \"OneLoopOnly\";\n";
             } else {
-                outputFile << "    Expr hyperiso_marty_tree = " << this->generic_builder_name
-                           << "(model, gauge::Type::Feynman, mty::Order::TreeLevel);\n";
                 outputFile << "    const bool hyperiso_marty_use_tree = hyperiso_marty_tree != CSL_0;\n";
                 outputFile << "    Expr hyperiso_marty_selected = hyperiso_marty_tree;\n";
                 outputFile << "    if (!hyperiso_marty_use_tree) {\n";
                 outputFile << "        hyperiso_marty_selected = " << this->generic_builder_name
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, {});\n";
                 outputFile << "    }\n";
                 outputFile << "    const char* hyperiso_marty_selected_order = hyperiso_marty_use_tree ? \"TreeLevel\" : \"OneLoop\";\n";
             }
             outputFile << "    std::cout << \"[MARTY " << this->wilson
                        << "] selected order=\" << hyperiso_marty_selected_order"
+                       << " << \", fermion-order=\" << hyperiso_marty_fermion_order_label(hyperiso_marty_selected_fermion_order)"
                        << " << std::endl;\n";
             outputFile << "    [[maybe_unused]] int sysres = system(\"rm -rf libs/"
                        << this->wilson << "_" << this->output_model << "\");\n";
@@ -646,6 +700,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include <string>\n";
             outputFile << "#include <unordered_set>\n";
             outputFile << "#include <vector>\n";
+            outputFile << "#include <algorithm>\n";
+            outputFile << "#include <sstream>\n";
             outputFile << "#include <cstddef>\n";
             outputFile << "#include <utility>\n";
             outputFile << "#include \"" + this->model_path + "\"" << "\n";
@@ -659,7 +715,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM diagram particle in "
                            << this->model_instantiation << "\n";
             }
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v26\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v27\n";
             return;
         }
 
@@ -673,7 +729,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         if (currentLine.find("int calculate") != std::string::npos) {
             outputFile << "std::pair<Expr, std::size_t> hyperiso_marty_build_" << this->wilson
                        << "(Model &model, gauge::Type gauge, mty::Order hyperiso_marty_order, "
-                       << "bool hyperiso_marty_sm_like_filter = false) {\n";
+                       << "bool hyperiso_marty_sm_like_filter = false, "
+                       << "const std::vector<int>& hyperiso_marty_forced_fermion_order = {}) {\n";
             outputFile << "    std::size_t hyperiso_marty_graph_count = 0;\n";
             outputFile << "    hyperiso_marty_set_semileptonic_order(hyperiso_marty_order);\n";
             this->inside_calculate_function = true;
@@ -689,7 +746,9 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "    } else {\n";
             }
             if (!this->full_target_generation) {
-            outputFile << "        hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+                outputFile << "        if (hyperiso_marty_order != mty::Order::TreeLevel) {\n";
+                outputFile << "            hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+                outputFile << "        }\n";
             }
             outputFile << "    }\n";
             return;
@@ -751,18 +810,22 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             const bool split_sm_components = false;
             const bool split_linker_components = (this->wilson == "CP10");
             outputFile << "int main() {\n";
-            const bool isolate_c9_tree_probe = (this->wilson == "C9");
-            const std::string tree_model_name = isolate_c9_tree_probe ? "tree_model" : "model";
-            const std::string loop_model_name = isolate_c9_tree_probe ? "loop_model" : "model";
-            if (isolate_c9_tree_probe) {
-                outputFile << "    // C9 is sensitive to MARTY state accumulated while probing TreeLevel.\n";
-                outputFile << "    // Use a fresh target model for the OneLoop fallback so loop-only models\n";
-                outputFile << "    // reproduce the historical one-loop-only result exactly.\n";
+            // A fresh C9 model is needed only when AUTO actually falls back
+            // from TreeLevel to OneLoop. Constructing both instances before the
+            // tree probe changes MARTY's process-global current model and can
+            // invalidate an otherwise correct tree projection.
+            const bool isolate_c9_auto_fallback =
+                this->wilson == "C9" && this->order_policy == MartyOrderPolicy::AUTO;
+            const std::string tree_model_name =
+                isolate_c9_auto_fallback ? "tree_model" : "model";
+            const std::string loop_model_name =
+                isolate_c9_auto_fallback ? "loop_model" : "model";
+            if (isolate_c9_auto_fallback) {
                 outputFile << "    " << this->model_instantiation << " tree_model;\n";
-                outputFile << "    " << this->model_instantiation << " loop_model;\n";
             } else {
                 outputFile << "    " << this->model_instantiation << " model;\n";
             }
+            outputFile << "    std::vector<int> hyperiso_marty_selected_fermion_order;\n";
             outputFile << "    // Semileptonic BSM matching is tree-first.  A non-zero tree-level\n";
             outputFile << "    // coefficient suppresses the one-loop calculation entirely; otherwise\n";
             outputFile << "    // MARTY falls back to the one-loop split-reg_prop path.\n";
@@ -773,7 +836,21 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#else\n";
             outputFile << "    auto hyperiso_marty_bsm_tree = hyperiso_marty_build_" << this->wilson
                        << "(" << tree_model_name
-                       << ", gauge::Type::Feynman, mty::Order::TreeLevel, false);\n";
+                       << ", gauge::Type::Feynman, mty::Order::TreeLevel, false, {});\n";
+            if (this->tree_four_fermion_projector) {
+                outputFile << "    if (hyperiso_marty_bsm_tree.first == CSL_0) {\n";
+                outputFile << "        for (const auto& hyperiso_marty_order : hyperiso_marty_tree_fermion_orders()) {\n";
+                outputFile << "            auto hyperiso_marty_candidate = hyperiso_marty_build_" << this->wilson
+                           << "(" << tree_model_name
+                           << ", gauge::Type::Feynman, mty::Order::TreeLevel, false, hyperiso_marty_order);\n";
+                outputFile << "            if (hyperiso_marty_candidate.first != CSL_0) {\n";
+                outputFile << "                hyperiso_marty_bsm_tree = hyperiso_marty_candidate;\n";
+                outputFile << "                hyperiso_marty_selected_fermion_order = hyperiso_marty_order;\n";
+                outputFile << "                break;\n";
+                outputFile << "            }\n";
+                outputFile << "        }\n";
+                outputFile << "    }\n";
+            }
             outputFile << "#if defined(HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY)\n";
             outputFile << "    const bool hyperiso_marty_use_tree_level = true;\n";
             outputFile << "#else\n";
@@ -790,29 +867,33 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    std::size_t hyperiso_marty_scalar_graph_count = 0;\n";
             outputFile << "    std::size_t hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_tree.second;\n";
             outputFile << "    if (!hyperiso_marty_use_tree_level) {\n";
+            if (isolate_c9_auto_fallback) {
+                outputFile << "        // Instantiate the fallback model only after the tree probe.\n";
+                outputFile << "        " << this->model_instantiation << " loop_model;\n";
+            }
             outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
             outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
                        << "(" << loop_model_name
-                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
+                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false, {});\n";
             outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
             outputFile << "        hyperiso_marty_non_photon_graph_count = hyperiso_marty_bsm_loop.second;\n";
             outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
             outputFile << "        auto hyperiso_marty_bsm_photon_loop = hyperiso_marty_build_" << this->wilson
                        << "(" << loop_model_name
-                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
+                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false, {});\n";
             outputFile << "        hyperiso_marty_bsm_photon = hyperiso_marty_bsm_photon_loop.first;\n";
             outputFile << "        hyperiso_marty_photon_graph_count = hyperiso_marty_bsm_photon_loop.second;\n";
             if (split_linker_components) {
                 outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::ScalarOnly);\n";
                 outputFile << "        auto hyperiso_marty_bsm_scalar_loop = hyperiso_marty_build_" << this->wilson
                            << "(" << loop_model_name
-                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
+                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false, {});\n";
                 outputFile << "        hyperiso_marty_bsm_scalar = hyperiso_marty_bsm_scalar_loop.first;\n";
                 outputFile << "        hyperiso_marty_scalar_graph_count = hyperiso_marty_bsm_scalar_loop.second;\n";
                 outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::VectorOnly);\n";
                 outputFile << "        auto hyperiso_marty_bsm_vector_loop = hyperiso_marty_build_" << this->wilson
                            << "(" << loop_model_name
-                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false);\n";
+                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false, {});\n";
                 outputFile << "        hyperiso_marty_bsm_vector = hyperiso_marty_bsm_vector_loop.first;\n";
                 outputFile << "        hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_vector_loop.second;\n";
             } else {
@@ -839,23 +920,24 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << " << \", scalar=\" << hyperiso_marty_scalar_graph_count"
                            << " << \", vector=\" << hyperiso_marty_vector_graph_count";
             }
-            outputFile << " << std::endl;\n";
+            outputFile << " << \", fermion-order=\" << hyperiso_marty_fermion_order_label(hyperiso_marty_selected_fermion_order)"
+                       << " << std::endl;\n";
             if (split_sm_components) {
                 outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
                 outputFile << "    auto hyperiso_marty_sm_loop = hyperiso_marty_build_" << this->wilson
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true, {});\n";
                 outputFile << "    Expr hyperiso_marty_sm = hyperiso_marty_sm_loop.first;\n";
                 outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
                 outputFile << "    auto hyperiso_marty_sm_photon_loop = hyperiso_marty_build_" << this->wilson
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true, {});\n";
                 outputFile << "    Expr hyperiso_marty_sm_photon = hyperiso_marty_sm_photon_loop.first;\n";
                 outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::ScalarOnly);\n";
                 outputFile << "    auto hyperiso_marty_sm_scalar_loop = hyperiso_marty_build_" << this->wilson
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true, {});\n";
                 outputFile << "    Expr hyperiso_marty_sm_scalar = hyperiso_marty_sm_scalar_loop.first;\n";
                 outputFile << "    hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::VectorOnly);\n";
                 outputFile << "    auto hyperiso_marty_sm_vector_loop = hyperiso_marty_build_" << this->wilson
-                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true);\n";
+                           << "(model, gauge::Type::Feynman, mty::Order::OneLoop, true, {});\n";
                 outputFile << "    Expr hyperiso_marty_sm_vector = hyperiso_marty_sm_vector_loop.first;\n";
             } else {
                 outputFile << "    Expr hyperiso_marty_sm = CSL_0;\n";
@@ -895,6 +977,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         outputFile << currentLine << "\n";
         outputFile << "#include <vector>\n";
         outputFile << "#include <utility>\n";
+        outputFile << "#include <algorithm>\n";
+        outputFile << "#include <sstream>\n";
         if (this->disable_non_sm_particles || this->bsm_split_generation) {
             outputFile << "#include <string>\n";
             outputFile << "#include <unordered_set>\n";

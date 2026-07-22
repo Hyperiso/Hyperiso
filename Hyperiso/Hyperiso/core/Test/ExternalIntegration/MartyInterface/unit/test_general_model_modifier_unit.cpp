@@ -220,7 +220,7 @@ int main() {
 
         const std::string generated = slurp(out);
         assert(generated.find(
-            "Expr calculate_CQ1e(Model &model, gauge::Type gauge, mty::Order hyperiso_marty_order) {"
+            "Expr calculate_CQ1e(Model &model, gauge::Type gauge, mty::Order hyperiso_marty_order, const std::vector<int>& hyperiso_marty_forced_fermion_order = {}) {"
         ) != std::string::npos);
         assert(generated.find("setGaugeChoice(gauge)") != std::string::npos);
         assert(generated.find("computeWilsonCoefficients(hyperiso_marty_order") != std::string::npos);
@@ -288,6 +288,48 @@ int main() {
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
         assert(generated.find("has_explicit_fermion_order") != std::string::npos);
         assert(generated.find("orderExternalFermions = false") != std::string::npos);
+        assert(generated.find("hyperiso_marty_tree_fermion_orders()") != std::string::npos);
+        assert(generated.find("hyperiso_marty_forced_fermion_order") != std::string::npos);
+    }
+
+    {
+        // Four-fermion TreeLevel-only generation first evaluates the template
+        // order and then scans the 4! external-fermion orders only when the
+        // target projector is still zero.  No one-loop fallback is emitted.
+        GeneralModelModifier mod(
+            "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, false, false, MartyOrderPolicy::TREE_LEVEL_ONLY
+        );
+        fs::path out = root / "c9_tree_only_order_scan.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_C9(Model &model, gauge::Type gauge) {",
+            "    FeynOptions opts;",
+            "    opts.setFermionOrder({0, 2, 1, 3});",
+            "    auto wil = model.computeWilsonCoefficients(",
+            "        mty::Order::OneLoop,",
+            "        process,",
+            "        opts",
+            "    );",
+            "    Expr C9_mu = getWilsonCoefficient(wil, dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V));",
+            "    mty::Library wilsonLib(\"C9_SM\", \"libs\");",
+            "    wilsonLib.addFunction(\"C9\", C9_mu);",
+            "    return 0;",
+            "}",
+            "int main() {",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+        const std::string generated = slurp(out);
+        assert(generated.find("HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY") != std::string::npos);
+        assert(generated.find("hyperiso_marty_tree_fermion_orders()") != std::string::npos);
+        assert(generated.find("hyperiso_marty_candidate.first != CSL_0") != std::string::npos);
+        assert(generated.find("hyperiso_marty_order != mty::Order::TreeLevel") != std::string::npos);
     }
 
     {

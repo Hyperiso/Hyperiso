@@ -15,6 +15,7 @@ public:
         if (blk=="MASS_EW_SCALE" && id==LhaID(5,1)) return 4.7;     // mb(muW)
         if (blk=="MASS_EW_SCALE" && id==LhaID(6))   return 173.0;   // mt(muW)
         if (blk=="SMINPUTS" && id==LhaID(7,1))      return 0.231;   // sin^2(thetaW)
+        if (blk=="SMINPUTS" && id==LhaID(1))        return 129.39248302366735; // alpha_em^-1
 
         if (blk=="SMC" && id==LhaID(2)) return scalar_t(1.0, 1.0);
         return 0.0;
@@ -54,6 +55,12 @@ int main(){
         auto m = setter.setParam("wein", P("WEIN", LhaID(7,1), false, false));
         double exp = std::asin(std::sqrt(0.231));
         assert(std::abs(m["wein"] - exp) < 1e-12);
+    }
+    // GAUGE 4 -> e_em = sqrt(4*pi/alpha_em^-1)
+    {
+        auto m = setter.setParam("e_em", P("GAUGE", LhaID(4), false, false));
+        const double expected = std::sqrt(4.0 * std::acos(-1.0) / 129.39248302366735);
+        assert(std::abs(m["e_em"] - expected) < 1e-12);
     }
     // MASS 5 and 6 → MASS_EW_SCALE
     {

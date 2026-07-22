@@ -135,6 +135,7 @@ private:
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.
     std::string generic_builder_name{}; ///< Rewritten calculate function name for generic tree-first mode.
     bool buffering_tree_safe_wilson_call{false}; ///< Buffer a multi-line Wilson call before emitting the safe tree probe.
+    bool tree_four_fermion_projector{false}; ///< Whether the template projects a four-fermion dimension-six operator.
     std::vector<std::string> tree_safe_wilson_call_lines{}; ///< Buffered computeWilsonCoefficients call.
     ModelClassInfo model_class{}; ///< Resolved C++ class and whether it is templated.
     std::string model_instantiation{}; ///< Concrete C++ type written in the generated file.
