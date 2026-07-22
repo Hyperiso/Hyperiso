@@ -2,6 +2,7 @@
 
 from enum import Enum
 from pyhyperiso.phyperiso.pyhyperiso.common import Model as _CppModel
+from pyhyperiso.phyperiso.pyhyperiso.common import MartyOrderPolicy as _CppMartyOrderPolicy
 from pyhyperiso.phyperiso.pyhyperiso.common import ParameterType as _CppParameterType
 from pyhyperiso.phyperiso.pyhyperiso.common import Observables as _CppObservables
 from pyhyperiso.phyperiso.pyhyperiso.common import QCDOrder as _CppQCDOrder
@@ -23,6 +24,14 @@ class Model(Enum):
     SUSY = _CppModel.SUSY
     THDM = _CppModel.THDM
     MARTY = _CppModel.MARTY
+
+
+class MartyOrderPolicy(Enum):
+    """Perturbative-order policy for MARTY-generated BSM Wilson coefficients."""
+
+    AUTO = _CppMartyOrderPolicy.AUTO
+    TREE_LEVEL_ONLY = _CppMartyOrderPolicy.TREE_LEVEL_ONLY
+    ONE_LOOP_ONLY = _CppMartyOrderPolicy.ONE_LOOP_ONLY
 
 
 class ParameterType(Enum):

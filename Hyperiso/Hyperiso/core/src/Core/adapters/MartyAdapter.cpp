@@ -72,3 +72,7 @@ std::string MartyAdapter::get_marty_model_name() const {
 
     return config.mty_model_name.value();
 }
+
+MartyOrderPolicy MartyAdapter::get_marty_order_policy() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_order_policy;
+}

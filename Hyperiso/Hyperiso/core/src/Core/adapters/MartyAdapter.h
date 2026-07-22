@@ -39,6 +39,9 @@ public:
      * @brief Retrieves the configured MARTY model name.
      */
     std::string get_marty_model_name() const;
+
+    /** @brief Retrieves the configured MARTY perturbative-order policy. */
+    MartyOrderPolicy get_marty_order_policy() const;
 };
 
 #endif // MARTYADAPTER_H

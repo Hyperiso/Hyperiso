@@ -174,6 +174,8 @@ int main() {
         assert(generated.find("model.computeAmplitude(hyperiso_marty_order") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
+        assert(generated.find("has_explicit_fermion_order") != std::string::npos);
+        assert(generated.find("orderExternalFermions = false") != std::string::npos);
         assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
         assert(generated.find("if (!hyperiso_marty_use_tree)") != std::string::npos);
         assert(generated.find("mty::Order::OneLoop") != std::string::npos);
@@ -284,6 +286,41 @@ int main() {
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("return std::make_pair(CSL_0, std::size_t{0})") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
+        assert(generated.find("has_explicit_fermion_order") != std::string::npos);
+        assert(generated.find("orderExternalFermions = false") != std::string::npos);
+    }
+
+    {
+        // TREE_LEVEL_ONLY must keep a genuine structural zero instead of
+        // silently replacing it by a one-loop result.
+        GeneralModelModifier mod(
+            "C7", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, false, true, MartyOrderPolicy::TREE_LEVEL_ONLY
+        );
+        fs::path out = root / "c7_tree_only.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_C7(Model &model, gauge::Type gauge) {",
+            "    FeynOptions opts;",
+            "    auto wil = model.computeWilsonCoefficients(mty::Order::OneLoop, process, opts);",
+            "    Expr C7 = getWilsonCoefficient(wil, O7);",
+            "    mty::Library wilsonLib(\"C7_SM\", \"libs\");",
+            "    wilsonLib.addFunction(\"C7\", C7);",
+            "    return 0;",
+            "}",
+            "int main() {",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+        const std::string generated = slurp(out);
+        assert(generated.find("TreeLevelOnly") != std::string::npos);
+        assert(generated.find("if (!hyperiso_marty_use_tree)") == std::string::npos);
+        assert(generated.find("orderExternalFermions = false") != std::string::npos);
     }
 
     {

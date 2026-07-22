@@ -91,7 +91,12 @@ CinematicProcess CinematicExtractor::extract_process(const std::string& filename
         return {};
     }
 
-    const std::regex particle_regex("(Incoming|Outgoing)\\s*\\(\\s*\"([^\"]+)\"");
+    // MARTY templates may wrap a physical external leg in helpers such as
+    // AntiPart("mu") or Part("x").  Accept nested identifier wrappers before
+    // the literal particle name instead of silently dropping that leg.
+    const std::regex particle_regex(
+        R"regex((Incoming|Outgoing)\s*\(\s*(?:[A-Za-z_][A-Za-z0-9_:]*\s*\(\s*)*"([^"]+)")regex"
+    );
 
     auto parse_particle_list = [&](const std::string& particle_list) {
         CinematicProcess process;
@@ -111,21 +116,25 @@ CinematicProcess CinematicExtractor::extract_process(const std::string& filename
         return process;
     };
 
-    // Preferred path: the process is written literally in the
-    // computeWilsonCoefficients(...) call.
+    CinematicProcess best_process;
+    auto keep_best = [&](CinematicProcess candidate) {
+        const auto candidate_legs = candidate.incoming_count() + candidate.outgoing_count();
+        const auto best_legs = best_process.incoming_count() + best_process.outgoing_count();
+        if (candidate_legs > best_legs) {
+            best_process = std::move(candidate);
+        }
+    };
+
+    // Preferred candidate: a literal list in computeWilsonCoefficients(...).
+    // Do not return a partial match immediately: a wrapped anti-particle used to
+    // make a 1->3 process look like 1->2, while a later helper contained all legs.
     if (const auto particle_list = first_braced_argument_list_after_compute(content);
         particle_list.has_value()) {
-        auto process = parse_particle_list(*particle_list);
-        if (!process.empty()) {
-            return process;
-        }
+        keep_best(parse_particle_list(*particle_list));
     }
 
-    // Newer templates factor the insertions in a helper such as
-    // hyperiso_bsll_insertions() and pass a variable to computeWilsonCoefficients.
-    // The old parser then saw the first unrelated block after the call and fell
-    // back to legacy KIN values.  As a fallback, scan balanced braced blocks and
-    // return the first one that really contains Incoming/Outgoing insertions.
+    // Newer templates factor insertions in a helper and pass a variable to the
+    // Wilson call. Scan all balanced blocks and retain the most complete process.
     for (std::size_t brace = content.find('{'); brace != std::string::npos;
          brace = content.find('{', brace + 1)) {
         int depth = 0;
@@ -156,17 +165,14 @@ CinematicProcess CinematicExtractor::extract_process(const std::string& filename
             } else if (c == '}') {
                 --depth;
                 if (depth == 0) {
-                    auto process = parse_particle_list(content.substr(brace, i - brace + 1));
-                    if (!process.empty()) {
-                        return process;
-                    }
+                    keep_best(parse_particle_list(content.substr(brace, i - brace + 1)));
                     break;
                 }
             }
          }
     }
 
-    return {};
+    return best_process;
 }
 
 std::string CinematicExtractor::normalize_particle_name(std::string particle_name) {

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from pyhyperiso.core.Common.GeneralEnum import Model
+from pyhyperiso.core.Common.GeneralEnum import MartyOrderPolicy, Model
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 
 
@@ -15,6 +15,7 @@ def test_py_config_default_to_cpp():
     assert cpp_cfg.model == Model.SM.value
     assert cpp_cfg.mty_model_name is None
     assert cpp_cfg.mty_model_path is None
+    assert cpp_cfg.mty_order_policy == MartyOrderPolicy.AUTO.value
 
 
 def test_py_config_custom_values():
@@ -28,6 +29,7 @@ def test_py_config_custom_values():
         model=Model.THDM,
         mty_model_name="THDM_Model",
         mty_model_path=Path("/tmp/THDM_Model.h"),
+        mty_order_policy=MartyOrderPolicy.TREE_LEVEL_ONLY,
     )
 
     cpp_cfg = cfg.to_cpp()
@@ -40,3 +42,4 @@ def test_py_config_custom_values():
     assert cpp_cfg.model == Model.THDM.value
     assert cpp_cfg.mty_model_name == "THDM_Model"
     assert str(cpp_cfg.mty_model_path) == "/tmp/THDM_Model.h"
+    assert cpp_cfg.mty_order_policy == MartyOrderPolicy.TREE_LEVEL_ONLY.value

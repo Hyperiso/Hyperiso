@@ -45,6 +45,16 @@ struct HyperisoConfig {
      * composite values such as "1_2".
      */
     std::optional<fs::path> mty_bsm_mapping_path;
+
+    /**
+     * @brief Explicit MARTY loop-order policy for the BSM target model.
+     *
+     * AUTO keeps the historical tree-first fallback. TREE_LEVEL_ONLY is useful
+     * for validating exact tree-level fingerprints, including coefficients
+     * expected to vanish, without silently replacing a zero by a loop result.
+     * ONE_LOOP_ONLY skips the tree probe and is intended for loop-leading models.
+     */
+    MartyOrderPolicy mty_order_policy {MartyOrderPolicy::AUTO};
 };
 
 #endif // CONFIG_H

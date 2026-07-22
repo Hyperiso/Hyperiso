@@ -12,6 +12,7 @@
 #include "ModelModifier.h"
 #include "ModelFileChecker.h"
 #include "config.hpp"
+#include "GeneralEnum.h"
 
 /**
  * @file GeneralModelModifier.h
@@ -78,7 +79,8 @@ public:
                          bool disable_non_sm_particles,
                          bool bsm_split_generation = false,
                          bool full_target_generation = false,
-                         bool tree_first_fallback = false);
+                         bool tree_first_fallback = false,
+                         MartyOrderPolicy order_policy = MartyOrderPolicy::AUTO);
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -104,6 +106,9 @@ public:
 
 private:
     static std::string makeSmFilterHelper();
+    static std::string makeTreeLevelWilsonHelper();
+    static void replaceWilsonCallWithHelper(std::string& line);
+    std::string orderPolicyPreamble() const;
     bool usesRegPropSplit() const;
     bool usesGenericTreeFirst() const;
     static void replaceWilsonOrderArgument(std::string& line);
@@ -124,6 +129,7 @@ private:
     bool bsm_split_generation{false}; ///< Use the dedicated split-reg_prop generation or BSM-only filter.
     bool full_target_generation{false}; ///< Keep the complete target-model expression instead of filtering to BSM diagrams.
     bool tree_first_fallback{false}; ///< For loop-only templates, test TreeLevel before evaluating OneLoop.
+    MartyOrderPolicy order_policy{MartyOrderPolicy::AUTO}; ///< Explicit BSM MARTY order policy.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.

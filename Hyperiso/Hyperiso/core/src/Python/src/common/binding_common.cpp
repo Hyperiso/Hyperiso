@@ -68,6 +68,12 @@ void init_common(py::module &m) {
     .value("MARTY", Model::MARTY)
     .export_values();
 
+    py::enum_<MartyOrderPolicy>(m, "MartyOrderPolicy")
+        .value("AUTO", MartyOrderPolicy::AUTO)
+        .value("TREE_LEVEL_ONLY", MartyOrderPolicy::TREE_LEVEL_ONLY)
+        .value("ONE_LOOP_ONLY", MartyOrderPolicy::ONE_LOOP_ONLY)
+        .export_values();
+
     py::enum_<ParameterType>(m, "ParameterType")
         .value("SM", ParameterType::SM)
         .value("BSM", ParameterType::BSM)

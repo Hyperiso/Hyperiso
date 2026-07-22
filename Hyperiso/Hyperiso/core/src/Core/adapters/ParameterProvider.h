@@ -159,6 +159,9 @@ private:
      * @param d_type The data type requested.
      * @return The requested scalar value.
      */
+    /** Resolve and validate the parameter type against this provider. */
+    ParamId resolve_param_id(const ParamId& pid) const;
+
     scalar_t get_value(const ParamId& pid, DataType d_type) const;
 };
 

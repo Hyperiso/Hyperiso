@@ -5,6 +5,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
     Decays,
     MassType,
     Model,
+    MartyOrderPolicy,
     Observables,
     ParameterType,
     QCDOrder,

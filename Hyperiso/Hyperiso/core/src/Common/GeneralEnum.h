@@ -647,6 +647,21 @@ enum class Model {
     MARTY
 };
 
+/**
+ * @brief Perturbative-order policy used by the MARTY Wilson backend.
+ *
+ * AUTO preserves the historical tree-first behaviour: HyperIso tests a
+ * tree-level coefficient and falls back to one loop when it vanishes.
+ * TREE_LEVEL_ONLY and ONE_LOOP_ONLY are explicit, publication/reproducibility
+ * modes. They are applied to the BSM target model only; the independently
+ * generated Standard-Model contribution keeps its normal policy.
+ */
+enum class MartyOrderPolicy {
+    AUTO,
+    TREE_LEVEL_ONLY,
+    ONE_LOOP_ONLY
+};
+
 enum class WilsonBasis {
     B_STANDARD, 
     B_TRADITIONAL

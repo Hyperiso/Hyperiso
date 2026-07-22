@@ -3,6 +3,7 @@
 #include "MartyParameterProxy.h"
 #include "DefaultInterpreterPortsFactory.h"
 #include "MartyRuntimeConfig.h"
+#include "MartyAdapter.h"
 #include "ParamWriter.h"
 
 #include <algorithm>
@@ -31,7 +32,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.3-v5";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v1";
 
 std::string sanitize_path_component(std::string value) {
     for (char& c : value) {
@@ -228,10 +229,14 @@ void publish_legacy_csv(const fs::path& isolated, const fs::path& legacy) {
 
 std::string template_signature(const std::string& wilson,
                                const std::shared_ptr<FileNameManager>& files);
+MartyOrderPolicy effective_order_policy(bool sm_like_filter,
+                                          bool bsm_only_generation,
+                                          bool full_target_generation);
 std::string generation_mode_marker(const std::string& wilson,
                                    bool sm_like_filter,
                                    bool bsm_only_generation,
-                                   bool full_target_generation);
+                                   bool full_target_generation,
+                                   MartyOrderPolicy order_policy);
 void append_cache_metadata_if_missing(const fs::path& generated_file,
                                       const std::string& model_signature,
                                       const std::string& template_signature_value,
@@ -279,6 +284,9 @@ void MartyInterface::generate(std::string wilson,
     const auto model_template_index = resolve_model_template_index(target_model);
     const auto files = FileNameManager::getInstance(wilson, output_model);
     const bool tree_first_fallback = template_needs_generic_tree_first(wilson, files);
+    const MartyOrderPolicy order_policy = effective_order_policy(
+        sm_like_filter, bsm_split_generation, full_target_generation
+    );
     invalidate_template_model_cache_if_needed(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation
@@ -288,7 +296,7 @@ void MartyInterface::generate(std::string wilson,
     smModifier = std::make_unique<GeneralModelModifier>(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation,
-        tree_first_fallback
+        tree_first_fallback, order_policy
     );
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(files->getTemplateDir());
@@ -302,7 +310,9 @@ void MartyInterface::generate(std::string wilson,
         files->getGeneratedFileName(),
         GeneralModelModifier::modelSignature(target_model, model_path, model_template_index),
         template_signature(wilson, files),
-        generation_mode_marker(wilson, sm_like_filter, bsm_split_generation, full_target_generation)
+        generation_mode_marker(
+            wilson, sm_like_filter, bsm_split_generation, full_target_generation, order_policy
+        )
     );
 }
 
@@ -490,7 +500,8 @@ bool MartyInterface::artifacts_ready(const std::string& wilson,
         wilson,
         sm_like_filter,
         bsm_split_generation,
-        full_target_generation
+        full_target_generation,
+        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation)
     );
 
     std::ifstream generated(files->getGeneratedFileName());
@@ -745,17 +756,43 @@ std::string generation_mode(const std::string& wilson,
     return "full";
 }
 
+MartyOrderPolicy effective_order_policy(bool sm_like_filter,
+                                          bool bsm_only_generation,
+                                          bool full_target_generation) {
+    // The user policy belongs to the configured BSM target.  The separately
+    // generated SM baseline must retain AUTO so that tree-level zeros still
+    // fall back to the established one-loop Standard-Model matching.
+    if (sm_like_filter || (!bsm_only_generation && !full_target_generation)) {
+        return MartyOrderPolicy::AUTO;
+    }
+    return MartyAdapter{}.get_marty_order_policy();
+}
+
+std::string order_policy_name(MartyOrderPolicy policy) {
+    switch (policy) {
+    case MartyOrderPolicy::TREE_LEVEL_ONLY:
+        return "tree-level-only";
+    case MartyOrderPolicy::ONE_LOOP_ONLY:
+        return "one-loop-only";
+    case MartyOrderPolicy::AUTO:
+        return "auto";
+    }
+    return "auto";
+}
+
 std::string generation_mode_marker(const std::string& wilson,
                                    bool sm_like_filter,
                                    bool bsm_only_generation,
-                                   bool full_target_generation) {
+                                   bool full_target_generation,
+                                   MartyOrderPolicy order_policy) {
     return "HYPERISO_MARTY_GENERATION_MODE: "
          + generation_mode(
              wilson,
              sm_like_filter,
              bsm_only_generation,
              full_target_generation
-         );
+         )
+         + "; order-policy=" + order_policy_name(order_policy);
 }
 
 void append_cache_metadata_if_missing(const fs::path& generated_file,
@@ -814,7 +851,8 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         wilson,
         sm_like_filter,
         bsm_split_generation,
-        full_target_generation
+        full_target_generation,
+        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation)
     );
 
     bool file_present = false;

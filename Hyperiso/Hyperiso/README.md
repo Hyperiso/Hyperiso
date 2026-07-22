@@ -116,9 +116,9 @@ cmake --build build-examples -j
 The C++ project, Python package and release tag should use the same semantic version. For example:
 
 ```text
-CMake project version: 1.0.3
-Python package version: 1.0.3
-Git tag: v1.0.3
+CMake project version: 1.0.4
+Python package version: 1.0.4
+Git branch: fix/marty-treelevel-1.0.4
 ```
 
 Update all version locations in the same pull request.

@@ -294,7 +294,8 @@ void init_core(py::module &m) {
     .def_readwrite("model", &HyperisoConfig::model)
     .def_readwrite("mty_model_name", &HyperisoConfig::mty_model_name)
     .def_readwrite("mty_model_path", &HyperisoConfig::mty_model_path)
-    .def_readwrite("mty_bsm_mapping_path", &HyperisoConfig::mty_bsm_mapping_path);
+    .def_readwrite("mty_bsm_mapping_path", &HyperisoConfig::mty_bsm_mapping_path)
+    .def_readwrite("mty_order_policy", &HyperisoConfig::mty_order_policy);
 
     // HyperisoMaster
     py::class_<HyperisoMaster, std::shared_ptr<HyperisoMaster>>(m, "HyperisoMaster")
@@ -747,6 +748,7 @@ Args:
         .def("check_flag", &MartyAdapter::check_flag, py::arg("flag"))
 
         .def("get_marty_model_name", &MartyAdapter::get_marty_model_name)
+        .def("get_marty_order_policy", &MartyAdapter::get_marty_order_policy)
 
         .def("__repr__", [](const MartyAdapter& self) {
             return "<MartyAdapter: model=" + self.get_marty_model_name() + ">";
