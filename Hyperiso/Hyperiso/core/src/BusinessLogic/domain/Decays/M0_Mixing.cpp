@@ -16,12 +16,15 @@ void M0Mixing::load_params() {
     cache.tau_D = (*p)(ParamId{ParameterType::FLAVOR, "FLIFE", 421}, DataType::VALUE);
     cache.G12_s = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {5, 1}}, DataType::VALUE) * std::exp(I * (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {5, 2}}, DataType::VALUE));
     cache.delta_G_s = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 6}, DataType::VALUE);
-    cache.kappa_e = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 7}, DataType::VALUE);
-    cache.eta_cc = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE);
-    cache.eta_ct = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 12}, DataType::VALUE);
+    cache.G12_d = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {7, 1}}, DataType::VALUE) * std::exp(I * (*p)(ParamId{ParameterType::DECAY, "M0_Mix", {7, 2}}, DataType::VALUE));
+    cache.delta_G_d = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE);
+    cache.kappa_e = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE);
+    cache.eta_cc = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 13}, DataType::VALUE);
+    cache.eta_ct = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 14}, DataType::VALUE);
+    cache.delta_MK_exp = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 15}, DataType::VALUE) * HBAR;
     cache.alpha_s_mu_W = (*iobs_qcdp)(AlphasConfig{cache.mu_W, MassType::POLE, MassType::POLE});
-    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), MassType::POLE, MassType::POLE});
-    cache.alpha_s_mu_c = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE), MassType::POLE, MassType::POLE});
+    cache.alpha_s_mu_b = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), MassType::POLE, MassType::POLE});
+    cache.alpha_s_mu_c = (*iobs_qcdp)(AlphasConfig{(*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE), MassType::POLE, MassType::POLE});
 
     std::array<double, 5> B {
         (*p)(ParamId{ParameterType::FLAVOR, "FBAG", LhaID(511, 1)}, DataType::VALUE),
@@ -62,10 +65,10 @@ void M0Mixing::load_params() {
         (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 5)}, DataType::VALUE),
     };
 
-    populate_C(cache.C_Bd, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 0);
-    populate_C(cache.C_Bs, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 8);
-    populate_C(cache.C_K, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE), 16);
-    populate_C(cache.C_D, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 24);
+    populate_C(cache.C_Bd, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 0);
+    populate_C(cache.C_Bs, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 8);
+    populate_C(cache.C_K, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE), 16);
+    populate_C(cache.C_D, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 12}, DataType::VALUE), 24);
 
     cache.C1_Bd_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
     cache.C1_Bs_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
@@ -157,18 +160,19 @@ double M0Mixing::phi_q(int gen) {
     return std::arg(M_12);
 }
 
-// B_s specific observables
-
-double M0Mixing::a_fs() {
-    complex_t M_12 = M_12_NP(cache.C_Bs, cache.Q_Bs, cache.m_Bs) + M_12_B_SM(2);
-    return std::tan(std::arg(-M_12 / cache.G12_s)) * cache.delta_G_s / (2 * std::abs(M_12) / HBAR * 1e-12);
+double M0Mixing::a_fs(int gen) {
+    complex_t M_12 = gen == 1 ? M_12_NP(cache.C_Bd, cache.Q_Bd, cache.m_Bd) : M_12_NP(cache.C_Bs, cache.Q_Bs, cache.m_Bs);
+    M_12 += M_12_B_SM(gen);
+    complex_t G12 = gen == 1 ? cache.G12_d : cache.G12_s;
+    double delta_G = gen == 1 ? cache.delta_G_d : cache.delta_G_s;
+    return std::tan(std::arg(-M_12 / G12)) * delta_G / (2 * std::abs(M_12) / HBAR * 1e-12);
 }
 
 // K mixing observables
 
 double M0Mixing::epsilon_K() {
     complex_t M_12 = M_12_NP(cache.C_K, cache.Q_K, cache.m_K) + M_12_K_SM();
-    return cache.kappa_e / (2 * RT2) * std::abs(std::imag(M_12) / std::real(M_12)); 
+    return cache.kappa_e / RT2 * std::abs(std::imag(M_12) / cache.delta_MK_exp); 
 }
 
 double M0Mixing::delta_M_K() {
@@ -181,6 +185,11 @@ double M0Mixing::delta_M_K() {
 double M0Mixing::x_D() {
     complex_t M_12 = M_12_NP(cache.C_D, cache.Q_D, cache.m_D);
     return 2 * cache.tau_D * std::abs(M_12) * GEV_TO_INV_S;
+}
+
+double M0Mixing::delta_M_D() {
+    complex_t M_12 = M_12_NP(cache.C_D, cache.Q_D, cache.m_D);
+    return 2 * std::abs(M_12) * GEV_TO_INV_PS;
 }
 
 std::vector<ObservableValue> M0Mixing::compute_observable(Observables obs) {
@@ -198,8 +207,11 @@ std::vector<ObservableValue> M0Mixing::compute_observable(Observables obs) {
     case Observables::DELTA_M_BS:   
         value = delta_M_B(2);
         break;
-    case Observables::A_FS:   
-        value = a_fs();
+    case Observables::A_FS_D:   
+        value = a_fs(1);
+        break;
+    case Observables::A_FS_S:   
+        value = a_fs(2);
         break;
     case Observables::DELTA_M_K:   
         value = delta_M_K();
@@ -209,6 +221,9 @@ std::vector<ObservableValue> M0Mixing::compute_observable(Observables obs) {
         break;
     case Observables::X_D:   
         value = x_D();
+        break;
+    case Observables::DELTA_M_D:   
+        value = delta_M_D();
         break;
     default:
         LOG_ERROR("IndexError", "Observable", ObservableMapper::str(obs), "doesn't belong to the decay", DecayMapper::str(this->id));

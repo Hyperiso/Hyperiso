@@ -13,8 +13,9 @@ struct M0MixingCache {
     complex_t lambda_t, lambda_c;
     double m_Bd, m_Bs, m_K, m_D;
     double tau_D;
-    complex_t G12_s;
-    double delta_G_s;
+    complex_t G12_s, G12_d;
+    double delta_G_s, delta_G_d;
+    double delta_MK_exp;
     double kappa_e, eta_cc, eta_ct;
     double alpha_s_mu_W, alpha_s_mu_b, alpha_s_mu_c;
 
@@ -61,10 +62,11 @@ protected:
 
     double phi_q(int gen);
     double delta_M_B(int gen);
-    double a_fs();
+    double a_fs(int gen);
     double epsilon_K();
     double delta_M_K();
     double x_D();
+    double delta_M_D();
 
 public:
     M0Mixing(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::M0_Mix), matching_scale, hadronic_scale, order, ports) {
