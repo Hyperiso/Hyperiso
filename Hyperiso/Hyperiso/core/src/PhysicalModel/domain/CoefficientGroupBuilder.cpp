@@ -46,8 +46,8 @@ std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildCont
 
     grp->set_member_ids(std::move(member_ids));
     
-    if (auto it = def.setup.find(ctx.model); it != def.setup.end()) {
-        for (auto& hook : it->second) hook(ctx, *grp);
+    for (auto& hook : def.hooks_for(ctx.model)) {
+        hook(ctx, *grp);
     }
 
     return grp;
