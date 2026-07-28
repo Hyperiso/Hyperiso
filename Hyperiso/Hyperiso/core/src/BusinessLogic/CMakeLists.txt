@@ -121,6 +121,9 @@ target_link_libraries(TEST_CUSTOM_OBS BusinessLogicLib)
 add_executable(SPEED app/speeeed.cpp)
 target_link_libraries(SPEED BusinessLogicLib)
 
+add_executable(MIX app/main_mixing.cpp)
+target_link_libraries(MIX BusinessLogicLib)
+
 add_executable(BENCH_BKSTARLL_THREADS app/main_bkstarll_thread_benchmark.cpp)
 target_link_libraries(BENCH_BKSTARLL_THREADS BusinessLogicLib)
 
