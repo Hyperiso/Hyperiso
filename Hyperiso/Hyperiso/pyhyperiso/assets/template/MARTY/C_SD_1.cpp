@@ -36,7 +36,9 @@ int calculate_C_SD_1(Model &model, gauge::Type gauge) {
         opts);
 
     auto O = dimension6Operator(model, wil_t, mty::DiracCoupling::VL, mty::DiracCoupling::VL);
-    Expr C = getWilsonCoefficient(wil_t, O);
+    Expr C_raw = getWilsonCoefficient(wil_t, O);
+
+    Expr C = 2 * C_raw;
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C_SD_1_SM");
     mty::Library wilsonLib("C_SD_1_SM", "libs");

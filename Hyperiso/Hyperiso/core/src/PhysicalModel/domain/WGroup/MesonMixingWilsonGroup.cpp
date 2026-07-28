@@ -170,9 +170,6 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
     const std::unordered_map<QCDOrder, std::unordered_map<WCoefId, scalar_t>>& coef_matching,
     const BlockSrc& src)
 {
-    int n_f_final = QCDHelper::get_nf(src.get_val("B_SCALE",1));
-    std::string src_block = n_f_final < 5 ? "UM_MATRIX_4" : "UM_MATRIX_5"; 
-
     std::array<complex_t, 32> Ci_match_BMU = {};
     std::array<complex_t, 8> Ci_match_temp = {};
     auto ids = WCoefMapper::get_group(WGroup::MESON_MIXING);
@@ -187,25 +184,50 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
         Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::BMU_to_SUSY);
     }    
 
-    double fact = 4. * PI / src.get_val("WPARAM_RUN_SM",1);
-
     std::array<complex_t, 32> Ci_run {};
 
-    for (size_t k = 0; k < 8; k++) {
-        for (size_t l = 0; l < 8; l++) {
-            double U0 = src.raw().at(src_block)->contains(LhaID(0, k, l)) ? src.raw().at(src_block)->retrieve(LhaID(0, k, l))->get_val() : scalar_t();
-            double U1 = src.raw().at(src_block)->contains(LhaID(1, k, l)) ? src.raw().at(src_block)->retrieve(LhaID(1, k, l))->get_val() : scalar_t();
-            double U = U0 + fact * U1;
-            Ci_run[k] += U * Ci_match_BMU[l];
-            Ci_run[k + 8] += U * Ci_match_BMU[l + 8];
-            Ci_run[k + 16] += U * Ci_match_BMU[l + 16];
-            Ci_run[k + 24] += U * Ci_match_BMU[l + 24];
+    // The four meson families do not share the same final effective theory.
+    //   BD/BS: five-flavour evolution down to B_SCALE.
+    //   SD:    four-flavour evolution down to K_SCALE.
+    //   CU:    four-flavour evolution down to D_SCALE.
+    // The NLO correction is expanded with alpha_s at the final scale of the
+    // corresponding evolution.  WPARAM_RUN_SM entries are:
+    //   1 = alpha_s(B_SCALE), 5 = alpha_s(D_SCALE), 6 = alpha_s(K_SCALE).
+    for (size_t n = 0; n < 4; ++n) {
+        const bool is_B_family = n < 2;
+        const std::string src_block = is_B_family ? "UM_MATRIX_5" : "UM_MATRIX_4";
+        const int alpha_s_entry = is_B_family ? 1 : (n == 2 ? 6 : 5);
+        const double fact = src.get_val("WPARAM_RUN_SM", alpha_s_entry) / (4. * PI);
+
+        for (size_t k = 0; k < 8; ++k) {
+            for (size_t l = 0; l < 8; ++l) {
+                const double U0 = src.raw().at(src_block)->contains(LhaID(0, k, l))
+                    ? src.raw().at(src_block)->retrieve(LhaID(0, k, l))->get_val()
+                    : scalar_t();
+                const double U1 = src.raw().at(src_block)->contains(LhaID(1, k, l))
+                    ? src.raw().at(src_block)->retrieve(LhaID(1, k, l))->get_val()
+                    : scalar_t();
+                const double U = U0 + fact * U1;
+                Ci_run[8 * n + k] += U * Ci_match_BMU[8 * n + l];
+            }
         }
     }
 
+    // The evolution matrices are defined in the BMU basis. Convert each
+    // meson-family block back to the public SUSY basis before exposing the
+    // running coefficients through WCoefMapper.
     std::unordered_map<WCoefId, scalar_t> Ci_run_map {};
-    for (size_t k = 0; k < 32; k++) {
-        Ci_run_map[WCoefMapper::to_id(ids[k])] = Ci_run[k];
+    std::array<complex_t, 8> Ci_run_temp {};
+    for (size_t n = 0; n < 4; ++n) {
+        for (size_t k = 0; k < 8; ++k) {
+            Ci_run_temp[k] = Ci_run[8 * n + k];
+        }
+
+        Ci_run_temp = MMRP::change_basis(Ci_run_temp, MMRP::BMU_to_SUSY);
+
+        for (size_t k = 0; k < 8; ++k) {
+            Ci_run_map[WCoefMapper::to_id(ids[8 * n + k])] = Ci_run_temp[k];
+        }
     }
 
     return Ci_run_map;

@@ -57,6 +57,12 @@ struct WilsonBlockNames {
      * @return "FWCOEF".
      */
     static constexpr const char* fwcoef() { return "FWCOEF"; }
+
+    /**
+     * @brief Returns the fixed imaginary FWCOEF companion block name.
+     * @return "IMFWCOEF".
+     */
+    static constexpr const char* imfwcoef() { return "IMFWCOEF"; }
 };
 
 #endif

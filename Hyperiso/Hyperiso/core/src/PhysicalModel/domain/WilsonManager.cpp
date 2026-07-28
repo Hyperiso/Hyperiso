@@ -365,6 +365,7 @@ void CoefficientManager::compose_from_fwcoef(
     const std::string sm_block    = WilsonBlockNames::sm_matching(gid);
     const std::string final_block = WilsonBlockNames::matching(gid);
     const std::string fw_block    = WilsonBlockNames::fwcoef();
+    const std::string imfw_block  = WilsonBlockNames::imfwcoef();
 
     auto wp = ports_config.wilson_proxy;
 
@@ -380,30 +381,93 @@ void CoefficientManager::compose_from_fwcoef(
             LhaID id_bsm(base.first, base.second, qcd_index(o), 1);
             LhaID id_tot(base.first, base.second, qcd_index(o), 2);
 
-            ParamId fw_sm  { ParameterType::WILSON, fw_block, id_sm  };
-            ParamId fw_bsm { ParameterType::WILSON, fw_block, id_bsm };
-            ParamId fw_tot { ParameterType::WILSON, fw_block, id_tot };
+            ParamId fw_sm    { ParameterType::WILSON, fw_block,   id_sm  };
+            ParamId fw_bsm   { ParameterType::WILSON, fw_block,   id_bsm };
+            ParamId fw_tot   { ParameterType::WILSON, fw_block,   id_tot };
+            ParamId imfw_sm  { ParameterType::WILSON, imfw_block, id_sm  };
+            ParamId imfw_bsm { ParameterType::WILSON, imfw_block, id_bsm };
+            ParamId imfw_tot { ParameterType::WILSON, imfw_block, id_tot };
 
-            const bool fw_has_sm  = wp->exist(fw_block, id_sm);
-            const bool fw_has_bsm = wp->exist(fw_block, id_bsm);
-            const bool fw_has_tot = wp->exist(fw_block, id_tot);
+            const bool fw_has_sm_re  = wp->exist(fw_block, id_sm);
+            const bool fw_has_bsm_re = wp->exist(fw_block, id_bsm);
+            const bool fw_has_tot_re = wp->exist(fw_block, id_tot);
+            const bool fw_has_sm_im  = wp->exist(imfw_block, id_sm);
+            const bool fw_has_bsm_im = wp->exist(imfw_block, id_bsm);
+            const bool fw_has_tot_im = wp->exist(imfw_block, id_tot);
+
+            const bool fw_has_sm  = fw_has_sm_re  || fw_has_sm_im;
+            const bool fw_has_bsm = fw_has_bsm_re || fw_has_bsm_im;
+            const bool fw_has_tot = fw_has_tot_re || fw_has_tot_im;
+
+            auto make_sources = [](
+                bool has_re,
+                const ParamId& re,
+                bool has_im,
+                const ParamId& im
+            ) {
+                std::unordered_set<ParamId> sources;
+                if (has_re) sources.insert(re);
+                if (has_im) sources.insert(im);
+                return sources;
+            };
+
+            auto merge_sources = [](
+                std::unordered_set<ParamId> lhs,
+                const std::unordered_set<ParamId>& rhs
+            ) {
+                lhs.insert(rhs.begin(), rhs.end());
+                return lhs;
+            };
+
+            auto read_complex = [](
+                const ParamSrc& src,
+                bool has_re,
+                const ParamId& re,
+                bool has_im,
+                const ParamId& im
+            ) -> scalar_t {
+                const double real_part = has_re ? std::real(src.get_val(re)) : 0.0;
+                const double imag_part = has_im ? std::real(src.get_val(im)) : 0.0;
+                return scalar_t(real_part, imag_part);
+            };
+
+            const auto sm_sources =
+                make_sources(fw_has_sm_re, fw_sm, fw_has_sm_im, imfw_sm);
+            const auto bsm_sources =
+                make_sources(fw_has_bsm_re, fw_bsm, fw_has_bsm_im, imfw_bsm);
+            const auto tot_sources =
+                make_sources(fw_has_tot_re, fw_tot, fw_has_tot_im, imfw_tot);
 
             ParamId sm_inter { ParameterType::WILSON, sm_block, id_sm };
 
             if (fw_has_sm) {
                 ports_config.iblock_c->compose_parameter(
                     sm_inter,
-                    std::unordered_set<ParamId>{ fw_sm },
-                    [fw_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(fw_sm));
+                    sm_sources,
+                    [=](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                        dep->set_expected(read_complex(
+                            src,
+                            fw_has_sm_re, fw_sm,
+                            fw_has_sm_im, imfw_sm
+                        ));
                     }
                 );
             } else if (fw_has_tot && fw_has_bsm) {
                 ports_config.iblock_c->compose_parameter(
                     sm_inter,
-                    std::unordered_set<ParamId>{ fw_tot, fw_bsm },
-                    [fw_tot, fw_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(fw_tot) - src.get_val(fw_bsm));
+                    merge_sources(tot_sources, bsm_sources),
+                    [=](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                        const scalar_t total = read_complex(
+                            src,
+                            fw_has_tot_re, fw_tot,
+                            fw_has_tot_im, imfw_tot
+                        );
+                        const scalar_t bsm = read_complex(
+                            src,
+                            fw_has_bsm_re, fw_bsm,
+                            fw_has_bsm_im, imfw_bsm
+                        );
+                        dep->set_expected(total - bsm);
                     }
                 );
             }
@@ -415,17 +479,28 @@ void CoefficientManager::compose_from_fwcoef(
             if (fw_has_bsm) {
                 ports_config.iblock_c->compose_parameter(
                     final_bsm,
-                    std::unordered_set<ParamId>{ fw_bsm },
-                    [fw_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(fw_bsm));
+                    bsm_sources,
+                    [=](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                        dep->set_expected(read_complex(
+                            src,
+                            fw_has_bsm_re, fw_bsm,
+                            fw_has_bsm_im, imfw_bsm
+                        ));
                     }
                 );
             } else if (fw_has_tot) {
+                auto sources = tot_sources;
+                sources.insert(final_sm);
                 ports_config.iblock_c->compose_parameter(
                     final_bsm,
-                    std::unordered_set<ParamId>{ fw_tot, final_sm },
-                    [fw_tot, final_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(fw_tot) - src.get_val(final_sm));
+                    sources,
+                    [=](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                        const scalar_t total = read_complex(
+                            src,
+                            fw_has_tot_re, fw_tot,
+                            fw_has_tot_im, imfw_tot
+                        );
+                        dep->set_expected(total - src.get_val(final_sm));
                     }
                 );
             } else {
@@ -441,24 +516,36 @@ void CoefficientManager::compose_from_fwcoef(
             if (fw_has_tot) {
                 ports_config.iblock_c->compose_parameter(
                     final_tot,
-                    std::unordered_set<ParamId>{ fw_tot },
-                    [fw_tot](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(fw_tot));
+                    tot_sources,
+                    [=](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                        dep->set_expected(read_complex(
+                            src,
+                            fw_has_tot_re, fw_tot,
+                            fw_has_tot_im, imfw_tot
+                        ));
                     }
                 );
             } else if (fw_has_bsm) {
                 ports_config.iblock_c->compose_parameter(
                     final_tot,
                     std::unordered_set<ParamId>{ final_sm, final_bsm },
-                    [final_sm, final_bsm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
-                        dep->set_expected(src.get_val(final_sm) + src.get_val(final_bsm));
+                    [final_sm, final_bsm](
+                        const ParamSrc& src,
+                        std::shared_ptr<DependentParameter> dep
+                    ) {
+                        dep->set_expected(
+                            src.get_val(final_sm) + src.get_val(final_bsm)
+                        );
                     }
                 );
             } else {
                 ports_config.iblock_c->compose_parameter(
                     final_tot,
                     std::unordered_set<ParamId>{ final_sm },
-                    [final_sm](const ParamSrc& src, std::shared_ptr<DependentParameter> dep) {
+                    [final_sm](
+                        const ParamSrc& src,
+                        std::shared_ptr<DependentParameter> dep
+                    ) {
                         dep->set_expected(src.get_val(final_sm));
                     }
                 );

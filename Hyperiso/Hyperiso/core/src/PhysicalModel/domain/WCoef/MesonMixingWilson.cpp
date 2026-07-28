@@ -105,24 +105,60 @@ C_mix_bs_5::C_mix_bs_5() : WilsonCoefficient("C_BS_5", GroupMapper::str(WGroup::
 C_mix_sd_1::C_mix_sd_1() : WilsonCoefficient("C_SD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {
     matching_info[QCDOrder::LO] = {
         {
-            {"WPARAM_MATCH_SM", LhaID(2, 1)},  // x_t
-            {ParameterType::SM, "SMINPUTS", 2},                   // G_F
-            {ParameterType::SM, "MASS", 24},                      // M_W
-            {ParameterType::SM, "VCKM", LhaID(2, 0)},             // V_td
-            {ParameterType::SM, "VCKM", LhaID(2, 1)},             // V_ts
+            {"WPARAM_MATCH_SM", LhaID(2, 1)},          // x_t
+            {"WPARAM_MATCH_SM", 4},                    // m_c(mu_W)
+            {ParameterType::SM, "SMINPUTS", 2},        // G_F
+            {ParameterType::SM, "MASS", 24},           // M_W
+            {ParameterType::SM, "VCKM", LhaID(1, 0)},  // V_cd
+            {ParameterType::SM, "VCKM", LhaID(1, 1)},  // V_cs
+            {ParameterType::SM, "VCKM", LhaID(2, 0)},  // V_td
+            {ParameterType::SM, "VCKM", LhaID(2, 1)},  // V_ts
         },
         compute_LO,
         get_lhaid_from_name(QCDOrder::LO)
     };
 }
 
+// complex_t C_mix_sd_1::compute_LO(const ParamSrc& src) {
+//     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
+//     double G_F = src.get_val(ParameterType::SM, "SMINPUTS", 2);
+//     double M_W = src.get_val(ParameterType::SM, "MASS", 24);
+//     complex_t V_td = src.get_val(ParameterType::SM, "VCKM", {2, 0});
+//     complex_t V_ts = src.get_val(ParameterType::SM, "VCKM", {2, 1});
+//     return pow(G_F * M_W * abs(std::conj(V_td) * V_ts) / (2 * PI), 2) * S0(xt);
+// }
+
 complex_t C_mix_sd_1::compute_LO(const ParamSrc& src) {
-    double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});;
-    double G_F = src.get_val(ParameterType::SM, "SMINPUTS", 2);
-    double M_W = src.get_val(ParameterType::SM, "MASS", 24);
-    complex_t V_td = src.get_val(ParameterType::SM, "VCKM", {2, 0});
-    complex_t V_ts = src.get_val(ParameterType::SM, "VCKM", {2, 1});
-    return pow(G_F * M_W * abs(std::conj(V_td) * V_ts) / (2 * PI), 2) * S0(xt);
+    const double x_t = src.get_val(
+        ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1}
+    );
+    const double m_c_muW = src.get_val(
+        ParameterType::WILSON, "WPARAM_MATCH_SM", 4
+    );
+
+    const double G_F = src.get_val(ParameterType::SM, "SMINPUTS", 2);
+    const double M_W = src.get_val(ParameterType::SM, "MASS", 24);
+
+    const complex_t V_cd =
+        src.get_val(ParameterType::SM, "VCKM", {1, 0});
+    const complex_t V_cs =
+        src.get_val(ParameterType::SM, "VCKM", {1, 1});
+    const complex_t V_td =
+        src.get_val(ParameterType::SM, "VCKM", {2, 0});
+    const complex_t V_ts =
+        src.get_val(ParameterType::SM, "VCKM", {2, 1});
+
+    const double x_c = std::pow(m_c_muW / M_W, 2);
+
+    const complex_t lambda_c = std::conj(V_cd) * V_cs;
+    const complex_t lambda_t = std::conj(V_td) * V_ts;
+
+    const complex_t C_1_sd =
+        std::pow(lambda_c, 2) * x_c
+        + std::pow(lambda_t, 2) * S0(x_t)
+        + 2. * lambda_t * lambda_c * S0_ct(x_c, x_t);
+
+    return std::pow(G_F * M_W / (2. * PI), 2) * C_1_sd;
 }
 
 C_mix_sd_1_tilde::C_mix_sd_1_tilde() : WilsonCoefficient("CT_SD_1", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) {

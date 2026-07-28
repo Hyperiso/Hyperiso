@@ -1162,6 +1162,15 @@ double S0(double x) {
 	return (4.*x-11.*x*x+x*x*x)/4./pow(1.-x,2.) - 3.*x*x*x*log(x)/2./pow(1.-x,3.);
 }
 
+double S0_ct(double x_c, double x_t) {
+    return x_c * (
+        std::log(x_t / x_c)
+        - 3. * x_t / (4. * (1. - x_t))
+        - 3. * x_t * x_t * std::log(x_t)
+            / (4. * std::pow(1. - x_t, 2.))
+    );
+}
+
 double D0(double w, double x, double y, double z)
 {
 	if((fabs(1.-w)<1.e-5)&&(fabs(1.-x)<1.e-5)&&(fabs(1.-y)<1.e-5)&&(fabs(1.-z)<1.e-5)) return D0(0.9996,0.9998,1.0002,1.0004);

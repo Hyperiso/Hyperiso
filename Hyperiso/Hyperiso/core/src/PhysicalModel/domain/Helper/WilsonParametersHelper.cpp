@@ -338,6 +338,10 @@ void WilsonParameterHelper::init_running_block(WGroupId grp) {
 			dep_block->store_or_assign(2, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 2}, eta_5, 0., 0.));
 			dep_block->store_or_assign(3, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 3}, eta_4, 0., 0.));
 			dep_block->store_or_assign(4, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 4}, eta_3, 0., 0.));
+			// Explicit low-scale couplings used by meson mixing.
+			// Keep entry 1 as alpha_s(mu_B) for backwards compatibility.
+			dep_block->store_or_assign(5, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 5}, alphas_mu_c, 0., 0.));
+			dep_block->store_or_assign(6, std::make_shared<Parameter>(ParamId{ParameterType::WILSON, "WPARAM_RUN_SM", 6}, alphas_mu_s, 0., 0.));
 		};
 
 		iblock_c->compose_block("WPARAM_RUN_SM", src, func);

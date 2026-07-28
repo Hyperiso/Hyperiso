@@ -62,10 +62,24 @@ void M0Mixing::load_params() {
         (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 5)}, DataType::VALUE),
     };
 
-    populate_C(cache.C_Bd, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 0);
-    populate_C(cache.C_Bs, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE), 8);
-    populate_C(cache.C_K, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE), 16);
-    populate_C(cache.C_D, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 24);
+    const double mu_B = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE);
+    const double mu_K = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE);
+    const double mu_D = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE);
+
+    // UM_MATRIX_4 depends on eta_4 = alpha_s(B_SCALE) / alpha_s(D_SCALE).
+    // Therefore D_SCALE must already be set when the SD coefficients are
+    // requested.  Setting one scale inside populate_C() is too late for K:
+    // in the original order, D_SCALE was only installed by the subsequent
+    // CU call.
+    ObsParameterMutator scale_mutator;
+    scale_mutator.set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, mu_B);
+    scale_mutator.set(ParamId{ParameterType::WILSON, "K_SCALE", 1}, mu_K);
+    scale_mutator.set(ParamId{ParameterType::WILSON, "D_SCALE", 1}, mu_D);
+
+    populate_C(cache.C_Bd, mu_B, 0);
+    populate_C(cache.C_Bs, mu_B, 8);
+    populate_C(cache.C_K, mu_K, 16);
+    populate_C(cache.C_D, mu_D, 24);
 
     cache.C1_Bd_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
     cache.C1_Bs_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 1}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);
@@ -97,9 +111,14 @@ double M0Mixing::F_S1(double x, double m_W, double mu_W, double mu_t) {
 
 double M0Mixing::Q_i(int i, double B_i, double r_chi, double mf2, bool is_B) {
     double Q_i = N_i.at(i) * mf2 * B_i;
-    if (i > 1) {
+
+    // In the SUSY Delta-F=2 basis, Q2, Q3, Q4 and Q5 are chirally
+    // enhanced.  With zero-based indexing these operators correspond to
+    // i = 1, 2, 3, 4.  Q1 (i = 0) is the only non-enhanced matrix element.
+    if (i > 0) {
         Q_i *= is_B ? r_chi + d_i.at(i) : r_chi;
     }
+
     return Q_i;
 }
 
@@ -110,7 +129,19 @@ void M0Mixing::populate_Q_from_bag(std::array<double, 5>& Q, const std::array<do
 }
 
 void M0Mixing::populate_C(std::array<complex_t, 8>& C, double hadronic_scale, size_t offset) {
-    ObsParameterMutator().set(ParamId{ParameterType::WILSON, "B_SCALE", 1}, hadronic_scale);
+    // Each meson family has its own physical low scale.  In particular, K/D
+    // running must not overwrite B_SCALE because B_SCALE is also the b-threshold
+    // entering the four-flavour evolution matrices.
+    const char* scale_block = nullptr;
+    if (offset < 16) {
+        scale_block = "B_SCALE";   // BD, BS
+    } else if (offset == 16) {
+        scale_block = "K_SCALE";   // SD
+    } else {
+        scale_block = "D_SCALE";   // CU
+    }
+    ObsParameterMutator().set(ParamId{ParameterType::WILSON, scale_block, 1}, hadronic_scale);
+
     auto ids = WCoefMapper::get_group(WGroup::MESON_MIXING);
     for (size_t i = 0; i < 8; i++) {
         C[i] = this->w_proxy->getFR(WGroup::MESON_MIXING, ids[i + offset], this->w_config.order, ContributionType::BSM);

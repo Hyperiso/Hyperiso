@@ -1073,8 +1073,13 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "M0_Mix", {4, 3}},
         ParamId{ParameterType::DECAY, "M0_Mix", {4, 4}},
         ParamId{ParameterType::DECAY, "M0_Mix", {4, 5}},
+        ParamId{ParameterType::DECAY, "M0_Mix", {5, 1}},
+        ParamId{ParameterType::DECAY, "M0_Mix", {5, 2}},
         ParamId{ParameterType::DECAY, "M0_Mix", 6},
         ParamId{ParameterType::DECAY, "M0_Mix", 7},
+        ParamId{ParameterType::DECAY, "M0_Mix", 8},
+        ParamId{ParameterType::DECAY, "M0_Mix", 9},
+        ParamId{ParameterType::DECAY, "M0_Mix", 10},
         ParamId{ParameterType::DECAY, "M0_Mix", 11},
         ParamId{ParameterType::DECAY, "M0_Mix", 12},
     }}

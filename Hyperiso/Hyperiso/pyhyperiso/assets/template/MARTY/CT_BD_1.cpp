@@ -36,7 +36,9 @@ int calculate_CT_BD_1(Model &model, gauge::Type gauge) {
         opts);
 
     auto O = dimension6Operator(model, wil_t, mty::DiracCoupling::VR, mty::DiracCoupling::VR);
-    Expr C = getWilsonCoefficient(wil_t, O);
+    // MARTY's direct Delta-F=2 projection carries the same factor-of-two
+    // normalization already corrected for the VLL C1 templates.
+    Expr C = 2 * getWilsonCoefficient(wil_t, O);
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CT_BD_1_SM");
     mty::Library wilsonLib("CT_BD_1_SM", "libs");

@@ -338,6 +338,13 @@ double F0SP(double xt);
 double S0(double x);
 
 /**
+ * @brief Mixed charm-top Inami-Lim function for Delta F = 2 matching.
+ * @param x_c Charm mass ratio m_c^2 / M_W^2.
+ * @param x_t Top mass ratio m_t^2 / M_W^2.
+ */
+double S0_ct(double x_c, double x_t);
+
+/**
  * @brief Wilson special function D0 depending on 4 parameters.
  * @param w Input parameter.
  * @param x Input parameter.
