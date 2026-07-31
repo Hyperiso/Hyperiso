@@ -36,7 +36,13 @@ int calculate_C_CU_1(Model &model, gauge::Type gauge) {
         opts);
 
     auto O = dimension6Operator(model, wil_t, mty::DiracCoupling::VL, mty::DiracCoupling::VL);
-    Expr C = getWilsonCoefficient(wil_t, O);
+    Expr C_raw = getWilsonCoefficient(wil_t, O);
+
+    // Same identical-current normalization as the BD, BS and SD VLL
+    // templates. This sector is not exercised by the current Z-prime model
+    // class because it has no tree-level u-c portal, so keep the convention
+    // synchronized explicitly.
+    Expr C = 2 * C_raw;
 
     [[maybe_unused]] int sysres = system("rm -rf libs/C_CU_1_SM");
     mty::Library wilsonLib("C_CU_1_SM", "libs");

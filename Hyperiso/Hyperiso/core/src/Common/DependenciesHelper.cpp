@@ -1065,6 +1065,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 421},
+        ParamId{ParameterType::WILSON, "SCALE_NUIS", 1},
         ParamId{ParameterType::DECAY, "M0_Mix", 1},
         ParamId{ParameterType::DECAY, "M0_Mix", 2},
         ParamId{ParameterType::DECAY, "M0_Mix", 3},
@@ -1076,12 +1077,16 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "M0_Mix", {5, 1}},
         ParamId{ParameterType::DECAY, "M0_Mix", {5, 2}},
         ParamId{ParameterType::DECAY, "M0_Mix", 6},
-        ParamId{ParameterType::DECAY, "M0_Mix", 7},
+        ParamId{ParameterType::DECAY, "M0_Mix", {7, 1}},
+        ParamId{ParameterType::DECAY, "M0_Mix", {7, 2}},
         ParamId{ParameterType::DECAY, "M0_Mix", 8},
         ParamId{ParameterType::DECAY, "M0_Mix", 9},
         ParamId{ParameterType::DECAY, "M0_Mix", 10},
         ParamId{ParameterType::DECAY, "M0_Mix", 11},
         ParamId{ParameterType::DECAY, "M0_Mix", 12},
+        ParamId{ParameterType::DECAY, "M0_Mix", 13},
+        ParamId{ParameterType::DECAY, "M0_Mix", 14},
+        ParamId{ParameterType::DECAY, "M0_Mix", 15},
     }}
 };
 

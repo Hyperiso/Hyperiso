@@ -128,7 +128,8 @@ OBSERVABLE_MAPPING = {
     "A_FL_B__KSTAR_E_E": 'A_FL_B__K*_e_e',
     "A_FL_B__KSTAR_MU_MU": 'A_FL_B__K*_mu_mu',
     "A_FL_B__KSTAR_TAU_TAU": 'A_FL_B__K*_tau_tau',
-    "A_FS": 'a_fs',
+    "A_FS_D": 'a_fs_d',
+    "A_FS_S": 'a_fs_s',
     "A_IM_B0__KSTAR0_E_E": 'A_IM_B0__K*0_e_e',
     "A_IM_B0__KSTAR0_MU_MU": 'A_IM_B0__K*0_mu_mu',
     "A_IM_B0__KSTAR0_TAU_TAU": 'A_IM_B0__K*0_tau_tau',
@@ -229,6 +230,7 @@ OBSERVABLE_MAPPING = {
     "DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU": 'dG_dq2_CPA_Lambda_b__Lambda_mu_mu',
     "DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU": 'dG_dq2_CPA_Lambda_b__Lambda_tau_tau',
     "DELTA_M_BD": 'Delta_M_Bd',
+    "DELTA_M_D": 'Delta_M_D',
     "DELTA_M_BS": 'Delta_M_Bs',
     "DELTA_M_K": 'Delta_M_K',
     "DGAMMA_BAR_DQ2_B0__KSTAR0_E_E": 'dGamma_bar_dq2_B0__K*0_e_e',
@@ -653,7 +655,8 @@ OBSERVABLE_FLHA_MAPPING = {
     "A_FL_B__KSTAR_E_E": [521, -95322, 3, 323, 11, -11],
     "A_FL_B__KSTAR_MU_MU": [521, -95322, 3, 323, 13, -13],
     "A_FL_B__KSTAR_TAU_TAU": [521, -95322, 3, 323, 15, -15],
-    "A_FS": [531, 74, 1, -531],
+    "A_FS_D": [511, 74, 1, -511],
+    "A_FS_S": [531, 74, 1, -531],
     "A_IM_B0__KSTAR0_E_E": [511, 942, 3, 313, 11, -11],
     "A_IM_B0__KSTAR0_MU_MU": [511, 942, 3, 313, 13, -13],
     "A_IM_B0__KSTAR0_TAU_TAU": [511, 942, 3, 313, 15, -15],
@@ -751,6 +754,7 @@ OBSERVABLE_FLHA_MAPPING = {
     "DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU": [5122, 1, 3, 3122, 13, -13],
     "DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU": [5122, 1, 3, 3122, 15, -15],
     "DELTA_M_BD": [511, 7, 1, -511],
+    "DELTA_M_D": [421, 7, 1, -421],
     "DELTA_M_BS": [531, 7, 1, -531],
     "DELTA_M_K": [311, 7, 1, -311],
     "DGAMMA_DQ2_B0__KSTAR0_E_E": [511, 1, 3, 313, 11, -11],
@@ -1018,6 +1022,7 @@ OBSERVABLE_FLHA_MAPPING = {
 }
 
 MANUAL_LEGACY_ALIASES = {
+    "A_FS": "A_FS_S",
     'ACP_BKmumu': 'A_CP_B__K_MU_MU',
     "A1c_B0Kstar0mumu": 'A_1C_B0__KSTAR0_MU_MU',
     "A2s_B0Kstar0mumu": 'A_2S_B0__KSTAR0_MU_MU',

@@ -3,7 +3,22 @@
 void M0Mixing::load_params() {
     cache.G_F = (*p)(ParamId{ParameterType::SM, "SMINPUTS", 2}, DataType::VALUE);
     cache.m_W = (*p)(ParamId{ParameterType::SM, "MASS", 24}, DataType::VALUE);
-    cache.mu_W = (*p)(ParamId{ParameterType::WILSON, "EW_SCALE", 1}, DataType::VALUE);
+
+    // EW_SCALE is the Wilson matching scale.  For a heavy BSM mediator it is
+    // legitimately set to M_NP and must therefore not be reused as the SM
+    // electroweak matching scale entering the W-box contribution.
+    //
+    // Keep the SM scale tied to m_W and to the existing electroweak scale
+    // nuisance.  This preserves the intended SM scale variation while making
+    // the SM prediction independent of the BSM matching scale.
+    const double x_W = (*p)(
+        ParamId{ParameterType::WILSON, "SCALE_NUIS", 1},
+        DataType::VALUE
+    );
+    cache.mu_W = x_W > 0.0
+        ? std::pow(2.0, x_W) * cache.m_W
+        : cache.m_W;
+
     cache.x_c = pow((*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE) / cache.m_W, 2);
     cache.x_t = std::pow((*iobs_qcdp)(MassConfig{6, cache.mu_W, MassType::POLE, MassType::POLE}) / cache.m_W, 2);
     cache.lambda_c = std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {1, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {1, 1}}, DataType::VALUE);
@@ -65,9 +80,9 @@ void M0Mixing::load_params() {
         (*p)(ParamId{ParameterType::DECAY, "M0_Mix", LhaID(4, 5)}, DataType::VALUE),
     };
 
-    const double mu_B = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 8}, DataType::VALUE);
-    const double mu_K = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 9}, DataType::VALUE);
-    const double mu_D = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE);
+    const double mu_B = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE);
+    const double mu_K = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE);
+    const double mu_D = (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 12}, DataType::VALUE);
 
     // UM_MATRIX_4 depends on eta_4 = alpha_s(B_SCALE) / alpha_s(D_SCALE).
     // Therefore D_SCALE must already be set when the SD coefficients are
@@ -83,11 +98,6 @@ void M0Mixing::load_params() {
     populate_C(cache.C_Bs, mu_B, 8);
     populate_C(cache.C_K, mu_K, 16);
     populate_C(cache.C_D, mu_D, 24);
-
-    // populate_C(cache.C_Bd, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 0);
-    // populate_C(cache.C_Bs, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 10}, DataType::VALUE), 8);
-    // populate_C(cache.C_K, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 11}, DataType::VALUE), 16);
-    // populate_C(cache.C_D, (*p)(ParamId{ParameterType::DECAY, "M0_Mix", 12}, DataType::VALUE), 24);
 
 
     cache.C1_Bd_SM = std::pow(cache.G_F * cache.m_W * std::conj((*p)(ParamId{ParameterType::SM, "VCKM", {2, 0}}, DataType::VALUE)) * (*p)(ParamId{ParameterType::SM, "VCKM", {2, 2}}, DataType::VALUE), 2) * S0(cache.x_t) / (4 * PI2);

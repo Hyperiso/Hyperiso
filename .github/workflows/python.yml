@@ -49,6 +49,9 @@ jobs:
       - name: Validate MARTY v1.0.3 regressions
         run: python tools/test_marty_v103.py --static-only
 
+      - name: Validate meson-mixing regressions
+        run: python tools/check_meson_mixing_regressions.py
+
       - name: Import smoke test
         run: |
           python - <<'PY'

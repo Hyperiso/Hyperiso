@@ -12,8 +12,8 @@ label is also exposed in OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP.
 
 Counts
 ------
-- Observable enum -> FLHA entries: 489
-- Unique FLHA ids: 489
+- Observable enum -> FLHA entries: 491
+- Unique FLHA ids: 491
 - Colliding FLHA ids: 0
 - Enum entries with a derived raw name, missing from OBSERVABLE_MAPPING: 6
 """
@@ -152,7 +152,8 @@ OBSERVABLE_ENUM_TO_NAME_MAP = {
     "A_FL_B__KSTAR_E_E": "A_FL_B__K*_e_e",
     "A_FL_B__KSTAR_MU_MU": "A_FL_B__K*_mu_mu",
     "A_FL_B__KSTAR_TAU_TAU": "A_FL_B__K*_tau_tau",
-    "A_FS": "a_fs",
+    "A_FS_D": "a_fs_d",
+    "A_FS_S": "a_fs_s",
     "A_IM_B0__KSTAR0_E_E": "A_IM_B0__K*0_e_e",
     "A_IM_B0__KSTAR0_MU_MU": "A_IM_B0__K*0_mu_mu",
     "A_IM_B0__KSTAR0_TAU_TAU": "A_IM_B0__K*0_tau_tau",
@@ -250,6 +251,7 @@ OBSERVABLE_ENUM_TO_NAME_MAP = {
     "DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU": "dG_dq2_CPA_Lambda_b__Lambda_mu_mu",
     "DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU": "dG_dq2_CPA_Lambda_b__Lambda_tau_tau",
     "DELTA_M_BD": "Delta_M_Bd",
+    "DELTA_M_D": "Delta_M_D",
     "DELTA_M_BS": "Delta_M_Bs",
     "DELTA_M_K": "Delta_M_K",
     "DGAMMA_DQ2_B0__KSTAR0_E_E": "dGamma_dq2_B0__K*0_e_e",
@@ -644,7 +646,8 @@ OBSERVABLE_ENUM_TO_FLHA_MAP = {
     "A_FL_B__KSTAR_E_E": (521, -95322, 3, 323, 11, -11),
     "A_FL_B__KSTAR_MU_MU": (521, -95322, 3, 323, 13, -13),
     "A_FL_B__KSTAR_TAU_TAU": (521, -95322, 3, 323, 15, -15),
-    "A_FS": (531, 74, 1, -531),
+    "A_FS_D": (511, 74, 1, -511),
+    "A_FS_S": (531, 74, 1, -531),
     "A_IM_B0__KSTAR0_E_E": (511, 942, 3, 313, 11, -11),
     "A_IM_B0__KSTAR0_MU_MU": (511, 942, 3, 313, 13, -13),
     "A_IM_B0__KSTAR0_TAU_TAU": (511, 942, 3, 313, 15, -15),
@@ -742,6 +745,7 @@ OBSERVABLE_ENUM_TO_FLHA_MAP = {
     "DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU": (5122, 1, 3, 3122, 13, -13),
     "DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU": (5122, 1, 3, 3122, 15, -15),
     "DELTA_M_BD": (511, 7, 1, -511),
+    "DELTA_M_D": (421, 7, 1, -421),
     "DELTA_M_BS": (531, 7, 1, -531),
     "DELTA_M_K": (311, 7, 1, -311),
     "DGAMMA_DQ2_B0__KSTAR0_E_E": (511, 1, 3, 313, 11, -11),
@@ -1147,7 +1151,8 @@ OBSERVABLE_ENUM_TO_LATEX_MAP = {
     "A_FL_B__KSTAR_E_E": "$A_{F_L}\\left(B \\to K^{*}\\,e^+e^-\\right)$",
     "A_FL_B__KSTAR_MU_MU": "$A_{F_L}\\left(B \\to K^{*}\\,\\mu^+\\mu^-\\right)$",
     "A_FL_B__KSTAR_TAU_TAU": "$A_{F_L}\\left(B \\to K^{*}\\,\\tau^+\\tau^-\\right)$",
-    "A_FS": "$a_{fs}$",
+    "A_FS_D": "$a_{fs}^{d}$",
+    "A_FS_S": "$a_{fs}^{s}$",
     "A_IM_B0__KSTAR0_E_E": "$A_{\\mathrm{Im}}\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
     "A_IM_B0__KSTAR0_MU_MU": "$A_{\\mathrm{Im}}\\left(B^0 \\to K^{*0}\\,\\mu^+\\mu^-\\right)$",
     "A_IM_B0__KSTAR0_TAU_TAU": "$A_{\\mathrm{Im}}\\left(B^0 \\to K^{*0}\\,\\tau^+\\tau^-\\right)$",
@@ -1263,6 +1268,7 @@ OBSERVABLE_ENUM_TO_LATEX_MAP = {
     "DBR_DQ2_LAMBDA_B__LAMBDA_TAU_TAU": "$\\frac{d\\Gamma_{\\mathrm{CPA}}}{dq^2}\\left(\\Lambda_b "
     "\\to \\Lambda\\,\\tau^+\\tau^-\\right)$",
     "DELTA_M_BD": "$\\Delta M_{B_d}$",
+    "DELTA_M_D": "$\\Delta M_D$",
     "DELTA_M_BS": "$\\Delta M_{B_s}$",
     "DELTA_M_K": "$\\Delta M_K$",
     "DGAMMA_DQ2_B0__KSTAR0_E_E": "$\\frac{d\\Gamma}{dq^2}\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
@@ -1666,6 +1672,7 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (511, 5, 3, 411, -15, 16): ("A_FB_B0__D_TAU_NU",),
     (511, 5, 3, 413, -15, 16): ("A_FB_B0__DSTAR_TAU_NU",),
     (511, 7, 1, -511): ("DELTA_M_BD",),
+    (421, 7, 1, -421): ("DELTA_M_D",),
     (511, 50, 3, 313, 11, -11): ("Q0_A_FB_B0__KSTAR0_E_E",),
     (511, 50, 3, 313, 13, -13): ("Q0_A_FB_B0__KSTAR0_MU_MU",),
     (511, 50, 3, 313, 15, -15): ("Q0_A_FB_B0__KSTAR0_TAU_TAU",),
@@ -2001,7 +2008,8 @@ OBSERVABLE_FLHA_TO_ENUM_MAP = {
     (531, 15, 2, 11, -11): ("BR_BS_EE_UNTAG",),
     (531, 15, 2, 13, -13): ("BR_BS_MUMU_UNTAG",),
     (531, 71, 1, -531): ("PHI_S",),
-    (531, 74, 1, -531): ("A_FS",),
+    (511, 74, 1, -511): ("A_FS_D",),
+    (531, 74, 1, -531): ("A_FS_S",),
     (531, 931, 3, 333, 11, -11): ("F_L_BS_PHI_E_E",),
     (531, 931, 3, 333, 13, -13): ("F_L_BS_PHI_MU_MU",),
     (531, 931, 3, 333, 15, -15): ("F_L_BS_PHI_TAU_TAU",),
@@ -2158,6 +2166,7 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (511, 5, 3, 411, -15, 16): ("A_FB_B0__D_tau_nu",),
     (511, 5, 3, 413, -15, 16): ("A_FB_B0__D*_tau_nu",),
     (511, 7, 1, -511): ("Delta_M_Bd",),
+    (421, 7, 1, -421): ("Delta_M_D",),
     (511, 50, 3, 313, 11, -11): ("q0_A_FB_B0__K*0_e_e",),
     (511, 50, 3, 313, 13, -13): ("q0_A_FB_B0__K*0_mu_mu",),
     (511, 50, 3, 313, 15, -15): ("q0_A_FB_B0__K*0_tau_tau",),
@@ -2493,7 +2502,8 @@ OBSERVABLE_FLHA_TO_NAME_MAP = {
     (531, 15, 2, 11, -11): ("BRuntag_Bs__e_e",),
     (531, 15, 2, 13, -13): ("BRuntag_Bs__mu_mu",),
     (531, 71, 1, -531): ("phi_s",),
-    (531, 74, 1, -531): ("a_fs",),
+    (511, 74, 1, -511): ("a_fs_d",),
+    (531, 74, 1, -531): ("a_fs_s",),
     (531, 931, 3, 333, 11, -11): ("F_L_Bs__phi_e_e",),
     (531, 931, 3, 333, 13, -13): ("F_L_Bs__phi_mu_mu",),
     (531, 931, 3, 333, 15, -15): ("F_L_Bs__phi_tau_tau",),
@@ -2794,6 +2804,7 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
         "$A_{FB}\\left(B^0 \\to D^{*}\\,\\tau\\,\\nu\\right)$",
     ),
     (511, 7, 1, -511): ("$\\Delta M_{B_d}$",),
+    (421, 7, 1, -421): ("$\\Delta M_D$",),
     (511, 50, 3, 313, 11, -11): (
         "$q_0(A_{FB})\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
     ),
@@ -3628,7 +3639,8 @@ OBSERVABLE_FLHA_TO_LATEX_MAP = {
         "$\\mathcal{B}_{\\mathrm{untag}}\\left(B_s \\to \\mu^+\\mu^-\\right)$",
     ),
     (531, 71, 1, -531): ("$\\phi_s$",),
-    (531, 74, 1, -531): ("$a_{fs}$",),
+    (511, 74, 1, -511): ("$a_{fs}^{d}$",),
+    (531, 74, 1, -531): ("$a_{fs}^{s}$",),
     (531, 931, 3, 333, 11, -11): ("$F_L\\left(B_s \\to \\phi\\,e^+e^-\\right)$",),
     (531, 931, 3, 333, 13, -13): ("$F_L\\left(B_s \\to \\phi\\,\\mu^+\\mu^-\\right)$",),
     (531, 931, 3, 333, 15, -15): (
@@ -4147,6 +4159,7 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
     (511, 5, 3, 411, -15, 16): "$A_{FB}\\left(B^0 \\to D\\,\\tau\\,\\nu\\right)$",
     (511, 5, 3, 413, -15, 16): "$A_{FB}\\left(B^0 \\to D^{*}\\,\\tau\\,\\nu\\right)$",
     (511, 7, 1, -511): "$\\Delta M_{B_d}$",
+    (421, 7, 1, -421): "$\\Delta M_D$",
     (511, 50, 3, 313, 11, -11): "$q_0(A_{FB})\\left(B^0 \\to K^{*0}\\,e^+e^-\\right)$",
     (
         511,
@@ -5625,7 +5638,8 @@ OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP = {
         -13,
     ): "$\\mathcal{B}_{\\mathrm{untag}}\\left(B_s \\to \\mu^+\\mu^-\\right)$",
     (531, 71, 1, -531): "$\\phi_s$",
-    (531, 74, 1, -531): "$a_{fs}$",
+    (511, 74, 1, -511): "$a_{fs}^{d}$",
+    (531, 74, 1, -531): "$a_{fs}^{s}$",
     (531, 931, 3, 333, 11, -11): "$F_L\\left(B_s \\to \\phi\\,e^+e^-\\right)$",
     (531, 931, 3, 333, 13, -13): "$F_L\\left(B_s \\to \\phi\\,\\mu^+\\mu^-\\right)$",
     (531, 931, 3, 333, 15, -15): "$F_L\\left(B_s \\to \\phi\\,\\tau^+\\tau^-\\right)$",
@@ -5932,6 +5946,7 @@ MISSING_IN_OBSERVABLE_MAPPING = []
 KNOWN_UNMAPPED_LEGACY_BASES = ["BR_B0Kstar0ee", "BR_KLpi0ee", "BR_KLpi0mumu"]
 
 MANUAL_LEGACY_ALIASES = {
+    "A_FS": "A_FS_S",
     "A1c_B0Kstar0mumu": "A_1C_B0__KSTAR0_MU_MU",
     "A2s_B0Kstar0mumu": "A_2S_B0__KSTAR0_MU_MU",
     "A5_Bsphimumu": "A_5_BS_PHI_MU_MU",

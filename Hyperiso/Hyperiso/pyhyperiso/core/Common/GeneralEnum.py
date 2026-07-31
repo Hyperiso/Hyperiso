@@ -711,10 +711,14 @@ class Observables(Enum):
     DELTA_M_BD = _CppObservables.DELTA_M_BD
     PHI_S = _CppObservables.PHI_S
     DELTA_M_BS = _CppObservables.DELTA_M_BS
+    A_FS_D = _CppObservables.A_FS_D
+    A_FS_S = _CppObservables.A_FS_S
+    # Historical Bs-only alias retained for user code compatibility.
     A_FS = _CppObservables.A_FS
     DELTA_M_K = _CppObservables.DELTA_M_K
     ABS_EPSILON_K = _CppObservables.ABS_EPSILON_K
     X_D = _CppObservables.X_D
+    DELTA_M_D = _CppObservables.DELTA_M_D
     BR_KL__MU_MU = _CppObservables.BR_KL__MU_MU
     BR_KS__MU_MU = _CppObservables.BR_KS__MU_MU
     BR_K__MU_NU__BR_PI__MU_NU = _CppObservables.BR_K__MU_NU__BR_PI__MU_NU

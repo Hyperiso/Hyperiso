@@ -547,12 +547,16 @@ enum class Observables {
     // Bs
     PHI_S,
     DELTA_M_BS,
-    A_FS,
+    A_FS_D,
+    A_FS_S,
+    // Backward-compatible alias for the historical Bs-only name.
+    A_FS = A_FS_S,
     // K
     DELTA_M_K,
     ABS_EPSILON_K,
     // D
     X_D,
+    DELTA_M_D,
     /* Rare K decays */
     // K_L,S > mu mu
     BR_KL__MU_MU,
