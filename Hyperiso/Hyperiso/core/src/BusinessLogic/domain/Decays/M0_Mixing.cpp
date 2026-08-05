@@ -15,9 +15,7 @@ void M0Mixing::load_params() {
         ParamId{ParameterType::WILSON, "SCALE_NUIS", 1},
         DataType::VALUE
     );
-    cache.mu_W = x_W > 0.0
-        ? std::pow(2.0, x_W) * cache.m_W
-        : cache.m_W;
+    cache.mu_W = std::pow(2.0, x_W) * cache.m_W;
 
     cache.x_c = pow((*p)(ParamId{ParameterType::SM, "MASS", 4}, DataType::VALUE) / cache.m_W, 2);
     cache.x_t = std::pow((*iobs_qcdp)(MassConfig{6, cache.mu_W, MassType::POLE, MassType::POLE}) / cache.m_W, 2);

@@ -1065,6 +1065,33 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 421},
+
+        // Hadronic inputs read explicitly by M0Mixing::load_params().
+        // They must be declared here so StatisticInterface can propagate
+        // their uncertainties and parameter correlations.
+        ParamId{ParameterType::FLAVOR, "FCONST", {511, 1}},
+        ParamId{ParameterType::FLAVOR, "FCONST", {531, 1}},
+        ParamId{ParameterType::FLAVOR, "FCONST", {211, 1}},
+        ParamId{ParameterType::FLAVOR, "FCONSTRATIO", {321, 211, 1, 1}},
+
+        ParamId{ParameterType::FLAVOR, "FBAG", {511, 1}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {511, 2}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {511, 3}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {511, 4}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {511, 5}},
+
+        ParamId{ParameterType::FLAVOR, "FBAG", {531, 1}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {531, 2}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {531, 3}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {531, 4}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {531, 5}},
+
+        ParamId{ParameterType::FLAVOR, "FBAG", {311, 1}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {311, 2}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {311, 3}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {311, 4}},
+        ParamId{ParameterType::FLAVOR, "FBAG", {311, 5}},
+
         ParamId{ParameterType::WILSON, "SCALE_NUIS", 1},
         ParamId{ParameterType::DECAY, "M0_Mix", 1},
         ParamId{ParameterType::DECAY, "M0_Mix", 2},

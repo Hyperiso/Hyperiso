@@ -52,7 +52,7 @@ def check_observables() -> None:
 def check_parameters_and_m0() -> None:
     params = json.loads(text("Hyperiso/Hyperiso/pyhyperiso/assets/default/parameters.json"))["M0_Mix"]
     expected = {
-        "9": 0.9154, "10": 4.16, "11": 3.0, "12": 3.0,
+        "9": 0.94, "10": 4.16, "11": 3.0, "12": 3.0,
         "13": 1.87, "14": 0.496, "15": 5.293e9,
     }
     for key, value in expected.items():
@@ -68,8 +68,10 @@ def check_parameters_and_m0() -> None:
             "M0_Mixing must derive its SM electroweak scale from SCALE_NUIS")
     require('cache.mu_W = (*p)(ParamId{ParameterType::WILSON, "EW_SCALE", 1}' not in m0,
             "SM mixing must not reuse the BSM EW_SCALE matching scale")
-    require("std::pow(2.0, x_W) * cache.m_W" in m0,
-            "SM mixing scale must remain tied to m_W")
+    require("cache.mu_W = std::pow(2.0, x_W) * cache.m_W" in m0,
+            "SM mixing scale must vary symmetrically around m_W")
+    require("x_W > 0.0" not in m0,
+            "negative electroweak scale-nuisance values must not be clipped")
     require('"B_SCALE", 1}, mu_B' in m0, "B_SCALE not installed before coefficient reads")
     require('"K_SCALE", 1}, mu_K' in m0, "K_SCALE not installed before coefficient reads")
     require('"D_SCALE", 1}, mu_D' in m0, "D_SCALE not installed before coefficient reads")
@@ -79,6 +81,80 @@ def check_parameters_and_m0() -> None:
     for idx, name in ((10,"mu_B"),(11,"mu_K"),(12,"mu_D"),(13,"eta_cc"),(14,"eta_ct"),(15,"delta_MK_exp")):
         require(f'"M0_Mix", {idx}' in m0, f"M0_Mix index {idx} for {name} missing")
 
+
+
+def check_statistics_inputs() -> None:
+    deps = text("Hyperiso/Hyperiso/core/src/Common/DependenciesHelper.cpp")
+    required_dependencies = [
+        '"FCONST", {511, 1}', '"FCONST", {531, 1}',
+        '"FCONST", {211, 1}', '"FCONSTRATIO", {321, 211, 1, 1}',
+    ]
+    required_dependencies += [
+        f'"FBAG", {{{pdg}, {index}}}'
+        for pdg in (511, 531, 311)
+        for index in range(1, 6)
+    ]
+    for token in required_dependencies:
+        require(token in deps, f"M0_Mix statistical dependency missing: {token}")
+
+    nuisances = json.loads(
+        text("Hyperiso/Hyperiso/pyhyperiso/assets/default/nuisances.json")
+    )["nuisances"]
+    nuisance_keys = {
+        (item["block"], str(item["code"])): item
+        for item in nuisances
+    }
+    for code in ("1", "2"):
+        key = ("SCALE_NUIS", code)
+        require(key in nuisance_keys, f"flat scale nuisance missing: {key}")
+        spec = nuisance_keys[key]
+        require(spec["distribution"] == "flat", f"{key} must be flat")
+        require(float(spec["min_val"]) == -1.0 and float(spec["max_val"]) == 1.0,
+                f"{key} must span [-1,1]")
+
+    observables = json.loads(
+        text("Hyperiso/Hyperiso/pyhyperiso/assets/default/observables.json")
+    )["FOBS"]["DEFAULT"]
+    mixing_ids = {
+        "511_7_0_0_0_0_0_0_1_-511",
+        "531_7_0_0_0_0_0_0_1_-531",
+        "311_75_0_0_0_0_0_0_1_-311",
+        "511_74_0_0_0_0_0_0_1_-511",
+        "531_74_0_0_0_0_0_0_1_-531",
+    }
+    require(mixing_ids <= set(observables),
+            "default experimental mixing measurements are incomplete")
+
+    observable_corr = json.loads(
+        text("Hyperiso/Hyperiso/pyhyperiso/assets/default/observables_corr.json")
+    )["correlations"]["DEFAULT"]
+    afs_pair = {
+        "511_74_0_0_0_0_0_0_1_-511",
+        "531_74_0_0_0_0_0_0_1_-531",
+    }
+    require(any(
+        {row.get("id_1"), row.get("id_2")} == afs_pair
+        and abs(float(row.get("stat_correlation", 0.0)) + 0.054) < 1e-12
+        for row in observable_corr
+    ), "a_fs^d/a_fs^s experimental correlation missing")
+
+    parameter_corr = json.loads(
+        text("Hyperiso/Hyperiso/pyhyperiso/assets/default/parameters_corr.json")
+    )["correlations"]
+    require(sum(
+        row.get("block_1") == "FBAG"
+        and str(row.get("id_1", "")).startswith("531_")
+        and row.get("block_2") == "FBAG"
+        and str(row.get("id_2", "")).startswith("531_")
+        for row in parameter_corr
+    ) >= 10, "B_s bag-parameter correlation matrix is incomplete")
+    require(sum(
+        row.get("block_1") == "M0_Mix"
+        and str(row.get("id_1", "")).startswith("4_")
+        and row.get("block_2") == "M0_Mix"
+        and str(row.get("id_2", "")).startswith("4_")
+        for row in parameter_corr
+    ) >= 10, "D-mixing matrix-element correlation matrix is incomplete")
 
 def check_running() -> None:
     source = text("Hyperiso/Hyperiso/core/src/PhysicalModel/domain/WGroup/MesonMixingWilsonGroup.cpp")
@@ -120,6 +196,7 @@ def check_templates() -> None:
 def main() -> None:
     check_observables()
     check_parameters_and_m0()
+    check_statistics_inputs()
     check_running()
     check_complex_input()
     check_templates()

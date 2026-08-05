@@ -1,17 +1,17 @@
 {
   "nuisances": [
     {
-      "block": "EW_SCALE",
-      "code": "1",
-      "min_val": 40,
-      "max_val": 162,
+      "block": "SCALE_NUIS",
+      "code": "2",
+      "min_val": -1.0,
+      "max_val": 1.0,
       "distribution": "flat"
     },
     {
-      "block": "B_SCALE",
+      "block": "SCALE_NUIS",
       "code": "1",
-      "min_val": 2.1,
-      "max_val": 8.6,
+      "min_val": -1.0,
+      "max_val": 1.0,
       "distribution": "flat"
     },
     {

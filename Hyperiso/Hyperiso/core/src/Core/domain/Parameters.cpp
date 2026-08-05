@@ -209,9 +209,9 @@ namespace {
 
 double superiso_scale(double ref_mass, double x_log2)
 {
-    return (x_log2 > 0.0)
-        ? std::pow(2.0, x_log2) * ref_mass
-        : ref_mass;
+    // SCALE_NUIS is defined as log2(mu / mu_ref).  Negative values must
+    // therefore generate the lower half of the conventional scale interval.
+    return std::pow(2.0, x_log2) * ref_mass;
 }
 
 void add_wilson_ew_scale_from_nuisance()

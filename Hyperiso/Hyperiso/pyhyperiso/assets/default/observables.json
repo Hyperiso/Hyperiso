@@ -2124,6 +2124,31 @@
         "central_value": 6.6e-07,
         "stat_error": 8.8e-07,
         "syst_error": 0.0
+      },
+      "511_7_0_0_0_0_0_0_1_-511": {
+        "central_value": 0.5068,
+        "stat_error": 0.0019,
+        "syst_error": 0.0
+      },
+      "531_7_0_0_0_0_0_0_1_-531": {
+        "central_value": 17.766,
+        "stat_error": 0.006,
+        "syst_error": 0.0
+      },
+      "511_74_0_0_0_0_0_0_1_-511": {
+        "central_value": -0.0021,
+        "stat_error": 0.0017,
+        "syst_error": 0.0
+      },
+      "531_74_0_0_0_0_0_0_1_-531": {
+        "central_value": -0.0006,
+        "stat_error": 0.0028,
+        "syst_error": 0.0
+      },
+      "311_75_0_0_0_0_0_0_1_-311": {
+        "central_value": 0.002228,
+        "stat_error": 1.1e-05,
+        "syst_error": 0.0
       }
     },
     "LHCb2014": {
