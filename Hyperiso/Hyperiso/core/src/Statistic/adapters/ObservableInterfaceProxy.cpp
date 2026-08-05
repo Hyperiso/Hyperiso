@@ -91,13 +91,11 @@ std::map<ObservableId, std::vector<ObservableValue>> ObservableInterfaceProxy::p
         }
     }
 
-    for (auto p_elem : p) {
-        const auto& s = p_elem.first;
-        spop_->set_value(s.block, s.code, p_elem.second);
+    for (const auto& [pid, value] : p) {
+        spop_->set_value(pid, value);
     }
-    for (auto eta_elem : eta) {
-        const auto& s = eta_elem.first;
-        spop_->set_value(s.block, s.code, eta_elem.second);
+    for (const auto& [pid, value] : eta) {
+        spop_->set_value(pid, value);
     }
     spop_->commit();
 

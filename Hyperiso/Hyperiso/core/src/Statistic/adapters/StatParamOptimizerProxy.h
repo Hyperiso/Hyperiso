@@ -18,12 +18,9 @@
  * - committing all pending operations in batch,
  * - clearing the current staging area.
  *
- * The underlying adapter is initialized with a fixed set of parameter types
- * relevant to the statistics workflow:
- * - SM
- * - FLAVOR
- * - DECAY
- * - WILSON
+ * The proxy keeps a dedicated BSM optimizer and a second optimizer for
+ * SM, FLAVOR, DECAY and WILSON parameters.  This preserves the complete
+ * parameter scope during likelihood evaluations.
  *
  * This makes the proxy suitable for repeated parameter mutations in statistical
  * tasks such as scans, fitting, profiling, and uncertainty propagation.
@@ -59,17 +56,17 @@ public:
     /**
      * @copydoc IStatParamOptimizerProxy::set_value
      */
-    void set_value(const BlockName& block, const LhaID& id, scalar_t v) override;
+    void set_value(const ParamId& pid, scalar_t v) override;
 
     /**
      * @copydoc IStatParamOptimizerProxy::set_param
      */
-    void set_param(const BlockName& block, const LhaID& id, std::shared_ptr<Parameter> p) override;
+    void set_param(const ParamId& pid, std::shared_ptr<Parameter> p) override;
 
     /**
      * @copydoc IStatParamOptimizerProxy::remove
      */
-    void remove(const BlockName& block, const LhaID& id) override;
+    void remove(const ParamId& pid) override;
 
     /**
      * @copydoc IStatParamOptimizerProxy::commit
@@ -82,7 +79,13 @@ public:
     void clear() override;
 
 private:
-    ParamOptimizerAdapter poa;  /// Underlying adapter performing batched parameter edit staging and commit.
+    ParamOptimizerAdapter& optimizer_for(const ParamId& pid);
+
+    /// Batched updates for the BSM parameter store.
+    ParamOptimizerAdapter poa_bsm;
+
+    /// Batched updates for SM, flavor, decay and Wilson parameter stores.
+    ParamOptimizerAdapter poa_standard;
 
 };
 

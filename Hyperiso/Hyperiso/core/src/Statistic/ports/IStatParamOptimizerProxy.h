@@ -37,10 +37,9 @@
  * @brief Abstract interface for batched parameter mutation in the statistics layer.
  *
  * This interface is intentionally minimal and focuses on staging operations
- * over parameters identified by:
- * - a block name,
- * - an LHA-like identifier,
- * - and either a raw scalar value or a full @ref Parameter object.
+ * over parameters identified by a complete @ref ParamId.  Retaining the
+ * parameter type is essential because blocks such as MASS and GAUGE may exist
+ * simultaneously in the SM and BSM parameter stores.
  *
  * Changes are not required to take effect immediately: implementations may
  * defer them until @ref commit() is called.
@@ -62,7 +61,7 @@ public:
      * @param id    LHA-like identifier inside the block.
      * @param v     New scalar value to assign.
      */
-    virtual void set_value(const BlockName& block, const LhaID& id, scalar_t v) = 0;
+    virtual void set_value(const ParamId& pid, scalar_t v) = 0;
 
     /**
      * @brief Stages a full parameter replacement/update.
@@ -74,7 +73,7 @@ public:
      * @param id    LHA-like identifier inside the block.
      * @param p     Shared pointer to the parameter payload to apply.
      */
-    virtual void set_param(const BlockName& block, const LhaID& id, std::shared_ptr<Parameter> p)  = 0;
+    virtual void set_param(const ParamId& pid, std::shared_ptr<Parameter> p) = 0;
 
     /**
      * @brief Stages the removal of a parameter.
@@ -85,7 +84,7 @@ public:
      * @param block Block containing the parameter.
      * @param id    LHA-like identifier of the parameter to remove.
      */
-    virtual void remove(const BlockName& block, const LhaID& id)  = 0;
+    virtual void remove(const ParamId& pid) = 0;
 
     /**
      * @brief Applies all staged operations.

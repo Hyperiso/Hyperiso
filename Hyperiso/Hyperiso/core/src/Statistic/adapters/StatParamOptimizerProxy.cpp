@@ -1,49 +1,75 @@
 #include "StatParamOptimizerProxy.h"
 
-/**
- * @brief Constructs the proxy with the parameter types used by the statistics layer.
- *
- * The underlying @ref ParamOptimizerAdapter is initialized to operate on:
- * - SM parameters,
- * - FLAVOR parameters,
- * - DECAY parameters,
- * - WILSON parameters.
- */
-StatParamOptimizerProxy::StatParamOptimizerProxy() : poa({ParameterType::SM, ParameterType::FLAVOR, ParameterType::DECAY, ParameterType::WILSON}) {
-    
+#include <stdexcept>
+#include <utility>
+
+
+StatParamOptimizerProxy::StatParamOptimizerProxy()
+    : poa_bsm({ParameterType::BSM}),
+      poa_standard({
+          ParameterType::SM,
+          ParameterType::FLAVOR,
+          ParameterType::DECAY,
+          ParameterType::WILSON
+      }) {}
+
+
+ParamOptimizerAdapter& StatParamOptimizerProxy::optimizer_for(
+    const ParamId& pid
+) {
+    if (!pid.type.has_value()) {
+        throw std::invalid_argument(
+            "StatParamOptimizerProxy requires a typed ParamId for block '"
+            + pid.block + "' and code '" + pid.code.to_string() + "'."
+        );
+    }
+
+    return pid.type.value() == ParameterType::BSM
+        ? poa_bsm
+        : poa_standard;
 }
 
-/**
- * @copydoc IStatParamOptimizerProxy::set_value
- */
-void StatParamOptimizerProxy::set_value(const BlockName& block, const LhaID& id, scalar_t v) {
-    poa.set_value(block, id, v);
+
+void StatParamOptimizerProxy::set_value(
+    const ParamId& pid,
+    scalar_t value
+) {
+    optimizer_for(pid).set_value(pid.block, pid.code, value);
 }
 
-/**
- * @copydoc IStatParamOptimizerProxy::set_param
- */
-void StatParamOptimizerProxy::set_param(const BlockName& block, const LhaID& id, std::shared_ptr<Parameter> p) {
-    poa.set_param(block,id, p);
+
+void StatParamOptimizerProxy::set_param(
+    const ParamId& pid,
+    std::shared_ptr<Parameter> parameter
+) {
+    optimizer_for(pid).set_param(
+        pid.block,
+        pid.code,
+        std::move(parameter)
+    );
 }
 
-/**
- * @copydoc IStatParamOptimizerProxy::remove
- */
-void StatParamOptimizerProxy::remove(const BlockName& block, const LhaID& id) {
-    poa.remove(block, id);
+
+void StatParamOptimizerProxy::remove(const ParamId& pid) {
+    optimizer_for(pid).remove(pid.block, pid.code);
 }
 
-/**
- * @copydoc IStatParamOptimizerProxy::commit
- */
+
 void StatParamOptimizerProxy::commit(bool coalesce) {
-    poa.commit(coalesce);
+    try {
+        // Commit the model point first.  The following standard-parameter
+        // commit then evaluates all dependent quantities at that BSM point.
+        poa_bsm.commit(coalesce);
+        poa_standard.commit(coalesce);
+    } catch (...) {
+        poa_bsm.clear();
+        poa_standard.clear();
+        throw;
+    }
 }
 
-/**
- * @copydoc IStatParamOptimizerProxy::clear
- */
+
 void StatParamOptimizerProxy::clear() {
-    poa.clear();
+    poa_bsm.clear();
+    poa_standard.clear();
 }
