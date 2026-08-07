@@ -5,7 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Dict, Optional, Sequence, Union
+from typing import Dict, Mapping, Optional, Sequence, Union
 
 from pyhyperiso.phyperiso.pyhyperiso.core import ExternalFlag as _CppExternalFlag
 from pyhyperiso.phyperiso.pyhyperiso.core import HyperisoConfig as _CppHyperisoConfig
@@ -45,7 +45,8 @@ class HyperisoConfig:
         mty_model_path: Optional path to the MARTY model directory or file.
         mty_bsm_mapping_path: Optional user-provided BSM MARTY/Hyperiso mapping JSON.
         mty_order_policy: Explicit MARTY order policy for BSM Wilson coefficients.
-        mty_tree_fermion_order: Optional common TreeLevel external-fermion order.
+        mty_tree_fermion_orders: Per-coefficient TreeLevel fermion-order overrides.
+        mty_one_loop_fermion_orders: Per-coefficient OneLoop fermion-order overrides.
 
     Examples:
         >>> from pathlib import Path
@@ -71,7 +72,8 @@ class HyperisoConfig:
     mty_model_path: Optional[PathLike] = None
     mty_bsm_mapping_path: Optional[PathLike] = None
     mty_order_policy: MartyOrderPolicy = MartyOrderPolicy.AUTO
-    mty_tree_fermion_order: Optional[Sequence[int]] = None
+    mty_tree_fermion_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
+    mty_one_loop_fermion_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
 
     def to_cpp(self) -> _CppHyperisoConfig:
         """Convert this Python config into the bound C++ config.
@@ -93,15 +95,38 @@ class HyperisoConfig:
             cpp.mty_bsm_mapping_path = str(self.mty_bsm_mapping_path)
 
         cpp.mty_order_policy = self.mty_order_policy.value
-        if self.mty_tree_fermion_order is not None:
-            order = [int(value) for value in self.mty_tree_fermion_order]
+        cpp.mty_tree_fermion_orders = self._normalise_fermion_orders(
+            self.mty_tree_fermion_orders,
+            field_name="mty_tree_fermion_orders",
+        )
+        cpp.mty_one_loop_fermion_orders = self._normalise_fermion_orders(
+            self.mty_one_loop_fermion_orders,
+            field_name="mty_one_loop_fermion_orders",
+        )
+        return cpp
+
+    @staticmethod
+    def _normalise_fermion_orders(
+        orders: Mapping[str, Sequence[int]], *, field_name: str
+    ) -> Dict[str, list[int]]:
+        """Validate and copy a coefficient-to-permutation mapping."""
+        normalised: Dict[str, list[int]] = {}
+        for raw_coefficient, raw_order in orders.items():
+            coefficient = str(raw_coefficient).strip()
+            if not coefficient:
+                raise ValueError(f"{field_name} contains an empty coefficient name")
+            order = [int(value) for value in raw_order]
+            if not order:
+                raise ValueError(
+                    f"{field_name}[{coefficient!r}] must not be empty"
+                )
             if sorted(order) != list(range(len(order))):
                 raise ValueError(
-                    "mty_tree_fermion_order must be a permutation of 0..N-1; "
-                    f"received {order}"
+                    f"{field_name}[{coefficient!r}] must be a permutation of "
+                    f"0..N-1; received {order}"
                 )
-            cpp.mty_tree_fermion_order = order
-        return cpp
+            normalised[coefficient] = order
+        return normalised
 
     def __repr__(self) -> str:
         """Return a compact representation suitable for logs."""
@@ -113,7 +138,8 @@ class HyperisoConfig:
             f"mty_model_path={self.mty_model_path!r}, "
             f"mty_bsm_mapping_path={self.mty_bsm_mapping_path!r}, "
             f"mty_order_policy={self.mty_order_policy}, "
-            f"mty_tree_fermion_order={self.mty_tree_fermion_order}"
+            f"mty_tree_fermion_orders={dict(self.mty_tree_fermion_orders)!r}, "
+            f"mty_one_loop_fermion_orders={dict(self.mty_one_loop_fermion_orders)!r}"
             ")"
         )
 

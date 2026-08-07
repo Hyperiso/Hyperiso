@@ -19,8 +19,10 @@ int countMatchInRegex(std::string s, std::string re);
  * @brief Incoming/outgoing particles extracted from a MARTY computeWilsonCoefficients call.
  *
  * The ordered leg convention used by the kinematic formulas is:
- *   m1 = first incoming particle,
- *   m2, m3, ... = outgoing particles in the order they appear in the template.
+ *   all incoming particles first, followed by all outgoing particles,
+ *   preserving the order in which each set appears in the MARTY template.
+ * Thus 1->3 is {m1=in1, m2=out1, m3=out2, m4=out3}, while
+ * 2->2 is {m1=in1, m2=in2, m3=out1, m4=out2}.
  */
 struct CinematicProcess {
     std::vector<std::string> incoming;

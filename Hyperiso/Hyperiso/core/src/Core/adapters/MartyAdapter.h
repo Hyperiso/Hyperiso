@@ -1,8 +1,10 @@
 #ifndef MARTYADAPTER_H
 #define MARTYADAPTER_H
 
+#include <map>
 #include <optional>
 #include <string>
+#include <vector>
 
 #include "IMonitor.h"
 #include "IPathProvider.h"
@@ -43,8 +45,11 @@ public:
     /** @brief Retrieves the configured MARTY perturbative-order policy. */
     MartyOrderPolicy get_marty_order_policy() const;
 
-    /** @brief Retrieves the configured explicit MARTY tree fermion order. */
-    std::vector<int> get_marty_tree_fermion_order() const;
+    /** @brief Retrieves per-coefficient MARTY TreeLevel fermion-order overrides. */
+    std::map<std::string, std::vector<int>> get_marty_tree_fermion_orders() const;
+
+    /** @brief Retrieves per-coefficient MARTY OneLoop fermion-order overrides. */
+    std::map<std::string, std::vector<int>> get_marty_one_loop_fermion_orders() const;
 };
 
 #endif // MARTYADAPTER_H

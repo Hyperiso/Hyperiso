@@ -161,6 +161,10 @@ scalar_t SMParamSetter::calculateKinematicInvariant(const LhaID& code) const {
         return calculateOneToTwoInvariant(code, masses);
     }
 
+    if (cinematic_process->incoming_count() == 2 && cinematic_process->outgoing_count() == 2) {
+        return calculateTwoToTwoInvariant(code, masses);
+    }
+
     LOG_WARN("SMParamSetter", "Unsupported MARTY kinematics. Falling back to legacy KIN rule.",
              cinematic_process->incoming_count(), "incoming and", cinematic_process->outgoing_count(), "outgoing particles.");
     return legacyKinematicInvariant(code);
@@ -183,10 +187,10 @@ scalar_t SMParamSetter::calculateOneToThreeInvariant(const LhaID& code, const st
         return legacyKinematicInvariant(code);
     }
 
-    if (code == LhaID(12)) {
+    if (code == LhaID(12) || code == LhaID(4)) {
         return m1 * m2;
     }
-    if (code == LhaID(13)) {
+    if (code == LhaID(13) || code == LhaID(7)) {
         return m1 * (sqr(m1) - 2*m1*m2 + sqr(m2) + sqr(m3) - sqr(m4)) / (2 * denom);
     }
     if (code == LhaID(14)) {
@@ -231,10 +235,10 @@ scalar_t SMParamSetter::calculateOneToTwoInvariant(const LhaID& code, const std:
     const double root12 = std::sqrt(std::max(0.0, root12_arg));
     const double root13 = std::sqrt(std::max(0.0, root13_arg));
 
-    if (code == LhaID(12)) {
+    if (code == LhaID(12) || code == LhaID(4)) {
         return root12 / 2.0;
     }
-    if (code == LhaID(13)) {
+    if (code == LhaID(13) || code == LhaID(7)) {
         return root13 / 2.0;
     }
     if (code == LhaID(23)) {
@@ -242,6 +246,47 @@ scalar_t SMParamSetter::calculateOneToTwoInvariant(const LhaID& code, const std:
              + sqr(delta23)/(4.0*sqr(m1))
              + root13*root12/(4.0*sqr(m1));
     }
+
+    return legacyKinematicInvariant(code);
+}
+
+scalar_t SMParamSetter::calculateTwoToTwoInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const {
+    if (masses.size() != 4) {
+        return legacyKinematicInvariant(code);
+    }
+
+    // For the neutral-meson mixing templates the physical process is elastic in
+    // the external masses, e.g. b + anti-s -> anti-b + s.  Evaluate the
+    // Lorentz products at the centre-of-mass threshold, where every external
+    // particle is at rest.  This is an on-shell, momentum-conserving point when
+    // m1 + m2 = m3 + m4 and avoids importing the historical b->s mu mu KIN
+    // prescription into Delta F = 2 matching.
+    const double m1 = masses[0];
+    const double m2 = masses[1];
+    const double m3 = masses[2];
+    const double m4 = masses[3];
+
+    const double incoming_rest_energy = m1 + m2;
+    const double outgoing_rest_energy = m3 + m4;
+    const double scale = std::max({1.0, std::abs(incoming_rest_energy), std::abs(outgoing_rest_energy)});
+
+    if (std::abs(incoming_rest_energy - outgoing_rest_energy) > 1e-10 * scale) {
+        LOG_WARN("SMParamSetter",
+                 "Unsupported non-threshold 2->2 MARTY kinematics. Falling back to legacy KIN rule.",
+                 "sum(m_in)=", incoming_rest_energy, "sum(m_out)=", outgoing_rest_energy);
+        return legacyKinematicInvariant(code);
+    }
+
+    // MARTY's s_ij symbols used by generated Wilson libraries are scalar
+    // products p_i.p_j.  At threshold p_i=(m_i,0), hence s_ij=m_i*m_j.
+    // KIN 4/7 are accepted as aliases for historical HyperIso mappings of
+    // s_12/s_13; the canonical mapping is KIN 12/13.
+    if (code == LhaID(12) || code == LhaID(4)) return m1 * m2;
+    if (code == LhaID(13) || code == LhaID(7)) return m1 * m3;
+    if (code == LhaID(14)) return m1 * m4;
+    if (code == LhaID(23)) return m2 * m3;
+    if (code == LhaID(24)) return m2 * m4;
+    if (code == LhaID(34)) return m3 * m4;
 
     return legacyKinematicInvariant(code);
 }

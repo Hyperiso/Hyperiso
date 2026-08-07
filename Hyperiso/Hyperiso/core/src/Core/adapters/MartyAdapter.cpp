@@ -77,6 +77,10 @@ MartyOrderPolicy MartyAdapter::get_marty_order_policy() const {
     return MemoryManager::GetInstance()->getMemoryCache().config.mty_order_policy;
 }
 
-std::vector<int> MartyAdapter::get_marty_tree_fermion_order() const {
-    return MemoryManager::GetInstance()->getMemoryCache().config.mty_tree_fermion_order;
+std::map<std::string, std::vector<int>> MartyAdapter::get_marty_tree_fermion_orders() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_tree_fermion_orders;
+}
+
+std::map<std::string, std::vector<int>> MartyAdapter::get_marty_one_loop_fermion_orders() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_one_loop_fermion_orders;
 }

@@ -1,5 +1,7 @@
 from pathlib import Path
 
+import pytest
+
 from pyhyperiso.core.Common.GeneralEnum import MartyOrderPolicy, Model
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag, HyperisoConfig
 
@@ -16,6 +18,8 @@ def test_py_config_default_to_cpp():
     assert cpp_cfg.mty_model_name is None
     assert cpp_cfg.mty_model_path is None
     assert cpp_cfg.mty_order_policy == MartyOrderPolicy.AUTO.value
+    assert cpp_cfg.mty_tree_fermion_orders == {}
+    assert cpp_cfg.mty_one_loop_fermion_orders == {}
 
 
 def test_py_config_custom_values():
@@ -30,6 +34,14 @@ def test_py_config_custom_values():
         mty_model_name="THDM_Model",
         mty_model_path=Path("/tmp/THDM_Model.h"),
         mty_order_policy=MartyOrderPolicy.TREE_LEVEL_ONLY,
+        mty_tree_fermion_orders={
+            "C9": [1, 0, 2, 3],
+            "C_BS_1": [1, 0, 3, 2],
+        },
+        mty_one_loop_fermion_orders={
+            "C9": [0, 1, 3, 2],
+            "C_BS_1": [1, 0, 3, 2],
+        },
     )
 
     cpp_cfg = cfg.to_cpp()
@@ -43,3 +55,18 @@ def test_py_config_custom_values():
     assert cpp_cfg.mty_model_name == "THDM_Model"
     assert str(cpp_cfg.mty_model_path) == "/tmp/THDM_Model.h"
     assert cpp_cfg.mty_order_policy == MartyOrderPolicy.TREE_LEVEL_ONLY.value
+    assert cpp_cfg.mty_tree_fermion_orders == {
+        "C9": [1, 0, 2, 3],
+        "C_BS_1": [1, 0, 3, 2],
+    }
+    assert cpp_cfg.mty_one_loop_fermion_orders == {
+        "C9": [0, 1, 3, 2],
+        "C_BS_1": [1, 0, 3, 2],
+    }
+
+
+def test_py_config_rejects_invalid_per_coefficient_order():
+    cfg = HyperisoConfig(mty_tree_fermion_orders={"C9": [1, 0, 2, 2]})
+
+    with pytest.raises(ValueError, match="must be a permutation"):
+        cfg.to_cpp()

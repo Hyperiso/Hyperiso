@@ -174,7 +174,7 @@ int main() {
         assert(generated.find("model.computeAmplitude(hyperiso_marty_order") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
-        assert(generated.find("has_explicit_fermion_order") != std::string::npos);
+        assert(generated.find("preserve_explicit_order") != std::string::npos);
         assert(generated.find("orderExternalFermions = false") != std::string::npos);
         assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
         assert(generated.find("if (!hyperiso_marty_use_tree)") != std::string::npos);
@@ -300,20 +300,21 @@ int main() {
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("return std::make_pair(CSL_0, std::size_t{0})") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
-        assert(generated.find("has_explicit_fermion_order") != std::string::npos);
+        assert(generated.find("preserve_explicit_order") != std::string::npos);
         assert(generated.find("orderExternalFermions = false") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_fermion_orders()") == std::string::npos);
-        assert(generated.find("hyperiso_marty_configured_tree_fermion_order()") != std::string::npos);
+        assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
     }
 
     {
-        // Four-fermion TreeLevel-only generation applies one common explicit
-        // order to every coefficient.  It must not select the first non-zero
-        // permutation independently for C9, C10, CP9 and CP10.
+        // A coefficient may use distinct explicit fermion orders at TreeLevel
+        // and OneLoop.  The generator must keep both values and never scan
+        // permutations to select the first non-zero projection.
         GeneralModelModifier mod(
             "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
             false, true, false, false, MartyOrderPolicy::TREE_LEVEL_ONLY,
-            {0, 2, 1, 3}
+            {1, 0, 2, 3},
+            {1, 0, 3, 2}
         );
         fs::path out = root / "c9_tree_only_order_scan.cpp";
         std::ofstream f(out);
@@ -342,12 +343,56 @@ int main() {
         f.close();
         const std::string generated = slurp(out);
         assert(generated.find("HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY") != std::string::npos);
-        assert(generated.find("static const std::vector<int> order = {0, 2, 1, 3}") != std::string::npos);
+        assert(generated.find("static const std::vector<int> tree_order = {1, 0, 2, 3}") != std::string::npos);
+        assert(generated.find("static const std::vector<int> one_loop_order = {1, 0, 3, 2}") != std::string::npos);
+        assert(generated.find(
+            "hyperiso_marty_configured_fermion_order(mty::Order::OneLoop)"
+        ) != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_fermion_orders()") == std::string::npos);
         assert(generated.find("hyperiso_marty_candidate.first != CSL_0") == std::string::npos);
-        assert(generated.find("hyperiso_marty_configured_tree_fermion_order()") != std::string::npos);
+        assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
         assert(generated.find("fermion-order=") != std::string::npos);
         assert(generated.find("hyperiso_marty_order != mty::Order::TreeLevel") != std::string::npos);
+    }
+
+    {
+        // AUTO must also wrap a TreeLevel-only BSM template.  The complete LO
+        // coefficient is evaluated first and a distinct OneLoop order is used
+        // only when the LO expression vanishes.
+        GeneralModelModifier mod(
+            "C5", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, false, true, MartyOrderPolicy::AUTO,
+            {1, 0, 2, 3},
+            {1, 0, 3, 2}
+        );
+        fs::path out = root / "c5_tree_template_auto.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_C5(Model &model, gauge::Type gauge) {",
+            "    FeynOptions opts;",
+            "    opts.setFermionOrder({1, 0, 2, 3});",
+            "    auto wil = model.computeWilsonCoefficients(mty::Order::TreeLevel, process, opts);",
+            "    Expr C5 = getWilsonCoefficient(wil, O5);",
+            "    mty::Library wilsonLib(\"C5_SM\", \"libs\");",
+            "    wilsonLib.addFunction(\"C5\", C5);",
+            "    return 0;",
+            "}",
+            "int main() {",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+        const std::string generated = slurp(out);
+        assert(generated.find("hyperiso_marty_use_tree") != std::string::npos);
+        assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
+        assert(generated.find("mty::Order::OneLoop") != std::string::npos);
+        assert(generated.find("static const std::vector<int> tree_order = {1, 0, 2, 3}") != std::string::npos);
+        assert(generated.find("static const std::vector<int> one_loop_order = {1, 0, 3, 2}") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
     }
 
     {

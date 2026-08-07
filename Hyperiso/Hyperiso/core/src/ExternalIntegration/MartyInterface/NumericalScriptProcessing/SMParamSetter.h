@@ -45,6 +45,7 @@ private:
     scalar_t calculateKinematicInvariant(const LhaID& code) const;
     scalar_t calculateOneToThreeInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const;
     scalar_t calculateOneToTwoInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const;
+    scalar_t calculateTwoToTwoInvariant(const LhaID& code, const std::vector<scalar_t>& masses) const;
     scalar_t legacyKinematicInvariant(const LhaID& code) const;
 
     std::vector<scalar_t> extractMassesForCurrentProcess() const;

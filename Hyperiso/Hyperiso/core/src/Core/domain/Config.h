@@ -4,6 +4,7 @@
 #include <map>
 #include <optional>
 #include <filesystem>
+#include <string>
 #include <vector>
 
 #include "Include.h"
@@ -58,16 +59,24 @@ struct HyperisoConfig {
     MartyOrderPolicy mty_order_policy {MartyOrderPolicy::AUTO};
 
     /**
-     * @brief Optional explicit external-fermion order for MARTY tree matching.
+     * @brief Per-coefficient external-fermion orders for BSM tree matching.
      *
-     * When non-empty, this order overrides the order embedded in a coefficient
-     * template for every BSM TreeLevel calculation.  This is required for
-     * four-fermion processes whose correct tree pairing differs from the
-     * one-loop pairing used by the stock MARTY templates.  The same order is
-     * applied consistently to all coefficients of the process; HyperIso never
-     * selects a different "first non-zero" permutation per coefficient.
+     * Keys are MARTY coefficient/template names (for example ``C9`` or
+     * ``C_BS_1``).  An entry overrides only that coefficient at TreeLevel.
+     * Missing entries keep the explicit order embedded in the coefficient
+     * template (or MARTY automatic ordering if the template has none).
      */
-    std::vector<int> mty_tree_fermion_order {};
+    std::map<std::string, std::vector<int>> mty_tree_fermion_orders {};
+
+    /**
+     * @brief Per-coefficient external-fermion orders for BSM one-loop matching.
+     *
+     * This map is intentionally independent from ``mty_tree_fermion_orders``:
+     * the correct fermion pairing may differ between TreeLevel and OneLoop for
+     * the same coefficient. Missing entries keep the explicit template order
+     * independently at each perturbative order.
+     */
+    std::map<std::string, std::vector<int>> mty_one_loop_fermion_orders {};
 };
 
 #endif // CONFIG_H

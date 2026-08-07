@@ -172,12 +172,24 @@ class WCoeff(Enum):
 
 
 class WGroup(Enum):
-    """Legacy Wilson-coefficient group identifiers."""
+    """Builtin Wilson-coefficient group identifiers.
+
+    Keep this wrapper exhaustive with respect to the native ``WGroup`` enum.
+    Dynamic/custom groups remain available through :class:`WGroupId` and
+    :class:`GroupMapper`.
+    """
 
     B = _CppWGroup.B
     BPrime = _CppWGroup.BPrime
     BScalar = _CppWGroup.BScalar
     CC_bc = _CppWGroup.CC_bc
+    CC_bu = _CppWGroup.CC_bu
+    CC_cs = _CppWGroup.CC_cs
+    CC_cd = _CppWGroup.CC_cd
+    CC_su = _CppWGroup.CC_su
+    CC_du = _CppWGroup.CC_du
+    MESON_MIXING = _CppWGroup.MESON_MIXING
+    K = _CppWGroup.K
 
 
 class WilsonBasis(Enum):
