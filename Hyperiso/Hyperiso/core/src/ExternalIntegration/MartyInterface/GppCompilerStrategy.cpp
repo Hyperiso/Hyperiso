@@ -93,7 +93,7 @@ void GppCompilerStrategy::compile(const std::string& sourceFile, const std::stri
     const std::string lib_dir = MartyRuntimeConfig::shell_quote(marty.lib_dir);
     const std::string libgfortran_path = MartyRuntimeConfig::shell_quote(libgfortran);
 
-    std::string command_compile = "g++ -o " + outputBinary + " " + sourceFile
+    std::string command_compile = "g++ -std=c++20 -o " + outputBinary + " " + sourceFile
         + " -I" + include_dir
         + " -L" + lib_dir
         + " -Wl,-rpath," + lib_dir

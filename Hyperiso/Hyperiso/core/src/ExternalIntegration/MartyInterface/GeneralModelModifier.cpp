@@ -569,8 +569,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "#include <string>\n";
                 outputFile << "#include <unordered_set>\n";
             }
-            outputFile << "#include \"" + this->model_path + "\"\n";
             outputFile << "#include \"" + this->marty_path + "\"\n";
+            outputFile << "#include \"" + this->model_path + "\"\n";
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
             outputFile << orderPolicyPreamble();
             outputFile << "// HYPERISO_MARTY_TREE_FIRST: policy-aware TreeLevel/OneLoop selection\n";
@@ -721,6 +721,13 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_"
                        << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
+            // CSL/MARTY's generated 1->3 phase-space validator is compiled into
+            // every numerical library and unconditionally accesses param_t::s_12
+            // and param_t::s_13.  These invariants may be absent from the Wilson
+            // expression itself (e.g. an expression depending only on s_23), so
+            // force them into param_t as library-level default parameters.
+            outputFile << "    wilsonLib.addDefaultParameter(\"s_12\", false);\n";
+            outputFile << "    wilsonLib.addDefaultParameter(\"s_13\", false);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson
                        << "\", hyperiso_marty_selected);\n";
             outputFile << "    defineLibPath(wilsonLib);\n";
@@ -745,8 +752,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include <sstream>\n";
             outputFile << "#include <cstddef>\n";
             outputFile << "#include <utility>\n";
-            outputFile << "#include \"" + this->model_path + "\"" << "\n";
             outputFile << "#include \"" + this->marty_path + "\"" << "\n";
+            outputFile << "#include \"" + this->model_path + "\"" << "\n";
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
             outputFile << orderPolicyPreamble();
             if (this->full_target_generation) {
@@ -985,6 +992,10 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    [[maybe_unused]] int sysres = system(\"rm -rf libs/" << this->wilson << "_" << this->output_model << "\");\n";
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_" << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
+            // Keep the generated param_t compatible with CSL/MARTY's generic
+            // 1->3 kinematics implementation (see the tree-first path above).
+            outputFile << "    wilsonLib.addDefaultParameter(\"s_12\", false);\n";
+            outputFile << "    wilsonLib.addDefaultParameter(\"s_13\", false);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "\", hyperiso_marty_bsm);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_A\", hyperiso_marty_bsm_photon);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_SCALAR\", hyperiso_marty_bsm_scalar);\n";
@@ -1019,8 +1030,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include <string>\n";
             outputFile << "#include <unordered_set>\n";
         }
-        outputFile << "#include \"" + this->model_path + "\"" << "\n";
         outputFile << "#include \"" + this->marty_path + "\"" << "\n";
+        outputFile << "#include \"" + this->model_path + "\"" << "\n";
         outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
         outputFile << orderPolicyPreamble();
         if (this->disable_non_sm_particles) {
@@ -1047,6 +1058,18 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
              && currentLine.find("FeynOptions opts;") != std::string::npos) {
         outputFile << currentLine << "\n";
         outputFile << "    hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+    }
+    else if (currentLine.find("wilsonLib.cleanExistingSources") != std::string::npos) {
+        // Specialised MARTY templates such as C10/CP10 already implement their
+        // own tree/loop selection and therefore do not pass through either the
+        // generic tree-first wrapper or the reg_prop split path above.  Their
+        // generated numerical library still compiles CSL's generic 1->3
+        // kinematics code, which unconditionally accesses param_t::s_12 and
+        // param_t::s_13.  Keep the parameter contract identical in this third
+        // generation path as well.
+        outputFile << currentLine << "\n";
+        outputFile << "    wilsonLib.addDefaultParameter(\"s_12\", false);\n";
+        outputFile << "    wilsonLib.addDefaultParameter(\"s_13\", false);\n";
     }
     else {
         outputFile << currentLine << "\n";

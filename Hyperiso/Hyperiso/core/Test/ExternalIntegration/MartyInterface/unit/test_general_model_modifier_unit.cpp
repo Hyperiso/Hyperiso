@@ -187,6 +187,8 @@ int main() {
         assert(generic_undefine < generic_model
                && "SM inputs must be undefined before target-model construction");
         assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
+        assert(generated.find("wilsonLib.addDefaultParameter(\"s_12\", false)") != std::string::npos);
+        assert(generated.find("wilsonLib.addDefaultParameter(\"s_13\", false)") != std::string::npos);
     }
 
     {
@@ -233,6 +235,48 @@ int main() {
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("gaug,") == std::string::npos);
         assert(generated.find("hyperiso_marty_ordere") == std::string::npos);
+    }
+
+    {
+        // C10 is a specialised template: it already performs its own tree-first
+        // selection and therefore bypasses the generic tree-first source rewrite.
+        // The library parameter contract must nevertheless include s_12/s_13,
+        // because CSL's generated 1->3 kinematics.cpp references both fields.
+        GeneralModelModifier mod(
+            "C10", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
+            false, true, false, false, MartyOrderPolicy::TREE_LEVEL_ONLY,
+            {1, 0, 2, 3}, {}
+        );
+        fs::path out = root / "c10_specialised_library_params.cpp";
+        std::ofstream f(out);
+        const std::vector<std::string> source = {
+            "#include <iostream>",
+            "using namespace sm_input;",
+            "int calculate_C10mu(Model &model, gauge::Type gauge) {",
+            "    FeynOptions opts;",
+            "    mty::Library wilsonLib(\"C10_SM\", \"libs\");",
+            "    wilsonLib.cleanExistingSources();",
+            "    wilsonLib.addFunction(\"C10\", C10_mu);",
+            "    return 0;",
+            "}",
+        };
+        for (auto line : source) {
+            mod.modifyLine(line);
+            mod.addLine(f, line);
+        }
+        f.close();
+
+        const std::string generated = slurp(out);
+        assert(generated.find("HYPERISO_MARTY_TREE_FIRST") == std::string::npos);
+        const auto clean = generated.find("wilsonLib.cleanExistingSources()");
+        const auto s12 = generated.find("wilsonLib.addDefaultParameter(\"s_12\", false)");
+        const auto s13 = generated.find("wilsonLib.addDefaultParameter(\"s_13\", false)");
+        const auto add = generated.find("wilsonLib.addFunction(\"C10\"");
+        assert(clean != std::string::npos);
+        assert(s12 != std::string::npos);
+        assert(s13 != std::string::npos);
+        assert(add != std::string::npos);
+        assert(clean < s12 && s12 < s13 && s13 < add);
     }
 
     {
@@ -304,6 +348,8 @@ int main() {
         assert(generated.find("orderExternalFermions = false") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_fermion_orders()") == std::string::npos);
         assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
+        assert(generated.find("wilsonLib.addDefaultParameter(\"s_12\", false)") != std::string::npos);
+        assert(generated.find("wilsonLib.addDefaultParameter(\"s_13\", false)") != std::string::npos);
     }
 
     {

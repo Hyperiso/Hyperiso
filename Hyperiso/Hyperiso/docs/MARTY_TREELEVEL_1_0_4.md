@@ -94,9 +94,11 @@ three-momenta vanish and `s_ij = p_i.p_j = m_i m_j`.  This removes the old
 fallback to the semileptonic `b -> s mu mu` KIN prescription, which was not
 appropriate for Delta F = 2 matching.
 
-The canonical SM mapping now uses `KIN:12` and `KIN:13` for MARTY `s_12` and
-`s_13`.  `SMParamSetter` still accepts the historical `KIN:4` and `KIN:7`
-aliases so existing user mappings remain compatible.
+The canonical SM mapping now covers all six pairwise four-leg scalar products,
+`KIN:12`, `KIN:13`, `KIN:14`, `KIN:23`, `KIN:24`, and `KIN:34`, for MARTY
+`s_12`, `s_13`, `s_14`, `s_23`, `s_24`, and `s_34`. `SMParamSetter` still
+accepts the historical `KIN:4` and `KIN:7` aliases for `s_12` and `s_13` so
+existing user mappings remain compatible.
 
 ## ParameterProvider
 

@@ -10,6 +10,7 @@
 #include "MartyWilson.h"
 #include "BWilsonSUSY.h"
 #include "BWilsonTHDM.h"
+#include "MesonMixingWilsonTHDM.h"
 #include "ChargedCurrentWilsonTHDM.h"
 #include "DChargedCurrentWilsonTHDM.h"
 #include "KChargedCurrentWilsonTHDM.h"
@@ -503,6 +504,28 @@ void register_MesonMixing(CoefficientRegistry& reg) {
     REG(WCoef::CT_CU_3,  SM, Builtin, std::make_shared<C_mix_cu_3_tilde>());
     REG(WCoef::C_CU_4,  SM, Builtin, std::make_shared<C_mix_cu_4>());
     REG(WCoef::C_CU_5, SM, Builtin, std::make_shared<C_mix_cu_5>());
+
+    // Native type-II THDM charged-Higgs DeltaB=2 matching, ported from
+    // SuperIso CM_calculator_chargedhiggs().  The legacy native
+    // implementation currently covers Bd and Bs mixing; SD/CU remain without
+    // a native THDM-specific matching and can still be evaluated with MARTY.
+    REG(WCoef::C_BD_1,  THDM, Builtin, std::make_shared<C_mix_bd_1_THDM>());
+    REG(WCoef::CT_BD_1, THDM, Builtin, std::make_shared<C_mix_bd_1_tilde_THDM>());
+    REG(WCoef::C_BD_2,  THDM, Builtin, std::make_shared<C_mix_bd_2_THDM>());
+    REG(WCoef::CT_BD_2, THDM, Builtin, std::make_shared<C_mix_bd_2_tilde_THDM>());
+    REG(WCoef::C_BD_3,  THDM, Builtin, std::make_shared<C_mix_bd_3_THDM>());
+    REG(WCoef::CT_BD_3, THDM, Builtin, std::make_shared<C_mix_bd_3_tilde_THDM>());
+    REG(WCoef::C_BD_4,  THDM, Builtin, std::make_shared<C_mix_bd_4_THDM>());
+    REG(WCoef::C_BD_5,  THDM, Builtin, std::make_shared<C_mix_bd_5_THDM>());
+
+    REG(WCoef::C_BS_1,  THDM, Builtin, std::make_shared<C_mix_bs_1_THDM>());
+    REG(WCoef::CT_BS_1, THDM, Builtin, std::make_shared<C_mix_bs_1_tilde_THDM>());
+    REG(WCoef::C_BS_2,  THDM, Builtin, std::make_shared<C_mix_bs_2_THDM>());
+    REG(WCoef::CT_BS_2, THDM, Builtin, std::make_shared<C_mix_bs_2_tilde_THDM>());
+    REG(WCoef::C_BS_3,  THDM, Builtin, std::make_shared<C_mix_bs_3_THDM>());
+    REG(WCoef::CT_BS_3, THDM, Builtin, std::make_shared<C_mix_bs_3_tilde_THDM>());
+    REG(WCoef::C_BS_4,  THDM, Builtin, std::make_shared<C_mix_bs_4_THDM>());
+    REG(WCoef::C_BS_5,  THDM, Builtin, std::make_shared<C_mix_bs_5_THDM>());
 
     for (WCoef c : WCoefMapper::get_group(WGroup::MESON_MIXING)) {
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));

@@ -76,11 +76,15 @@ int main(){
 
         auto s12 = mixing_setter.setParam("s_12", P("KIN", LhaID(12), false, false));
         auto s13 = mixing_setter.setParam("s_13", P("KIN", LhaID(13), false, false));
+        auto s14 = mixing_setter.setParam("s_14", P("KIN", LhaID(14), false, false));
+        auto s23 = mixing_setter.setParam("s_23", P("KIN", LhaID(23), false, false));
         auto s24 = mixing_setter.setParam("s_24", P("KIN", LhaID(24), false, false));
         auto s34 = mixing_setter.setParam("s_34", P("KIN", LhaID(34), false, false));
 
         assert(std::abs(s12["s_12"] - mb*ms) < 1e-12);
         assert(std::abs(s13["s_13"] - mb*mb) < 1e-12);
+        assert(std::abs(s14["s_14"] - mb*ms) < 1e-12);
+        assert(std::abs(s23["s_23"] - ms*mb) < 1e-12);
         assert(std::abs(s24["s_24"] - ms*ms) < 1e-12);
         assert(std::abs(s34["s_34"] - mb*ms) < 1e-12);
 

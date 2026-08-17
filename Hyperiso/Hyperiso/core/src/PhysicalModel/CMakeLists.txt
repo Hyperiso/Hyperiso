@@ -92,6 +92,7 @@ add_library(PhysicalModelLib STATIC
     domain/WCoef/BSM/BWilsonSUSY.cpp
     domain/WCoef/BSM/NMSSMScalarMatching.cpp
     domain/WCoef/BSM/BWilsonTHDM.cpp
+    domain/WCoef/BSM/MesonMixingWilsonTHDM.cpp
     domain/WCoef/BSM/ChargedCurrentWilsonSUSY.cpp
     domain/WCoef/BSM/ChargedCurrentWilsonTHDM.cpp
     domain/WCoef/BSM/DChargedCurrentWilsonSUSY.cpp
