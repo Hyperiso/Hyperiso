@@ -77,6 +77,27 @@ struct HyperisoConfig {
      * independently at each perturbative order.
      */
     std::map<std::string, std::vector<int>> mty_one_loop_fermion_orders {};
+
+    /**
+     * @brief Per-coefficient dimension-six operator orders for BSM tree matching.
+     *
+     * This order controls only the fermion pairing used by MARTY's
+     * ``dimension6Operator`` projector.  It is deliberately independent from
+     * ``mty_tree_fermion_orders``, which controls the external-spinor ordering
+     * and Fierz rearrangement used while computing the Wilson set.
+     * Missing entries preserve the operator order embedded in the coefficient
+     * template (or MARTY's projector default when the template omits one).
+     */
+    std::map<std::string, std::vector<int>> mty_tree_operator_orders {};
+
+    /**
+     * @brief Per-coefficient dimension-six operator orders for BSM one-loop matching.
+     *
+     * This map is independent from both the TreeLevel operator order and the
+     * OneLoop fermion order. Missing entries preserve the template/projector
+     * default exactly.
+     */
+    std::map<std::string, std::vector<int>> mty_one_loop_operator_orders {};
 };
 
 #endif // CONFIG_H

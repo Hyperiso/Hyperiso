@@ -91,6 +91,21 @@ def text_input(
     )
 
 
+def textarea_input(
+    id: str,
+    value: str = "",
+    placeholder: str = "",
+    rows: int = 4,
+):
+    return dcc.Textarea(
+        id=id,
+        value=value,
+        placeholder=placeholder,
+        rows=rows,
+        style={"width": "100%", "fontFamily": "monospace", "resize": "vertical"},
+    )
+
+
 def num_input(
     id: str,
     value: float | int | None = None,

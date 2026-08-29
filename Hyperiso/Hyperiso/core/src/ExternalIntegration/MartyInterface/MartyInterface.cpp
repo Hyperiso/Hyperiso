@@ -32,7 +32,84 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v6";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v14";
+
+constexpr const char* kMartyTreeRecipePrefix = "__HYPERISO_MARTY_TREE_RECIPE__|";
+constexpr const char* kMartyTreeRecipeToken = "HYPERISO_MARTY_TREE_PROJECTION_TERMS";
+constexpr const char* kMartyTreeRecipeInjectedBegin = "HYPERISO_MARTY_TREE_RECIPE_INJECTED_BEGIN";
+constexpr const char* kMartyTreeRecipeInjectedEnd = "HYPERISO_MARTY_TREE_RECIPE_INJECTED_END";
+
+struct MartyTreeProjectionTerm {
+    std::string id;
+    double weight {1.0};
+    std::string left_current;
+    std::string right_current;
+    std::string layout;
+    std::vector<int> fermion_order;
+    std::vector<int> operator_order;
+};
+
+bool supports_tree_projection_recipe(const std::string& wilson) {
+    return wilson == "C9" || wilson == "C10"
+        || wilson == "CP9" || wilson == "CP10";
+}
+
+std::vector<std::string> split_recipe_key(const std::string& key) {
+    std::vector<std::string> fields;
+    std::stringstream stream(key);
+    std::string field;
+    while (std::getline(stream, field, '|')) fields.push_back(field);
+    return fields;
+}
+
+bool is_valid_marty_permutation(const std::vector<int>& order) {
+    if (order.size() != 4) return false;
+    auto sorted = order;
+    std::sort(sorted.begin(), sorted.end());
+    return sorted == std::vector<int>({0, 1, 2, 3});
+}
+
+std::string compact_order_marker(const std::vector<int>& order) {
+    if (order.empty()) return "template-default";
+    std::ostringstream out;
+    for (std::size_t i = 0; i < order.size(); ++i) {
+        if (i != 0) out << '-';
+        out << order[i];
+    }
+    return out.str();
+}
+
+std::string cpp_dirac_coupling(const std::string& current) {
+    if (current == "VL") return "mty::DiracCoupling::VL";
+    if (current == "VR") return "mty::DiracCoupling::VR";
+    if (current == "V")  return "mty::DiracCoupling::V";
+    if (current == "A")  return "mty::DiracCoupling::A";
+    throw std::runtime_error(
+        "Unsupported MARTY tree projection current '" + current
+        + "'. Recipe ABI v1 supports VL, VR, V and A."
+    );
+}
+
+std::string cpp_vector_literal(const std::vector<int>& values) {
+    std::ostringstream out;
+    out << '{';
+    for (std::size_t i = 0; i < values.size(); ++i) {
+        if (i != 0) out << ", ";
+        out << values[i];
+    }
+    out << '}';
+    return out.str();
+}
+
+std::string escape_cpp_string(const std::string& value) {
+    std::string out;
+    out.reserve(value.size());
+    for (const char c : value) {
+        if (c == '\\' || c == '"') out.push_back('\\');
+        out.push_back(c);
+    }
+    return out;
+}
 
 std::string sanitize_path_component(std::string value) {
     for (char& c : value) {
@@ -229,6 +306,15 @@ void publish_legacy_csv(const fs::path& isolated, const fs::path& legacy) {
 
 std::string template_signature(const std::string& wilson,
                                const std::shared_ptr<FileNameManager>& files);
+std::vector<MartyTreeProjectionTerm> effective_tree_projection_recipe(
+    const std::string& wilson,
+    bool sm_like_filter,
+    bool bsm_only_generation,
+    bool full_target_generation
+);
+std::string tree_projection_recipe_marker(const std::vector<MartyTreeProjectionTerm>& recipe);
+void inject_tree_projection_recipe(const fs::path& generated_file,
+                                   const std::vector<MartyTreeProjectionTerm>& recipe);
 MartyOrderPolicy effective_order_policy(bool sm_like_filter,
                                           bool bsm_only_generation,
                                           bool full_target_generation);
@@ -237,13 +323,20 @@ std::vector<int> effective_fermion_order(const std::string& wilson,
                                          bool sm_like_filter,
                                          bool bsm_only_generation,
                                          bool full_target_generation);
+std::vector<int> effective_operator_order(const std::string& wilson,
+                                          bool one_loop,
+                                          bool sm_like_filter,
+                                          bool bsm_only_generation,
+                                          bool full_target_generation);
 std::string generation_mode_marker(const std::string& wilson,
                                    bool sm_like_filter,
                                    bool bsm_only_generation,
                                    bool full_target_generation,
                                    MartyOrderPolicy order_policy,
                                    const std::vector<int>& tree_fermion_order,
-                                   const std::vector<int>& one_loop_fermion_order);
+                                   const std::vector<int>& one_loop_fermion_order,
+                                   const std::vector<int>& tree_operator_order,
+                                   const std::vector<int>& one_loop_operator_order);
 void append_cache_metadata_if_missing(const fs::path& generated_file,
                                       const std::string& model_signature,
                                       const std::string& template_signature_value,
@@ -309,6 +402,12 @@ void MartyInterface::generate(std::string wilson,
     const std::vector<int> one_loop_fermion_order = effective_fermion_order(
         wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
     );
+    const std::vector<int> tree_operator_order = effective_operator_order(
+        wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
+    );
+    const std::vector<int> one_loop_operator_order = effective_operator_order(
+        wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
+    );
     invalidate_template_model_cache_if_needed(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation
@@ -318,7 +417,9 @@ void MartyInterface::generate(std::string wilson,
     smModifier = std::make_unique<GeneralModelModifier>(
         wilson, output_model, target_model, model_path, model_template_index,
         sm_like_filter, bsm_split_generation, full_target_generation,
-        tree_first_fallback, order_policy, tree_fermion_order, one_loop_fermion_order
+        tree_first_fallback, order_policy,
+        tree_fermion_order, one_loop_fermion_order,
+        tree_operator_order, one_loop_operator_order
     );
 
     std::unique_ptr<TemplateManagerBase> templateManager = std::make_unique<NonNumericTemplateManager>(files->getTemplateDir());
@@ -328,13 +429,21 @@ void MartyInterface::generate(std::string wilson,
     CodeGenerator codeGenerator(std::move(templateManager));
 
     codeGenerator.generate(wilson, files->getGeneratedFileName());
+    inject_tree_projection_recipe(
+        files->getGeneratedFileName(),
+        effective_tree_projection_recipe(
+            wilson, sm_like_filter, bsm_split_generation, full_target_generation
+        )
+    );
     append_cache_metadata_if_missing(
         files->getGeneratedFileName(),
         GeneralModelModifier::modelSignature(target_model, model_path, model_template_index),
         template_signature(wilson, files),
         generation_mode_marker(
             wilson, sm_like_filter, bsm_split_generation, full_target_generation,
-            order_policy, tree_fermion_order, one_loop_fermion_order
+            order_policy,
+            tree_fermion_order, one_loop_fermion_order,
+            tree_operator_order, one_loop_operator_order
         )
     );
 }
@@ -529,6 +638,12 @@ bool MartyInterface::artifacts_ready(const std::string& wilson,
             wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
         ),
         effective_fermion_order(
+            wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
+        ),
+        effective_operator_order(
+            wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
+        ),
+        effective_operator_order(
             wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
         )
     );
@@ -816,22 +931,215 @@ MartyOrderPolicy effective_order_policy(bool sm_like_filter,
     return MartyAdapter{}.get_marty_order_policy();
 }
 
+std::vector<MartyTreeProjectionTerm> effective_tree_projection_recipe(
+    const std::string& wilson,
+    bool sm_like_filter,
+    bool bsm_only_generation,
+    bool full_target_generation
+) {
+    if (!supports_tree_projection_recipe(wilson)
+        || sm_like_filter
+        || (!bsm_only_generation && !full_target_generation)) {
+        return {};
+    }
+
+    const MartyAdapter adapter;
+    const auto fermion_orders = adapter.get_marty_tree_fermion_orders();
+    const auto operator_orders = adapter.get_marty_tree_operator_orders();
+    const std::string prefix = std::string(kMartyTreeRecipePrefix) + wilson + "|";
+
+    std::vector<MartyTreeProjectionTerm> recipe;
+    for (const auto& [key, fermion_order] : fermion_orders) {
+        if (key.rfind(prefix, 0) != 0) continue;
+
+        const auto fields = split_recipe_key(key);
+        if (fields.size() != 7
+            || fields[0] != "__HYPERISO_MARTY_TREE_RECIPE__"
+            || fields[1] != wilson) {
+            throw std::runtime_error("Malformed MARTY tree projection recipe key: " + key);
+        }
+        const auto operator_it = operator_orders.find(key);
+        if (operator_it == operator_orders.end()) {
+            throw std::runtime_error(
+                "MARTY tree projection recipe term is missing its operator order: " + key
+            );
+        }
+        if (!is_valid_marty_permutation(fermion_order)
+            || !is_valid_marty_permutation(operator_it->second)) {
+            throw std::runtime_error(
+                "MARTY tree projection recipe F/O must be permutations of 0,1,2,3: " + key
+            );
+        }
+        if (fields[6] != "quark_first" && fields[6] != "lepton_first") {
+            throw std::runtime_error(
+                "MARTY tree projection recipe layout must be quark_first or lepton_first: " + key
+            );
+        }
+        (void)cpp_dirac_coupling(fields[4]);
+        (void)cpp_dirac_coupling(fields[5]);
+
+        MartyTreeProjectionTerm term;
+        term.id = fields[2];
+        term.weight = std::stod(fields[3]);
+        if (!std::isfinite(term.weight)) {
+            throw std::runtime_error(
+                "MARTY tree projection recipe weight must be finite: " + key
+            );
+        }
+        term.left_current = fields[4];
+        term.right_current = fields[5];
+        term.layout = fields[6];
+        term.fermion_order = fermion_order;
+        term.operator_order = operator_it->second;
+        recipe.push_back(std::move(term));
+    }
+
+    for (const auto& [key, operator_order] : operator_orders) {
+        if (key.rfind(prefix, 0) != 0) continue;
+        if (fermion_orders.find(key) == fermion_orders.end()) {
+            throw std::runtime_error(
+                "MARTY tree projection recipe term is missing its fermion order: " + key
+            );
+        }
+        (void)operator_order;
+    }
+
+    std::sort(recipe.begin(), recipe.end(), [](const auto& lhs, const auto& rhs) {
+        return lhs.id < rhs.id;
+    });
+    return recipe;
+}
+
+std::string tree_projection_recipe_marker(const std::vector<MartyTreeProjectionTerm>& recipe) {
+    if (recipe.empty()) return "template-default-direct";
+    std::ostringstream out;
+    out << "recipe-v1[";
+    for (std::size_t i = 0; i < recipe.size(); ++i) {
+        const auto& term = recipe[i];
+        if (i != 0) out << ';';
+        out << term.id << ':' << std::setprecision(17) << term.weight
+            << ':' << term.left_current << ',' << term.right_current
+            << ':' << term.layout
+            << ":F=" << compact_order_marker(term.fermion_order)
+            << ":O=" << compact_order_marker(term.operator_order);
+    }
+    out << ']';
+    return out.str();
+}
+
+void inject_tree_projection_recipe(
+    const fs::path& generated_file,
+    const std::vector<MartyTreeProjectionTerm>& recipe
+) {
+    std::ifstream input(generated_file);
+    if (!input) {
+        throw std::runtime_error(
+            "Cannot inject MARTY tree projection recipe into: " + generated_file.string()
+        );
+    }
+    std::string source(
+        (std::istreambuf_iterator<char>(input)),
+        std::istreambuf_iterator<char>()
+    );
+    const std::string token = kMartyTreeRecipeToken;
+    const std::string begin_marker = std::string("// ") + kMartyTreeRecipeInjectedBegin;
+    const std::string end_marker = std::string("// ") + kMartyTreeRecipeInjectedEnd;
+
+    // Always keep a replaceable marker block in the generated source.  The old
+    // v11/v12 implementation consumed the template token permanently; a second
+    // build on the same cache then failed because there was no hook left to
+    // inject into.  Marker-to-marker replacement is idempotent and also allows
+    // a changed recipe to update an already generated source safely.
+    std::ostringstream replacement;
+    replacement << begin_marker << "\n";
+    for (std::size_t i = 0; i < recipe.size(); ++i) {
+        const auto& term = recipe[i];
+        if (i != 0) replacement << ",\n";
+        replacement
+            << "        {\"" << escape_cpp_string(term.id) << "\", "
+            << std::setprecision(17) << term.weight << ", "
+            << cpp_vector_literal(term.fermion_order) << ", "
+            << cpp_vector_literal(term.operator_order) << ", "
+            << cpp_dirac_coupling(term.left_current) << ", "
+            << cpp_dirac_coupling(term.right_current) << ", "
+            << (term.layout == "lepton_first" ? "true" : "false") << "}";
+    }
+    if (!recipe.empty()) {
+        replacement << "\n";
+    }
+    replacement << end_marker;
+    const std::string replacement_text = replacement.str();
+
+    std::size_t token_pos = source.find(token);
+    if (token_pos != std::string::npos) {
+        while ((token_pos = source.find(token, token_pos)) != std::string::npos) {
+            source.replace(token_pos, token.size(), replacement_text);
+            token_pos += replacement_text.size();
+        }
+    } else {
+        const auto begin = source.find(begin_marker);
+        const auto end = begin == std::string::npos
+            ? std::string::npos
+            : source.find(end_marker, begin + begin_marker.size());
+        if (begin == std::string::npos || end == std::string::npos) {
+            if (!recipe.empty()) {
+                throw std::runtime_error(
+                    "Configured MARTY tree projection recipe for a template without a recipe hook: "
+                    + generated_file.string()
+                );
+            }
+            return;
+        }
+        source.replace(
+            begin,
+            end + end_marker.size() - begin,
+            replacement_text
+        );
+    }
+
+    std::ofstream output(generated_file, std::ios::trunc);
+    if (!output) {
+        throw std::runtime_error(
+            "Cannot write MARTY source after recipe injection: " + generated_file.string()
+        );
+    }
+    output << source;
+}
+
 std::vector<int> effective_fermion_order(const std::string& wilson,
                                          bool one_loop,
                                          bool sm_like_filter,
                                          bool bsm_only_generation,
                                          bool full_target_generation) {
-    // Per-coefficient orders belong only to the configured BSM target.  Never
-    // leak them into the independently generated SM baseline.  When no override
-    // is configured, the order embedded in the coefficient template is kept.
-    if (sm_like_filter || (!bsm_only_generation && !full_target_generation)) {
+    if (sm_like_filter || (!bsm_only_generation && !full_target_generation)) return {};
+    if (!one_loop && !effective_tree_projection_recipe(
+            wilson, sm_like_filter, bsm_only_generation, full_target_generation
+        ).empty()) {
         return {};
     }
-
     const MartyAdapter adapter;
     const auto orders = one_loop
         ? adapter.get_marty_one_loop_fermion_orders()
         : adapter.get_marty_tree_fermion_orders();
+    const auto it = orders.find(wilson);
+    return it == orders.end() ? std::vector<int>{} : it->second;
+}
+
+std::vector<int> effective_operator_order(const std::string& wilson,
+                                          bool one_loop,
+                                          bool sm_like_filter,
+                                          bool bsm_only_generation,
+                                          bool full_target_generation) {
+    if (sm_like_filter || (!bsm_only_generation && !full_target_generation)) return {};
+    if (!one_loop && !effective_tree_projection_recipe(
+            wilson, sm_like_filter, bsm_only_generation, full_target_generation
+        ).empty()) {
+        return {};
+    }
+    const MartyAdapter adapter;
+    const auto orders = one_loop
+        ? adapter.get_marty_one_loop_operator_orders()
+        : adapter.get_marty_tree_operator_orders();
     const auto it = orders.find(wilson);
     return it == orders.end() ? std::vector<int>{} : it->second;
 }
@@ -868,7 +1176,9 @@ std::string generation_mode_marker(const std::string& wilson,
                                    bool full_target_generation,
                                    MartyOrderPolicy order_policy,
                                    const std::vector<int>& tree_fermion_order,
-                                   const std::vector<int>& one_loop_fermion_order) {
+                                   const std::vector<int>& one_loop_fermion_order,
+                                   const std::vector<int>& tree_operator_order,
+                                   const std::vector<int>& one_loop_operator_order) {
     return "HYPERISO_MARTY_GENERATION_MODE: "
          + generation_mode(
              wilson,
@@ -878,7 +1188,16 @@ std::string generation_mode_marker(const std::string& wilson,
          )
          + "; order-policy=" + order_policy_name(order_policy)
          + "; tree-fermion-order=" + fermion_order_marker(tree_fermion_order)
-         + "; one-loop-fermion-order=" + fermion_order_marker(one_loop_fermion_order);
+         + "; one-loop-fermion-order=" + fermion_order_marker(one_loop_fermion_order)
+         + "; tree-operator-order=" + fermion_order_marker(tree_operator_order)
+         + "; one-loop-operator-order=" + fermion_order_marker(one_loop_operator_order)
+         + (supports_tree_projection_recipe(wilson)
+                ? "; tree-projection=" + tree_projection_recipe_marker(
+                    effective_tree_projection_recipe(
+                        wilson, sm_like_filter, bsm_only_generation, full_target_generation
+                    )
+                  )
+                : "");
 }
 
 void append_cache_metadata_if_missing(const fs::path& generated_file,
@@ -943,6 +1262,12 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
             wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
         ),
         effective_fermion_order(
+            wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
+        ),
+        effective_operator_order(
+            wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
+        ),
+        effective_operator_order(
             wilson, true, sm_like_filter, bsm_split_generation, full_target_generation
         )
     );

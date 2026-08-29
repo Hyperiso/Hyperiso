@@ -456,11 +456,12 @@ def register_callbacks(app):
     @app.callback(
         Output("core-marty-name-wrap", "style"),
         Output("core-marty-path-wrap", "style"),
+        Output("core-marty-orders-wrap", "style"),
         Input("core-model", "value"),
     )
     def show_marty_fields(model):
         visible = {} if model == "MARTY" else {"display": "none"}
-        return visible, visible
+        return visible, visible, visible
 
     @app.callback(
         Output("core-block-ptype", "options"),
@@ -489,10 +490,28 @@ def register_callbacks(app):
         State("core-model", "value"),
         State("core-marty-name", "value"),
         State("core-marty-path", "value"),
+        State("core-marty-order-policy", "value"),
+        State("core-marty-tree-fermion-orders", "value"),
+        State("core-marty-tree-operator-orders", "value"),
+        State("core-marty-loop-fermion-orders", "value"),
+        State("core-marty-loop-operator-orders", "value"),
         State("runtime-ping", "data"),
         prevent_initial_call=True,
     )
-    def core_init(click_ts, lha_path, flags, model, marty_name, marty_path, ping):
+    def core_init(
+        click_ts,
+        lha_path,
+        flags,
+        model,
+        marty_name,
+        marty_path,
+        marty_order_policy,
+        tree_fermion_orders,
+        tree_operator_orders,
+        one_loop_fermion_orders,
+        one_loop_operator_orders,
+        ping,
+    ):
         if click_ts in (None, -1) or int(click_ts) <= int(
             getattr(svc.RUNTIME, "last_core_init_ts", -1)
         ):
@@ -500,7 +519,16 @@ def register_callbacks(app):
         try:
             svc.RUNTIME.last_core_init_ts = int(click_ts)
             info = svc.init_or_switch_hyperiso(
-                lha_path, flags or [], model, marty_name, marty_path
+                lha_path,
+                flags or [],
+                model,
+                marty_name,
+                marty_path,
+                marty_order_policy or "AUTO",
+                tree_fermion_orders,
+                tree_operator_orders,
+                one_loop_fermion_orders,
+                one_loop_operator_orders,
             )
             return _ok("Hyperiso ready.", info), _runtime_metrics(), int(ping or 0) + 1
         except Exception as exc:

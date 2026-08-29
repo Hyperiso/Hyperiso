@@ -64,6 +64,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         false,
         MartyOrderPolicy::AUTO,
         {},
+        {},
+        {},
         {}
       ) {}
 
@@ -78,7 +80,9 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
                                              bool tree_first_fallback,
                                              MartyOrderPolicy order_policy,
                                              std::vector<int> tree_fermion_order,
-                                             std::vector<int> one_loop_fermion_order) {
+                                             std::vector<int> one_loop_fermion_order,
+                                             std::vector<int> tree_operator_order,
+                                             std::vector<int> one_loop_operator_order) {
         this->wilson = std::move(wilson);
         this->output_model = std::move(output_model);
         this->target_model = std::move(target_model);
@@ -91,6 +95,8 @@ GeneralModelModifier::GeneralModelModifier(std::string wilson,
         this->order_policy = order_policy;
         this->tree_fermion_order = std::move(tree_fermion_order);
         this->one_loop_fermion_order = std::move(one_loop_fermion_order);
+        this->tree_operator_order = std::move(tree_operator_order);
+        this->one_loop_operator_order = std::move(one_loop_operator_order);
 
         ModelFileChecker checker(this->model_path);
         this->model_class = checker.resolveModelClass(this->target_model);
@@ -148,35 +154,54 @@ void GeneralModelModifier::replaceWilsonOrderArgument(std::string& line) {
     const auto call = line.find("computeWilsonCoefficients");
     if (call != std::string::npos) {
         const auto open = line.find('(', call);
-        if (open != std::string::npos) {
-            const std::pair<const char*, const char*> candidates[] = {
-                {"mty::Order::TreeLevel", "hyperiso_marty_order"},
-                {"mty::Order::OneLoop", "hyperiso_marty_order"},
-                {"TreeLevel", "hyperiso_marty_order"},
-                {"OneLoop", "hyperiso_marty_order"},
-            };
-            for (const auto& [needle, replacement] : candidates) {
-                const auto pos = line.find(needle, open + 1);
-                if (pos != std::string::npos) {
-                    line.replace(pos, std::string(needle).size(), replacement);
-                    return;
-                }
+        if (open == std::string::npos) {
+            this->pending_wilson_order_argument = false;
+            return;
+        }
+
+        const std::pair<const char*, const char*> candidates[] = {
+            {"mty::Order::TreeLevel", "hyperiso_marty_order"},
+            {"mty::Order::OneLoop", "hyperiso_marty_order"},
+            {"TreeLevel", "hyperiso_marty_order"},
+            {"OneLoop", "hyperiso_marty_order"},
+        };
+        for (const auto& [needle, replacement] : candidates) {
+            const auto pos = line.find(needle, open + 1);
+            if (pos != std::string::npos) {
+                line.replace(pos, std::string(needle).size(), replacement);
+                this->pending_wilson_order_argument = false;
+                return;
             }
         }
+
+        // Only a genuinely multi-line computeWilsonCoefficients call may put
+        // its order on a later standalone line.  Remember that context instead
+        // of rewriting every unrelated `mty::Order::TreeLevel,` in the file.
+        this->pending_wilson_order_argument = line.find(')', open + 1) == std::string::npos;
+        return;
     }
 
-    // Multi-line calls put the order on its own line.
+    if (!this->pending_wilson_order_argument) {
+        return;
+    }
+
     const auto first = line.find_first_not_of(" \t");
     const auto last = line.find_last_not_of(" \t");
-    const std::string trimmed = first == std::string::npos
-        ? std::string{}
-        : line.substr(first, last - first + 1);
+    if (first == std::string::npos) {
+        return;
+    }
+    const std::string trimmed = line.substr(first, last - first + 1);
+    if (trimmed.rfind("//", 0) == 0) {
+        return;
+    }
+
     if (trimmed == "mty::Order::TreeLevel,"
         || trimmed == "mty::Order::OneLoop,"
         || trimmed == "TreeLevel,"
         || trimmed == "OneLoop,") {
         line.replace(first, last - first + 1, "hyperiso_marty_order,");
     }
+    this->pending_wilson_order_argument = false;
 }
 
 std::string GeneralModelModifier::makeSmFilterHelper() {
@@ -286,6 +311,88 @@ const std::vector<int>& hyperiso_marty_configured_fermion_order(int order)
     return order == mty::Order::TreeLevel ? tree_order : one_loop_order;
 }
 
+const std::vector<int>& hyperiso_marty_configured_operator_order(int order)
+{
+    static const std::vector<int> tree_order = HYPERISO_CONFIGURED_TREE_OPERATOR_ORDER;
+    static const std::vector<int> one_loop_order = HYPERISO_CONFIGURED_ONE_LOOP_OPERATOR_ORDER;
+    return order == mty::Order::TreeLevel ? tree_order : one_loop_order;
+}
+
+const std::vector<int>& hyperiso_marty_effective_operator_order(
+    int order,
+    const std::vector<int>& template_order)
+{
+    const auto& configured = hyperiso_marty_configured_operator_order(order);
+    return configured.empty() ? template_order : configured;
+}
+
+std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
+    int order,
+    const mty::Model& model,
+    const mty::WilsonSet& wilsons,
+    mty::DiracCoupling left_current,
+    mty::DiracCoupling right_current)
+{
+    const auto& configured = hyperiso_marty_configured_operator_order(order);
+    if (configured.empty()) {
+        return mty::dimension6Operator(model, wilsons, left_current, right_current);
+    }
+    return mty::dimension6Operator(
+        model, wilsons, left_current, right_current, configured);
+}
+
+std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
+    int order,
+    const mty::Model& model,
+    const mty::WilsonSet& wilsons,
+    mty::DiracCoupling left_current,
+    mty::DiracCoupling right_current,
+    std::vector<int> template_order)
+{
+    return mty::dimension6Operator(
+        model,
+        wilsons,
+        left_current,
+        right_current,
+        hyperiso_marty_effective_operator_order(order, template_order));
+}
+
+std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
+    int order,
+    const mty::Model& model,
+    const mty::WilsonSet& wilsons,
+    mty::DiracCoupling left_current,
+    mty::DiracCoupling right_current,
+    const mty::ColorSpec& color_coupling,
+    std::vector<int> template_order = {})
+{
+    return mty::dimension6Operator(
+        model,
+        wilsons,
+        left_current,
+        right_current,
+        color_coupling,
+        hyperiso_marty_effective_operator_order(order, template_order));
+}
+
+std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
+    int order,
+    const mty::Model& model,
+    const mty::WilsonSet& wilsons,
+    mty::DiracCoupling left_current,
+    mty::DiracCoupling right_current,
+    const std::vector<mty::ColorSpec>& color_couplings,
+    std::vector<int> template_order = {})
+{
+    return mty::dimension6Operator(
+        model,
+        wilsons,
+        left_current,
+        right_current,
+        color_couplings,
+        hyperiso_marty_effective_operator_order(order, template_order));
+}
+
 std::string hyperiso_marty_fermion_order_label(const std::vector<int>& order)
 {
     if (order.empty()) {
@@ -313,10 +420,11 @@ void hyperiso_marty_apply_fermion_order(
         options.setFermionOrder(configured_order);
     }
     if (!options.getFermionOrder().empty()) {
-        // Preserve either the coefficient/order override or the explicit order
-        // embedded in the template.  MARTY's automatic reordering can choose a
-        // different four-fermion pairing at TreeLevel and OneLoop.
-        options.orderExternalFermions = false;
+        // An explicit fermion order must be *applied*, not merely stored.
+        // In MARTY, orderExternalFermions=true is what installs the requested
+        // partnerships and triggers the Fierz rearrangement when the diagram
+        // is generated in a different spinor-chain pairing.
+        options.orderExternalFermions = true;
     }
 }
 
@@ -335,12 +443,38 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
 #endif
 
     hyperiso_marty_apply_fermion_order(options, effective_order);
-    const bool preserve_explicit_order = !options.getFermionOrder().empty();
+
+    // At TreeLevel MARTY's one-shot computeWilsonCoefficients() performs an
+    // additional internal external-fermion ordering pass before the Wilson
+    // decomposition.  That pass can replace the explicit fermion order stored
+    // in FeynOptions (e.g. [1,0,2,3] -> [2,0,1,3]) and therefore changes
+    // matchingFermionSign().  Keep the requested F order fixed by splitting
+    // the operation exactly as MARTY allows: first build/Fierz the amplitude,
+    // then decompose that same amplitude with the same options.  The independent
+    // HyperIso operator order is used only later by dimension6Operator().
+    if (effective_order == mty::Order::TreeLevel && !disable_fermion_ordering) {
+        auto hyperiso_marty_tree_amplitude = model.computeAmplitude(
+            mty::Order::TreeLevel, insertions, options);
+        if (hyperiso_marty_tree_amplitude.empty()) {
+            return {};
+        }
+
+        // computeAmplitude() may rewrite the fermion order stored in FeynOptions
+        // while applying the external-spinor/Fierz ordering. Restore the explicit
+        // HyperIso TreeLevel F order before the Wilson matching decomposition.
+        hyperiso_marty_apply_fermion_order(options, effective_order);
+
+        return model.getWilsonCoefficients(
+            hyperiso_marty_tree_amplitude,
+            options,
+            mty::DecompositionMode::Matching);
+    }
+
     return model.computeWilsonCoefficients(
         effective_order,
         insertions,
         std::move(options),
-        disable_fermion_ordering || preserve_explicit_order
+        disable_fermion_ordering
     );
 }
 } // namespace
@@ -349,6 +483,8 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
     const std::pair<std::string, std::string> replacements[] = {
         {"HYPERISO_CONFIGURED_TREE_ORDER", vector_literal(this->tree_fermion_order)},
         {"HYPERISO_CONFIGURED_ONE_LOOP_ORDER", vector_literal(this->one_loop_fermion_order)},
+        {"HYPERISO_CONFIGURED_TREE_OPERATOR_ORDER", vector_literal(this->tree_operator_order)},
+        {"HYPERISO_CONFIGURED_ONE_LOOP_OPERATOR_ORDER", vector_literal(this->one_loop_operator_order)},
     };
     for (const auto& [placeholder, value] : replacements) {
         const auto pos = helper.find(placeholder);
@@ -362,6 +498,20 @@ void GeneralModelModifier::replaceWilsonCallWithHelper(std::string& line) {
     const auto pos = line.find(needle);
     if (pos != std::string::npos) {
         line.replace(pos, needle.size(), "hyperiso_marty_compute_wilson_coefficients(model, ");
+    }
+}
+
+void GeneralModelModifier::replaceDimension6OperatorWithHelper(
+    std::string& line,
+    const std::string& order_expression)
+{
+    const std::string needle = "dimension6Operator(";
+    std::size_t pos = 0;
+    while ((pos = line.find(needle, pos)) != std::string::npos) {
+        const std::string replacement =
+            "hyperiso_marty_dimension6_operator(" + order_expression + ", ";
+        line.replace(pos, needle.size(), replacement);
+        pos += replacement.size();
     }
 }
 
@@ -488,6 +638,11 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
         outputFile << indent << "        return CSL_0;\n";
     }
     outputFile << indent << "    }\n";
+    // Generic tree-first templates must decompose the exact TreeLevel amplitude
+    // with the fermion order left by computeAmplitude().  This is required for
+    // repeated-flavour four-fermion processes such as DeltaF=2 mixing.  Explicit
+    // projection recipes own a separate matching path and re-apply their recipe
+    // F order there when needed.
     outputFile << indent << "    " << variable
                << " = model.getWilsonCoefficients(hyperiso_marty_tree_probe, "
                << "hyperiso_marty_tree_options);\n";
@@ -508,27 +663,17 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
 
 void GeneralModelModifier::modifyLine(std::string& line) {
     if (this->usesRegPropSplit()) {
-        // The semileptonic templates contain an order literal as the standalone
-        // first argument of computeWilsonCoefficients().  Replace only that
-        // argument.  A broad textual replacement also rewrites helper logic such
-        // as `order == mty::Order::TreeLevel` into `order == order`, causing all
-        // one-loop calls to be treated as tree-level and disabling the C9 linker
-        // policy.
-        const auto first = line.find_first_not_of(" \t");
-        const auto last = line.find_last_not_of(" \t");
-        const std::string trimmed = first == std::string::npos
-            ? std::string{}
-            : line.substr(first, last - first + 1);
-        if (trimmed == "mty::Order::TreeLevel,"
-            || trimmed == "mty::Order::OneLoop,"
-            || trimmed == "TreeLevel,"
-            || trimmed == "OneLoop,") {
-            line.replace(first, last - first + 1, "hyperiso_marty_order,");
+        if (this->inside_calculate_function) {
+            replaceDimension6OperatorWithHelper(line, "hyperiso_marty_order");
         }
+        replaceWilsonOrderArgument(line);
         return;
     }
 
     if (this->usesGenericTreeFirst()) {
+        if (this->inside_calculate_function) {
+            replaceDimension6OperatorWithHelper(line, "hyperiso_marty_order");
+        }
         replaceWilsonOrderArgument(line);
         return;
     }
@@ -544,7 +689,8 @@ void GeneralModelModifier::modifyLine(std::string& line) {
 }
 
 void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string& currentLine) {
-    if (currentLine.find("dimension6Operator") != std::string::npos) {
+    if (currentLine.find("dimension6Operator") != std::string::npos
+        || currentLine.find("hyperiso_marty_dimension6_operator") != std::string::npos) {
         this->tree_four_fermion_projector = true;
     }
 

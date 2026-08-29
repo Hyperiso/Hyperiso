@@ -50,6 +50,12 @@ public:
 
     /** @brief Retrieves per-coefficient MARTY OneLoop fermion-order overrides. */
     std::map<std::string, std::vector<int>> get_marty_one_loop_fermion_orders() const;
+
+    /** @brief Retrieves per-coefficient MARTY TreeLevel operator-order overrides. */
+    std::map<std::string, std::vector<int>> get_marty_tree_operator_orders() const;
+
+    /** @brief Retrieves per-coefficient MARTY OneLoop operator-order overrides. */
+    std::map<std::string, std::vector<int>> get_marty_one_loop_operator_orders() const;
 };
 
 #endif // MARTYADAPTER_H

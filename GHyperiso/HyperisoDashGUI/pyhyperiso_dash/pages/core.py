@@ -15,8 +15,9 @@ from pyhyperiso_dash.components import (
     small_note,
     status_box,
     text_input,
+    textarea_input,
 )
-from pyhyperiso.core.Common.GeneralEnum import Model
+from pyhyperiso.core.Common.GeneralEnum import MartyOrderPolicy, Model
 from pyhyperiso.core.Core.HyperisoConfig import ExternalFlag
 
 FLAG_OPTIONS = enum_options(ExternalFlag, exclude={"HAS_TH_OBSERVABLE_INPUT"})
@@ -128,6 +129,57 @@ def layout():
                                                     "/my/custom/marty/path",
                                                 ),
                                             ),
+                                        ),
+                                        html.Div(
+                                            id="core-marty-orders-wrap",
+                                            children=[
+                                                field(
+                                                    "MARTY BSM order policy",
+                                                    dropdown(
+                                                        "core-marty-order-policy",
+                                                        enum_options(MartyOrderPolicy),
+                                                        value="AUTO",
+                                                    ),
+                                                ),
+                                                small_note(
+                                                    "Order overrides are per Wilson coefficient. "
+                                                    "One entry per line, e.g. C9 = 1,0,2,3. "
+                                                    "Leave a field empty to keep the template/MARTY default."
+                                                ),
+                                                html.Div(
+                                                    className="form-grid-2",
+                                                    children=[
+                                                        field(
+                                                            "Tree fermion/Fierz order",
+                                                            textarea_input(
+                                                                "core-marty-tree-fermion-orders",
+                                                                placeholder="C9 = 1,0,2,3",
+                                                            ),
+                                                        ),
+                                                        field(
+                                                            "Tree operator/projector order",
+                                                            textarea_input(
+                                                                "core-marty-tree-operator-orders",
+                                                                placeholder="C9 = 0,3,1,2",
+                                                            ),
+                                                        ),
+                                                        field(
+                                                            "One-loop fermion/Fierz order",
+                                                            textarea_input(
+                                                                "core-marty-loop-fermion-orders",
+                                                                placeholder="C9 = 1,0,2,3",
+                                                            ),
+                                                        ),
+                                                        field(
+                                                            "One-loop operator/projector order",
+                                                            textarea_input(
+                                                                "core-marty-loop-operator-orders",
+                                                                placeholder="C9 = 1,0,2,3",
+                                                            ),
+                                                        ),
+                                                    ],
+                                                ),
+                                            ],
                                         ),
                                         html.Button(
                                             "Initialize / switch active LHA",

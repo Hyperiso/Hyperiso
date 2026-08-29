@@ -72,6 +72,7 @@ from pyhyperiso.core.Common.GeneralEnum import (
     DataType,
     Decays,
     MassType,
+    MartyOrderPolicy,
     Model,
     Observables,
     ParameterType,
@@ -716,11 +717,51 @@ def resolve_parameter_type(
 # ---------- Core ----------
 
 
+def parse_marty_order_overrides(text: str | None, field_name: str) -> dict[str, list[int]]:
+    """Parse GUI MARTY order overrides.
+
+    Syntax is one coefficient per line, for example ``C9 = 1,0,2,3``.
+    Empty lines and ``#`` comments are ignored.  The Python HyperisoConfig
+    performs the final permutation validation as well; this parser gives the
+    GUI a clearer error message before initialization.
+    """
+    result: dict[str, list[int]] = {}
+    for line_number, raw_line in enumerate((text or "").splitlines(), start=1):
+        line = raw_line.split("#", 1)[0].strip()
+        if not line:
+            continue
+        separator = "=" if "=" in line else ":" if ":" in line else None
+        if separator is None:
+            raise ValueError(
+                f"{field_name}, line {line_number}: expected 'COEFFICIENT = i,j,k,...'"
+            )
+        coefficient, raw_order = (part.strip() for part in line.split(separator, 1))
+        if not coefficient:
+            raise ValueError(f"{field_name}, line {line_number}: empty coefficient name")
+        try:
+            order = [int(token.strip()) for token in raw_order.split(",") if token.strip()]
+        except ValueError as exc:
+            raise ValueError(
+                f"{field_name}, line {line_number}: order must contain integers"
+            ) from exc
+        if not order or sorted(order) != list(range(len(order))):
+            raise ValueError(
+                f"{field_name}, line {line_number}: {order!r} is not a permutation of 0..N-1"
+            )
+        result[coefficient] = order
+    return result
+
+
 def make_hyperiso_config(
     flag_names: Sequence[str],
     model_name: str,
     marty_name: str | None,
     marty_path: str | None,
+    marty_order_policy: str = "AUTO",
+    tree_fermion_orders: str | None = None,
+    tree_operator_orders: str | None = None,
+    one_loop_fermion_orders: str | None = None,
+    one_loop_operator_orders: str | None = None,
 ) -> HyperisoConfig:
     selected = set(flag_names or [])
     flags = {
@@ -731,13 +772,29 @@ def make_hyperiso_config(
         ExternalFlag.HYP_AS_SM_MARTY: "HYP_AS_SM_MARTY" in selected,
     }
     model = enum_by_name(Model, model_name)
+    is_marty = model is Model.MARTY
     return HyperisoConfig(
         flags=flags,
         model=model,
-        mty_model_name=(marty_name or None) if model is Model.MARTY else None,
+        mty_model_name=(marty_name or None) if is_marty else None,
         mty_model_path=Path(marty_path).expanduser()
-        if model is Model.MARTY and marty_path
+        if is_marty and marty_path
         else None,
+        mty_order_policy=enum_by_name(MartyOrderPolicy, marty_order_policy)
+        if is_marty
+        else MartyOrderPolicy.AUTO,
+        mty_tree_fermion_orders=parse_marty_order_overrides(
+            tree_fermion_orders, "Tree fermion orders"
+        ) if is_marty else {},
+        mty_tree_operator_orders=parse_marty_order_overrides(
+            tree_operator_orders, "Tree operator orders"
+        ) if is_marty else {},
+        mty_one_loop_fermion_orders=parse_marty_order_overrides(
+            one_loop_fermion_orders, "One-loop fermion orders"
+        ) if is_marty else {},
+        mty_one_loop_operator_orders=parse_marty_order_overrides(
+            one_loop_operator_orders, "One-loop operator orders"
+        ) if is_marty else {},
     )
 
 
@@ -747,10 +804,25 @@ def init_or_switch_hyperiso(
     model_name: str,
     marty_name: str | None,
     marty_path: str | None,
+    marty_order_policy: str = "AUTO",
+    tree_fermion_orders: str | None = None,
+    tree_operator_orders: str | None = None,
+    one_loop_fermion_orders: str | None = None,
+    one_loop_operator_orders: str | None = None,
 ) -> dict:
     if not lha_path:
         raise ValueError("Missing LHA path")
-    cfg = make_hyperiso_config(flag_names, model_name, marty_name, marty_path)
+    cfg = make_hyperiso_config(
+        flag_names,
+        model_name,
+        marty_name,
+        marty_path,
+        marty_order_policy,
+        tree_fermion_orders,
+        tree_operator_orders,
+        one_loop_fermion_orders,
+        one_loop_operator_orders,
+    )
     with RUNTIME.lock:
         if RUNTIME.hyp is None:
             RUNTIME.hyp = HyperisoMaster()

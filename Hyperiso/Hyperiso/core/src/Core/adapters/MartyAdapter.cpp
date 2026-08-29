@@ -84,3 +84,11 @@ std::map<std::string, std::vector<int>> MartyAdapter::get_marty_tree_fermion_ord
 std::map<std::string, std::vector<int>> MartyAdapter::get_marty_one_loop_fermion_orders() const {
     return MemoryManager::GetInstance()->getMemoryCache().config.mty_one_loop_fermion_orders;
 }
+
+std::map<std::string, std::vector<int>> MartyAdapter::get_marty_tree_operator_orders() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_tree_operator_orders;
+}
+
+std::map<std::string, std::vector<int>> MartyAdapter::get_marty_one_loop_operator_orders() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_one_loop_operator_orders;
+}

@@ -11,7 +11,10 @@ a four-fermion amplitude at tree level and at one loop. A single global order is
 therefore unsafe: it can fix one process while silently breaking another, and it
 cannot represent a coefficient whose correct tree and loop projectors differ.
 
-`HyperisoConfig` now exposes two independent maps:
+`HyperisoConfig` exposes four independent per-coefficient maps.  The
+``fermion`` order controls external-spinor pairing/Fierz rearrangement during
+``computeWilsonCoefficients``; the ``operator`` order controls the pairing used
+later by ``dimension6Operator`` to project the Wilson set:
 
 ```python
 config.mty_tree_fermion_orders = {
@@ -20,8 +23,12 @@ config.mty_tree_fermion_orders = {
 }
 config.mty_one_loop_fermion_orders = {
     "C9": [1, 0, 2, 3],
-    # This may differ from the tree order when a model/template requires it.
-    "C_BS_1": [1, 0, 3, 2],
+}
+config.mty_tree_operator_orders = {
+    "C9": [0, 3, 1, 2],
+}
+config.mty_one_loop_operator_orders = {
+    # Leave absent unless the one-loop projector has been validated explicitly.
 }
 ```
 
@@ -108,9 +115,8 @@ type; genuine type mismatches are rejected.
 
 ## Cache compatibility
 
-The MARTY cache ABI is bumped to `pyhyperiso-1.0.4-v5`. The cache marker includes
-the order policy and both the tree-level and one-loop fermion orders for the
-coefficient. Existing generated sources and libraries are invalidated
+The MARTY cache ABI is bumped to `pyhyperiso-1.0.4-v5`. The cache marker includes the order policy and all four TreeLevel/OneLoop
+fermion/projector orders for the coefficient. Existing generated sources and libraries are invalidated
 automatically after switching to this branch or changing either map.
 
 ## Constructor-time SM inputs

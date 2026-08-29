@@ -82,7 +82,9 @@ public:
                          bool tree_first_fallback = false,
                          MartyOrderPolicy order_policy = MartyOrderPolicy::AUTO,
                          std::vector<int> tree_fermion_order = {},
-                         std::vector<int> one_loop_fermion_order = {});
+                         std::vector<int> one_loop_fermion_order = {},
+                         std::vector<int> tree_operator_order = {},
+                         std::vector<int> one_loop_operator_order = {});
 
     /// @copydoc ModelModifier::modifyLine()
     void modifyLine(std::string& line) override;
@@ -110,10 +112,12 @@ private:
     static std::string makeSmFilterHelper();
     std::string makeWilsonOrderHelper() const;
     static void replaceWilsonCallWithHelper(std::string& line);
+    static void replaceDimension6OperatorWithHelper(std::string& line,
+                                                    const std::string& order_expression);
     std::string orderPolicyPreamble() const;
     bool usesRegPropSplit() const;
     bool usesGenericTreeFirst() const;
-    static void replaceWilsonOrderArgument(std::string& line);
+    void replaceWilsonOrderArgument(std::string& line);
     bool consumeTreeSafeWilsonCall(std::ofstream& outputFile,
                                    const std::string& currentLine,
                                    bool pair_return,
@@ -132,9 +136,12 @@ private:
     bool full_target_generation{false}; ///< Keep the complete target-model expression instead of filtering to BSM diagrams.
     bool tree_first_fallback{false}; ///< For loop-only templates, test TreeLevel before evaluating OneLoop.
     MartyOrderPolicy order_policy{MartyOrderPolicy::AUTO}; ///< Explicit BSM MARTY order policy.
-    std::vector<int> tree_fermion_order{}; ///< Explicit TreeLevel order for this coefficient.
-    std::vector<int> one_loop_fermion_order{}; ///< Explicit OneLoop order for this coefficient.
+    std::vector<int> tree_fermion_order{}; ///< Explicit TreeLevel external/Fierz order for this coefficient.
+    std::vector<int> one_loop_fermion_order{}; ///< Explicit OneLoop external/Fierz order for this coefficient.
+    std::vector<int> tree_operator_order{}; ///< Explicit TreeLevel dimension-six projector order.
+    std::vector<int> one_loop_operator_order{}; ///< Explicit OneLoop dimension-six projector order.
     bool inside_calculate_function{false}; ///< Internal line-rewrite state for BSM split mode.
+    bool pending_wilson_order_argument{false}; ///< Await the first argument of a multi-line computeWilsonCoefficients call.
     bool skip_old_main{false}; ///< Internal line-rewrite state for BSM split mode.
     bool expression_returned{false}; ///< Whether the calculation body already returned its primary expression.
     std::string generic_builder_name{}; ///< Rewritten calculate function name for generic tree-first mode.

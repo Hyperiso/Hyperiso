@@ -174,8 +174,8 @@ int main() {
         assert(generated.find("model.computeAmplitude(hyperiso_marty_order") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
-        assert(generated.find("preserve_explicit_order") != std::string::npos);
-        assert(generated.find("orderExternalFermions = false") != std::string::npos);
+        assert(generated.find("preserve_explicit_order") == std::string::npos);
+        assert(generated.find("orderExternalFermions = true") != std::string::npos);
         assert(generated.find("mty::Order::TreeLevel") != std::string::npos);
         assert(generated.find("if (!hyperiso_marty_use_tree)") != std::string::npos);
         assert(generated.find("mty::Order::OneLoop") != std::string::npos);
@@ -287,9 +287,30 @@ int main() {
             "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
             false, true
         );
+        // A standalone order literal outside computeWilsonCoefficients must be
+        // left untouched.  Projection-recipe helpers contain TreeLevel calls of
+        // their own and must never inherit the calculate-function local order.
+        std::string helper_order_line = "        mty::Order::TreeLevel,";
+        mod.modifyLine(helper_order_line);
+        assert(helper_order_line.find("mty::Order::TreeLevel,") != std::string::npos);
+        assert(helper_order_line.find("hyperiso_marty_order") == std::string::npos);
+
+        // The first argument of an actual multi-line Wilson call is still
+        // rewritten exactly as before.
+        std::string wilson_call_line = "    auto wil = model.computeWilsonCoefficients(";
+        mod.modifyLine(wilson_call_line);
         std::string order_line = "        mty::Order::OneLoop,";
         mod.modifyLine(order_line);
         assert(order_line.find("hyperiso_marty_order,") != std::string::npos);
+
+        // computeAmplitude also takes an mty::Order, but it is not the Wilson
+        // call whose perturbative order is controlled by this rewrite.
+        std::string amplitude_call_line = "    auto amp = model.computeAmplitude(";
+        mod.modifyLine(amplitude_call_line);
+        std::string amplitude_order_line = "        mty::Order::TreeLevel,";
+        mod.modifyLine(amplitude_order_line);
+        assert(amplitude_order_line.find("mty::Order::TreeLevel,") != std::string::npos);
+        assert(amplitude_order_line.find("hyperiso_marty_order") == std::string::npos);
 
         std::string setter_line =
             "    hyperiso_marty_tree_level_matching = (order == mty::Order::TreeLevel);";
@@ -344,8 +365,8 @@ int main() {
         assert(generated.find("hyperiso_marty_tree_probe.empty()") != std::string::npos);
         assert(generated.find("return std::make_pair(CSL_0, std::size_t{0})") != std::string::npos);
         assert(generated.find("model.getWilsonCoefficients(hyperiso_marty_tree_probe") != std::string::npos);
-        assert(generated.find("preserve_explicit_order") != std::string::npos);
-        assert(generated.find("orderExternalFermions = false") != std::string::npos);
+        assert(generated.find("preserve_explicit_order") == std::string::npos);
+        assert(generated.find("orderExternalFermions = true") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_fermion_orders()") == std::string::npos);
         assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
         assert(generated.find("wilsonLib.addDefaultParameter(\"s_12\", false)") != std::string::npos);
@@ -360,7 +381,9 @@ int main() {
             "C9", "ZPrime", "ZPrime", zprime_hdr.string(), std::nullopt,
             false, true, false, false, MartyOrderPolicy::TREE_LEVEL_ONLY,
             {1, 0, 2, 3},
-            {1, 0, 3, 2}
+            {1, 0, 3, 2},
+            {0, 3, 1, 2},
+            {1, 0, 2, 3}
         );
         fs::path out = root / "c9_tree_only_order_scan.cpp";
         std::ofstream f(out);
@@ -391,6 +414,9 @@ int main() {
         assert(generated.find("HYPERISO_MARTY_ORDER_POLICY_TREE_LEVEL_ONLY") != std::string::npos);
         assert(generated.find("static const std::vector<int> tree_order = {1, 0, 2, 3}") != std::string::npos);
         assert(generated.find("static const std::vector<int> one_loop_order = {1, 0, 3, 2}") != std::string::npos);
+        assert(generated.find("static const std::vector<int> tree_order = {0, 3, 1, 2}") != std::string::npos);
+        assert(generated.find("static const std::vector<int> one_loop_order = {1, 0, 2, 3}") != std::string::npos);
+        assert(generated.find("hyperiso_marty_dimension6_operator(hyperiso_marty_order, model, wil") != std::string::npos);
         assert(generated.find(
             "hyperiso_marty_configured_fermion_order(mty::Order::OneLoop)"
         ) != std::string::npos);
@@ -471,7 +497,7 @@ int main() {
         const std::string generated = slurp(out);
         assert(generated.find("TreeLevelOnly") != std::string::npos);
         assert(generated.find("if (!hyperiso_marty_use_tree)") == std::string::npos);
-        assert(generated.find("orderExternalFermions = false") != std::string::npos);
+        assert(generated.find("orderExternalFermions = true") != std::string::npos);
     }
 
     {

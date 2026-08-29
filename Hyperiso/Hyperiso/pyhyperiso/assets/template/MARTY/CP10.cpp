@@ -1,8 +1,9 @@
 #include <iostream>
 #include <string>
+#include <vector>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-tree-first-split-regprop-v20
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-tree-first-split-regprop-recipe-v23
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -168,6 +169,98 @@ void defineLibPath(Library &lib) {
 #endif
 }
 
+
+namespace {
+
+struct HyperisoMartyTreeProjectionTerm {
+    std::string id;
+    double weight;
+    std::vector<int> fermion_order;
+    std::vector<int> operator_order;
+    mty::DiracCoupling left_current;
+    mty::DiracCoupling right_current;
+    bool lepton_first;
+};
+
+const std::vector<HyperisoMartyTreeProjectionTerm>& hyperiso_marty_tree_projection_recipe() {
+    static const std::vector<HyperisoMartyTreeProjectionTerm> terms = {
+HYPERISO_MARTY_TREE_PROJECTION_TERMS
+    };
+    return terms;
+}
+
+Expr hyperiso_marty_project_tree_recipe(
+    Model& model,
+    const WilsonSet& default_wil,
+    const FeynOptions& base_opts,
+    mty::DiracCoupling default_left,
+    mty::DiracCoupling default_right
+) {
+    const auto& recipe = hyperiso_marty_tree_projection_recipe();
+    if (recipe.empty()) {
+        // Backward-compatible default: use the physical direct current projector
+        // already encoded by the coefficient template.  Per-coefficient F/O
+        // overrides therefore retain their historical meaning when no recipe is
+        // configured.
+        return getWilsonCoefficient(
+            default_wil,
+            hyperiso_marty_dimension6_operator(
+                mty::Order::TreeLevel,
+                model,
+                default_wil,
+                default_left,
+                default_right
+            )
+        );
+    }
+
+    Expr result = CSL_0;
+    for (const auto& term : recipe) {
+        FeynOptions term_opts = base_opts;
+        term_opts.setFermionOrder(term.fermion_order);
+        auto amplitude = model.computeAmplitude(
+            mty::Order::TreeLevel,
+            {Incoming("b"),
+             Outgoing("s"),
+             Outgoing("mu"),
+             Outgoing(AntiPart("mu"))},
+            term_opts
+        );
+        if (amplitude.empty()) {
+            continue;
+        }
+
+        // MARTY's TreeLevel amplitude construction may mutate FeynOptions.
+        // Reapply the requested F before matching, exactly as in the validated
+        // HyperIso TreeLevel helper.
+        term_opts.setFermionOrder(term.fermion_order);
+        auto term_wil = model.getWilsonCoefficients(
+            amplitude,
+            term_opts,
+            mty::DecompositionMode::Matching
+        );
+
+        const auto left = term.lepton_first ? term.right_current : term.left_current;
+        const auto right = term.lepton_first ? term.left_current : term.right_current;
+
+        const Expr projected = getWilsonCoefficient(
+            term_wil,
+            hyperiso_marty_dimension6_operator(
+                mty::Order::TreeLevel,
+                model,
+                term_wil,
+                left,
+                right,
+                term.operator_order
+            )
+        );
+        result += term.weight * projected;
+    }
+    return DeepRefreshed(result);
+}
+
+} // namespace
+
 int calculate_CP10mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
@@ -201,10 +294,17 @@ int calculate_CP10mu(Model &model, gauge::Type gauge) {
     );
 
 
-    Expr CP10_mu = getWilsonCoefficient(
-        wil, 
-        dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::A)
-    );
+    Expr CP10_mu = CSL_0;
+    if (hyperiso_marty_tree_level_matching) {
+        CP10_mu = hyperiso_marty_project_tree_recipe(
+            model, wil, opts, DiracCoupling::VR, DiracCoupling::A
+        );
+    } else {
+        CP10_mu = getWilsonCoefficient(
+            wil,
+            dimension6Operator(model, wil, DiracCoupling::VR, DiracCoupling::A)
+        );
+    }
 
     [[maybe_unused]] int sysres = system("rm -rf libs/CP10_SM");
     mty::Library wilsonLib("CP10_SM", "libs");

@@ -6,7 +6,7 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-v9
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v12
 
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
@@ -34,6 +34,98 @@ std::vector<Insertion> hyperiso_bsll_insertions() {
     return {Incoming("b"), Outgoing("s"), Outgoing("mu"), Outgoing(AntiPart("mu"))};
 }
 
+
+namespace {
+
+struct HyperisoMartyTreeProjectionTerm {
+    std::string id;
+    double weight;
+    std::vector<int> fermion_order;
+    std::vector<int> operator_order;
+    mty::DiracCoupling left_current;
+    mty::DiracCoupling right_current;
+    bool lepton_first;
+};
+
+const std::vector<HyperisoMartyTreeProjectionTerm>& hyperiso_marty_tree_projection_recipe() {
+    static const std::vector<HyperisoMartyTreeProjectionTerm> terms = {
+HYPERISO_MARTY_TREE_PROJECTION_TERMS
+    };
+    return terms;
+}
+
+Expr hyperiso_marty_project_tree_recipe(
+    Model& model,
+    const WilsonSet& default_wil,
+    const FeynOptions& base_opts,
+    mty::DiracCoupling default_left,
+    mty::DiracCoupling default_right
+) {
+    const auto& recipe = hyperiso_marty_tree_projection_recipe();
+    if (recipe.empty()) {
+        // Backward-compatible default: use the physical direct current projector
+        // already encoded by the coefficient template.  Per-coefficient F/O
+        // overrides therefore retain their historical meaning when no recipe is
+        // configured.
+        return getWilsonCoefficient(
+            default_wil,
+            hyperiso_marty_dimension6_operator(
+                mty::Order::TreeLevel,
+                model,
+                default_wil,
+                default_left,
+                default_right
+            )
+        );
+    }
+
+    Expr result = CSL_0;
+    for (const auto& term : recipe) {
+        FeynOptions term_opts = base_opts;
+        term_opts.setFermionOrder(term.fermion_order);
+        auto amplitude = model.computeAmplitude(
+            mty::Order::TreeLevel,
+            {Incoming("b"),
+             Outgoing("s"),
+             Outgoing("mu"),
+             Outgoing(AntiPart("mu"))},
+            term_opts
+        );
+        if (amplitude.empty()) {
+            continue;
+        }
+
+        // MARTY's TreeLevel amplitude construction may mutate FeynOptions.
+        // Reapply the requested F before matching, exactly as in the validated
+        // HyperIso TreeLevel helper.
+        term_opts.setFermionOrder(term.fermion_order);
+        auto term_wil = model.getWilsonCoefficients(
+            amplitude,
+            term_opts,
+            mty::DecompositionMode::Matching
+        );
+
+        const auto left = term.lepton_first ? term.right_current : term.left_current;
+        const auto right = term.lepton_first ? term.left_current : term.right_current;
+
+        const Expr projected = getWilsonCoefficient(
+            term_wil,
+            hyperiso_marty_dimension6_operator(
+                mty::Order::TreeLevel,
+                model,
+                term_wil,
+                left,
+                right,
+                term.operator_order
+            )
+        );
+        result += term.weight * projected;
+    }
+    return DeepRefreshed(result);
+}
+
+} // namespace
+
 int calculate_C10mu(Model &model, gauge::Type gauge) {
 
     model.getParticle("W")->setGaugeChoice(gauge);
@@ -56,10 +148,17 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
 
     auto insertions = hyperiso_bsll_insertions();
 
-    auto extract_C10 = [&](const WilsonSet& wil) {
+    auto extract_C10 = [&](const WilsonSet& wil, mty::Order perturbative_order) {
+        if (perturbative_order == mty::Order::TreeLevel) {
+            return hyperiso_marty_project_tree_recipe(
+                model, wil, opts, DiracCoupling::VL, DiracCoupling::A
+            );
+        }
+
         return getWilsonCoefficient(
             wil,
-            dimension6Operator(
+            hyperiso_marty_dimension6_operator(
+                perturbative_order,
                 model,
                 wil,
                 DiracCoupling::VL,
@@ -73,7 +172,7 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
         insertions,
         opts
     );
-    Expr C10_tree = extract_C10(wil_tree);
+    Expr C10_tree = extract_C10(wil_tree, mty::Order::TreeLevel);
 
     // Tree-first policy: when the selected operator already has a non-zero
     // tree-level coefficient (for example a Z' or leptoquark mediator), do not
@@ -86,7 +185,7 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
             insertions,
             opts
         );
-        C10_full = extract_C10(wil_full);
+        C10_full = extract_C10(wil_full, mty::Order::OneLoop);
     }
 
     Expr C10_mu = (C10_tree != CSL_0) ? C10_tree : C10_full;
