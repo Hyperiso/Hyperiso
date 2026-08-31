@@ -1299,6 +1299,7 @@ _WILSON_GROUP_ALIASES: dict[str, tuple[str, ...]] = {
     "CC_du": ("CC_du", "PIuChargedCurrentCoefficients"),
     "MESON_MIXING": ("MESON_MIXING", "MesonMixing"),
     "K": ("K",),
+    "BNuNu": ("BNuNu", "BNuNuCoefficients"),
 }
 
 _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
@@ -1356,6 +1357,13 @@ _WILSON_GROUP_COEFFS: dict[str, list[str]] = {
         "C_CU_5",
     ],
     "K": ["CK9", "CPK9", "CK10", "CPK10", "CKQ1", "CKQ2", "CPKQ1", "CPKQ2", "CK_L"],
+    "BNuNu": [
+        "CNU_L_EE", "CNU_R_EE", "CNU_L_EMU", "CNU_R_EMU",
+        "CNU_L_ETAU", "CNU_R_ETAU", "CNU_L_MUE", "CNU_R_MUE",
+        "CNU_L_MUMU", "CNU_R_MUMU", "CNU_L_MUTAU", "CNU_R_MUTAU",
+        "CNU_L_TAUE", "CNU_R_TAUE", "CNU_L_TAUMU", "CNU_R_TAUMU",
+        "CNU_L_TAUTAU", "CNU_R_TAUTAU",
+    ],
 }
 
 

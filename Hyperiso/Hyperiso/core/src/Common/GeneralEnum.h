@@ -15,6 +15,11 @@ enum class Observables {
     // B > l nu
     R_TAU_NU,
     BR_BU_TAU_NU,
+    // B > K(*) nu nu
+    BR_B__K_NU_NU,
+    BR_B0__KS_NU_NU,
+    BR_B__KSTAR_NU_NU,
+    BR_B0__KSTAR0_NU_NU,
     // B > K* gamma
     IA_B0__KSTAR0_GAMMA,
     BR_B0__KSTAR0_GAMMA,
@@ -583,6 +588,8 @@ enum class Decays {
     B__Xs_l_l, //
     B__K_l_l, //
     B__Kstar_l_l, //
+    B__K_nu_nu, //
+    B__Kstar_nu_nu, //
     Bs__phi_l_l,
     Lambda_b__Lambda_l_l,
     M0_Mix,
@@ -616,7 +623,11 @@ enum class WCoef {
     C_BS_1, CT_BS_1, C_BS_2, CT_BS_2, C_BS_3, CT_BS_3, C_BS_4, C_BS_5,      // Bs0 mixing
     C_SD_1, CT_SD_1, C_SD_2, CT_SD_2, C_SD_3, CT_SD_3, C_SD_4, C_SD_5,      // K0 mixing
     C_CU_1, CT_CU_1, C_CU_2, CT_CU_2, C_CU_3, CT_CU_3, C_CU_4, C_CU_5,      // D0 mixing
-    CK9, CPK9, CK10, CPK10, CKQ1, CKQ2, CPKQ1, CPKQ2, CK_L                        // s > d l l
+    CK9, CPK9, CK10, CPK10, CKQ1, CKQ2, CPKQ1, CPKQ2, CK_L,                    // s > d l l / nu nu
+    // b > s nu_i anti-nu_j
+    CNU_L_EE, CNU_R_EE, CNU_L_EMU, CNU_R_EMU, CNU_L_ETAU, CNU_R_ETAU,
+    CNU_L_MUE, CNU_R_MUE, CNU_L_MUMU, CNU_R_MUMU, CNU_L_MUTAU, CNU_R_MUTAU,
+    CNU_L_TAUE, CNU_R_TAUE, CNU_L_TAUMU, CNU_R_TAUMU, CNU_L_TAUTAU, CNU_R_TAUTAU
 };
 
 enum class WGroup {
@@ -630,7 +641,8 @@ enum class WGroup {
     CC_su,
     CC_du,
     MESON_MIXING,
-    K
+    K,
+    BNuNu
 };
 
 

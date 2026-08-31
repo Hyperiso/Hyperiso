@@ -53,6 +53,8 @@ add_library(BusinessLogicLib STATIC
     domain/Decays/BsPhiDecay.cpp
     domain/Decays/LbLllDecay.cpp
     domain/Decays/BKllDecay.cpp
+    domain/Decays/BKnunuDecay.cpp
+    domain/Decays/BKstarnunuDecay.cpp
     domain/Decays/KllDecay.cpp
     domain/Decays/KPinunuDecay.cpp
     domain/Decays/KlnuDecay.cpp

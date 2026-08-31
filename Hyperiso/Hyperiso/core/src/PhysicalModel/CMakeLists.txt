@@ -48,10 +48,12 @@ add_library(PhysicalModelLib STATIC
     domain/WCoef/BPrimeWilson.cpp
     domain/WCoef/BScalarWilson.cpp
     domain/WCoef/KWilson.cpp
+    domain/WCoef/BNuNuWilson.cpp
     domain/WGroup/BWilsonGroup.cpp
     domain/WGroup/BPrimeWilsonGroup.cpp
     domain/WGroup/BScalarWilsonGroup.cpp
     domain/WGroup/KWilsonGroup.cpp
+    domain/WGroup/BNuNuWilsonGroup.cpp
     domain/WCoef/ChargedCurrentWilson.cpp
     domain/WGroup/ChargedCurrentsWilsonGroup.cpp
     domain/WCoef/DChargedCurrentWilson.cpp
@@ -77,6 +79,7 @@ add_library(PhysicalModelLib STATIC
     domain/GroupDef/GroupDef_BScalar.cpp
     domain/GroupDef/GroupDef_MesonMixing.cpp
     domain/GroupDef/GroupDef_K.cpp
+    domain/GroupDef/GroupDef_BNuNu.cpp
     domain/WilsonCoefficientRegistry.cpp
     domain/CoefficientGroupBuilder.cpp
     adapters/ParameterProxy.cpp

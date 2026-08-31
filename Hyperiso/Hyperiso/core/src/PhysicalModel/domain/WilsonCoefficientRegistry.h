@@ -206,4 +206,9 @@ void register_MesonMixing(CoefficientRegistry&);
  */
 void register_K(CoefficientRegistry& reg);
 
+/**
+ * @brief Registers b -> s nu_i anti-nu_j coefficient factories.
+ */
+void register_BNuNu(CoefficientRegistry& reg);
+
 #endif

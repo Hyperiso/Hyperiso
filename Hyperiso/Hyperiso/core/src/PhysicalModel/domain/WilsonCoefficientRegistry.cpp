@@ -20,6 +20,7 @@
 #include "KChargedCurrentWilsonSUSY.h"
 #include "PIChargedCurrentWilsonSUSY.h"
 #include "KWilson.h"
+#include "BNuNuWilson.h"
 
 #include "Include.h"
 
@@ -90,6 +91,17 @@ static CoefPtr make_marty(const BuildContext& ctx, WCoef c) {
     return std::make_shared<MartyWilson>(cfg);
 }
 
+
+static CoefPtr make_bnunu_marty_compatible(const BuildContext& ctx, WCoef c) {
+    // The SM b -> s nu nu coefficient is deliberately hard-coded to the
+    // phenomenological C_L^SM=-6.32 of arXiv:2301.06990, which already
+    // contains NLO-QCD and two-loop EW corrections.  MARTY is used only for
+    // the BSM (or explicit TOTAL diagnostic) part of a non-SM target model.
+    if (ctx.contrib == ContributionType::SM) {
+        return std::make_shared<BNuNuWilson>(c, ContributionType::SM);
+    }
+    return make_marty(ctx, c);
+}
 
 static CoefPtr make_c9_marty_compatible(const BuildContext& ctx) {
     // The four-fermion photon-penguin projection for C9 is not a stable
@@ -549,4 +561,20 @@ void register_K(CoefficientRegistry& reg) {
         REG(c, Model::SM, Backend::Marty, make_marty(ctx, coef));
 
         
+}
+
+void register_BNuNu(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    for (WCoef c : WCoefMapper::get_group(WGroup::BNuNu)) {
+        // Built-in SM: only C_L^{ii} is non-zero.  Built-in BSM models have no
+        // native b -> s nu nu matching yet and are therefore explicitly zero.
+        REG(c, SM,   Builtin, std::make_shared<BNuNuWilson>(coef, ContributionType::SM));
+        REG(c, SUSY, Builtin, std::make_shared<BNuNuWilson>(coef, ContributionType::BSM));
+        REG(c, THDM, Builtin, std::make_shared<BNuNuWilson>(coef, ContributionType::BSM));
+
+        // In MARTY mode the SM part remains the corrected hard-coded value,
+        // while BSM/TOTAL target contexts are generated from the CNU templates.
+        REG(c, Model::SM, Backend::Marty, make_bnunu_marty_compatible(ctx, coef));
+    }
 }

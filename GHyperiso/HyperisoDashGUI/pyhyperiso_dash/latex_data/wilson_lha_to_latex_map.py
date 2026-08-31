@@ -629,6 +629,37 @@ WILSON_ENUM_TO_LHA_ID_MAP: Dict[str, Tuple[int, int]] = {
     "C_V2_su": (4051516, 2222),
 }
 
+# b -> s nu_i anti-nu_j extension. Keep these runtime updates next to the
+# generated maps until the GUI map generator is regenerated from the new core enums.
+_BNUNU_WILSON_META = {
+    "CNU_L_EE": ((3051212, 4141), "$C_{L}^{ee}$"),
+    "CNU_R_EE": ((3051212, 4241), "$C_{R}^{ee}$"),
+    "CNU_L_EMU": ((3051214, 4141), "$C_{L}^{e\\mu}$"),
+    "CNU_R_EMU": ((3051214, 4241), "$C_{R}^{e\\mu}$"),
+    "CNU_L_ETAU": ((3051216, 4141), "$C_{L}^{e\\tau}$"),
+    "CNU_R_ETAU": ((3051216, 4241), "$C_{R}^{e\\tau}$"),
+    "CNU_L_MUE": ((3051412, 4141), "$C_{L}^{\\mu e}$"),
+    "CNU_R_MUE": ((3051412, 4241), "$C_{R}^{\\mu e}$"),
+    "CNU_L_MUMU": ((3051414, 4141), "$C_{L}^{\\mu\\mu}$"),
+    "CNU_R_MUMU": ((3051414, 4241), "$C_{R}^{\\mu\\mu}$"),
+    "CNU_L_MUTAU": ((3051416, 4141), "$C_{L}^{\\mu\\tau}$"),
+    "CNU_R_MUTAU": ((3051416, 4241), "$C_{R}^{\\mu\\tau}$"),
+    "CNU_L_TAUE": ((3051612, 4141), "$C_{L}^{\\tau e}$"),
+    "CNU_R_TAUE": ((3051612, 4241), "$C_{R}^{\\tau e}$"),
+    "CNU_L_TAUMU": ((3051614, 4141), "$C_{L}^{\\tau\\mu}$"),
+    "CNU_R_TAUMU": ((3051614, 4241), "$C_{R}^{\\tau\\mu}$"),
+    "CNU_L_TAUTAU": ((3051616, 4141), "$C_{L}^{\\tau\\tau}$"),
+    "CNU_R_TAUTAU": ((3051616, 4241), "$C_{R}^{\\tau\\tau}$"),
+}
+for _name, (_lha_id, _latex) in _BNUNU_WILSON_META.items():
+    WILSON_LHA_ID_TO_LATEX_MAP[_lha_id] = _latex
+    WILSON_LHA_ID_TO_NAME_MAP[_lha_id] = _name
+    WILSON_NAME_TO_LATEX_MAP[_name] = _latex
+    WILSON_ENUM_TO_NAME_MAP[_name] = _name
+    WILSON_ENUM_TO_LATEX_MAP[_name] = _latex
+    WILSON_ENUM_TO_LHA_ID_MAP[_name] = _lha_id
+del _name, _lha_id, _latex
+
 
 def get_wilson_latex_name(block: int, lha_id: int) -> Optional[str]:
     """Return the LaTeX label associated with a Wilson FLHA/LHA id pair."""

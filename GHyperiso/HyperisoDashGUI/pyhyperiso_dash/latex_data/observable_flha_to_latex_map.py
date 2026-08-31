@@ -6038,6 +6038,24 @@ MANUAL_LEGACY_ALIASES = {
     "dGamma/dq2_LambdabLambdamumu": "DBR_DQ2_LAMBDA_B__LAMBDA_MU_MU",
 }
 
+# B -> K(*) nu nu extension. These updates keep all generated lookup views
+# coherent until the GUI map generator is regenerated from the new C++ enums.
+_BNUNU_OBSERVABLE_META = {
+    "BR_B__K_NU_NU": ("BR_B__K_nu_nu", (521, 1, 3, 321, 14, -14), "$\\mathcal{B}\\left(B^+ \\to K^+\\,\\nu\\bar{\\nu}\\right)$"),
+    "BR_B0__KS_NU_NU": ("BR_B0__KS_nu_nu", (511, 1, 3, 310, 14, -14), "$\\mathcal{B}\\left(B^0 \\to K_S^0\\,\\nu\\bar{\\nu}\\right)$"),
+    "BR_B__KSTAR_NU_NU": ("BR_B__Kstar_nu_nu", (521, 1, 3, 323, 14, -14), "$\\mathcal{B}\\left(B^+ \\to K^{*+}\\,\\nu\\bar{\\nu}\\right)$"),
+    "BR_B0__KSTAR0_NU_NU": ("BR_B0__Kstar0_nu_nu", (511, 1, 3, 313, 14, -14), "$\\mathcal{B}\\left(B^0 \\to K^{*0}\\,\\nu\\bar{\\nu}\\right)$"),
+}
+for _enum_name, (_raw_name, _flha_id, _latex) in _BNUNU_OBSERVABLE_META.items():
+    OBSERVABLE_ENUM_TO_NAME_MAP[_enum_name] = _raw_name
+    OBSERVABLE_ENUM_TO_FLHA_MAP[_enum_name] = _flha_id
+    OBSERVABLE_ENUM_TO_LATEX_MAP[_enum_name] = _latex
+    OBSERVABLE_FLHA_TO_ENUM_MAP[_flha_id] = (_enum_name,)
+    OBSERVABLE_FLHA_TO_NAME_MAP[_flha_id] = (_raw_name,)
+    OBSERVABLE_FLHA_TO_LATEX_MAP[_flha_id] = (_latex,)
+    OBSERVABLE_FLHA_TO_PRIMARY_LATEX_MAP[_flha_id] = _latex
+del _enum_name, _raw_name, _flha_id, _latex
+
 
 LEGACY_POLARIZATION_TYPE_ALIASES = {
     92015: 9212,

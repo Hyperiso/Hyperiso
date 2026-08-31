@@ -21,6 +21,7 @@ static std::shared_ptr<CoefficientRegistry> make_registry() {
     register_CC_su(*reg);
     register_CC_du(*reg);
     register_K(*reg);
+    register_BNuNu(*reg);
     register_MesonMixing(*reg);
     return reg;
 }

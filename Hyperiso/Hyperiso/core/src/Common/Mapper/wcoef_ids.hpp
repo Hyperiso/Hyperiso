@@ -390,6 +390,22 @@ public:
     static const std::vector<WCoef>& k_group(){
         static const std::vector<WCoef> g = { WCoef::CK9, WCoef::CK10, WCoef::CKQ1, WCoef::CKQ2, WCoef::CK_L, WCoef::CPK9, WCoef::CPK10, WCoef::CPKQ1, WCoef::CPKQ2}; return g;
     }
+
+    /// @brief b -> s nu_i anti-nu_j Wilsons in the BNuNu WET basis.
+    static const std::vector<WCoef>& b_nunu_group(){
+        static const std::vector<WCoef> g = {
+            WCoef::CNU_L_EE, WCoef::CNU_R_EE,
+            WCoef::CNU_L_EMU, WCoef::CNU_R_EMU,
+            WCoef::CNU_L_ETAU, WCoef::CNU_R_ETAU,
+            WCoef::CNU_L_MUE, WCoef::CNU_R_MUE,
+            WCoef::CNU_L_MUMU, WCoef::CNU_R_MUMU,
+            WCoef::CNU_L_MUTAU, WCoef::CNU_R_MUTAU,
+            WCoef::CNU_L_TAUE, WCoef::CNU_R_TAUE,
+            WCoef::CNU_L_TAUMU, WCoef::CNU_R_TAUMU,
+            WCoef::CNU_L_TAUTAU, WCoef::CNU_R_TAUTAU
+        };
+        return g;
+    }
     
     /// @brief Wilsons relevant for neutral meson mixing (B, K, D sectors).
     static const std::vector<WCoef>& meson_mixing_group(){
@@ -427,6 +443,7 @@ public:
             case WGroup::CC_su: return {s_ulnu_group().begin(), s_ulnu_group().end()};
             case WGroup::CC_du: return {d_ulnu_group().begin(), d_ulnu_group().end()};
             case WGroup::K:     return {k_group().begin(), k_group().end()};
+            case WGroup::BNuNu: return {b_nunu_group().begin(), b_nunu_group().end()};
             case WGroup::MESON_MIXING: return {meson_mixing_group().begin(), meson_mixing_group().end()};
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }
@@ -468,6 +485,7 @@ public:
             add(WGroup::CC_su,        s_ulnu_group());
             add(WGroup::CC_du,        d_ulnu_group());
             add(WGroup::K,            k_group());
+            add(WGroup::BNuNu,        b_nunu_group());
             add(WGroup::MESON_MIXING, meson_mixing_group());
 
             return m;

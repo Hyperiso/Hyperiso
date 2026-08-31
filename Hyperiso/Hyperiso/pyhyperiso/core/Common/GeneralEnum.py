@@ -170,6 +170,26 @@ class WCoeff(Enum):
     CPKQ2 = _CppWCoef.CPKQ2
     CK_L = _CppWCoef.CK_L
 
+    # b -> s nu_i anti-nu_j
+    CNU_L_EE = _CppWCoef.CNU_L_EE
+    CNU_R_EE = _CppWCoef.CNU_R_EE
+    CNU_L_EMU = _CppWCoef.CNU_L_EMU
+    CNU_R_EMU = _CppWCoef.CNU_R_EMU
+    CNU_L_ETAU = _CppWCoef.CNU_L_ETAU
+    CNU_R_ETAU = _CppWCoef.CNU_R_ETAU
+    CNU_L_MUE = _CppWCoef.CNU_L_MUE
+    CNU_R_MUE = _CppWCoef.CNU_R_MUE
+    CNU_L_MUMU = _CppWCoef.CNU_L_MUMU
+    CNU_R_MUMU = _CppWCoef.CNU_R_MUMU
+    CNU_L_MUTAU = _CppWCoef.CNU_L_MUTAU
+    CNU_R_MUTAU = _CppWCoef.CNU_R_MUTAU
+    CNU_L_TAUE = _CppWCoef.CNU_L_TAUE
+    CNU_R_TAUE = _CppWCoef.CNU_R_TAUE
+    CNU_L_TAUMU = _CppWCoef.CNU_L_TAUMU
+    CNU_R_TAUMU = _CppWCoef.CNU_R_TAUMU
+    CNU_L_TAUTAU = _CppWCoef.CNU_L_TAUTAU
+    CNU_R_TAUTAU = _CppWCoef.CNU_R_TAUTAU
+
 
 class WGroup(Enum):
     """Builtin Wilson-coefficient group identifiers.
@@ -190,6 +210,7 @@ class WGroup(Enum):
     CC_du = _CppWGroup.CC_du
     MESON_MIXING = _CppWGroup.MESON_MIXING
     K = _CppWGroup.K
+    BNuNu = _CppWGroup.BNuNu
 
 
 class WilsonBasis(Enum):
@@ -214,6 +235,10 @@ class Observables(Enum):
     BR_BD_EE = _CppObservables.BR_BD_EE
     R_TAU_NU = _CppObservables.R_TAU_NU
     BR_BU_TAU_NU = _CppObservables.BR_BU_TAU_NU
+    BR_B__K_NU_NU = _CppObservables.BR_B__K_NU_NU
+    BR_B0__KS_NU_NU = _CppObservables.BR_B0__KS_NU_NU
+    BR_B__KSTAR_NU_NU = _CppObservables.BR_B__KSTAR_NU_NU
+    BR_B0__KSTAR0_NU_NU = _CppObservables.BR_B0__KSTAR0_NU_NU
     IA_B0__KSTAR0_GAMMA = _CppObservables.IA_B0__KSTAR0_GAMMA
     BR_B0__KSTAR0_GAMMA = _CppObservables.BR_B0__KSTAR0_GAMMA
     IA_B__KSTAR_GAMMA = _CppObservables.IA_B__KSTAR_GAMMA
@@ -754,6 +779,8 @@ class Decays(Enum):
     B__Xs_l_l = _CppDecays.B__Xs_l_l
     B__K_l_l = _CppDecays.B__K_l_l
     B__Kstar_l_l = _CppDecays.B__Kstar_l_l
+    B__K_nu_nu = _CppDecays.B__K_nu_nu
+    B__Kstar_nu_nu = _CppDecays.B__Kstar_nu_nu
     Bs__phi_l_l = _CppDecays.Bs__phi_l_l
     Lambda_b__Lambda_l_l = _CppDecays.Lambda_b__Lambda_l_l
     M0_Mix = _CppDecays.M0_Mix

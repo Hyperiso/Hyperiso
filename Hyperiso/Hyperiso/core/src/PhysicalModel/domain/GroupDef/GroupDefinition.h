@@ -234,6 +234,7 @@ namespace GroupDefinitions {
     const GroupDefinition& CC_du();
     const GroupDefinition& MesonMixing();
     const GroupDefinition& K();
+    const GroupDefinition& BNuNu();
 
     /**
      * @brief Returns the definition for a given group id.

@@ -11,6 +11,8 @@
 #include "Decays/BXsllDecay.h"
 #include "Decays/BKsllDecay.h"
 #include "Decays/BKllDecay.h"
+#include "Decays/BKnunuDecay.h"
+#include "Decays/BKstarnunuDecay.h"
 #include "Decays/BsPhiDecay.h"
 #include "Decays/LbLllDecay.h"
 #include "Decays/M0_Mixing.h"

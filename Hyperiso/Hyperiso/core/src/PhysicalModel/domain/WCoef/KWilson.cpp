@@ -185,7 +185,7 @@ CK_L::CK_L() : WilsonCoefficient("CK_L", GroupMapper::str(WGroup::K, ScaleType::
 double CK_L::compute_LO(const ParamSrc& src) {
     double xt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", {2, 1});
     double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
-    return X0(xt)/std::pow(sw2,2);
+    return X0(xt)/sw2;
 }
 
 double CK_L::compute_NLO(const ParamSrc& src) {
@@ -193,5 +193,5 @@ double CK_L::compute_NLO(const ParamSrc& src) {
     double sw2  = src.get_val(ParameterType::WILSON, "WPARAM_SI_SM", 4);
     double mW    = src.get_val(ParameterType::SM, "MASS", 24);
     double mtmt = src.get_val(ParameterType::SM, "QCD", 6);
-    return X1(xt, mtmt, mW)/std::pow(sw2,2);
+    return X1(xt, mtmt, mW)/sw2;
 }

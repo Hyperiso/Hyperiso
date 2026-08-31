@@ -316,7 +316,9 @@ std::vector<scalar_t> SMParamSetter::extractMassesForCurrentProcess() const {
 scalar_t SMParamSetter::massValueForParticle(const std::string& particle_name) const {
     const auto p = CinematicExtractor::normalize_particle_name(particle_name);
 
-    if (p == "a" || p == "g" || p == "ve" || p == "vmu" || p == "vtau") {
+    if (p == "a" || p == "g" ||
+        p == "ve" || p == "vmu" || p == "vtau" ||
+        p == "nu_e" || p == "nu_mu" || p == "nu_tau") {
         return 0.0;
     }
 
