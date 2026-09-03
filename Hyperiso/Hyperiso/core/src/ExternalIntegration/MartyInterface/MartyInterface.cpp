@@ -32,7 +32,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v14";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v16";
 
 constexpr const char* kMartyTreeRecipePrefix = "__HYPERISO_MARTY_TREE_RECIPE__|";
 constexpr const char* kMartyTreeRecipeToken = "HYPERISO_MARTY_TREE_PROJECTION_TERMS";
@@ -50,8 +50,15 @@ struct MartyTreeProjectionTerm {
 };
 
 bool supports_tree_projection_recipe(const std::string& wilson) {
-    return wilson == "C9" || wilson == "C10"
-        || wilson == "CP9" || wilson == "CP10";
+    if (wilson == "C9" || wilson == "C10"
+        || wilson == "CP9" || wilson == "CP10") {
+        return true;
+    }
+    // B -> s nu_i anti-nu_j uses the same four-fermion TreeLevel projection
+    // machinery.  The CNU templates provide their own external-neutrino
+    // insertions, while the runtime recipe controls F/O/current layout.
+    return wilson.rfind("CNU_L_", 0) == 0 || wilson.rfind("CNU_R_", 0) == 0
+        || wilson.rfind("CKNU_L_", 0) == 0 || wilson.rfind("CKNU_R_", 0) == 0;
 }
 
 std::vector<std::string> split_recipe_key(const std::string& key) {

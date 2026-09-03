@@ -627,7 +627,9 @@ enum class WCoef {
     // b > s nu_i anti-nu_j
     CNU_L_EE, CNU_R_EE, CNU_L_EMU, CNU_R_EMU, CNU_L_ETAU, CNU_R_ETAU,
     CNU_L_MUE, CNU_R_MUE, CNU_L_MUMU, CNU_R_MUMU, CNU_L_MUTAU, CNU_R_MUTAU,
-    CNU_L_TAUE, CNU_R_TAUE, CNU_L_TAUMU, CNU_R_TAUMU, CNU_L_TAUTAU, CNU_R_TAUTAU
+    CNU_L_TAUE, CNU_R_TAUE, CNU_L_TAUMU, CNU_R_TAUMU, CNU_L_TAUTAU, CNU_R_TAUTAU,
+    // s > d nu_i anti-nu_i (flavour-resolved diagonal rare-kaon basis)
+    CKNU_L_EE, CKNU_R_EE, CKNU_L_MUMU, CKNU_R_MUMU, CKNU_L_TAUTAU, CKNU_R_TAUTAU
 };
 
 enum class WGroup {
@@ -642,7 +644,8 @@ enum class WGroup {
     CC_du,
     MESON_MIXING,
     K,
-    BNuNu
+    BNuNu,
+    KNuNu
 };
 
 

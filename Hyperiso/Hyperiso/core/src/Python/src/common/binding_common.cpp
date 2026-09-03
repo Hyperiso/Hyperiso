@@ -782,6 +782,12 @@ void init_common(py::module &m) {
         .value("CNU_R_TAUMU", WCoef::CNU_R_TAUMU)
         .value("CNU_L_TAUTAU", WCoef::CNU_L_TAUTAU)
         .value("CNU_R_TAUTAU", WCoef::CNU_R_TAUTAU)
+        .value("CKNU_L_EE", WCoef::CKNU_L_EE)
+        .value("CKNU_R_EE", WCoef::CKNU_R_EE)
+        .value("CKNU_L_MUMU", WCoef::CKNU_L_MUMU)
+        .value("CKNU_R_MUMU", WCoef::CKNU_R_MUMU)
+        .value("CKNU_L_TAUTAU", WCoef::CKNU_L_TAUTAU)
+        .value("CKNU_R_TAUTAU", WCoef::CKNU_R_TAUTAU)
         .export_values();
 
     py::enum_<WGroup>(m, "WGroup")
@@ -797,6 +803,7 @@ void init_common(py::module &m) {
         .value("MESON_MIXING", WGroup::MESON_MIXING)
         .value("K", WGroup::K)
         .value("BNuNu", WGroup::BNuNu)
+        .value("KNuNu", WGroup::KNuNu)
         .export_values();
 
     py::enum_<WilsonBasis>(m, "WilsonBasis")

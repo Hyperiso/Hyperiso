@@ -66,6 +66,7 @@ namespace GroupDefinitions {
                 case WGroup::MESON_MIXING: return MesonMixing();
                 case WGroup::K:            return K();
                 case WGroup::BNuNu:        return BNuNu();
+                case WGroup::KNuNu:        return KNuNu();
                 default: break;
             }
             throw std::runtime_error("Unknown built-in WGroup");

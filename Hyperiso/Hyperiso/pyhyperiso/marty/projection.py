@@ -27,6 +27,21 @@ TREE_RECIPE_PREFIX = "__HYPERISO_MARTY_TREE_RECIPE__"
 SUPPORTED_CURRENTS = frozenset({"VL", "VR", "V", "A"})
 SUPPORTED_LAYOUTS = frozenset({"quark_first", "lepton_first"})
 SEMILEPTONIC_VECTOR_COEFFICIENTS = frozenset({"C9", "C10", "CP9", "CP10"})
+BNUNU_COEFFICIENTS = frozenset({
+    "CNU_L_EE", "CNU_R_EE", "CNU_L_EMU", "CNU_R_EMU",
+    "CNU_L_ETAU", "CNU_R_ETAU", "CNU_L_MUE", "CNU_R_MUE",
+    "CNU_L_MUMU", "CNU_R_MUMU", "CNU_L_MUTAU", "CNU_R_MUTAU",
+    "CNU_L_TAUE", "CNU_R_TAUE", "CNU_L_TAUMU", "CNU_R_TAUMU",
+    "CNU_L_TAUTAU", "CNU_R_TAUTAU",
+})
+KNUNU_COEFFICIENTS = frozenset({
+    "CKNU_L_EE", "CKNU_R_EE",
+    "CKNU_L_MUMU", "CKNU_R_MUMU",
+    "CKNU_L_TAUTAU", "CKNU_R_TAUTAU",
+})
+TREE_RECIPE_COEFFICIENTS = (
+    SEMILEPTONIC_VECTOR_COEFFICIENTS | BNUNU_COEFFICIENTS | KNUNU_COEFFICIENTS
+)
 PROFILE_ENV = "HYPERISO_MARTY_PROJECTION_PROFILE"
 SCAN_RESULT_ENV = "HYPERISO_MARTY_SCAN_RESULT"
 
@@ -115,9 +130,9 @@ class MartyProjectionRecipe:
 
     def __post_init__(self) -> None:
         coefficient = str(self.coefficient).strip()
-        if coefficient not in SEMILEPTONIC_VECTOR_COEFFICIENTS:
+        if coefficient not in TREE_RECIPE_COEFFICIENTS:
             raise ValueError(
-                "Recipe ABI v1 is enabled for C9/C10/CP9/CP10; "
+                "Recipe ABI v1 is enabled for C9/C10/CP9/CP10, BNuNu CNU_L/R and KNuNu CKNU_L/R coefficients; "
                 f"received {coefficient!r}"
             )
         if not self.terms:
@@ -430,4 +445,7 @@ __all__ = [
     "PROFILE_ENV",
     "SCAN_RESULT_ENV",
     "TREE_RECIPE_PREFIX",
+    "BNUNU_COEFFICIENTS",
+    "KNUNU_COEFFICIENTS",
+    "TREE_RECIPE_COEFFICIENTS",
 ]

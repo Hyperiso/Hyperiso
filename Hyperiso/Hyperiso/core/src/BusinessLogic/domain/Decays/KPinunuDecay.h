@@ -5,6 +5,8 @@
 #include "General.h"
 #include "DefaultConfig.h"
 
+#include <array>
+
 struct KPinunuDecayCache {
     double alpha_s_m_Z;
     double sw2;
@@ -17,24 +19,30 @@ struct KPinunuDecayCache {
     double kappa_p;
     double delta_em;
 
-    complex_t CL;
+    std::array<complex_t, 3> C_L{};
+    std::array<complex_t, 3> C_R{};
 };
 
 /**
- * @brief Decay parent for the K_L,S > ll decays. Currently implements BR(K_L,S > mu mu) with both possible signs for the K_L > 2 gamma long distance correction.
+ * @brief Rare K -> pi nu anti-nu decay parent.
+ *
+ * The short-distance top contribution is flavour resolved in the KNuNu Wilson
+ * group.  The charm contribution P_c is SM-like and diagonal/universal in the
+ * current implementation.
  */
 class KPinunuDecay : public DecayParentConfigurable<DecayConfig> {
 private:
     KPinunuDecayCache cache;
 
-protected:  
+protected:
     double P_c();
     double BR_L();
     double BR_p();
 
 public:
-    KPinunuDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::K__pi_nu_nu), matching_scale, hadronic_scale, order, ports) {
-        this->w_config.groups = {GroupMapper::to_id(WGroup::K)};
+    KPinunuDecay(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports)
+        : DecayParentConfigurable(DecayMapper::to_id(Decays::K__pi_nu_nu), matching_scale, hadronic_scale, order, ports) {
+        this->w_config.groups = {GroupMapper::to_id(WGroup::KNuNu)};
         this->max_order = QCDOrder::NNLO;
     }
 

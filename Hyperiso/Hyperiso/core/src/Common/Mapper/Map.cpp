@@ -1148,6 +1148,7 @@ const std::map<WGroup, std::string>& group_mapping() {
         {MESON_MIXING, "MesonMixing"},
         {K, "K"},
         {BNuNu, "BNuNuCoefficients"},
+        {KNuNu, "KNuNuCoefficients"},
     };
     return m;
 }
@@ -1179,7 +1180,10 @@ const std::map<WCoef, std::string>& wcoef_mapping() {
         {CK9, "CK9"}, {CPK9, "CPK9"}, {CK10, "CK10"}, {CPK10, "CPK10"}, {CKQ1, "CKQ1"}, {CKQ2, "CKQ2"}, {CPKQ1, "CPKQ1"}, {CPKQ2, "CPKQ2"}, {CK_L, "CK_L"},
         {CNU_L_EE, "CNU_L_EE"}, {CNU_R_EE, "CNU_R_EE"}, {CNU_L_EMU, "CNU_L_EMU"}, {CNU_R_EMU, "CNU_R_EMU"}, {CNU_L_ETAU, "CNU_L_ETAU"}, {CNU_R_ETAU, "CNU_R_ETAU"},
         {CNU_L_MUE, "CNU_L_MUE"}, {CNU_R_MUE, "CNU_R_MUE"}, {CNU_L_MUMU, "CNU_L_MUMU"}, {CNU_R_MUMU, "CNU_R_MUMU"}, {CNU_L_MUTAU, "CNU_L_MUTAU"}, {CNU_R_MUTAU, "CNU_R_MUTAU"},
-        {CNU_L_TAUE, "CNU_L_TAUE"}, {CNU_R_TAUE, "CNU_R_TAUE"}, {CNU_L_TAUMU, "CNU_L_TAUMU"}, {CNU_R_TAUMU, "CNU_R_TAUMU"}, {CNU_L_TAUTAU, "CNU_L_TAUTAU"}, {CNU_R_TAUTAU, "CNU_R_TAUTAU"}
+        {CNU_L_TAUE, "CNU_L_TAUE"}, {CNU_R_TAUE, "CNU_R_TAUE"}, {CNU_L_TAUMU, "CNU_L_TAUMU"}, {CNU_R_TAUMU, "CNU_R_TAUMU"}, {CNU_L_TAUTAU, "CNU_L_TAUTAU"}, {CNU_R_TAUTAU, "CNU_R_TAUTAU"},
+        {CKNU_L_EE, "CKNU_L_EE"}, {CKNU_R_EE, "CKNU_R_EE"},
+        {CKNU_L_MUMU, "CKNU_L_MUMU"}, {CKNU_R_MUMU, "CKNU_R_MUMU"},
+        {CKNU_L_TAUTAU, "CKNU_L_TAUTAU"}, {CKNU_R_TAUTAU, "CKNU_R_TAUTAU"}
     };
     return m;
 }
@@ -1232,6 +1236,11 @@ const std::map<WCoef, std::pair<int, int>>& wcoef_flha_mapping() {
         {CNU_L_TAUE, {3051612, 4141}}, {CNU_R_TAUE, {3051612, 4241}},
         {CNU_L_TAUMU, {3051614, 4141}}, {CNU_R_TAUMU, {3051614, 4241}},
         {CNU_L_TAUTAU, {3051616, 4141}}, {CNU_R_TAUTAU, {3051616, 4241}},
+        // HyperIso extension: flavour-resolved diagonal s -> d nu_i anti-nu_i.
+        // Operator codes 5141/5241 are kept distinct from the legacy universal CK_L id.
+        {CKNU_L_EE, {1031212, 5141}}, {CKNU_R_EE, {1031212, 5241}},
+        {CKNU_L_MUMU, {1031414, 5141}}, {CKNU_R_MUMU, {1031414, 5241}},
+        {CKNU_L_TAUTAU, {1031616, 5141}}, {CKNU_R_TAUTAU, {1031616, 5241}},
     };
     return m;
 }

@@ -3,6 +3,8 @@ from types import SimpleNamespace
 from pyhyperiso.marty.projection import (
     TREE_RECIPE_PREFIX,
     MartyProjectionProfile,
+    MartyProjectionRecipe,
+    MartyProjectionTerm,
     apply_tree_projection_profile,
     direct_semileptonic_profile,
     lq_semileptonic_chiral_profile,
@@ -29,3 +31,24 @@ def test_direct_profile_roundtrip(tmp_path):
     path = profile.save(tmp_path / "profile.json")
     loaded = MartyProjectionProfile.load(path)
     assert loaded.to_json() == profile.to_json()
+
+
+def test_bnunu_profile_accepts_direct_neutrino_projector():
+    profile = MartyProjectionProfile(
+        tree={
+            "CNU_L_MUMU": MartyProjectionRecipe(
+                "CNU_L_MUMU",
+                (MartyProjectionTerm(
+                    "direct", 1.0, "VL", "VL",
+                    [0, 1, 2, 3], [1, 2, 0, 3], "quark_first"
+                ),),
+            )
+        }
+    )
+    cfg = SimpleNamespace(mty_tree_fermion_orders={}, mty_tree_operator_orders={})
+    apply_tree_projection_profile(cfg, profile)
+    keys = [key for key in cfg.mty_tree_fermion_orders if "CNU_L_MUMU" in key]
+    assert len(keys) == 1
+    key = keys[0]
+    assert cfg.mty_tree_fermion_orders[key] == [0, 1, 2, 3]
+    assert cfg.mty_tree_operator_orders[key] == [1, 2, 0, 3]

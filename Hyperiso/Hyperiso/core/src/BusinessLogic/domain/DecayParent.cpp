@@ -1,6 +1,8 @@
 #include "DecayParent.h"
 #include <iostream>
 #include <algorithm>
+#include "HyperisoMaster.h"
+#include "Config.h"
 
 QCDOrder DecayParent::check_max_order(QCDOrder order) const {
     if (order > max_order) {
@@ -43,7 +45,11 @@ void DecayParent::disable() {
 }
 
 void DecayParent::set_order(QCDOrder new_order) {
-    if (use_marty->get() && new_order > QCDOrder::LO) {
+    const bool keep_native_sm_higher_orders =
+        use_marty->get()
+        && HyperisoMaster().check_flag(ExternalFlag::HYP_AS_SM_MARTY);
+
+    if (use_marty->get() && new_order > QCDOrder::LO && !keep_native_sm_higher_orders) {
         LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
         new_order = QCDOrder::LO;
     }

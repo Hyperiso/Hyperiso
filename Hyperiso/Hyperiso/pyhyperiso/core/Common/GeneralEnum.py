@@ -190,6 +190,14 @@ class WCoeff(Enum):
     CNU_L_TAUTAU = _CppWCoef.CNU_L_TAUTAU
     CNU_R_TAUTAU = _CppWCoef.CNU_R_TAUTAU
 
+    # s -> d nu_i anti-nu_i (diagonal flavour-resolved rare-kaon basis)
+    CKNU_L_EE = _CppWCoef.CKNU_L_EE
+    CKNU_R_EE = _CppWCoef.CKNU_R_EE
+    CKNU_L_MUMU = _CppWCoef.CKNU_L_MUMU
+    CKNU_R_MUMU = _CppWCoef.CKNU_R_MUMU
+    CKNU_L_TAUTAU = _CppWCoef.CKNU_L_TAUTAU
+    CKNU_R_TAUTAU = _CppWCoef.CKNU_R_TAUTAU
+
 
 class WGroup(Enum):
     """Builtin Wilson-coefficient group identifiers.
@@ -211,6 +219,7 @@ class WGroup(Enum):
     MESON_MIXING = _CppWGroup.MESON_MIXING
     K = _CppWGroup.K
     BNuNu = _CppWGroup.BNuNu
+    KNuNu = _CppWGroup.KNuNu
 
 
 class WilsonBasis(Enum):

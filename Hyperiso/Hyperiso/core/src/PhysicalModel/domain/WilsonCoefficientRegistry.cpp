@@ -21,6 +21,7 @@
 #include "PIChargedCurrentWilsonSUSY.h"
 #include "KWilson.h"
 #include "BNuNuWilson.h"
+#include "KNuNuWilson.h"
 
 #include "Include.h"
 
@@ -99,6 +100,17 @@ static CoefPtr make_bnunu_marty_compatible(const BuildContext& ctx, WCoef c) {
     // the BSM (or explicit TOTAL diagnostic) part of a non-SM target model.
     if (ctx.contrib == ContributionType::SM) {
         return std::make_shared<BNuNuWilson>(c, ContributionType::SM);
+    }
+    return make_marty(ctx, c);
+}
+
+static CoefPtr make_knunu_marty_compatible(const BuildContext& ctx, WCoef c) {
+    // Keep the native rare-kaon SM matching (including its NLO increment) and
+    // use MARTY only for the BSM target contribution.  This mirrors BNuNu but
+    // preserves the scale-dependent native X_t matching rather than freezing a
+    // phenomenological constant.
+    if (ctx.contrib == ContributionType::SM) {
+        return std::make_shared<KNuNuWilson>(c, ContributionType::SM);
     }
     return make_marty(ctx, c);
 }
@@ -576,5 +588,16 @@ void register_BNuNu(CoefficientRegistry& reg) {
         // In MARTY mode the SM part remains the corrected hard-coded value,
         // while BSM/TOTAL target contexts are generated from the CNU templates.
         REG(c, Model::SM, Backend::Marty, make_bnunu_marty_compatible(ctx, coef));
+    }
+}
+
+void register_KNuNu(CoefficientRegistry& reg) {
+    using enum Model; using enum Backend;
+
+    for (WCoef c : WCoefMapper::get_group(WGroup::KNuNu)) {
+        REG(c, SM,   Builtin, std::make_shared<KNuNuWilson>(coef, ContributionType::SM));
+        REG(c, SUSY, Builtin, std::make_shared<KNuNuWilson>(coef, ContributionType::BSM));
+        REG(c, THDM, Builtin, std::make_shared<KNuNuWilson>(coef, ContributionType::BSM));
+        REG(c, Model::SM, Backend::Marty, make_knunu_marty_compatible(ctx, coef));
     }
 }

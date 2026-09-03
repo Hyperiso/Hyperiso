@@ -211,4 +211,9 @@ void register_K(CoefficientRegistry& reg);
  */
 void register_BNuNu(CoefficientRegistry& reg);
 
+/**
+ * @brief Registers flavour-resolved s -> d nu_i anti-nu_i coefficient factories.
+ */
+void register_KNuNu(CoefficientRegistry& reg);
+
 #endif

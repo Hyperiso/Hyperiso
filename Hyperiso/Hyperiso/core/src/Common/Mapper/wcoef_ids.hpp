@@ -406,6 +406,16 @@ public:
         };
         return g;
     }
+
+    /// @brief Flavour-resolved diagonal s -> d nu_i anti-nu_i Wilsons.
+    static const std::vector<WCoef>& k_nunu_group(){
+        static const std::vector<WCoef> g = {
+            WCoef::CKNU_L_EE, WCoef::CKNU_R_EE,
+            WCoef::CKNU_L_MUMU, WCoef::CKNU_R_MUMU,
+            WCoef::CKNU_L_TAUTAU, WCoef::CKNU_R_TAUTAU
+        };
+        return g;
+    }
     
     /// @brief Wilsons relevant for neutral meson mixing (B, K, D sectors).
     static const std::vector<WCoef>& meson_mixing_group(){
@@ -444,6 +454,7 @@ public:
             case WGroup::CC_du: return {d_ulnu_group().begin(), d_ulnu_group().end()};
             case WGroup::K:     return {k_group().begin(), k_group().end()};
             case WGroup::BNuNu: return {b_nunu_group().begin(), b_nunu_group().end()};
+            case WGroup::KNuNu: return {k_nunu_group().begin(), k_nunu_group().end()};
             case WGroup::MESON_MIXING: return {meson_mixing_group().begin(), meson_mixing_group().end()};
             default: LOG_ERROR("Invalid WGroup","get_group couldn't find your group"); return {};
         }
@@ -486,6 +497,7 @@ public:
             add(WGroup::CC_du,        d_ulnu_group());
             add(WGroup::K,            k_group());
             add(WGroup::BNuNu,        b_nunu_group());
+            add(WGroup::KNuNu,        k_nunu_group());
             add(WGroup::MESON_MIXING, meson_mixing_group());
 
             return m;

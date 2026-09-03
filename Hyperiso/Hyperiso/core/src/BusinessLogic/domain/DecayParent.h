@@ -79,7 +79,9 @@ using std::chrono::duration;
  * ### QCD order and MARTY backend
  * - The decay declares a maximum supported order via @ref max_order (default LO).
  * - The constructor stores the requested order, but it is clamped by @ref check_max_order.
- * - If MARTY is enabled (ports.iobs_use_marty), the effective order is limited to LO.
+ * - If MARTY is enabled, the pure-MARTY path is limited to LO.  When
+ *   HYP_AS_SM_MARTY is active, higher native-SM orders are retained while the
+ *   MARTY BSM contribution remains LO, matching WilsonManager's mixed-order policy.
  *
  * @note The actual Wilson construction and caching policy is handled externally via
  *       @ref ObsWilsonHelper and the @ref IWilsonFreezer port.
