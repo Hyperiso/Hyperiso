@@ -92,3 +92,11 @@ std::map<std::string, std::vector<int>> MartyAdapter::get_marty_tree_operator_or
 std::map<std::string, std::vector<int>> MartyAdapter::get_marty_one_loop_operator_orders() const {
     return MemoryManager::GetInstance()->getMemoryCache().config.mty_one_loop_operator_orders;
 }
+
+bool MartyAdapter::get_marty_group_batching() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_group_batching;
+}
+
+std::vector<std::string> MartyAdapter::get_marty_expected_nonzero_coefficients() const {
+    return MemoryManager::GetInstance()->getMemoryCache().config.mty_expected_nonzero_coefficients;
+}

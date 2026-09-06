@@ -69,8 +69,11 @@ specialised internal fallback. In every BSM one-loop branch, the generated
 diagram filter requires at least one non-SM particle, so the result cannot
 contain a second copy of the SM matching.
 
-No permutation scan is performed. Exact zeros are physically meaningful, and a
-wrong pairing can produce a non-zero but incorrect Fierz projection.
+No permutation scan is performed by default. Exact zeros are physically meaningful,
+and a wrong pairing can produce a non-zero but incorrect Fierz projection. An
+explicit `mty_expected_nonzero_coefficients` contract may enable the bounded
+TreeLevel F/O discovery described below; recipe-backed projectors are never
+scanned.
 
 ## Generated-code behavior
 
@@ -125,3 +128,59 @@ Target MARTY models are constructed only after `undefineNumericalValues()` has
 been called. This prevents custom model constructors from folding MARTY's
 default values of `theta_W`, `e_em`, or other Standard-Model constants into the
 Lagrangian before HyperIso injects the selected LHA inputs.
+
+## Group batching and expected-nonzero discovery
+
+`HyperisoConfig.mty_group_batching` defaults to `True`. For a complete MARTY
+BSM group, HyperIso now generates one plugin per coefficient and a group driver.
+The driver instantiates the target MARTY model once and passes that same model to
+every coefficient plugin. If one group member has no MARTY template, HyperIso
+falls back to the historical coefficient-by-coefficient path for the complete
+group rather than mixing the two generation modes.
+
+The numerical executables remain isolated per coefficient, but the first Wilson
+request at a given matching scale and parameter point evaluates the whole
+prepared group and merges the results into a point cache. Subsequent coefficients
+at the same point reuse the merged CSV. The cache key includes `Q_match` and all
+numeric parameters used by all members, and a new analytical preparation clears
+old point caches.
+
+`mty_expected_nonzero_coefficients` is opt-in. For a coefficient declared
+non-zero, the configured/template projection is always tested first. Eligible
+four-fermion templates without an explicit projection recipe may then scan:
+
+1. the 24 TreeLevel external-fermion orders with the operator order fixed;
+2. the 24 operator orders with the fermion order fixed;
+3. as a last resort, the 24 x 24 combinations.
+
+The scan stops at the first symbolically non-zero projection. Explicit BNuNu /
+KNuNu (and other recipe-backed) projection recipes remain authoritative and are
+never bypassed. Dipole templates are not permutation-scanned. If an expected
+coefficient stays zero, the analytical group driver exits before numeric wrapper
+generation.
+
+Example:
+
+```python
+cfg.mty_group_batching = True
+cfg.mty_expected_nonzero_coefficients = (
+    "C9",
+    "C10",
+)
+```
+
+### Analytical progress and timing
+
+Long MARTY generations print a staged analytical timeline. The group path reports
+plugin source generation/compilation, shared target-model construction, and then
+coefficient matching. Each coefficient reports whether it uses a dimension-six
+projector or a template-specific projector, whether a projection recipe is active,
+whether F/O scanning is available, and its elapsed time. Tree-level amplitude
+construction prints `process START` / `process READY`, followed by Wilson matching
+and the effective fermion order. Dimension-six projection additionally prints the
+Dirac currents and effective operator order. One-loop one-shot matching prints a
+combined `process+matching` timer.
+
+The exhaustive expected-nonzero scan deliberately suppresses MARTY's detailed
+per-attempt progress. HyperIso prints the scan stage and selected F/O pair instead,
+so a 24 x 24 fallback does not produce hundreds of full process traces.

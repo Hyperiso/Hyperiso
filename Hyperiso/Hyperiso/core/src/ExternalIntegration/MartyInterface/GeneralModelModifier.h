@@ -112,6 +112,7 @@ private:
     static std::string makeSmFilterHelper();
     std::string makeWilsonOrderHelper() const;
     static void replaceWilsonCallWithHelper(std::string& line);
+    static void replaceAmplitudeCallWithHelper(std::string& line);
     static void replaceDimension6OperatorWithHelper(std::string& line,
                                                     const std::string& order_expression);
     std::string orderPolicyPreamble() const;

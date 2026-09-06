@@ -103,6 +103,10 @@ struct BuildContext {
 
     /// Optional path provider used by MARTY-backed Wilson coefficients.
     std::shared_ptr<IMartyWilsonPathProxy> marty_paths;
+
+    /// Optional coefficient subset for matching-only/diagnostic builds.
+    /// Empty means all members declared by the group definition.
+    std::unordered_set<WCoefId> requested_coefficients;
 };
 
 /**

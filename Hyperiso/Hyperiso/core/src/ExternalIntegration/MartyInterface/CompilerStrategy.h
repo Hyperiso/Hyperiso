@@ -43,6 +43,16 @@
 bool executeCommand(const std::string& command);
 
 /**
+ * @brief Executes a shell command while streaming its combined stdout/stderr.
+ *
+ * This variant is intended for long-running MARTY analytical drivers where
+ * progress output must remain visible to the user. Output is forwarded to
+ * stdout as it is produced and is also retained so failures still include the
+ * complete command output in the thrown exception.
+ */
+bool executeCommandStreaming(const std::string& command);
+
+/**
  * @class CompilerStrategy
  * @ingroup CodeGenerationModule
  * @brief Abstract base class for compilation and run strategies.

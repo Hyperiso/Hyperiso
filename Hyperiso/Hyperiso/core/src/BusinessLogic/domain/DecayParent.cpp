@@ -1,6 +1,7 @@
 #include "DecayParent.h"
 #include <iostream>
 #include <algorithm>
+#include <mutex>
 #include "HyperisoMaster.h"
 #include "Config.h"
 
@@ -50,7 +51,10 @@ void DecayParent::set_order(QCDOrder new_order) {
         && HyperisoMaster().check_flag(ExternalFlag::HYP_AS_SM_MARTY);
 
     if (use_marty->get() && new_order > QCDOrder::LO && !keep_native_sm_higher_orders) {
-        LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
+        static std::once_flag warning_once;
+        std::call_once(warning_once, [] {
+            LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
+        });
         new_order = QCDOrder::LO;
     }
 

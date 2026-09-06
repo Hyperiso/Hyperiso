@@ -9,6 +9,8 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <optional>
+#include <vector>
+#include <mutex>
 
 #include "config.hpp"
 #include "FileNameManager.h"
@@ -219,6 +221,20 @@ public:
      */
     std::unordered_set<InterpretedParam> get_dependencies(std::string wilson);
 
+    bool prepare_group(const std::string& group,
+                       const std::vector<std::string>& members,
+                       const std::string& output_model,
+                       const std::string& target_model,
+                       const std::string& model_path,
+                       bool sm_like_filter = false,
+                       bool bsm_split_generation = true,
+                       bool full_target_generation = false);
+
+    bool is_group_prepared(const std::string& wilson,
+                           const std::string& output_model,
+                           const std::string& target_model,
+                           const std::string& model_path) const;
+
     /**
      * @brief Returns the special blocks handled with custom logic.
      *
@@ -316,6 +332,18 @@ private:
 
     /// Cache of dependencies per Wilson basis name.
     std::unordered_map<std::string, std::unordered_set<InterpretedParam>> dependencies;
+
+    struct PreparedGroup {
+        std::string group;
+        std::vector<std::string> members;
+        std::string output_model;
+        std::string target_model;
+        std::string model_path;
+        bool sm_like_filter{false};
+        bool bsm_split_generation{true};
+        bool full_target_generation{false};
+    };
+    std::unordered_map<std::string, PreparedGroup> prepared_groups_by_wilson;
 
     /// Core API used to retrieve the current ::Model.
     std::shared_ptr<ICoreAPI<Model>> core_api;

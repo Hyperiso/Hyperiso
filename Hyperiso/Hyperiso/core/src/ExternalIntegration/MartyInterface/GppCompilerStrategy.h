@@ -65,6 +65,12 @@ public:
      * @param outputBinary  Path/name of the executable to produce.
      */
     void compile(const std::string& sourceFile, const std::string& outputBinary) override;
+
+    /** Compile a generated coefficient as a dlopen-able group plugin. */
+    void compile_shared(const std::string& sourceFile, const std::string& outputLibrary);
+
+    /** Compile a standalone MARTY group driver. */
+    void compile_group_driver(const std::string& sourceFile, const std::string& outputBinary);
 };
 
 #endif

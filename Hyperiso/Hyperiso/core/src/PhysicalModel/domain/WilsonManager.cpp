@@ -316,8 +316,8 @@ std::string CoefficientManager::getModel() {
     return ModelMapper::str(ports_config.model_api->get());
 }
 
-void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order) {
-    init_specific_order_group_matching(groupName, order, /*only_total=*/false);
+void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order, bool bsm_only) {
+    init_specific_order_group_matching(groupName, order, /*only_total=*/false, bsm_only);
 
 }
 void CoefficientManager::ensure_matching_triplet_zeroed(
@@ -643,7 +643,8 @@ void CoefficientManager::ensure_sm_model_triplet_in_matching(
 
 void CoefficientManager::init_specific_order_group_matching(const std::string& groupName,
                                                             const std::string& orderStr,
-                                                            bool only_total)
+                                                            bool only_total,
+                                                            bool bsm_only)
 {
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
@@ -679,6 +680,14 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
                 if (qcd_index(o) <= qcd_index(marty_calc_order)) continue;
                 ensure_matching_triplet_zeroed(groupName, o);
             }
+            return;
+        }
+
+        // Explicit BSM-only builds already wrote the target-model coefficients
+        // into the BSM slots above.  Do not instantiate/validate a standalone
+        // SM group that the caller has declared it will not request.  Missing
+        // SM entries are treated as zero by the BSM running path.
+        if (bsm_only) {
             return;
         }
 
@@ -1036,7 +1045,16 @@ void CoefficientManager::update(double mu_W, double mu_h) {
     this->set_hadronic_scale(mu_h);
 }
 
-std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::string, std::shared_ptr<CoefficientGroup>> groups, double mu_W, double mu_h, std::string order, WilsonPortsConfig portconfig, std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers) {
+std::shared_ptr<CoefficientManager> CoefficientManager::Builder(
+    std::map<std::string, std::shared_ptr<CoefficientGroup>> groups,
+    double mu_W,
+    double mu_h,
+    std::string order,
+    WilsonPortsConfig portconfig,
+    std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers,
+    bool matching_only,
+    bool bsm_only
+) {
     
     for (auto& helper : wilson_param_helpers) {
         for (const auto& elem : groups) {
@@ -1059,9 +1077,13 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder( std::map<std::s
     manager->set_hadronic_scale(mu_h);
     for (auto& group: groups) {
         LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
-        manager->init_group_matching(group.first, order);
-        LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
-        manager->init_group_hadronic_all_bases(group.first, order);
+        manager->init_group_matching(group.first, order, bsm_only);
+        if (!matching_only) {
+            LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
+            manager->init_group_hadronic_all_bases(group.first, order);
+        } else {
+            LOG_DEBUG("(CoefficientManager) Matching-only build: skipping hadronic initialization for", group.first);
+        }
     }
     LOG_DEBUG("(CoefficientManager) Manager successfully initialized");
     return manager;

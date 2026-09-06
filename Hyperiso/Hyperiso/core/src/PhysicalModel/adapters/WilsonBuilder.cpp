@@ -78,7 +78,8 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     this->current_marty_paths = marty_paths;
 
     auto reg_ptr = make_registry();
-    auto build_group_fn = [reg_ptr, adapters, marty_paths](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
+    const auto requested_coefficients = config.coefficients;
+    auto build_group_fn = [reg_ptr, adapters, marty_paths, requested_coefficients](WGroupId gid, Model mdl, bool useMarty, ContributionType ct, std::string group_name = "") -> std::shared_ptr<CoefficientGroup> {
         BuildContext ctx{
             .adapters = adapters,
             .model    = mdl,
@@ -86,7 +87,8 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
             .contrib  = ct,
             .group_id = gid,
             .group_name = std::move(group_name),
-            .marty_paths = marty_paths
+            .marty_paths = marty_paths,
+            .requested_coefficients = requested_coefficients
         };
         CoefficientGroupBuilder b{*reg_ptr};
         return b.build(ctx);
@@ -123,7 +125,11 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     // WilsonMatchingPatch.
     port_config.build_group = build_group_fn;
 
-    this->cm = CoefficientManager::Builder(groups, config.matching_scale, config.hadronic_scale, OrderMapper::str(config.order), port_config, wilson_param_helpers);
+    this->cm = CoefficientManager::Builder(
+        groups, config.matching_scale, config.hadronic_scale,
+        OrderMapper::str(config.order), port_config, wilson_param_helpers,
+        config.matching_only, config.bsm_only
+    );
 }
 
 void WilsonBuilder::add(WilsonBuildConfig config) {
@@ -198,7 +204,8 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
             .backend = marty ? Backend::Marty : Backend::Builtin,
             .contrib = ct,
             .group_id = g_id,
-            .marty_paths = marty_paths
+            .marty_paths = marty_paths,
+            .requested_coefficients = config.coefficients
         };
 
         auto grp = b.build(ctx);
@@ -207,9 +214,13 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         LOG_VERBOSE("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, std::move(grp));
         LOG_VERBOSE("Initializing group at matching scale", group_name);
-        this->cm->init_group_matching(group_name, OrderMapper::str(config.order));
-        LOG_VERBOSE("Initializing group at hardronic scale", group_name);
-        this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
+        this->cm->init_group_matching(group_name, OrderMapper::str(config.order), config.bsm_only);
+        if (!config.matching_only) {
+            LOG_VERBOSE("Initializing group at hardronic scale", group_name);
+            this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));
+        } else {
+            LOG_VERBOSE("Matching-only build: skipping hardronic initialization", group_name);
+        }
         LOG_VERBOSE("Initialization done");
     }
 }

@@ -5,6 +5,7 @@
 #include <set>
 #include <unordered_set>
 #include <utility>
+#include <vector>
 
 /**
  * @file IMartyWilsonAdapter.h
@@ -101,6 +102,28 @@ public:
      * @return Unordered set of dependencies of type @p T.
      */
     virtual std::unordered_set<T> get_dependencies(std::string wilson) = 0;
+
+    virtual bool prepare_group(const std::string& group,
+                               const std::vector<std::string>& members,
+                               const std::string& output_model,
+                               const std::string& target_model,
+                               const std::string& model_path,
+                               bool sm_like_filter = false,
+                               bool bsm_split_generation = true,
+                               bool full_target_generation = false) {
+        (void)group; (void)members; (void)output_model; (void)target_model;
+        (void)model_path; (void)sm_like_filter; (void)bsm_split_generation;
+        (void)full_target_generation;
+        return false;
+    }
+
+    virtual bool is_group_prepared(const std::string& wilson,
+                                   const std::string& output_model,
+                                   const std::string& target_model,
+                                   const std::string& model_path) const {
+        (void)wilson; (void)output_model; (void)target_model; (void)model_path;
+        return false;
+    }
 
 
 };

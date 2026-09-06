@@ -102,6 +102,25 @@ public:
      */
     std::unordered_set<InterpretedParam> get_dependencies(std::string wilson) override {return martyInterface.get_dependencies(wilson);}
 
+    bool prepare_group(const std::string& group,
+                       const std::vector<std::string>& members,
+                       const std::string& output_model,
+                       const std::string& target_model,
+                       const std::string& model_path,
+                       bool sm_like_filter = false,
+                       bool bsm_split_generation = true,
+                       bool full_target_generation = false) override {
+        return martyInterface.prepare_group(group, members, output_model, target_model, model_path,
+                                            sm_like_filter, bsm_split_generation, full_target_generation);
+    }
+
+    bool is_group_prepared(const std::string& wilson,
+                           const std::string& output_model,
+                           const std::string& target_model,
+                           const std::string& model_path) const override {
+        return martyInterface.is_group_prepared(wilson, output_model, target_model, model_path);
+    }
+
 private:
     /// Underlying façade used to perform all MARTY-related work.
     MartyInterface martyInterface;

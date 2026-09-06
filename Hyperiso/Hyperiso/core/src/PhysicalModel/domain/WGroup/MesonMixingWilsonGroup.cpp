@@ -173,9 +173,20 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
     std::array<complex_t, 32> Ci_match_BMU = {};
     std::array<complex_t, 8> Ci_match_temp = {};
     auto ids = WCoefMapper::get_group(WGroup::MESON_MIXING);
+    const auto& lo_matching = coef_matching.at(QCDOrder::LO);
+    auto matching_or_zero = [&lo_matching](const WCoefId& id) -> scalar_t {
+        const auto it = lo_matching.find(id);
+        return it == lo_matching.end() ? scalar_t() : it->second;
+    };
+
+    // Meson families are independent under the QCD evolution implemented here.
+    // A partial build may therefore contain only one or more complete 8-member
+    // families (BD/BS/SD/CU); coefficients from omitted families are physical
+    // zeros for this running invocation.  This is what allows diagnostics to
+    // evolve BS without generating unrelated BD/SD/CU MARTY matchings.
     for (size_t n = 0; n < 4; n++) {
         for (size_t k = 0; k < 8; k++) {
-            Ci_match_temp[k] = coef_matching.at(QCDOrder::LO).at(WCoefMapper::to_id(ids[8 * n + k]));
+            Ci_match_temp[k] = matching_or_zero(WCoefMapper::to_id(ids[8 * n + k]));
         }
         Ci_match_temp = MMRP::change_basis(Ci_match_temp, MMRP::SUSY_to_BMU);
         for (size_t k = 0; k < 8; k++) {
@@ -226,7 +237,13 @@ MesonMixingCoefficientGroup::base_1_LO_calculation (
         Ci_run_temp = MMRP::change_basis(Ci_run_temp, MMRP::BMU_to_SUSY);
 
         for (size_t k = 0; k < 8; ++k) {
-            Ci_run_map[WCoefMapper::to_id(ids[8 * n + k])] = Ci_run_temp[k];
+            const auto id = WCoefMapper::to_id(ids[8 * n + k]);
+            // Keep the running result sparse in exactly the same sense as the
+            // active group.  CoefficientManager validates that running functions
+            // do not manufacture coefficients outside the requested member list.
+            if (lo_matching.contains(id)) {
+                Ci_run_map[id] = Ci_run_temp[k];
+            }
         }
     }
 

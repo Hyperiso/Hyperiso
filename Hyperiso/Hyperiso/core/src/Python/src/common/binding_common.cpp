@@ -1264,6 +1264,9 @@ The object is non-owning and should only be used during the callback call.
     py::class_<WilsonBuildConfig>(m, "WilsonBuildConfig")
         .def(py::init<>())
         .def_readwrite("groups", &WilsonBuildConfig::groups)
+        .def_readwrite("coefficients", &WilsonBuildConfig::coefficients)
+        .def_readwrite("matching_only", &WilsonBuildConfig::matching_only)
+        .def_readwrite("bsm_only", &WilsonBuildConfig::bsm_only)
         .def_readwrite("matching_scale", &WilsonBuildConfig::matching_scale)
         .def_readwrite("hadronic_scale", &WilsonBuildConfig::hadronic_scale)
         .def_readwrite("order", &WilsonBuildConfig::order);

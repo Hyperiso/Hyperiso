@@ -100,9 +100,14 @@ MartyWilson::MartyWilson(MartyWilsonConfig config)
         return result;
     };
 
-    ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
-    std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
-    matching_info[QCDOrder::LO].compute(ParamSrc(dummy));
+    const bool prepared_by_group = marty_proxy && marty_proxy->is_group_prepared(
+        name, marty_model, marty_generation_model, marty_model_path
+    );
+    if (!prepared_by_group) {
+        ParamId pid {ParameterType::WILSON, "EW_SCALE", 1};
+        std::unordered_map<ParamId, std::shared_ptr<Parameter>> dummy {{pid, std::make_shared<Parameter>(pid, 1, 0, 0)}};
+        matching_info[QCDOrder::LO].compute(ParamSrc(dummy));
+    }
 
     std::unordered_set<ParamId> sources;
     const std::set<std::string> special = marty_proxy->get_special_blocks();

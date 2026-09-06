@@ -1,8 +1,13 @@
 #include "WilsonInterface.h"
 
+#include <mutex>
+
 QCDOrder WilsonInterface::ensure_mty_compat(QCDOrder order) {
     if (UseMarty().get() && !(order == QCDOrder::LO)) {
-        LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
+        static std::once_flag warning_once;
+        std::call_once(warning_once, [] {
+            LOG_WARN("Using MARTY defaults all calculations to LO in QCD.");
+        });
         return QCDOrder::LO;
     }
     return order;

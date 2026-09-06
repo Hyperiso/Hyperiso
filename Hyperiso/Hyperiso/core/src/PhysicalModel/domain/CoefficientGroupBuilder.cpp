@@ -35,10 +35,51 @@ std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildCont
         grp->add_sources(basis, m);
     }
 
-    std::vector<WCoefId> member_ids;
-    member_ids.reserve(def.members.size());
-
+    std::vector<WCoef> active_members;
+    active_members.reserve(def.members.size());
     for (auto c : def.members) {
+        const auto id = WCoefMapper::to_id(c);
+        if (ctx.requested_coefficients.empty()
+            || ctx.requested_coefficients.contains(id)) {
+            active_members.emplace_back(c);
+        }
+    }
+
+    if (!ctx.requested_coefficients.empty() && active_members.empty()) {
+        throw std::runtime_error(
+            "Requested Wilson coefficient subset has no member in group '"
+            + GroupMapper::str(def.id) + "'"
+        );
+    }
+
+    std::vector<WCoefId> member_ids;
+    member_ids.reserve(active_members.size());
+
+    // For a genuine BSM MARTY contribution, prepare only the active members.
+    // This lets matching-only diagnostics request C7/C8 without computing
+    // unrelated one-loop four-fermion coefficients from the same group.
+    if (ctx.backend == Backend::Marty
+        && ctx.contrib == ContributionType::BSM
+        && ctx.model != Model::SM
+        && ctx.adapters.marty_proxy
+        && ctx.adapters.marty_model_name
+        && ctx.adapters.marty_model_path) {
+        std::vector<std::string> marty_members;
+        marty_members.reserve(active_members.size());
+        for (auto c : active_members) marty_members.push_back(WCoefMapper::str(c));
+        ctx.adapters.marty_proxy->prepare_group(
+            GroupMapper::str(def.id, ScaleType::MATCHING),
+            marty_members,
+            ctx.adapters.marty_model_name->get(),
+            ctx.adapters.marty_model_name->get(),
+            ctx.adapters.marty_model_path->get().string(),
+            false,
+            true,
+            false
+        );
+    }
+
+    for (auto c : active_members) {
         auto coef = reg_.create(ctx, c);
         grp->insert({ WCoefMapper::str(c), std::move(coef) });
         member_ids.emplace_back(WCoefMapper::to_id(c));

@@ -68,3 +68,10 @@ def test_mass_config_to_cpp():
     assert cpp.scale == pytest.approx(173.0)
     assert cpp.m_b_type == MassType.POLE.value
     assert cpp.m_t_type == MassType.MSBAR.value
+
+
+def test_wilson_build_config_bsm_only_to_cpp():
+    config = WilsonBuildConfig(matching_only=True, bsm_only=True)
+    cpp = config.to_cpp()
+    assert cpp.matching_only is True
+    assert cpp.bsm_only is True

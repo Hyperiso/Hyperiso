@@ -49,6 +49,8 @@ class HyperisoConfig:
         mty_one_loop_fermion_orders: Per-coefficient OneLoop fermion-order overrides.
         mty_tree_operator_orders: Per-coefficient TreeLevel dimension-six projector-order overrides.
         mty_one_loop_operator_orders: Per-coefficient OneLoop dimension-six projector-order overrides.
+        mty_group_batching: Build/evaluate MARTY Wilsons as a group when possible.
+        mty_expected_nonzero_coefficients: Coefficients expected to be symbolically non-zero.
 
     Examples:
         >>> from pathlib import Path
@@ -78,6 +80,8 @@ class HyperisoConfig:
     mty_one_loop_fermion_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
     mty_tree_operator_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
     mty_one_loop_operator_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
+    mty_group_batching: bool = True
+    mty_expected_nonzero_coefficients: Union[str, Sequence[str]] = field(default_factory=tuple)
 
     def to_cpp(self) -> _CppHyperisoConfig:
         """Convert this Python config into the bound C++ config.
@@ -115,7 +119,28 @@ class HyperisoConfig:
             self.mty_one_loop_operator_orders,
             field_name="mty_one_loop_operator_orders",
         )
+        cpp.mty_group_batching = bool(self.mty_group_batching)
+        cpp.mty_expected_nonzero_coefficients = self._normalise_expected_nonzero(
+            self.mty_expected_nonzero_coefficients
+        )
         return cpp
+
+    @staticmethod
+    def _normalise_expected_nonzero(values: Union[str, Sequence[str]]) -> list[str]:
+        """Normalize a coefficient name or sequence while preserving input order."""
+        raw_values = [values] if isinstance(values, str) else list(values)
+        result: list[str] = []
+        seen: set[str] = set()
+        for raw in raw_values:
+            name = str(raw).strip()
+            if not name:
+                raise ValueError(
+                    "mty_expected_nonzero_coefficients contains an empty coefficient name"
+                )
+            if name not in seen:
+                seen.add(name)
+                result.append(name)
+        return result
 
     @staticmethod
     def _normalise_orders(

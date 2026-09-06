@@ -101,3 +101,32 @@ void GppCompilerStrategy::compile(const std::string& sourceFile, const std::stri
 
     executeCommand(command_compile);
 }
+
+
+void GppCompilerStrategy::compile_shared(const std::string& sourceFile, const std::string& outputLibrary) {
+    const auto marty = MartyRuntimeConfig::require_available("GppCompilerStrategy::compile_shared");
+    if (!marty.valid) return;
+    const auto libgfortran = require_libgfortran();
+    const std::string command_compile =
+        "g++ -std=c++20 -fPIC -shared -o " + MartyRuntimeConfig::shell_quote(outputLibrary)
+        + " " + MartyRuntimeConfig::shell_quote(sourceFile)
+        + " -I" + MartyRuntimeConfig::shell_quote(marty.include_dir)
+        + " -L" + MartyRuntimeConfig::shell_quote(marty.lib_dir)
+        + " -Wl,-rpath," + MartyRuntimeConfig::shell_quote(marty.lib_dir)
+        + " -lmarty " + MartyRuntimeConfig::shell_quote(libgfortran);
+    executeCommand(command_compile);
+}
+
+void GppCompilerStrategy::compile_group_driver(const std::string& sourceFile, const std::string& outputBinary) {
+    const auto marty = MartyRuntimeConfig::require_available("GppCompilerStrategy::compile_group_driver");
+    if (!marty.valid) return;
+    const auto libgfortran = require_libgfortran();
+    const std::string command_compile =
+        "g++ -std=c++20 -o " + MartyRuntimeConfig::shell_quote(outputBinary)
+        + " " + MartyRuntimeConfig::shell_quote(sourceFile)
+        + " -I" + MartyRuntimeConfig::shell_quote(marty.include_dir)
+        + " -L" + MartyRuntimeConfig::shell_quote(marty.lib_dir)
+        + " -Wl,-rpath," + MartyRuntimeConfig::shell_quote(marty.lib_dir)
+        + " -lmarty -ldl " + MartyRuntimeConfig::shell_quote(libgfortran);
+    executeCommand(command_compile);
+}

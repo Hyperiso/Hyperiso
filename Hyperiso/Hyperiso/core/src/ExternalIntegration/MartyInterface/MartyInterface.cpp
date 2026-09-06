@@ -32,7 +32,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v16";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v18";
 
 constexpr const char* kMartyTreeRecipePrefix = "__HYPERISO_MARTY_TREE_RECIPE__|";
 constexpr const char* kMartyTreeRecipeToken = "HYPERISO_MARTY_TREE_PROJECTION_TERMS";
@@ -749,6 +749,107 @@ std::string MartyInterface::calculate_isolated(std::string wilson,
         }
     };
 
+    const auto execute_prepared_group = [&]() -> std::string {
+        const auto prepared_it = prepared_groups_by_wilson.find(wilson);
+        if (prepared_it == prepared_groups_by_wilson.end()) {
+            return execute_isolated();
+        }
+        const PreparedGroup group = prepared_it->second;
+        const fs::path output_root = FileNameManager::getInstance(wilson, output_model)->getOutputDir();
+        const fs::path group_dir = output_root / "groups" /
+            (sanitize_path_component(output_model) + "_" + sanitize_path_component(group.group));
+        const fs::path cache_dir = group_dir / "numeric_cache";
+        fs::create_directories(cache_dir);
+
+        // Build a deterministic point signature from Q_match and every numeric
+        // parameter consumed by every coefficient in the group. This is the
+        // crucial guard against reusing a group result after switching LHA point.
+        std::ostringstream signature;
+        signature << kMartyCacheAbi << "|" << std::setprecision(17) << "Q=" << Q_match;
+        for (const auto& member : group.members) {
+            // Numeric point caches survive across processes.  Tie them to the
+            // actual numeric executable as well as to the parameter values so a
+            // rebuilt wrapper can never reuse a CSV produced by older code.
+            const auto member_files = FileNameManager::getInstance(member, group.output_model);
+            std::error_code executable_time_ec;
+            const auto executable_time = fs::last_write_time(
+                member_files->getNumExecutableFileName(), executable_time_ec
+            );
+            signature << "|NUMEXE=" << member << "@"
+                      << (executable_time_ec
+                              ? 0
+                              : executable_time.time_since_epoch().count());
+            auto params = snapshot_numeric_params(
+                member, group.output_model, group.target_model,
+                group.bsm_split_generation, group.full_target_generation
+            );
+            std::vector<std::pair<std::string, double>> ordered(params.begin(), params.end());
+            std::sort(ordered.begin(), ordered.end(), [](const auto& lhs, const auto& rhs) {
+                return lhs.first < rhs.first;
+            });
+            signature << "|" << member;
+            for (const auto& [name, value] : ordered) {
+                signature << ";" << name << "=" << std::setprecision(17) << value;
+            }
+        }
+        const std::size_t point_hash = std::hash<std::string>{}(signature.str());
+        const fs::path cache_file = cache_dir / ("point_" + std::to_string(point_hash) + ".csv");
+
+        static std::mutex group_numeric_mutex;
+        std::lock_guard<std::mutex> cache_lock(group_numeric_mutex);
+        std::error_code ec;
+        if (!fs::is_regular_file(cache_file, ec) || ec || fs::file_size(cache_file, ec) == 0 || ec) {
+            fs::remove(cache_file, ec);
+            for (const auto& member : group.members) {
+                const auto member_files = FileNameManager::getInstance(member, group.output_model);
+                const fs::path member_run_dir = make_invocation_directory(
+                    member_files, member, group.output_model
+                );
+                const fs::path param_file = member_run_dir / "paramlist.csv";
+                const fs::path output_file = member_run_dir / "wilson.csv";
+                try {
+                    write_parameter_snapshot(
+                        param_file,
+                        snapshot_numeric_params(
+                            member, group.output_model, group.target_model,
+                            group.bsm_split_generation, group.full_target_generation
+                        )
+                    );
+                    MakeCompilerStrategy compiler(group.output_model, member);
+                    compiler.set_Q_match(Q_match);
+                    compiler.set_param_file(param_file);
+                    compiler.set_output_file(output_file);
+                    compiler.compile_run(
+                        member_files->getLibDir(), member_files->getNumExecutableFileName()
+                    );
+                    publish_legacy_csv(output_file, cache_file);
+                } catch (...) {
+                    std::error_code cleanup_ec;
+                    fs::remove_all(member_run_dir, cleanup_ec);
+                    fs::remove(cache_file, cleanup_ec);
+                    throw;
+                }
+                std::error_code cleanup_ec;
+                fs::remove_all(member_run_dir, cleanup_ec);
+            }
+        }
+
+        // Return an invocation-local copy so MartyWilson's existing cleanup
+        // ownership remains correct. The persistent merged cache itself is never
+        // handed to the coefficient object.
+        const auto request_files = FileNameManager::getInstance(wilson, output_model);
+        const fs::path run_dir = make_invocation_directory(request_files, wilson, output_model);
+        const fs::path output_file = run_dir / "wilson.csv";
+        fs::copy_file(cache_file, output_file, fs::copy_options::overwrite_existing, ec);
+        if (ec) {
+            fs::remove_all(run_dir, ec);
+            throw std::runtime_error(
+                "Cannot copy MARTY group numeric cache for " + wilson + ": " + ec.message()
+            );
+        }
+        return output_file.string();
+    };
+
     {
         std::shared_lock<std::shared_mutex> read_lock(marty_artifact_mutex);
         if (artifacts_ready(
@@ -760,7 +861,7 @@ std::string MartyInterface::calculate_isolated(std::string wilson,
                 bsm_split_generation,
                 full_target_generation
             )) {
-            return execute_isolated();
+            return execute_prepared_group();
         }
     }
 
@@ -784,7 +885,7 @@ std::string MartyInterface::calculate_isolated(std::string wilson,
             full_target_generation
         );
     }
-    return execute_isolated();
+    return execute_prepared_group();
 }
 
 
@@ -1334,6 +1435,516 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
     LOG_INFO("MartyInterface", "Invalidated stale MARTY cache for ", wilson, " / ", output_model,
              " because ", reason, ". Expected mode: ", expected_mode,
              "; expected model signature: ", expected_model_signature);
+}
+
+
+namespace {
+bool hyperiso_nonempty_file(const fs::path& path) {
+    std::error_code ec;
+    return fs::is_regular_file(path, ec) && fs::file_size(path, ec) > 0;
+}
+
+bool hyperiso_file_is_at_least_as_new_as(const fs::path& candidate, const fs::path& dependency) {
+    std::error_code ec;
+    if (!hyperiso_nonempty_file(candidate) || !fs::exists(dependency, ec)) return false;
+    const auto ctime = fs::last_write_time(candidate, ec);
+    if (ec) return false;
+    const auto dtime = fs::last_write_time(dependency, ec);
+    if (ec) return false;
+    return ctime >= dtime;
+}
+
+std::string hyperiso_read_text_if_exists(const fs::path& path) {
+    std::ifstream input(path);
+    if (!input) return {};
+    return std::string((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+}
+
+void hyperiso_write_text_if_changed(const fs::path& path, const std::string& content) {
+    if (hyperiso_read_text_if_exists(path) == content) return;
+    std::ofstream output(path, std::ios::trunc);
+    if (!output) throw std::runtime_error("Cannot write MARTY group source: " + path.string());
+    output << content;
+}
+
+std::string hyperiso_cpp_quote(const std::string& value) {
+    std::string out;
+    out.reserve(value.size() + 8);
+    for (char c : value) {
+        if (c == '\\' || c == '"') out.push_back('\\');
+        out.push_back(c);
+    }
+    return out;
+}
+
+
+std::string hyperiso_plugin_source(const fs::path& source_path,
+                                   const std::string& wilson,
+                                   const std::string& model_instantiation,
+                                   bool expected_nonzero,
+                                   bool scan_allowed,
+                                   bool explicit_recipe) {
+    std::ifstream input(source_path);
+    if (!input) throw std::runtime_error("Cannot read generated MARTY source: " + source_path.string());
+    std::string source((std::istreambuf_iterator<char>(input)), std::istreambuf_iterator<char>());
+
+    // Track the primary coefficient expression without knowing the local variable
+    // name used by the individual template or specialised generated main().
+    const std::regex add_re(
+        "wilsonLib\\.addFunction\\(\\\"" + wilson + "\\\"\\s*,\\s*([^;]+)\\);"
+    );
+    std::smatch add_match;
+    if (!std::regex_search(source, add_match, add_re)) {
+        throw std::runtime_error("MARTY group batching cannot identify wilsonLib.addFunction for " + wilson);
+    }
+    const std::string expression = add_match[1].str();
+    const std::string add_line = add_match[0].str();
+    const std::string checked_add =
+        "hyperiso_marty_group_primary_nonzero = (DeepRefreshed(" + expression + ") != CSL_0);\n    " + add_line;
+    source.replace(add_match.position(0), add_match.length(0), checked_add);
+
+    const std::string declaration =
+        "\nstatic bool hyperiso_marty_group_primary_nonzero = true;\n";
+    const auto using_pos = source.find("using namespace");
+    if (using_pos == std::string::npos) throw std::runtime_error("Cannot inject MARTY group state for " + wilson);
+    source.insert(using_pos, declaration);
+
+    // GeneralModelModifier may replace the tiny template main() with a much
+    // larger Tree-first or reg_prop main(). Transform that generated main as a
+    // whole rather than relying on a particular calculate_* function name.
+    const std::regex main_signature(R"(int\s+main\s*\(\s*\)\s*\{)");
+    std::smatch main_match;
+    if (!std::regex_search(source, main_match, main_signature)) {
+        throw std::runtime_error("MARTY group batching cannot find generated main() for " + wilson);
+    }
+    const std::size_t main_begin = static_cast<std::size_t>(main_match.position(0));
+    const std::size_t open_brace = source.find('{', main_begin);
+    std::size_t cursor = open_brace + 1;
+    int depth = 1;
+    bool in_string = false;
+    bool in_char = false;
+    bool escape = false;
+    for (; cursor < source.size() && depth > 0; ++cursor) {
+        const char c = source[cursor];
+        if (escape) { escape = false; continue; }
+        if ((in_string || in_char) && c == '\\') { escape = true; continue; }
+        if (!in_char && c == '"') { in_string = !in_string; continue; }
+        if (!in_string && c == '\'') { in_char = !in_char; continue; }
+        if (in_string || in_char) continue;
+        if (c == '{') ++depth;
+        else if (c == '}') --depth;
+    }
+    if (depth != 0) {
+        throw std::runtime_error("MARTY group batching found an unterminated main() for " + wilson);
+    }
+    const std::size_t main_end = cursor; // one past the closing brace
+    std::string body = source.substr(open_brace + 1, main_end - open_brace - 2);
+
+    // Replace exactly one primary target-model construction. For C9/AUTO this
+    // is tree_model; its deliberately isolated loop_model fallback remains a
+    // fresh target-model instance and therefore preserves the existing MARTY
+    // global-state safety rule.
+    const std::vector<std::string> shared_names = {"tree_model", "model", "sm"};
+    bool shared_model_installed = false;
+    for (const auto& name : shared_names) {
+        const std::string declaration_line = model_instantiation + " " + name + ";";
+        const auto pos = body.find(declaration_line);
+        if (pos != std::string::npos) {
+            body.replace(pos, declaration_line.size(), "mty::Model& " + name + " = *hyperiso_marty_shared_model;");
+            shared_model_installed = true;
+            break;
+        }
+    }
+    if (!shared_model_installed) {
+        throw std::runtime_error(
+            "MARTY group batching cannot identify the primary target-model construction for " + wilson
+        );
+    }
+
+    // The untouched simple-template main returns calculate_*(...) directly.
+    // Generated Tree-first mains instead have a final `return 0;`. Support both.
+    static const std::regex direct_return(
+        R"(return\s+([A-Za-z_][A-Za-z0-9_]*\s*\([^;]+\))\s*;)"
+    );
+    std::smatch direct_match;
+    if (std::regex_search(body, direct_match, direct_return)) {
+        const std::string call = direct_match[1].str();
+        const std::string replacement =
+            "const int hyperiso_marty_group_status = " + call + ";\n"
+            "    if (hyperiso_marty_group_status != 0) return hyperiso_marty_group_status;\n"
+            "    return hyperiso_marty_group_primary_nonzero ? 0 : 42;";
+        body.replace(direct_match.position(0), direct_match.length(0), replacement);
+    } else {
+        const std::string return_zero = "return 0;";
+        const auto return_pos = body.rfind(return_zero);
+        if (return_pos == std::string::npos) {
+            throw std::runtime_error("MARTY group batching cannot identify main() return for " + wilson);
+        }
+        body.replace(return_pos, return_zero.size(),
+                     "return hyperiso_marty_group_primary_nonzero ? 0 : 42;");
+    }
+
+    std::ostringstream replacement;
+    replacement << "extern \"C\" int hyperiso_marty_group_entry(mty::Model* hyperiso_marty_shared_model) {\n"
+                << "    if (hyperiso_marty_shared_model == nullptr) return 90;\n"
+                << "    mty::Model::current = hyperiso_marty_shared_model;\n"
+                << "    hyperiso_marty_group_primary_nonzero = true;\n"
+                << body << "\n}\n"
+                << "extern \"C\" int hyperiso_marty_group_expected() { return " << (expected_nonzero ? 1 : 0) << "; }\n"
+                << "extern \"C\" int hyperiso_marty_group_scan_allowed() { return " << (scan_allowed ? 1 : 0) << "; }\n"
+                << "extern \"C\" int hyperiso_marty_group_explicit_recipe() { return " << (explicit_recipe ? 1 : 0) << "; }\n";
+    source.replace(main_begin, main_end - main_begin, replacement.str());
+    return source;
+}
+} // namespace
+
+bool MartyInterface::prepare_group(const std::string& group,
+                                   const std::vector<std::string>& input_members,
+                                   const std::string& output_model,
+                                   const std::string& target_model,
+                                   const std::string& model_path,
+                                   bool sm_like_filter,
+                                   bool bsm_split_generation,
+                                   bool full_target_generation) {
+    const MartyAdapter adapter;
+    // A new preparation attempt supersedes any previous in-process group state.
+    // This is important when users switch batching/expected-nonzero settings and
+    // rebuild without restarting Python.
+    for (const auto& member : input_members) prepared_groups_by_wilson.erase(member);
+    if (!adapter.get_marty_group_batching() || input_members.empty()) return false;
+    if (!MartyRuntimeConfig::require_available("MartyInterface::prepare_group").valid) return false;
+
+    std::vector<std::string> members = input_members;
+    // C9/CP9/CP10 have specialised reg_prop/global-state handling. Run them
+    // after ordinary coefficients, with C9 last, so a fallback cannot affect a
+    // later plugin using the shared model.
+    std::stable_sort(members.begin(), members.end(), [](const std::string& a, const std::string& b) {
+        auto rank = [](const std::string& x) {
+            if (x == "C9") return 2;
+            if (x == "CP9" || x == "CP10") return 1;
+            return 0;
+        };
+        return rank(a) < rank(b);
+    });
+
+    const auto expected_vector = adapter.get_marty_expected_nonzero_coefficients();
+    const std::unordered_set<std::string> expected(expected_vector.begin(), expected_vector.end());
+
+    // Refuse a partially batchable group. Silent hybrid analytical state is much
+    // harder to reason about than a clean fallback to the historical path.
+    for (const auto& wilson : members) {
+        const auto files = FileNameManager::getInstance(wilson, output_model);
+        if (!fs::is_regular_file(fs::path(files->getTemplateDir()) / (wilson + ".cpp"))) {
+            LOG_WARN("MartyGroupBatch", "Group ", group, " contains no MARTY template for ", wilson,
+                     "; falling back to coefficient-by-coefficient generation.");
+            return false;
+        }
+    }
+
+    const auto model_template_index = resolve_model_template_index(target_model);
+    const std::string model_instantiation = GeneralModelModifier::resolveModelInstantiation(
+        target_model, model_path, model_template_index
+    );
+    const fs::path output_root = FileNameManager::getInstance(members.front(), output_model)->getOutputDir();
+    const fs::path group_dir = output_root / "groups" /
+        (sanitize_path_component(output_model) + "_" + sanitize_path_component(group));
+    fs::create_directories(group_dir);
+
+    // Persistent analytical group signature.  A successful group build is a
+    // model/template/order/projection artifact, not a parameter-point artifact:
+    // once it exists it can be reused by later Python processes.  Numeric point
+    // caching remains separate and is keyed by Q_match + the actual parameters.
+    std::ostringstream group_signature_stream;
+    group_signature_stream << kMartyCacheAbi << "\n"
+                           << "HYPERISO_MARTY_GROUP_CACHE_SCHEMA: v1\n"
+                           << "group=" << group << "\n"
+                           << "output_model=" << output_model << "\n"
+                           << "target_model=" << target_model << "\n"
+                           << "model_instantiation=" << model_instantiation << "\n"
+                           << "model_signature="
+                           << GeneralModelModifier::modelSignature(
+                                  target_model, model_path, model_template_index
+                              )
+                           << "\n"
+                           << "sm_like_filter=" << (sm_like_filter ? 1 : 0) << "\n"
+                           << "bsm_split_generation=" << (bsm_split_generation ? 1 : 0) << "\n"
+                           << "full_target_generation=" << (full_target_generation ? 1 : 0) << "\n";
+    {
+        std::vector<std::string> expected_sorted(expected_vector.begin(), expected_vector.end());
+        std::sort(expected_sorted.begin(), expected_sorted.end());
+        group_signature_stream << "expected_nonzero=";
+        for (const auto& name : expected_sorted) group_signature_stream << name << ",";
+        group_signature_stream << "\n";
+    }
+    for (const auto& wilson : members) {
+        const auto files = FileNameManager::getInstance(wilson, output_model);
+        group_signature_stream
+            << "member=" << wilson << "\n"
+            << template_signature(wilson, files) << "\n"
+            << generation_mode_marker(
+                   wilson, sm_like_filter, bsm_split_generation, full_target_generation,
+                   effective_order_policy(
+                       sm_like_filter, bsm_split_generation, full_target_generation
+                   ),
+                   effective_fermion_order(
+                       wilson, false, sm_like_filter, bsm_split_generation,
+                       full_target_generation
+                   ),
+                   effective_fermion_order(
+                       wilson, true, sm_like_filter, bsm_split_generation,
+                       full_target_generation
+                   ),
+                   effective_operator_order(
+                       wilson, false, sm_like_filter, bsm_split_generation,
+                       full_target_generation
+                   ),
+                   effective_operator_order(
+                       wilson, true, sm_like_filter, bsm_split_generation,
+                       full_target_generation
+                   )
+               )
+            << "\n";
+    }
+    const std::string group_signature = group_signature_stream.str();
+    const fs::path analytical_ready_file = group_dir / "analytical.ready";
+
+    const auto non_empty_file = [](const fs::path& path) {
+        std::error_code ec;
+        return fs::is_regular_file(path, ec) && !ec
+            && fs::file_size(path, ec) > 0 && !ec;
+    };
+    const auto persistent_group_artifacts_ready = [&]() {
+        if (hyperiso_read_text_if_exists(analytical_ready_file) != group_signature) return false;
+        for (const auto& wilson : members) {
+            const auto files = FileNameManager::getInstance(wilson, output_model);
+            const fs::path lib_dir = files->getLibDir();
+            if (!non_empty_file(files->getGeneratedFileName())
+                || !non_empty_file(files->getExecutableFileName())
+                || !non_empty_file(files->getNumGeneratedFileName())
+                || !non_empty_file(files->getNumExecutableFileName())
+                || !fs::is_regular_file(lib_dir / "Makefile")) {
+                return false;
+            }
+        }
+        return true;
+    };
+
+    const auto register_prepared_group = [&]() {
+        PreparedGroup prepared{group, members, output_model, target_model, model_path,
+                               sm_like_filter, bsm_split_generation, full_target_generation};
+        for (const auto& wilson : members) prepared_groups_by_wilson[wilson] = prepared;
+    };
+
+    // On a cache hit there is no analytical work at all: no plugin generation,
+    // no model construction and no MARTY process/matching.  In a fresh Python
+    // process we still regenerate the lightweight numeric wrapper metadata once
+    // to repopulate the in-memory dependency map; its executable is reused when
+    // unchanged.  In the same process even that step is skipped.
+    if (persistent_group_artifacts_ready()) {
+        std::cout << "[MARTY group " << group
+                  << "] analytical cache HIT: reusing validated MARTY libraries; "
+                     "skipping stages 1-3."
+                  << std::endl;
+        for (const auto& wilson : members) {
+            if (!dependencies.contains(wilson)) {
+                generate_numlib(wilson, output_model, target_model,
+                                bsm_split_generation, full_target_generation);
+                compile_numlib(wilson, output_model);
+            }
+        }
+        register_prepared_group();
+        return true;
+    }
+
+    std::cout << "[MARTY group " << group
+              << "] analytical cache MISS: rebuilding group artifacts." << std::endl;
+    // Only an analytical cache miss invalidates point-wise numerical caches.
+    {
+        std::error_code ec;
+        fs::remove_all(group_dir / "numeric_cache", ec);
+        fs::remove(analytical_ready_file, ec);
+    }
+
+    struct Plugin {
+        std::string wilson;
+        fs::path path;
+        bool four_fermion {false};
+        bool expected_nonzero {false};
+        bool scan_allowed {false};
+        bool explicit_recipe {false};
+    };
+    std::vector<Plugin> plugins;
+    plugins.reserve(members.size());
+
+    const auto group_prepare_start = std::chrono::steady_clock::now();
+    std::cout << "[MARTY group " << group << "] analytical batch:\n"
+              << members.size() << " coefficients, shared base-model instance." << std::endl;
+    std::cout << "[MARTY group " << group << "] stage 1/3: preparing analytical plugins"
+              << std::endl;
+
+    try {
+        std::size_t plugin_index = 0;
+        for (const auto& wilson : members) {
+            ++plugin_index;
+            const auto plugin_prepare_start = std::chrono::steady_clock::now();
+            std::cout << "[MARTY group " << group << "] [plugin " << plugin_index << "/"
+                      << members.size() << "] " << wilson << ": generating source ..."
+                      << std::endl;
+            generate(wilson, output_model, target_model, model_path, sm_like_filter,
+                     bsm_split_generation, full_target_generation);
+            const auto files = FileNameManager::getInstance(wilson, output_model);
+            std::ifstream generated(files->getGeneratedFileName());
+            std::string generated_source((std::istreambuf_iterator<char>(generated)), std::istreambuf_iterator<char>());
+
+            // Determine scan eligibility from the coefficient template itself, not
+            // from the generated source.  GeneralModelModifier injects the
+            // hyperiso_marty_dimension6_operator helper into generated sources even
+            // for dipoles/custom projectors (C7/C8, C5/C6), which previously made
+            // those coefficients look F/O-scanable although their actual projector
+            // does not use the generic dimension-6 operator-order machinery.
+            const fs::path coefficient_template =
+                fs::path(files->getTemplateDir()) / (wilson + ".cpp");
+            std::ifstream template_input(coefficient_template);
+            std::string template_source((std::istreambuf_iterator<char>(template_input)),
+                                        std::istreambuf_iterator<char>());
+            const bool four_fermion =
+                template_source.find("dimension6Operator(") != std::string::npos
+                || template_source.find("hyperiso_marty_dimension6_operator(") != std::string::npos;
+            const bool explicit_recipe = generated_source.find("recipe-v1[") != std::string::npos;
+            const bool scan_allowed = four_fermion && !explicit_recipe;
+
+            const fs::path plugin_cpp = group_dir / (sanitize_path_component(wilson) + "_plugin.cpp");
+            const fs::path plugin_so = group_dir / ("lib" + sanitize_path_component(wilson) + ".so");
+            const std::string plugin_source = hyperiso_plugin_source(
+                files->getGeneratedFileName(), wilson, model_instantiation,
+                expected.contains(wilson), scan_allowed, explicit_recipe
+            );
+            hyperiso_write_text_if_changed(plugin_cpp, plugin_source);
+            std::cout << "[MARTY group " << group << "] [plugin " << plugin_index << "/"
+                      << members.size() << "] " << wilson
+                      << ": source ready | projector=" << (four_fermion ? "dimension6" : "template-specific")
+                      << " | expected=" << (expected.contains(wilson) ? "nonzero" : "optional")
+                      << " | recipe=" << (explicit_recipe ? "explicit" : "none")
+                      << " | scan=" << (scan_allowed ? "available" : "disabled")
+                      << std::endl;
+
+            const auto active_marty = MartyRuntimeConfig::require_available("MartyInterface::prepare_group plugin cache");
+            const bool plugin_cached = hyperiso_file_is_at_least_as_new_as(plugin_so, plugin_cpp)
+                && (!active_marty.valid
+                    || hyperiso_file_is_at_least_as_new_as(plugin_so, active_marty.marty_library));
+            if (plugin_cached) {
+                std::cout << "[MARTY group " << group << "] [plugin " << plugin_index << "/"
+                          << members.size() << "] " << wilson << ": cached shared object reused"
+                          << std::endl;
+            } else {
+                std::cout << "[MARTY group " << group << "] [plugin " << plugin_index << "/"
+                          << members.size() << "] " << wilson << ": compiling plugin ..."
+                          << std::endl;
+                GppCompilerStrategy compiler(output_model, wilson);
+                compiler.compile_shared(plugin_cpp.string(), plugin_so.string());
+            }
+            const auto plugin_prepare_stop = std::chrono::steady_clock::now();
+            std::cout << "[MARTY group " << group << "] [plugin " << plugin_index << "/"
+                      << members.size() << "] " << wilson << ": plugin ready in "
+                      << std::chrono::duration<double>(plugin_prepare_stop - plugin_prepare_start).count()
+                      << " s" << std::endl;
+            plugins.push_back({wilson, plugin_so, four_fermion, expected.contains(wilson),
+                               scan_allowed, explicit_recipe});
+        }
+
+        std::cout << "[MARTY group " << group
+                  << "] stage 1/3 complete: all plugins ready; launching shared-model driver."
+                  << std::endl;
+
+        const fs::path driver_cpp = group_dir / "group_driver.cpp";
+        const fs::path driver_bin = group_dir / "group_driver";
+        std::ofstream driver(driver_cpp, std::ios::trunc);
+        driver << "#include <marty.h>\n#include <dlfcn.h>\n#include <array>\n#include <algorithm>\n"
+               << "#include <chrono>\n#include <cstdlib>\n#include <iomanip>\n#include <iostream>\n#include <string>\n#include <vector>\n"
+               << "#include \"" << hyperiso_cpp_quote(model_path) << "\"\n"
+               << "using namespace mty; using namespace csl;\n"
+               << "static std::string ord(const std::array<int,4>& a){ return std::to_string(a[0])+\",\"+std::to_string(a[1])+\",\"+std::to_string(a[2])+\",\"+std::to_string(a[3]); }\n"
+               << "static double elapsed(std::chrono::steady_clock::time_point t){ return std::chrono::duration<double>(std::chrono::steady_clock::now()-t).count(); }\n"
+               << "int main(){ auto group_start=std::chrono::steady_clock::now(); std::cout<<\"[MARTY group " << hyperiso_cpp_quote(group) << "] stage 2/3: shared model construction START | model=" << hyperiso_cpp_quote(model_instantiation) << "\"<<std::endl; auto model_start=std::chrono::steady_clock::now(); mty::sm_input::undefineNumericalValues(); " << model_instantiation << " model; mty::Model::current=&model; std::cout<<\"[MARTY group " << hyperiso_cpp_quote(group) << "] stage 2/3: shared model READY | elapsed=\"<<elapsed(model_start)<<\" s\"<<std::endl;\n"
+               << "std::cout<<\"[MARTY group " << hyperiso_cpp_quote(group) << "] stage 3/3: coefficient matching START | coefficients=" << members.size() << "\"<<std::endl;\n"
+               << "std::array<int,4> base{0,1,2,3}; std::vector<std::array<int,4>> perms; do{perms.push_back(base);}while(std::next_permutation(base.begin(),base.end()));\n"
+               << "int passed=0, expn=0, zero_allowed=0, failed=0;\n";
+        std::size_t coefficient_index = 0;
+        for (const auto& plugin : plugins) {
+            ++coefficient_index;
+            driver << "{ auto coefficient_start=std::chrono::steady_clock::now(); "
+                   << "std::cout<<\"[MARTY group " << hyperiso_cpp_quote(group) << "] [coefficient "
+                   << coefficient_index << "/" << members.size() << "] " << plugin.wilson
+                   << " START | projector=" << (plugin.four_fermion ? "dimension6" : "template-specific")
+                   << " | expected=" << (plugin.expected_nonzero ? "nonzero" : "optional")
+                   << " | recipe=" << (plugin.explicit_recipe ? "explicit" : "none")
+                   << " | scan=" << (plugin.scan_allowed ? "available" : "disabled")
+                   << "\"<<std::endl; "
+                   << "const char* path=\"" << hyperiso_cpp_quote(plugin.path.string()) << "\"; void* h=dlopen(path,RTLD_NOW|RTLD_LOCAL); if(!h){std::cerr<<dlerror()<<std::endl; return 91;}\n"
+                   << "auto entry=reinterpret_cast<int(*)(mty::Model*)>(dlsym(h,\"hyperiso_marty_group_entry\"));"
+                   << "auto expected=reinterpret_cast<int(*)()>(dlsym(h,\"hyperiso_marty_group_expected\"));"
+                   << "auto scan=reinterpret_cast<int(*)()>(dlsym(h,\"hyperiso_marty_group_scan_allowed\"));"
+                   << "auto recipe=reinterpret_cast<int(*)()>(dlsym(h,\"hyperiso_marty_group_explicit_recipe\"));"
+                   << "if(!entry||!expected||!scan||!recipe) return 92; unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_F\"); unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_O\"); unsetenv(\"HYPERISO_MARTY_SCAN_QUIET\"); const bool is_expected=(expected()!=0); int st=entry(&model); if(is_expected)++expn; if(st!=0 && st!=42){std::cerr<<\"[MARTY group] " << plugin.wilson << " ERROR status=\"<<st<<std::endl; return st;} bool found=(st==0); bool zero=(st==42);\n"
+                   << "if(zero && is_expected && scan() && !recipe()){ std::cout<<\"[MARTY group scan] " << plugin.wilson << ": configured/default projection is zero; scanning 24 F orders\"<<std::endl; setenv(\"HYPERISO_MARTY_SCAN_QUIET\",\"1\",1); "
+                   << "for(std::size_t fi=0;fi<perms.size();++fi){const auto& f=perms[fi]; setenv(\"HYPERISO_MARTY_RUNTIME_TREE_F\",ord(f).c_str(),1); unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_O\"); st=entry(&model); if(st!=0 && st!=42) return st; if(st==0){found=true; std::cout<<\"[MARTY group scan] " << plugin.wilson << ": FOUND F=\"<<ord(f)<<\" O=configured/template\"<<std::endl; break;}}"
+                   << "if(!found){std::cout<<\"[MARTY group scan] " << plugin.wilson << ": F scan exhausted; scanning 24 O orders\"<<std::endl; unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_F\"); for(std::size_t oi=0;oi<perms.size();++oi){const auto& o=perms[oi]; setenv(\"HYPERISO_MARTY_RUNTIME_TREE_O\",ord(o).c_str(),1); st=entry(&model); if(st!=0 && st!=42) return st; if(st==0){found=true; std::cout<<\"[MARTY group scan] " << plugin.wilson << ": FOUND F=configured/template O=\"<<ord(o)<<std::endl; break;}}}"
+                   << "if(!found){std::cout<<\"[MARTY group scan] " << plugin.wilson << ": O scan exhausted; scanning F x O (576 maximum)\"<<std::endl; for(std::size_t fi=0;fi<perms.size();++fi){const auto& f=perms[fi]; setenv(\"HYPERISO_MARTY_RUNTIME_TREE_F\",ord(f).c_str(),1); if(fi==0 || (fi+1)%4==0) std::cout<<\"[MARTY group scan] " << plugin.wilson << ": F x O row \"<<(fi+1)<<\"/24 | F=\"<<ord(f)<<std::endl; for(const auto& o:perms){setenv(\"HYPERISO_MARTY_RUNTIME_TREE_O\",ord(o).c_str(),1); st=entry(&model); if(st!=0 && st!=42) return st; if(st==0){found=true; std::cout<<\"[MARTY group scan] " << plugin.wilson << ": FOUND F=\"<<ord(f)<<\" O=\"<<ord(o)<<std::endl; break;}} if(found)break;}} unsetenv(\"HYPERISO_MARTY_SCAN_QUIET\"); }\n"
+                   << "unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_F\"); unsetenv(\"HYPERISO_MARTY_RUNTIME_TREE_O\"); unsetenv(\"HYPERISO_MARTY_SCAN_QUIET\");"
+                   << "if(found){std::cout<<\"[MARTY group] " << plugin.wilson << "\"<<(is_expected?\" expected=nonzero\":\"\")<<\" PASS | elapsed=\"<<elapsed(coefficient_start)<<\" s\"<<std::endl; ++passed;} else if(!is_expected){std::cout<<\"[MARTY group] " << plugin.wilson << " ZERO (allowed) | elapsed=\"<<elapsed(coefficient_start)<<\" s\"<<std::endl; ++passed; ++zero_allowed;} else {std::cout<<\"[MARTY group] " << plugin.wilson << " expected=nonzero FAILED | elapsed=\"<<elapsed(coefficient_start)<<\" s\"<<std::endl; ++failed; return 42;} /* Keep plugin loaded until process exit: the shared MARTY model may retain objects/typeinfo from this TU. */ }\n";
+        }
+        driver << "std::cout<<\"[MARTY group " << hyperiso_cpp_quote(group) << "] summary: passed=\"<<passed<<\"/" << members.size() << ", expected-nonzero=\"<<expn<<\", zero-allowed=\"<<zero_allowed<<\", failed=\"<<failed<<\", analytical-elapsed=\"<<elapsed(group_start)<<\" s\"<<std::endl; return failed?1:0;}\n";
+        driver.close();
+
+        GppCompilerStrategy group_compiler(output_model, members.front());
+        group_compiler.compile_group_driver(driver_cpp.string(), driver_bin.string());
+        const std::string driver_command =
+            "cd " + MartyRuntimeConfig::shell_quote(output_root)
+            + " && " + MartyRuntimeConfig::shell_quote(driver_bin);
+        if (!executeCommandStreaming(driver_command)) {
+            throw std::runtime_error(
+                "MARTY group analytical batch failed for " + group
+                + "; numerical generation was not started."
+            );
+        }
+        const auto group_prepare_stop = std::chrono::steady_clock::now();
+        std::cout << "[MARTY group " << group
+                  << "] analytical generation complete | host+driver elapsed="
+                  << std::chrono::duration<double>(group_prepare_stop - group_prepare_start).count()
+                  << " s; preparing numerical wrappers." << std::endl;
+
+        // Each plugin has now emitted its numerical library while sharing the
+        // same model. Build the lightweight numeric wrappers and dependencies.
+        for (const auto& wilson : members) {
+            generate_numlib(wilson, output_model, target_model,
+                            bsm_split_generation, full_target_generation);
+            compile_numlib(wilson, output_model);
+            const auto files = FileNameManager::getInstance(wilson, output_model);
+            std::ofstream marker(files->getExecutableFileName(), std::ios::trunc);
+            marker << "HYPERISO_MARTY_GROUP_BATCHED\n" << group << "\n";
+        }
+        // Commit the persistent group cache only after both analytical libraries
+        // and every numerical wrapper have completed successfully.
+        hyperiso_write_text_if_changed(analytical_ready_file, group_signature);
+    } catch (const std::exception& error) {
+        for (const auto& wilson : members) prepared_groups_by_wilson.erase(wilson);
+        throw;
+    }
+
+    register_prepared_group();
+    return true;
+}
+
+bool MartyInterface::is_group_prepared(const std::string& wilson,
+                                       const std::string& output_model,
+                                       const std::string& target_model,
+                                       const std::string& model_path) const {
+    const auto it = prepared_groups_by_wilson.find(wilson);
+    if (it == prepared_groups_by_wilson.end()) return false;
+    const auto& group = it->second;
+    return group.output_model == output_model
+        && group.target_model == target_model
+        && normalized_path(group.model_path) == normalized_path(model_path);
 }
 
 std::unordered_set<InterpretedParam> MartyInterface::get_dependencies(std::string wilson) {

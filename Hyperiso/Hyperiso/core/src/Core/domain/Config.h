@@ -98,6 +98,25 @@ struct HyperisoConfig {
      * default exactly.
      */
     std::map<std::string, std::vector<int>> mty_one_loop_operator_orders {};
+
+    /**
+     * @brief Build MARTY analytical artefacts per Wilson group instead of per coefficient.
+     *
+     * When enabled, HyperIso generates one shared-model group driver and one small
+     * plugin per coefficient. The heavy MARTY model is instantiated once and is
+     * passed to every coefficient plugin. Unsupported legacy groups fall back to
+     * the historical coefficient-by-coefficient path automatically.
+     */
+    bool mty_group_batching {true};
+
+    /**
+     * @brief Coefficients that are expected to be symbolically non-zero in BSM matching.
+     *
+     * For eligible four-fermion templates HyperIso may scan TreeLevel external
+     * fermion/projector orders when the configured projection is zero. Explicit
+     * projection recipes remain authoritative and are never bypassed by the scan.
+     */
+    std::vector<std::string> mty_expected_nonzero_coefficients {};
 };
 
 #endif // CONFIG_H

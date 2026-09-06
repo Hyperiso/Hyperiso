@@ -304,10 +304,68 @@ std::string GeneralModelModifier::makeWilsonOrderHelper() const {
 
     std::string helper = R"cpp(
 namespace {
+std::vector<int> hyperiso_marty_runtime_order_from_env(const char* variable)
+{
+    const char* raw = std::getenv(variable);
+    if (raw == nullptr || *raw == '\0') return {};
+    std::vector<int> result;
+    std::stringstream input(raw);
+    std::string token;
+    while (std::getline(input, token, ',')) {
+        if (!token.empty()) result.push_back(std::stoi(token));
+    }
+    if (result.size() != 4) return {};
+    auto sorted = result;
+    std::sort(sorted.begin(), sorted.end());
+    if (sorted != std::vector<int>({0, 1, 2, 3})) return {};
+    return result;
+}
+
+bool hyperiso_marty_progress_enabled()
+{
+    const char* quiet = std::getenv("HYPERISO_MARTY_SCAN_QUIET");
+    return quiet == nullptr || *quiet == '\0' || std::string(quiet) == "0";
+}
+
+const char* hyperiso_marty_perturbative_order_label(int order)
+{
+    return order == mty::Order::TreeLevel ? "TreeLevel" : "OneLoop";
+}
+
+std::string hyperiso_marty_order_vector_label(const std::vector<int>& order)
+{
+    if (order.empty()) return "template-default";
+    std::ostringstream stream;
+    for (std::size_t i = 0; i < order.size(); ++i) {
+        if (i != 0) stream << '-';
+        stream << order[i];
+    }
+    return stream.str();
+}
+
+const char* hyperiso_marty_dirac_coupling_label(mty::DiracCoupling coupling)
+{
+    if (coupling == mty::DiracCoupling::L) return "L";
+    if (coupling == mty::DiracCoupling::R) return "R";
+    if (coupling == mty::DiracCoupling::VL) return "VL";
+    if (coupling == mty::DiracCoupling::VR) return "VR";
+    if (coupling == mty::DiracCoupling::V) return "V";
+    if (coupling == mty::DiracCoupling::A) return "A";
+    if (coupling == mty::DiracCoupling::S) return "S";
+    if (coupling == mty::DiracCoupling::P) return "P";
+    if (coupling == mty::DiracCoupling::TL) return "TL";
+    return "unknown";
+}
+
 const std::vector<int>& hyperiso_marty_configured_fermion_order(int order)
 {
     static const std::vector<int> tree_order = HYPERISO_CONFIGURED_TREE_ORDER;
     static const std::vector<int> one_loop_order = HYPERISO_CONFIGURED_ONE_LOOP_ORDER;
+    thread_local std::vector<int> runtime_tree;
+    if (order == mty::Order::TreeLevel) {
+        runtime_tree = hyperiso_marty_runtime_order_from_env("HYPERISO_MARTY_RUNTIME_TREE_F");
+        if (!runtime_tree.empty()) return runtime_tree;
+    }
     return order == mty::Order::TreeLevel ? tree_order : one_loop_order;
 }
 
@@ -315,6 +373,11 @@ const std::vector<int>& hyperiso_marty_configured_operator_order(int order)
 {
     static const std::vector<int> tree_order = HYPERISO_CONFIGURED_TREE_OPERATOR_ORDER;
     static const std::vector<int> one_loop_order = HYPERISO_CONFIGURED_ONE_LOOP_OPERATOR_ORDER;
+    thread_local std::vector<int> runtime_tree;
+    if (order == mty::Order::TreeLevel) {
+        runtime_tree = hyperiso_marty_runtime_order_from_env("HYPERISO_MARTY_RUNTIME_TREE_O");
+        if (!runtime_tree.empty()) return runtime_tree;
+    }
     return order == mty::Order::TreeLevel ? tree_order : one_loop_order;
 }
 
@@ -334,6 +397,13 @@ std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
     mty::DiracCoupling right_current)
 {
     const auto& configured = hyperiso_marty_configured_operator_order(order);
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] projector=dimension6"
+                  << " currents=" << hyperiso_marty_dirac_coupling_label(left_current)
+                  << "/" << hyperiso_marty_dirac_coupling_label(right_current)
+                  << " O=" << hyperiso_marty_order_vector_label(configured)
+                  << std::endl;
+    }
     if (configured.empty()) {
         return mty::dimension6Operator(model, wilsons, left_current, right_current);
     }
@@ -349,12 +419,20 @@ std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
     mty::DiracCoupling right_current,
     std::vector<int> template_order)
 {
+    const auto effective_order = hyperiso_marty_effective_operator_order(order, template_order);
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] projector=dimension6"
+                  << " currents=" << hyperiso_marty_dirac_coupling_label(left_current)
+                  << "/" << hyperiso_marty_dirac_coupling_label(right_current)
+                  << " O=" << hyperiso_marty_order_vector_label(effective_order)
+                  << std::endl;
+    }
     return mty::dimension6Operator(
         model,
         wilsons,
         left_current,
         right_current,
-        hyperiso_marty_effective_operator_order(order, template_order));
+        effective_order);
 }
 
 std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
@@ -366,13 +444,21 @@ std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
     const mty::ColorSpec& color_coupling,
     std::vector<int> template_order = {})
 {
+    const auto effective_order = hyperiso_marty_effective_operator_order(order, template_order);
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] projector=dimension6/color"
+                  << " currents=" << hyperiso_marty_dirac_coupling_label(left_current)
+                  << "/" << hyperiso_marty_dirac_coupling_label(right_current)
+                  << " O=" << hyperiso_marty_order_vector_label(effective_order)
+                  << std::endl;
+    }
     return mty::dimension6Operator(
         model,
         wilsons,
         left_current,
         right_current,
         color_coupling,
-        hyperiso_marty_effective_operator_order(order, template_order));
+        effective_order);
 }
 
 std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
@@ -384,28 +470,26 @@ std::vector<mty::Wilson> hyperiso_marty_dimension6_operator(
     const std::vector<mty::ColorSpec>& color_couplings,
     std::vector<int> template_order = {})
 {
+    const auto effective_order = hyperiso_marty_effective_operator_order(order, template_order);
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] projector=dimension6/colors"
+                  << " currents=" << hyperiso_marty_dirac_coupling_label(left_current)
+                  << "/" << hyperiso_marty_dirac_coupling_label(right_current)
+                  << " O=" << hyperiso_marty_order_vector_label(effective_order)
+                  << std::endl;
+    }
     return mty::dimension6Operator(
         model,
         wilsons,
         left_current,
         right_current,
         color_couplings,
-        hyperiso_marty_effective_operator_order(order, template_order));
+        effective_order);
 }
 
 std::string hyperiso_marty_fermion_order_label(const std::vector<int>& order)
 {
-    if (order.empty()) {
-        return "template-default";
-    }
-    std::ostringstream stream;
-    for (std::size_t i = 0; i < order.size(); ++i) {
-        if (i != 0) {
-            stream << '-';
-        }
-        stream << order[i];
-    }
-    return stream.str();
+    return hyperiso_marty_order_vector_label(order);
 }
 
 void hyperiso_marty_apply_fermion_order(
@@ -426,6 +510,33 @@ void hyperiso_marty_apply_fermion_order(
         // is generated in a different spinor-chain pairing.
         options.orderExternalFermions = true;
     }
+}
+
+auto hyperiso_marty_compute_amplitude_logged(
+    mty::Model& model,
+    int order,
+    const std::vector<mty::Insertion>& insertions,
+    mty::FeynOptions& options)
+{
+    const auto start = std::chrono::steady_clock::now();
+    if (hyperiso_marty_progress_enabled()) {
+        const auto& f_order = hyperiso_marty_configured_fermion_order(order);
+        std::cout << "[MARTY analytical] process START"
+                  << " order=" << hyperiso_marty_perturbative_order_label(order)
+                  << " external-legs=" << insertions.size()
+                  << " F=" << hyperiso_marty_order_vector_label(f_order)
+                  << std::endl;
+    }
+    auto amplitude = model.computeAmplitude(order, insertions, options);
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] process READY"
+                  << " amplitudes=" << amplitude.size()
+                  << " elapsed="
+                  << std::chrono::duration<double>(
+                         std::chrono::steady_clock::now() - start).count()
+                  << " s" << std::endl;
+    }
+    return amplitude;
 }
 
 mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
@@ -452,9 +563,10 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
     // the operation exactly as MARTY allows: first build/Fierz the amplitude,
     // then decompose that same amplitude with the same options.  The independent
     // HyperIso operator order is used only later by dimension6Operator().
+    const auto effective_f_order = hyperiso_marty_configured_fermion_order(effective_order);
     if (effective_order == mty::Order::TreeLevel && !disable_fermion_ordering) {
-        auto hyperiso_marty_tree_amplitude = model.computeAmplitude(
-            mty::Order::TreeLevel, insertions, options);
+        auto hyperiso_marty_tree_amplitude = hyperiso_marty_compute_amplitude_logged(
+            model, mty::Order::TreeLevel, insertions, options);
         if (hyperiso_marty_tree_amplitude.empty()) {
             return {};
         }
@@ -464,18 +576,43 @@ mty::WilsonSet hyperiso_marty_compute_wilson_coefficients(
         // HyperIso TreeLevel F order before the Wilson matching decomposition.
         hyperiso_marty_apply_fermion_order(options, effective_order);
 
-        return model.getWilsonCoefficients(
+        const auto matching_start = std::chrono::steady_clock::now();
+        auto hyperiso_marty_wilsons = model.getWilsonCoefficients(
             hyperiso_marty_tree_amplitude,
             options,
             mty::DecompositionMode::Matching);
+        const auto matching_stop = std::chrono::steady_clock::now();
+        if (hyperiso_marty_progress_enabled()) {
+            std::cout << "[MARTY analytical] Wilson matching READY"
+                      << " elapsed="
+                      << std::chrono::duration<double>(matching_stop - matching_start).count()
+                      << " s" << std::endl;
+        }
+        return hyperiso_marty_wilsons;
     }
 
-    return model.computeWilsonCoefficients(
+    const auto combined_start = std::chrono::steady_clock::now();
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] process+matching START"
+                  << " order=" << hyperiso_marty_perturbative_order_label(effective_order)
+                  << " external-legs=" << insertions.size()
+                  << " F=" << hyperiso_marty_order_vector_label(effective_f_order)
+                  << std::endl;
+    }
+    auto hyperiso_marty_wilsons = model.computeWilsonCoefficients(
         effective_order,
         insertions,
         std::move(options),
         disable_fermion_ordering
     );
+    const auto combined_stop = std::chrono::steady_clock::now();
+    if (hyperiso_marty_progress_enabled()) {
+        std::cout << "[MARTY analytical] process+matching READY"
+                  << " elapsed="
+                  << std::chrono::duration<double>(combined_stop - combined_start).count()
+                  << " s" << std::endl;
+    }
+    return hyperiso_marty_wilsons;
 }
 } // namespace
 )cpp";
@@ -498,6 +635,14 @@ void GeneralModelModifier::replaceWilsonCallWithHelper(std::string& line) {
     const auto pos = line.find(needle);
     if (pos != std::string::npos) {
         line.replace(pos, needle.size(), "hyperiso_marty_compute_wilson_coefficients(model, ");
+    }
+}
+
+void GeneralModelModifier::replaceAmplitudeCallWithHelper(std::string& line) {
+    const std::string needle = "model.computeAmplitude(";
+    const auto pos = line.find(needle);
+    if (pos != std::string::npos) {
+        line.replace(pos, needle.size(), "hyperiso_marty_compute_amplitude_logged(model, ");
     }
 }
 
@@ -610,8 +755,16 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
         line.replace(method,
                      std::string("computeWilsonCoefficients").size(),
                      "computeAmplitude");
+        replaceAmplitudeCallWithHelper(line);
     }
     for (auto& line : probe_lines) {
+        // The native templates deliberately spell their Wilson call as OneLoop
+        // so the generic wrapper can choose the runtime order.  Once that call
+        // is converted into the TreeLevel probe, force the order token as well.
+        // Leaving `OneLoop` here makes TREE_LEVEL_ONLY compute and decompose a
+        // full loop amplitude before the actual tree projection (catastrophic
+        // for BNuNu/KNuNu and other four-fermion groups).
+        replace_token(line, "mty::Order::OneLoop", "mty::Order::TreeLevel");
         replace_token(line, "opts", "hyperiso_marty_tree_options");
     }
 
@@ -643,17 +796,38 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
     // repeated-flavour four-fermion processes such as DeltaF=2 mixing.  Explicit
     // projection recipes own a separate matching path and re-apply their recipe
     // F order there when needed.
+    outputFile << indent << "    const auto hyperiso_marty_matching_start = std::chrono::steady_clock::now();\n";
+    outputFile << indent << "    if (hyperiso_marty_progress_enabled()) {\n";
+    outputFile << indent << "        std::cout << \"[MARTY analytical] Wilson matching START order=TreeLevel amplitudes=\"\n";
+    outputFile << indent << "                  << hyperiso_marty_tree_probe.size() << std::endl;\n";
+    outputFile << indent << "    }\n";
     outputFile << indent << "    " << variable
                << " = model.getWilsonCoefficients(hyperiso_marty_tree_probe, "
                << "hyperiso_marty_tree_options);\n";
+    outputFile << indent << "    if (hyperiso_marty_progress_enabled()) {\n";
+    outputFile << indent << "        std::cout << \"[MARTY analytical] Wilson matching READY order=TreeLevel elapsed=\"\n";
+    outputFile << indent << "                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - hyperiso_marty_matching_start).count()\n";
+    outputFile << indent << "                  << \" s\" << std::endl;\n";
+    outputFile << indent << "    }\n";
     outputFile << indent << "} else {\n";
     outputFile << indent << "    auto hyperiso_marty_loop_options = opts;\n";
     outputFile << indent << "    hyperiso_marty_apply_fermion_order(\n";
     outputFile << indent << "        hyperiso_marty_loop_options, mty::Order::OneLoop,\n";
     outputFile << indent << "        hyperiso_marty_forced_fermion_order);\n";
+    outputFile << indent << "    const auto hyperiso_marty_loop_start = std::chrono::steady_clock::now();\n";
+    outputFile << indent << "    if (hyperiso_marty_progress_enabled()) {\n";
+    outputFile << indent << "        std::cout << \"[MARTY analytical] process+matching START order=OneLoop F=\"\n";
+    outputFile << indent << "                  << hyperiso_marty_order_vector_label(hyperiso_marty_configured_fermion_order(mty::Order::OneLoop))\n";
+    outputFile << indent << "                  << std::endl;\n";
+    outputFile << indent << "    }\n";
     for (const auto& line : loop_lines) {
         outputFile << "    " << line << "\n";
     }
+    outputFile << indent << "    if (hyperiso_marty_progress_enabled()) {\n";
+    outputFile << indent << "        std::cout << \"[MARTY analytical] process+matching READY elapsed=\"\n";
+    outputFile << indent << "                  << std::chrono::duration<double>(std::chrono::steady_clock::now() - hyperiso_marty_loop_start).count()\n";
+    outputFile << indent << "                  << \" s\" << std::endl;\n";
+    outputFile << indent << "    }\n";
     outputFile << indent << "}\n";
     if (count_graphs) {
         outputFile << indent << "hyperiso_marty_graph_count += "
@@ -662,6 +836,11 @@ void GeneralModelModifier::emitTreeSafeWilsonCall(std::ofstream& outputFile,
 }
 
 void GeneralModelModifier::modifyLine(std::string& line) {
+    // Explicit TreeLevel recipes (C9/C10/CNU/CKNU) call computeAmplitude()
+    // directly. Route those calls through the progress wrapper as well so the
+    // analytical timeline is consistent across all coefficient families.
+    replaceAmplitudeCallWithHelper(line);
+
     if (this->usesRegPropSplit()) {
         if (this->inside_calculate_function) {
             replaceDimension6OperatorWithHelper(line, "hyperiso_marty_order");
@@ -708,9 +887,12 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
         if (currentLine.find("<iostream>") != std::string::npos) {
             outputFile << currentLine << "\n";
             outputFile << "#include <vector>\n";
+            outputFile << "#include <chrono>\n";
+            outputFile << "#include <cstdlib>\n";
             outputFile << "#include <utility>\n";
             outputFile << "#include <algorithm>\n";
             outputFile << "#include <sstream>\n";
+        outputFile << "#include <cstdlib>\n";
             if (this->disable_non_sm_particles || this->bsm_split_generation) {
                 outputFile << "#include <string>\n";
                 outputFile << "#include <unordered_set>\n";
@@ -1169,6 +1351,8 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
     if (currentLine.find("<iostream>") != std::string::npos) {
         outputFile << currentLine << "\n";
         outputFile << "#include <vector>\n";
+        outputFile << "#include <chrono>\n";
+        outputFile << "#include <cstdlib>\n";
         outputFile << "#include <utility>\n";
         outputFile << "#include <algorithm>\n";
         outputFile << "#include <sstream>\n";

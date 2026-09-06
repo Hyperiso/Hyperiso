@@ -36,6 +36,35 @@ struct WilsonBuildConfig : public AbstractConfig {
     std::unordered_set<WGroupId> groups;
 
     /**
+     * @brief Optional subset of coefficient identifiers to instantiate inside
+     *        the requested groups. An empty set keeps the historical behaviour
+     *        and builds every member of each group.
+     *
+     * This is primarily useful for matching-only MARTY diagnostics where a
+     * caller wants, for example, C7/C8 without paying for unrelated C1--C6
+     * one-loop amplitudes.
+     */
+    std::unordered_set<WCoefId> coefficients;
+
+    /**
+     * @brief If true, initialize matching coefficients only and skip hadronic
+     *        running. This should be used together with a partial coefficient
+     *        subset because running formulae generally assume the full basis.
+     */
+    bool matching_only {false};
+
+    /**
+     * @brief Build only the BSM contribution and skip construction of the
+     *        independent SM matching group.
+     *
+     * This is a diagnostic/performance mode for callers that will request only
+     * ContributionType::BSM.  SM and TOTAL values are intentionally not
+     * guaranteed in this mode.  It is especially useful for MARTY validation
+     * scripts, where generating an unused standalone SM library is expensive.
+     */
+    bool bsm_only {false};
+
+    /**
      * @brief Matching scale (in GeV) at which the high-energy theory
      *        is matched to the effective theory.
      */

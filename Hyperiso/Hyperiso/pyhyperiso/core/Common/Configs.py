@@ -49,12 +49,21 @@ class WilsonBuildConfig:
     Args:
         groups: Wilson groups to build. Examples: ``WGroup.B``,
             ``"BCoefficients"`` or ``GroupMapper.id_of("DEV_GROUP")``.
+        coefficients: Optional subset of coefficient members to instantiate.
+            Empty means every member of each selected group.
+        matching_only: Skip hadronic running initialization. Use this for
+            partial-group matching diagnostics.
+        bsm_only: Build only the BSM matching contribution and skip the
+            independent SM matching group. Only BSM requests are guaranteed.
         matching_scale: Matching scale in GeV.
         hadronic_scale: Hadronic/running scale in GeV.
         order: Maximum QCD order requested for matching/running.
     """
 
     groups: Set[WilsonGroupLike] = field(default_factory=set)
+    coefficients: Set[WilsonCoefLike] = field(default_factory=set)
+    matching_only: bool = False
+    bsm_only: bool = False
     matching_scale: float = 81.0
     hadronic_scale: float = 4.8
     order: QCDOrder = QCDOrder.LO
@@ -63,6 +72,9 @@ class WilsonBuildConfig:
         """Convert this Python config to the bound C++ config object."""
         cpp = _CppWilsonBuildConfig()
         cpp.groups = {_cpp_group_id(g) for g in self.groups}
+        cpp.coefficients = {_cpp_coef_id(c) for c in self.coefficients}
+        cpp.matching_only = bool(self.matching_only)
+        cpp.bsm_only = bool(self.bsm_only)
         cpp.matching_scale = float(self.matching_scale)
         cpp.hadronic_scale = float(self.hadronic_scale)
         cpp.order = self.order.value

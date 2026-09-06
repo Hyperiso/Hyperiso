@@ -87,3 +87,22 @@ def test_py_config_rejects_invalid_operator_order():
 
     with pytest.raises(ValueError, match="must be a permutation"):
         cfg.to_cpp()
+
+
+def test_marty_expected_nonzero_normalisation():
+    assert HyperisoConfig._normalise_expected_nonzero(" C9 ") == ["C9"]
+    assert HyperisoConfig._normalise_expected_nonzero(("C9", "C10", "C9")) == ["C9", "C10"]
+
+
+def test_marty_expected_nonzero_rejects_blank():
+    import pytest
+    with pytest.raises(ValueError):
+        HyperisoConfig._normalise_expected_nonzero(("C9", "  "))
+
+
+def test_hyp_as_sm_marty_flag_roundtrip():
+    from pyhyperiso.Core import ExternalFlag, HyperisoConfig
+
+    cfg = HyperisoConfig(flags={ExternalFlag.HYP_AS_SM_MARTY: True})
+    cpp = cfg.to_cpp()
+    assert cpp.flags[ExternalFlag.HYP_AS_SM_MARTY.value] is True

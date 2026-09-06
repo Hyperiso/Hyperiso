@@ -56,6 +56,12 @@ public:
 
     /** @brief Retrieves per-coefficient MARTY OneLoop operator-order overrides. */
     std::map<std::string, std::vector<int>> get_marty_one_loop_operator_orders() const;
+
+    /** @brief Whether MARTY group batching is enabled. */
+    bool get_marty_group_batching() const;
+
+    /** @brief Coefficients declared symbolically non-zero by the user. */
+    std::vector<std::string> get_marty_expected_nonzero_coefficients() const;
 };
 
 #endif // MARTYADAPTER_H

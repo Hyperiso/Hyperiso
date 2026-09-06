@@ -30,6 +30,35 @@ bool executeCommand(const std::string& command) {
     return true;
 }
 
+bool executeCommandStreaming(const std::string& command) {
+    std::array<char, 512> buffer;
+    std::string result;
+
+    FILE* pipe = popen((command + " 2>&1").c_str(), "r");
+    if (!pipe) {
+        throw std::runtime_error("Error while opening command pipe for: " + command);
+    }
+
+    while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
+        const std::string chunk(buffer.data());
+        result += chunk;
+        std::cout << chunk << std::flush;
+    }
+
+    const int status = pclose(pipe);
+    const bool ok = WIFEXITED(status) && WEXITSTATUS(status) == 0;
+
+    if (!ok) {
+        std::string message = "Command failed:\n" + command + "\n";
+        if (!result.empty()) {
+            message += "Output (already streamed above):\n" + result;
+        }
+        throw std::runtime_error(message);
+    }
+
+    return true;
+}
+
 bool CompilerStrategy::check_if_compile(const std::string& outputBinary) {
     struct stat buffer;
     if (stat(outputBinary.c_str(), &buffer) != 0) {
