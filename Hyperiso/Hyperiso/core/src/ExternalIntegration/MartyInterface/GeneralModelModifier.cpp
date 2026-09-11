@@ -249,13 +249,35 @@ void hyperiso_marty_disable_non_sm_particles(mty::FeynOptions& opts, mty::Model&
     }
 }
 
-bool hyperiso_marty_is_non_sm_particle_name(const std::string& name,
-                                            const std::unordered_set<std::string>& sm_particle_names) {
-    return sm_particle_names.find(name) == sm_particle_names.end();
+std::string hyperiso_marty_canonical_particle_name(std::string name) {
+    // MARTY particle names may carry a display/LaTeX suffix after ';'
+    // (for example "A;\\gamma").  Classify the underlying field name:
+    // otherwise a pure-SM photon/Z/Goldstone with a decorated display name can
+    // be mistaken for a non-SM particle and leak into the BSM-only coefficient.
+    const auto separator = name.find(';');
+    if (separator != std::string::npos) {
+        name.resize(separator);
+    }
+    while (!name.empty() && (name.back() == ' ' || name.back() == '\t')) {
+        name.pop_back();
+    }
+    const auto first = name.find_first_not_of(" \t");
+    return first == std::string::npos ? std::string{} : name.substr(first);
 }
 
-bool hyperiso_marty_has_non_sm_diagram_particle(mty::FeynmanDiagram const& diag,
-                                                const std::unordered_set<std::string>& sm_particle_names) {
+bool hyperiso_marty_is_non_sm_particle_name(const std::string& name,
+                                            const std::unordered_set<std::string>& sm_particle_names) {
+    const std::string canonical = hyperiso_marty_canonical_particle_name(name);
+    return sm_particle_names.find(canonical) == sm_particle_names.end();
+}
+
+bool hyperiso_marty_has_non_sm_internal_particle(mty::FeynmanDiagram const& diag,
+                                                 const std::unordered_set<std::string>& sm_particle_names) {
+    // Historical BSM-only one-loop semantics: a diagram contributes only when
+    // a genuinely non-SM particle occurs in the loop or as an internal
+    // mediator.  Do not inspect DiagramParticleType::External here: MARTY's
+    // four-fermion penguin construction also stores process/linker legs in that
+    // category, which can make a pure-SM W/top diagram look BSM.
     for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Loop)) {
         if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
             return true;
@@ -266,15 +288,31 @@ bool hyperiso_marty_has_non_sm_diagram_particle(mty::FeynmanDiagram const& diag,
             return true;
         }
     }
-    // MARTY may classify a penguin linker (for example Z_X in b -> s l l)
-    // as an External diagram particle even though it is not one of the physical
-    // process legs.  Omitting this category silently removes the Z' diagrams.
+    return false;
+}
+
+bool hyperiso_marty_has_non_sm_diagram_particle(mty::FeynmanDiagram const& diag,
+                                                const std::unordered_set<std::string>& sm_particle_names) {
+    if (hyperiso_marty_has_non_sm_internal_particle(diag, sm_particle_names)) {
+        return true;
+    }
+    // Tree-level semileptonic matching is the exception: MARTY may classify a
+    // direct BSM linker (for example Z_X in b -> s l l) as External before the
+    // amplitudes are connected.  The TreeLevel C9/CP9 probe therefore needs the
+    // wider Loop + Mediator + External test.
     for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::External)) {
         if (hyperiso_marty_is_non_sm_particle_name(std::string(particle->getName()), sm_particle_names)) {
             return true;
         }
     }
     return false;
+}
+
+void hyperiso_marty_require_non_sm_internal_particle(mty::FeynOptions& opts) {
+    const auto sm_particle_names = hyperiso_marty_sm_particle_names();
+    opts.addFilter([sm_particle_names](mty::FeynmanDiagram const& diag) {
+        return hyperiso_marty_has_non_sm_internal_particle(diag, sm_particle_names);
+    });
 }
 
 void hyperiso_marty_require_non_sm_diagram_particle(mty::FeynOptions& opts) {
@@ -842,9 +880,11 @@ void GeneralModelModifier::modifyLine(std::string& line) {
     replaceAmplitudeCallWithHelper(line);
 
     if (this->usesRegPropSplit()) {
-        if (this->inside_calculate_function) {
-            replaceDimension6OperatorWithHelper(line, "hyperiso_marty_order");
-        }
+        // Keep the historical one-loop C9/CP9/CP10 projection untouched.
+        // Their regulated photon-penguin path was validated with MARTY's native
+        // dimension6Operator().  Tree projection recipes already call the
+        // HyperIso helper explicitly, so configurable TreeLevel F/O support is
+        // preserved without rewriting the OneLoop projector.
         replaceWilsonOrderArgument(line);
         return;
     }
@@ -1091,7 +1131,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM diagram particle in "
                            << this->model_instantiation << "\n";
             }
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v27\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v28\n";
             return;
         }
 
@@ -1122,9 +1162,21 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "    } else {\n";
             }
             if (!this->full_target_generation) {
-                outputFile << "        if (hyperiso_marty_order != mty::Order::TreeLevel) {\n";
-                outputFile << "            hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
-                outputFile << "        }\n";
+                // C9/CP9 need two different BSM filters.  At TreeLevel a Z' can
+                // appear as an External linker before MARTY connects the
+                // amplitudes, so keep the broad diagram-particle filter.  At
+                // OneLoop restore the historical genuine-BSM filter and count
+                // only Loop/Mediator particles; otherwise SM penguin pieces can
+                // leak into the BSM coefficient through External linker legs.
+                if (this->wilson == "C9" || this->wilson == "CP9") {
+                    outputFile << "        if (hyperiso_marty_order == mty::Order::TreeLevel) {\n";
+                    outputFile << "            hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+                    outputFile << "        } else {\n";
+                    outputFile << "            hyperiso_marty_require_non_sm_internal_particle(opts);\n";
+                    outputFile << "        }\n";
+                } else {
+                    outputFile << "        hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
+                }
             }
             outputFile << "    }\n";
             return;

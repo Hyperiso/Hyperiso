@@ -226,7 +226,8 @@ public:
         WilsonPortsConfig portconfig,
         std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers = {},
         bool matching_only = false,
-        bool bsm_only = false
+        bool bsm_only = false,
+        bool sm_only = false
     );
 
     /// Switches to matching scale context and sets mu_W via scale_setter_api.
@@ -301,7 +302,7 @@ public:
     void registerCoefficientGroup(const std::string& groupName, std::shared_ptr<CoefficientGroup> group);
 
     /// Initializes matching-side parameters for a group up to @p order.
-    void init_group_matching(const std::string& groupName, const std::string& order, bool bsm_only = false);
+    void init_group_matching(const std::string& groupName, const std::string& order, bool bsm_only = false, bool sm_only = false);
 
     /**
      * @brief Initializes hadronic (running) block for one basis.
@@ -322,7 +323,7 @@ public:
      * @param order QCD order string.
      * @param only_total If true, avoid calling group->init(order) (useful for workflows that only need TOTAL).
      */
-    void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total, bool bsm_only = false);
+    void init_specific_order_group_matching(const std::string& groupName, const std::string& order, bool only_total, bool bsm_only = false, bool sm_only = false);
 
     /// Add one additive matching patch and apply it to already-registered groups when relevant.
     void add_matching_patch(const WilsonMatchingPatch& patch);

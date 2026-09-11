@@ -1,4 +1,7 @@
 #include "CoefficientGroupBuilder.h"
+#include "FileNameManager.h"
+
+#include <filesystem>
 
 /**
  * @file CoefficientGroupBuilder.cpp
@@ -55,28 +58,61 @@ std::shared_ptr<CoefficientGroup> CoefficientGroupBuilder::build(const BuildCont
     std::vector<WCoefId> member_ids;
     member_ids.reserve(active_members.size());
 
-    // For a genuine BSM MARTY contribution, prepare only the active members.
-    // This lets matching-only diagnostics request C7/C8 without computing
-    // unrelated one-loop four-fermion coefficients from the same group.
+    // Prepare one shared MARTY model for the active members whenever the
+    // selected contribution is genuinely MARTY-backed.  For a pure SM MARTY
+    // build, coefficients without a shipped MARTY template are omitted from
+    // the analytical batch and are resolved by the registry's native-SM
+    // fallback below.
     if (ctx.backend == Backend::Marty
-        && ctx.contrib == ContributionType::BSM
-        && ctx.model != Model::SM
-        && ctx.adapters.marty_proxy
-        && ctx.adapters.marty_model_name
-        && ctx.adapters.marty_model_path) {
-        std::vector<std::string> marty_members;
-        marty_members.reserve(active_members.size());
-        for (auto c : active_members) marty_members.push_back(WCoefMapper::str(c));
-        ctx.adapters.marty_proxy->prepare_group(
-            GroupMapper::str(def.id, ScaleType::MATCHING),
-            marty_members,
-            ctx.adapters.marty_model_name->get(),
-            ctx.adapters.marty_model_name->get(),
-            ctx.adapters.marty_model_path->get().string(),
-            false,
-            true,
-            false
-        );
+        && ctx.adapters.marty_proxy) {
+        if (ctx.contrib == ContributionType::BSM
+            && ctx.model != Model::SM
+            && ctx.adapters.marty_model_name
+            && ctx.adapters.marty_model_path) {
+            std::vector<std::string> marty_members;
+            marty_members.reserve(active_members.size());
+            for (auto c : active_members) marty_members.push_back(WCoefMapper::str(c));
+            ctx.adapters.marty_proxy->prepare_group(
+                GroupMapper::str(def.id, ScaleType::MATCHING),
+                marty_members,
+                ctx.adapters.marty_model_name->get(),
+                ctx.adapters.marty_model_name->get(),
+                ctx.adapters.marty_model_path->get().string(),
+                false, true, false
+            );
+        } else if (ctx.contrib == ContributionType::SM
+                   && ctx.model == Model::SM) {
+            std::vector<std::string> marty_members;
+            marty_members.reserve(active_members.size());
+            for (auto c : active_members) {
+                // These SM branches are intentionally native even in a MARTY
+                // session; do not spend analytical time batching a result the
+                // registry will discard.
+                const bool native_compat =
+                    c == WCoef::C9 || c == WCoef::CP9 || c == WCoef::CP10
+                    || def.id == GroupMapper::to_id(WGroup::BNuNu)
+                    || def.id == GroupMapper::to_id(WGroup::KNuNu);
+                if (native_compat) {
+                    continue;
+                }
+
+                const std::string name = WCoefMapper::str(c);
+                const auto files = FileNameManager::getInstance(name, "SM");
+                const std::filesystem::path tmpl =
+                    std::filesystem::path(files->getTemplateDir()) / (name + ".cpp");
+                if (std::filesystem::is_regular_file(tmpl)) {
+                    marty_members.push_back(name);
+                }
+            }
+            if (!marty_members.empty()) {
+                ctx.adapters.marty_proxy->prepare_group(
+                    GroupMapper::str(def.id, ScaleType::MATCHING),
+                    marty_members,
+                    "SM", "SM", ctx.adapters.sm_path.string(),
+                    false, false, false
+                );
+            }
+        }
     }
 
     for (auto c : active_members) {

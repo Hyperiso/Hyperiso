@@ -116,6 +116,32 @@ int main(){
         auto m6 = setter.setParam("mt", P("MASS", LhaID(6), false, false));
         assert(std::abs(m6["mt"] - 173.0) < 1e-12);
     }
+    // REGPROP: every parameter file keeps the central tiny default.  C9/CP9
+    // use the separate photon-diagnostic regulator only in the generated wrapper.
+    {
+        auto ordinary = setter.setParam("reg_prop", P("REGPROP", LhaID(0), false, false));
+        assert(std::abs(ordinary["reg_prop"] - 1e-10) < 1e-18);
+
+        const std::string c9_template = "/tmp/hyperiso_C9.cpp";
+        {
+            std::ofstream out(c9_template);
+            out << "// C9 template marker\n";
+        }
+        SMParamSetter c9_setter("THDM", specials, sm, bsm, c9_template);
+        auto c9_reg = c9_setter.setParam("reg_prop", P("REGPROP", LhaID(0), false, false));
+        assert(std::abs(c9_reg["reg_prop"] - 1e-10) < 1e-18);
+        std::remove(c9_template.c_str());
+
+        const std::string cp9_template = "/tmp/hyperiso_CP9.cpp";
+        {
+            std::ofstream out(cp9_template);
+            out << "// CP9 template marker\n";
+        }
+        SMParamSetter cp9_setter("THDM", specials, sm, bsm, cp9_template);
+        auto cp9_reg = cp9_setter.setParam("reg_prop", P("REGPROP", LhaID(0), false, false));
+        assert(std::abs(cp9_reg["reg_prop"] - 1e-10) < 1e-18);
+        std::remove(cp9_template.c_str());
+    }
     // BSM complex
     {
         auto mc = setter.setParam("zb", P("XBLK", LhaID(1), true, true));

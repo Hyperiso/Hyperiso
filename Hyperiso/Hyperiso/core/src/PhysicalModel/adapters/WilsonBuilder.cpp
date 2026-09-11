@@ -96,6 +96,10 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
 
     std::map<std::string, std::shared_ptr<CoefficientGroup>> groups;
     const bool marty = use_marty->get();
+    if (config.bsm_only && config.sm_only) {
+        throw std::invalid_argument("WilsonBuildConfig cannot set both bsm_only and sm_only");
+    }
+    const bool sm_use_marty = marty && !(hard_coded_lo && hard_coded_lo->get());
 
     for (auto& g_id : config.groups) {
         // A non-SM model is stored as a pure BSM calculation, including for
@@ -103,10 +107,19 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
         // Do not store the complete MARTY target model as TOTAL and subtract a
         // separately implemented SM: C9 photon-penguin conventions and tiny C10
         // normalization differences would leak into the inferred BSM component.
-        ContributionType ct = (model == Model::SM)
-            ? ContributionType::SM
-            : ContributionType::BSM;
-        auto grp = build_group_fn(g_id, model, marty, ct);
+        std::shared_ptr<CoefficientGroup> grp;
+        if (config.sm_only) {
+            // Diagnostic SM-only build.  In MARTY sessions HYP_AS_SM_MARTY
+            // still decides whether this SM group is native or MARTY-backed.
+            grp = build_group_fn(
+                g_id, Model::SM, sm_use_marty, ContributionType::SM
+            );
+        } else {
+            ContributionType ct = (model == Model::SM)
+                ? ContributionType::SM
+                : ContributionType::BSM;
+            grp = build_group_fn(g_id, model, marty, ct);
+        }
         groups.emplace(GroupMapper::str(g_id), std::move(grp));
 
     }
@@ -119,16 +132,31 @@ void WilsonBuilder::build(WilsonBuildConfig config) {
     }
 
     WilsonPortsConfig port_config{iblock_c, wilson_proxy, use_marty, has_wilson, model_api, scale_setter_api, hard_coded_lo, marty_paths};
-    // C9/CP9 photon-penguin finite pieces are intentionally not injected as a
-    // hidden default here.  The SM C9 branch uses the builtin HyperIso/SuperIso
-    // coefficient; BSM photon pieces can be provided explicitly by the user via
-    // WilsonMatchingPatch.
+
+    // The bundled MARTY THDM has a known finite charged-Higgs photon-penguin
+    // matching term for C9/CP9.  The raw four-fermion photon linker is not a
+    // stable WET coefficient, so the MARTY library returns only the genuine
+    // non-photon BSM part and these analytic finite pieces complete it.  Other
+    // MARTY targets remain generic and receive no model-specific correction.
+    if (use_marty->get() && !config.sm_only && marty_model_name) {
+        const std::string target_name = marty_model_name->get();
+        const bool is_thdm_target = target_name == "THDM"
+            || target_name.rfind("THDM_Model", 0) == 0;
+        if (is_thdm_target) {
+            port_config.matching_patches.push_back(make_hyperiso_c9_thdm_photon_patch());
+            port_config.matching_patches.push_back(make_hyperiso_cp9_thdm_photon_patch());
+            LOG_INFO(
+                "MartyInterface",
+                "Using finite THDM photon matching patches for C9/CP9; raw MARTY *_A remains diagnostic."
+            );
+        }
+    }
     port_config.build_group = build_group_fn;
 
     this->cm = CoefficientManager::Builder(
         groups, config.matching_scale, config.hadronic_scale,
         OrderMapper::str(config.order), port_config, wilson_param_helpers,
-        config.matching_only, config.bsm_only
+        config.matching_only, config.bsm_only, config.sm_only
     );
 }
 
@@ -175,6 +203,10 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
 
     const bool marty = this->current_group_adapters->use_marty->get();
     auto hard_coded_lo = std::make_shared<SMFromHypProxy>();
+    if (config.bsm_only && config.sm_only) {
+        throw std::invalid_argument("WilsonBuildConfig cannot set both bsm_only and sm_only");
+    }
+    const bool sm_use_marty = marty && !(hard_coded_lo && hard_coded_lo->get());
     if (marty
         && config.order > QCDOrder::LO
         && !(hard_coded_lo && hard_coded_lo->get()))
@@ -194,14 +226,16 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         // Do not store the complete MARTY target model as TOTAL and subtract a
         // separately implemented SM: C9 photon-penguin conventions and tiny C10
         // normalization differences would leak into the inferred BSM component.
-        ContributionType ct = (model == Model::SM)
+        ContributionType ct = config.sm_only
             ? ContributionType::SM
-            : ContributionType::BSM;
+            : ((model == Model::SM) ? ContributionType::SM : ContributionType::BSM);
+        const Model build_model = config.sm_only ? Model::SM : model;
+        const bool build_marty = config.sm_only ? sm_use_marty : marty;
 
         BuildContext ctx{
             .adapters = *this->current_group_adapters,
-            .model = model,
-            .backend = marty ? Backend::Marty : Backend::Builtin,
+            .model = build_model,
+            .backend = build_marty ? Backend::Marty : Backend::Builtin,
             .contrib = ct,
             .group_id = g_id,
             .marty_paths = marty_paths,
@@ -214,7 +248,9 @@ void WilsonBuilder::add(WilsonBuildConfig config) {
         LOG_VERBOSE("Initializing group", group_name);
         this->cm->registerCoefficientGroup(group_name, std::move(grp));
         LOG_VERBOSE("Initializing group at matching scale", group_name);
-        this->cm->init_group_matching(group_name, OrderMapper::str(config.order), config.bsm_only);
+        this->cm->init_group_matching(
+            group_name, OrderMapper::str(config.order), config.bsm_only, config.sm_only
+        );
         if (!config.matching_only) {
             LOG_VERBOSE("Initializing group at hardronic scale", group_name);
             this->cm->init_group_hadronic_all_bases(group_name, OrderMapper::str(config.order));

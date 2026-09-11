@@ -34,7 +34,10 @@
  *    requests through the registered SM/MARTY factory while preserving the
  *    original build context.  The factory then instantiates the target model.
  * 3) Otherwise, if backend is Marty, fallback to Builtin for the same model.
- * 4) If model is not SM, fallback to SM for the same backend.
+ * 4) For a missing non-SM Builtin BSM implementation, return an explicit
+ *    zero BSM coefficient (with a warning) instead of reinterpreting the SM
+ *    formula as BSM.
+ * 5) Fallback model -> SM only for an explicitly requested SM contribution.
  *
  * If none match, an exception is thrown.
  *
@@ -98,7 +101,8 @@ public:
      * - exact match (c, ctx.model, ctx.backend),
      * - non-SM MARTY requests through the SM/MARTY factory with the original context,
      * - Marty -> Builtin fallback for the same model,
-     * - model -> SM fallback for the same backend.
+     * - explicit zero for an unavailable non-SM Builtin BSM matching,
+     * - model -> SM fallback only for an explicitly requested SM contribution.
      *
      * @param ctx Build context providing model/backend information and adapter access.
      * @param c   Coefficient identifier.

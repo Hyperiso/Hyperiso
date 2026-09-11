@@ -1,6 +1,8 @@
 #ifndef HYPERISO_WILSON_MATCHING_PATCH_H
 #define HYPERISO_WILSON_MATCHING_PATCH_H
 
+#include <cmath>
+
 #include <functional>
 #include <string>
 #include <unordered_set>
@@ -91,13 +93,23 @@ inline WilsonMatchingPatch make_hyperiso_c9_thdm_photon_patch() {
     patch.coefficient = WCoefMapper::to_id(WCoef::C9);
     patch.order = QCDOrder::LO;
     patch.contribution = ContributionType::BSM;
+    // Use raw THDM inputs plus the common SM matching top mass so this patch
+    // also works when the high-energy model is selected through Model::MARTY
+    // (where THDMParameterHelper is intentionally not the active model helper).
     patch.sources = {
-        ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(7)},
-        ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1)}
+        ParamId{ParameterType::BSM, "MINPAR", LhaID(3)},
+        ParamId{ParameterType::BSM, "MASS", LhaID(37)},
+        ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6)}
     };
     patch.compute = [](const ParamSrc& src) -> scalar_t {
-        const double lu = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(7));
-        const double yt = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1));
+        const double tan_beta = src.get_val(ParameterType::BSM, "MINPAR", LhaID(3));
+        const double m_hp = src.get_val(ParameterType::BSM, "MASS", LhaID(37));
+        const double mt_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6));
+        if (tan_beta == 0.0 || m_hp == 0.0) {
+            return scalar_t(0.0);
+        }
+        const double lu = 1.0 / tan_beta;
+        const double yt = (mt_muW * mt_muW) / (m_hp * m_hp);
         return scalar_t(-D9H0(yt, lu));
     };
     patch.label = "Hyperiso:C9:THDM-photon";
@@ -118,18 +130,30 @@ inline WilsonMatchingPatch make_hyperiso_cp9_thdm_photon_patch() {
     patch.order = QCDOrder::LO;
     patch.contribution = ContributionType::BSM;
     patch.sources = {
-        ParamId{ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(8)},
-        ParamId{ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1)},
+        ParamId{ParameterType::BSM, "MINPAR", LhaID(3)},
+        ParamId{ParameterType::BSM, "MINPAR", LhaID(24)},
+        ParamId{ParameterType::BSM, "MASS", LhaID(37)},
         ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6)},
         ParamId{ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 1)},
         ParamId{ParameterType::SM, "MASS", LhaID(3)}
     };
     patch.compute = [](const ParamSrc& src) -> scalar_t {
-        const double ld     = src.get_val(ParameterType::WILSON, "WPARAM_SI_BSM", LhaID(8));
-        const double yt     = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_BSM", LhaID(1));
+        const double tan_beta = src.get_val(ParameterType::BSM, "MINPAR", LhaID(3));
+        const int yukawa_type = static_cast<int>(std::lround(
+            src.get_val(ParameterType::BSM, "MINPAR", LhaID(24))));
+        const double m_hp = src.get_val(ParameterType::BSM, "MASS", LhaID(37));
         const double mt_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(6));
         const double mb_muW = src.get_val(ParameterType::WILSON, "WPARAM_MATCH_SM", LhaID(5, 1));
-        const double ms     = src.get_val(ParameterType::SM, "MASS", LhaID(3));
+        const double ms = src.get_val(ParameterType::SM, "MASS", LhaID(3));
+        if (tan_beta == 0.0 || m_hp == 0.0 || mt_muW == 0.0) {
+            return scalar_t(0.0);
+        }
+        // Z2 THDM types II/III have a tan(beta) down-type charged-Higgs
+        // coupling; types I/IV have cot(beta).  D9H0 depends quadratically on it.
+        const double ld = (yukawa_type == 2 || yukawa_type == 3)
+            ? tan_beta
+            : 1.0 / tan_beta;
+        const double yt = (mt_muW * mt_muW) / (m_hp * m_hp);
         return scalar_t(-ms * mb_muW / (mt_muW * mt_muW) * D9H0(yt, ld));
     };
     patch.label = "Hyperiso:CP9:THDM-photon";

@@ -3,6 +3,7 @@
 #include "MartyParameterProxy.h"
 #include "DefaultInterpreterPortsFactory.h"
 #include "MartyRuntimeConfig.h"
+#include "MartyNumericalPolicy.h"
 #include "MartyAdapter.h"
 #include "ParamWriter.h"
 
@@ -23,6 +24,7 @@
 #include <sstream>
 #include <thread>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -32,7 +34,22 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v18";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v19";
+
+bool should_log_thdm_yukawa_type(int type) {
+    static std::mutex mutex;
+    static std::unordered_set<int> logged_types;
+    const std::lock_guard<std::mutex> lock(mutex);
+    return logged_types.insert(type).second;
+}
+
+std::string regprop_policy_marker() {
+    std::ostringstream out;
+    out << std::setprecision(17)
+        << "default=" << MartyNumericalPolicy::kDefaultRegProp
+        << ",photon-diagnostic=" << MartyNumericalPolicy::kPhotonDiagnosticRegProp;
+    return out.str();
+}
 
 constexpr const char* kMartyTreeRecipePrefix = "__HYPERISO_MARTY_TREE_RECIPE__|";
 constexpr const char* kMartyTreeRecipeToken = "HYPERISO_MARTY_TREE_PROJECTION_TERMS";
@@ -912,7 +929,9 @@ std::optional<int> MartyInterface::resolve_model_template_index(const std::strin
                   ". MARTY THDM generation expects an integer type in {1,2,3,4}.");
     }
 
-    LOG_INFO("MartyInterface", "Using THDM Yukawa type ", type, " from MINPAR(24) for MARTY generation.");
+    if (should_log_thdm_yukawa_type(type)) {
+        LOG_INFO("MartyInterface", "Using THDM Yukawa type ", type, " from MINPAR(24) for MARTY generation.");
+    }
     return type;
 }
 
@@ -1299,6 +1318,9 @@ std::string generation_mode_marker(const std::string& wilson,
          + "; one-loop-fermion-order=" + fermion_order_marker(one_loop_fermion_order)
          + "; tree-operator-order=" + fermion_order_marker(tree_operator_order)
          + "; one-loop-operator-order=" + fermion_order_marker(one_loop_operator_order)
+         + (uses_split_regprop_policy(wilson)
+                ? "; regprop-execution=central-policy-v6; " + regprop_policy_marker()
+                : "")
          + (supports_tree_projection_recipe(wilson)
                 ? "; tree-projection=" + tree_projection_recipe_marker(
                     effective_tree_projection_recipe(
@@ -1614,18 +1636,36 @@ bool MartyInterface::prepare_group(const std::string& group,
     if (!adapter.get_marty_group_batching() || input_members.empty()) return false;
     if (!MartyRuntimeConfig::require_available("MartyInterface::prepare_group").valid) return false;
 
-    std::vector<std::string> members = input_members;
-    // C9/CP9/CP10 have specialised reg_prop/global-state handling. Run them
-    // after ordinary coefficients, with C9 last, so a fallback cannot affect a
-    // later plugin using the shared model.
-    std::stable_sort(members.begin(), members.end(), [](const std::string& a, const std::string& b) {
-        auto rank = [](const std::string& x) {
-            if (x == "C9") return 2;
-            if (x == "CP9" || x == "CP10") return 1;
-            return 0;
-        };
-        return rank(a) < rank(b);
-    });
+    // C9/CP9/CP10 are deliberately NOT hosted in the shared-model group driver.
+    // Their analytical library contains several linked functions (NONPHOTON, *_A,
+    // and for CP10 scalar/vector diagnostics), and the numerical wrapper must
+    // evaluate these functions with two distinct reg_prop values.  The historical
+    // coefficient-by-coefficient path is the validated implementation of that
+    // split and also isolates MARTY process-global state for the C9 OneLoop
+    // fallback.  Batching these coefficients through a dlopen plugin can retain
+    // stale/shared state and, most visibly, evaluate the photon piece with the
+    // small regulator, producing enormous spurious C9/CP9 values.
+    std::vector<std::string> members;
+    members.reserve(input_members.size());
+    std::vector<std::string> isolated_regprop_members;
+    for (const auto& wilson : input_members) {
+        if (uses_split_regprop_policy(wilson)) {
+            isolated_regprop_members.push_back(wilson);
+        } else {
+            members.push_back(wilson);
+        }
+    }
+    if (!isolated_regprop_members.empty()) {
+        std::ostringstream names;
+        for (std::size_t i = 0; i < isolated_regprop_members.size(); ++i) {
+            if (i != 0) names << ", ";
+            names << isolated_regprop_members[i];
+        }
+        LOG_INFO("MartyGroupBatch", "Group ", group,
+                 " keeps split-reg_prop coefficient(s) isolated from the shared-model batch: ",
+                 names.str(), ".");
+    }
+    if (members.empty()) return false;
 
     const auto expected_vector = adapter.get_marty_expected_nonzero_coefficients();
     const std::unordered_set<std::string> expected(expected_vector.begin(), expected_vector.end());

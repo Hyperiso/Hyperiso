@@ -168,9 +168,9 @@ void HyperisoMaster::ensure_memory_manager_created() {
 }
 
 bool HyperisoMaster::should_validate_marty_runtime(const HyperisoConfig& config) const {
-    const auto flag_it = config.flags.find(ExternalFlag::HYP_AS_SM_MARTY);
-    const bool hyp_as_sm_marty = flag_it != config.flags.end() && flag_it->second;
-    return hyp_as_sm_marty || config.model == Model::MARTY;
+    // HYP_AS_SM_MARTY selects the SM provider *inside* a Model::MARTY session.
+    // It does not turn Model::SM/THDM/SUSY into MARTY sessions.
+    return config.model == Model::MARTY;
 }
 
 bool HyperisoMaster::validate_marty_runtime_if_needed(const HyperisoConfig& config, const std::string& context) const {
@@ -184,6 +184,16 @@ bool HyperisoMaster::validate_marty_runtime_if_needed(const HyperisoConfig& conf
 
 void HyperisoMaster::init(const std::string &lhaFile, HyperisoConfig config) {
     ensure_memory_manager_created();
+
+    const auto sm_flag_it = config.flags.find(ExternalFlag::HYP_AS_SM_MARTY);
+    const bool hyp_as_sm_marty = sm_flag_it != config.flags.end() && sm_flag_it->second;
+    if (hyp_as_sm_marty && config.model != Model::MARTY) {
+        LOG_WARN(
+            "HYP_AS_SM_MARTY is meaningful only with Model::MARTY; it is ignored for",
+            ModelMapper::str(config.model) + "."
+        );
+    }
+
     if (!validate_marty_runtime_if_needed(config, "HyperisoMaster::init")) {
         return;
     }

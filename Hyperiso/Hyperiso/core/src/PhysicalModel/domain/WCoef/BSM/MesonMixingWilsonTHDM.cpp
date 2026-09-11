@@ -148,7 +148,7 @@ THDMMixingResult charged_higgs_mixing(const ParamSrc& src,
 } // namespace
 
 #define THDM_MATCHING_CTOR(CLASS, NAME, PDG, COMPUTE)                                  \
-CLASS::CLASS() : WilsonCoefficient(NAME, GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) { \
+CLASS::CLASS() : WilsonCoefficient(std::string(NAME) + "_THDM", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING)) { \
     matching_info[QCDOrder::LO] = {                                                     \
         thdm_mixing_sources(PDG),                                                        \
         COMPUTE,                                                                         \
@@ -170,13 +170,13 @@ THDM_MATCHING_CTOR(C_mix_bd_2_tilde_THDM, "CT_BD_2", 1, C_mix_bd_2_tilde_THDM::c
 complex_t C_mix_bd_2_tilde_THDM::compute_LO(const ParamSrc& src) { return charged_higgs_mixing(src, 1, 0).ct2; }
 
 C_mix_bd_3_THDM::C_mix_bd_3_THDM()
-    : WilsonCoefficient("C_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
+    : WilsonCoefficient("C_BD_3_THDM", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 }
 
 C_mix_bd_3_tilde_THDM::C_mix_bd_3_tilde_THDM()
-    : WilsonCoefficient("CT_BD_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
+    : WilsonCoefficient("CT_BD_3_THDM", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 }
@@ -201,13 +201,13 @@ THDM_MATCHING_CTOR(C_mix_bs_2_tilde_THDM, "CT_BS_2", 3, C_mix_bs_2_tilde_THDM::c
 complex_t C_mix_bs_2_tilde_THDM::compute_LO(const ParamSrc& src) { return charged_higgs_mixing(src, 3, 1).ct2; }
 
 C_mix_bs_3_THDM::C_mix_bs_3_THDM()
-    : WilsonCoefficient("C_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
+    : WilsonCoefficient("C_BS_3_THDM", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 }
 
 C_mix_bs_3_tilde_THDM::C_mix_bs_3_tilde_THDM()
-    : WilsonCoefficient("CT_BS_3", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
+    : WilsonCoefficient("CT_BS_3_THDM", GroupMapper::str(WGroup::MESON_MIXING, ScaleType::MATCHING))
 {
     matching_info[QCDOrder::LO] = MatchingInfo(get_lhaid_from_name(QCDOrder::LO));
 }

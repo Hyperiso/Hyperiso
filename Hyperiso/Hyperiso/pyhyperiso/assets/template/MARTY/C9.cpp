@@ -3,7 +3,7 @@
 #include <vector>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-split-regprop-recipe-v20
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-finite-photon-patch-recipe-v24
 using namespace csl;
 using namespace mty;
 using namespace std;
@@ -238,14 +238,12 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
 
     Expr factorOperator = -4 * GetComplexConjugate(V_ts) * V_tb * G_F * pow_s(e_em / (4 * CSL_PI), 2) / csl::sqrt_s(2);
     FeynOptions opts;
-    // The photon-penguin part of b -> s l l is not used directly as the final
-    // C9 four-fermion coefficient because it carries MARTY's regulated photon
-    // propagator.  In BSM-split mode the same template is evaluated twice:
-    //   - NonPhotonVector -> exported as C9 and evaluated numerically
-    //                       with reg_prop = 1e-6.
-    //   - PhotonOnly      -> exported separately as C9_A and evaluated
-    //                       numerically with reg_prop = 1.
-    // The numeric wrapper writes C9 = C9_non-photon + C9_A.
+    // The raw photon-linker four-fermion projection is not a finite physical
+    // C9 matching coefficient.  In BSM mode the template still exposes both
+    // selections, but only NonPhotonVector contributes to the physical C9.
+    // PhotonOnly is exported as C9_A for diagnostics or for constructing a
+    // model-specific finite WilsonMatchingPatch.  The physical non-photon branch uses reg_prop = 1e-6; the raw photon
+    // diagnostic is evaluated separately with reg_prop = 1 by MartyFileWriter.
     opts.addFilter([](mty::FeynmanDiagram const& diag) {
         return hyperiso_marty_accept_c9_linker(diag);
     });

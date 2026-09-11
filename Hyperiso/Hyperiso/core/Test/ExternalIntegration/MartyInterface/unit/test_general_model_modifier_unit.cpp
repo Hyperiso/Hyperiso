@@ -318,6 +318,16 @@ int main() {
         assert(setter_line.find("order == mty::Order::TreeLevel") != std::string::npos);
         assert(setter_line.find("order == hyperiso_marty_order") == std::string::npos);
 
+        // The split-reg_prop OneLoop projector is deliberately historical.
+        // Only the perturbative order of computeWilsonCoefficients is rewritten;
+        // dimension6Operator itself must not be routed through the generic F/O
+        // wrapper, which changes the regulated photon-penguin projection.
+        std::string projector_line =
+            "    Expr C9_mu = getWilsonCoefficient(wil, dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V));";
+        mod.modifyLine(projector_line);
+        assert(projector_line.find("dimension6Operator(model, wil") != std::string::npos);
+        assert(projector_line.find("hyperiso_marty_dimension6_operator") == std::string::npos);
+
         fs::path out = root / "c9_tree_first.cpp";
         {
             std::ofstream f(out);
@@ -369,6 +379,13 @@ int main() {
         assert(generated.find("orderExternalFermions = true") != std::string::npos);
         assert(generated.find("hyperiso_marty_tree_fermion_orders()") == std::string::npos);
         assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_non_sm_internal_particle(opts)") != std::string::npos);
+        assert(generated.find("if (hyperiso_marty_order == mty::Order::TreeLevel)") != std::string::npos);
+        assert(generated.find("if (hyperiso_marty_order != mty::Order::TreeLevel)") == std::string::npos);
+        assert(generated.find("hyperiso_marty_has_non_sm_internal_particle") != std::string::npos);
+        assert(generated.find("hyperiso_marty_canonical_particle_name") != std::string::npos);
+        assert(generated.find("name.find(';')") != std::string::npos);
         assert(generated.find("wilsonLib.addDefaultParameter(\"s_12\", false)") != std::string::npos);
         assert(generated.find("wilsonLib.addDefaultParameter(\"s_13\", false)") != std::string::npos);
     }

@@ -22,8 +22,9 @@ class ExternalFlag(Enum):
         HAS_WILSON_INPUT: Whether Wilson coefficients are provided externally.
         HAS_TH_OBSERVABLE_INPUT: Whether theory-observable inputs are provided
             externally.
-        HYP_AS_SM_MARTY: Whether Hyperiso should expose SM-like inputs to the
-            MARTY backend.
+        HYP_AS_SM_MARTY: With ``model=Model.MARTY`` only, use Hyperiso's
+            native SM Wilson coefficients for the SM component instead of
+            generating that SM component with MARTY. Ignored for SM/THDM/SUSY.
     """
 
     IS_LHA_SPECTRUM = _CppExternalFlag.IS_LHA_SPECTRUM

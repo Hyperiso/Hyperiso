@@ -37,6 +37,8 @@
  * @endcode
  *
  * @note This reads the flag from the active HyperisoConfig (stored in the framework cache).
+ * The flag is meaningful only for Model::MARTY and is ignored for Model::SM,
+ * Model::THDM and Model::SUSY.
  */
 class SMFromHypProxy : public ICoreAPI<bool> {
 public:
@@ -50,6 +52,9 @@ public:
      *
      * @return true if Hyperiso should be used as SM provider in the Marty workflow, false otherwise.
      */
-    inline bool get() override { return HyperisoMaster().check_flag(ExternalFlag::HYP_AS_SM_MARTY);}
+    inline bool get() override {
+        return HyperisoMaster().get_model() == Model::MARTY
+            && HyperisoMaster().check_flag(ExternalFlag::HYP_AS_SM_MARTY);
+    }
 
 };

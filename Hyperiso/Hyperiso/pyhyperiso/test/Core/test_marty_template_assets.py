@@ -8,10 +8,10 @@ def _template_text(name: str) -> str:
     return template.read_text(encoding="utf-8")
 
 
-def test_packaged_c9_template_keeps_split_reg_prop_abi() -> None:
+def test_packaged_c9_template_keeps_photon_veto_abi() -> None:
     source = _template_text("C9.cpp")
 
-    assert "HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-split-regprop" in source
+    assert "HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-finite-photon-patch" in source
     assert "HyperisoMartyC9LinkerSelection::NonPhotonVector" in source
     assert "HyperisoMartyC9LinkerSelection::PhotonOnly" in source
     assert "DiagramParticleType::External" in source

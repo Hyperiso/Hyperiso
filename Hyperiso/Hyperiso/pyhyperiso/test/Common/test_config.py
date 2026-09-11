@@ -75,3 +75,11 @@ def test_wilson_build_config_bsm_only_to_cpp():
     cpp = config.to_cpp()
     assert cpp.matching_only is True
     assert cpp.bsm_only is True
+
+
+def test_wilson_build_config_sm_only_to_cpp():
+    config = WilsonBuildConfig(matching_only=True, sm_only=True)
+    cpp = config.to_cpp()
+    assert cpp.matching_only is True
+    assert cpp.sm_only is True
+    assert cpp.bsm_only is False

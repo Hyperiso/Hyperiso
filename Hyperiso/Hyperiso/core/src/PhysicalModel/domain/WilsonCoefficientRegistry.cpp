@@ -8,6 +8,7 @@
 #include "PIChargedCurrentsWilsonGroup.h"
 #include "MesonMixingWilsonGroup.h"
 #include "MartyWilson.h"
+#include "FileNameManager.h"
 #include "BWilsonSUSY.h"
 #include "BWilsonTHDM.h"
 #include "MesonMixingWilsonTHDM.h"
@@ -24,6 +25,11 @@
 #include "KNuNuWilson.h"
 
 #include "Include.h"
+#include "CustomWilson.h"
+
+#include <filesystem>
+#include <mutex>
+#include <unordered_set>
 
 #define REG(c,m,b,body) \
   reg.register_creator((c),(m),(b), \
@@ -120,9 +126,10 @@ static CoefPtr make_c9_marty_compatible(const BuildContext& ctx) {
     // short-distance matching coefficient in MARTY: it contains the regulated
     // photon propagator and is very sensitive to reg_prop.  For the SM branch
     // we therefore keep the HyperIso/SuperIso analytic C9.  For a BSM branch
-    // we still use MARTY, but C9 is generated as two BSM components: the
-    // non-photon part and a photon-linker C9_A part.  The numeric wrapper
-    // evaluates them with different reg_prop values and writes their sum.
+    // MARTY provides the photon-vetoed coefficient.  The raw photon-linker
+    // C9_A projection remains diagnostic only because it is regulator dependent;
+    // a finite model-specific photon matching term must be supplied separately
+    // (for example through WilsonMatchingPatch in the THDM).
     if (ctx.contrib == ContributionType::SM) {
         return std::make_shared<C9>();
     }
@@ -130,8 +137,9 @@ static CoefPtr make_c9_marty_compatible(const BuildContext& ctx) {
 }
 
 static CoefPtr make_cp9_marty_compatible(const BuildContext& ctx) {
-    // Same separation as C9.  The SM CP9 is zero in the builtin basis, while
-    // BSM CP9 follows the same split-regulator policy as C9.
+    // Same separation as C9.  The SM CP9 is zero in the builtin basis.  The
+    // BSM MARTY value excludes the raw photon linker; CP9_A is diagnostic only
+    // and a finite model-specific photon term can be added as a matching patch.
     if (ctx.contrib == ContributionType::SM) {
         return std::make_shared<CP9>();
     }
@@ -147,7 +155,80 @@ static CoefPtr make_cp10_marty_compatible(const BuildContext& ctx) {
     return make_marty(ctx, WCoef::CP10);
 }
 
+static CoefPtr make_zero_for_unimplemented_builtin_bsm(const BuildContext& ctx, WCoef c) {
+    // Native THDM/SUSY support is intentionally incomplete for a few groups
+    // (currently e.g. K, and parts of meson mixing).  Falling back to the SM
+    // implementation here is physically wrong: the SM formula would be stored
+    // in the BSM slot.  Represent an unavailable native BSM matching by an
+    // explicit zero coefficient instead.  A single warning per model/group
+    // keeps this visible to users without flooding one line per coefficient.
+    static std::mutex warning_mutex;
+    static std::unordered_set<std::string> warned_groups;
+
+    const std::string model_name = ModelMapper::str(ctx.model);
+    const std::string group_name = GroupMapper::str(ctx.group_id);
+    const std::string warning_key = model_name + "|" + group_name;
+
+    {
+        std::lock_guard<std::mutex> lock(warning_mutex);
+        if (warned_groups.insert(warning_key).second) {
+            LOG_WARN(
+                "No native", model_name, "BSM matching is registered for all coefficients in group",
+                group_name + ".", "Missing BSM coefficients are set to zero. Use MARTY for those contributions."
+            );
+        }
+    }
+
+    return std::make_shared<CustomWilson>(
+        WCoefMapper::to_id(c),
+        GroupMapper::str(ctx.group_id, ScaleType::MATCHING),
+        ContributionType::BSM
+    );
+}
+
 CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
+    // A registered generic MARTY factory is not sufficient to prove that the
+    // concrete coefficient template exists.  Missing templates used to reach
+    // MartyInterface::template_signature() and fail with a misleading
+    // "Cannot fingerprint ...cpp" exception.  Prefer an available native
+    // implementation before selecting MARTY in that case.
+    if (ctx.backend == Backend::Marty) {
+        const std::string name = WCoefMapper::str(c);
+        const auto files = FileNameManager::getInstance(name, "SM");
+        const std::filesystem::path tmpl =
+            std::filesystem::path(files->getTemplateDir()) / (name + ".cpp");
+        if (!std::filesystem::is_regular_file(tmpl)) {
+            const Model fallback_model = (ctx.contrib == ContributionType::SM)
+                ? Model::SM
+                : ctx.model;
+            if (auto native = table_.find(key(c, fallback_model, Backend::Builtin));
+                native != table_.end()) {
+                static std::mutex warning_mutex;
+                static std::unordered_set<std::string> warned_groups;
+                const std::string warning_key =
+                    ModelMapper::str(fallback_model) + ":" + GroupMapper::str(ctx.group_id);
+                {
+                    std::lock_guard<std::mutex> lock(warning_mutex);
+                    if (warned_groups.insert(warning_key).second) {
+                        LOG_WARN(
+                            "MartyTemplateFallback",
+                            "No MARTY template is shipped for every coefficient in group",
+                            GroupMapper::str(ctx.group_id) + ".",
+                            "Missing templates use the native",
+                            ModelMapper::str(fallback_model),
+                            "matching implementation."
+                        );
+                    }
+                }
+                return native->second(ctx, c);
+            }
+            throw std::runtime_error(
+                "No MARTY template for coefficient '" + name
+                + "' and no native matching fallback is registered"
+            );
+        }
+    }
+
     if (auto it = table_.find(key(c, ctx.model, ctx.backend)); it != table_.end())
         return it->second(ctx, c);
 
@@ -169,8 +250,19 @@ CoefPtr CoefficientRegistry::create(const BuildContext& ctx, WCoef c) const {
         if (auto it2 = table_.find(key(c, ctx.model, Backend::Builtin)); it2 != table_.end())
             return it2->second(ctx, c);
     }
-    // fallback modèle -> SM
-    if (ctx.model != Model::SM) {
+    // A missing native BSM implementation must never fall back to the SM
+    // coefficient: doing so would reinterpret the SM formula as new physics.
+    // Keep the missing BSM contribution explicitly zero and tell the user to
+    // use MARTY when that group/model contribution is needed.
+    if (ctx.backend == Backend::Builtin
+        && ctx.model != Model::SM
+        && ctx.contrib == ContributionType::BSM) {
+        return make_zero_for_unimplemented_builtin_bsm(ctx, c);
+    }
+
+    // Model -> SM fallback is valid only when the caller is explicitly asking
+    // for an SM contribution.
+    if (ctx.model != Model::SM && ctx.contrib == ContributionType::SM) {
         if (auto it3 = table_.find(key(c, Model::SM, ctx.backend)); it3 != table_.end())
             return it3->second(ctx, c);
     }

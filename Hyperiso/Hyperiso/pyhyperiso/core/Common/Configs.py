@@ -55,6 +55,9 @@ class WilsonBuildConfig:
             partial-group matching diagnostics.
         bsm_only: Build only the BSM matching contribution and skip the
             independent SM matching group. Only BSM requests are guaranteed.
+        sm_only: Build only the SM matching contribution and skip the target
+            BSM group. In a MARTY session, ``HYP_AS_SM_MARTY`` still controls
+            whether the SM comes from MARTY or native HyperIso.
         matching_scale: Matching scale in GeV.
         hadronic_scale: Hadronic/running scale in GeV.
         order: Maximum QCD order requested for matching/running.
@@ -64,6 +67,7 @@ class WilsonBuildConfig:
     coefficients: Set[WilsonCoefLike] = field(default_factory=set)
     matching_only: bool = False
     bsm_only: bool = False
+    sm_only: bool = False
     matching_scale: float = 81.0
     hadronic_scale: float = 4.8
     order: QCDOrder = QCDOrder.LO
@@ -75,6 +79,7 @@ class WilsonBuildConfig:
         cpp.coefficients = {_cpp_coef_id(c) for c in self.coefficients}
         cpp.matching_only = bool(self.matching_only)
         cpp.bsm_only = bool(self.bsm_only)
+        cpp.sm_only = bool(self.sm_only)
         cpp.matching_scale = float(self.matching_scale)
         cpp.hadronic_scale = float(self.hadronic_scale)
         cpp.order = self.order.value

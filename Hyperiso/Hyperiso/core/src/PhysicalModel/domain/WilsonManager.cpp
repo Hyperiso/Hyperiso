@@ -316,8 +316,8 @@ std::string CoefficientManager::getModel() {
     return ModelMapper::str(ports_config.model_api->get());
 }
 
-void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order, bool bsm_only) {
-    init_specific_order_group_matching(groupName, order, /*only_total=*/false, bsm_only);
+void CoefficientManager::init_group_matching(const std::string& groupName, const std::string& order, bool bsm_only, bool sm_only) {
+    init_specific_order_group_matching(groupName, order, /*only_total=*/false, bsm_only, sm_only);
 
 }
 void CoefficientManager::ensure_matching_triplet_zeroed(
@@ -644,8 +644,12 @@ void CoefficientManager::ensure_sm_model_triplet_in_matching(
 void CoefficientManager::init_specific_order_group_matching(const std::string& groupName,
                                                             const std::string& orderStr,
                                                             bool only_total,
-                                                            bool bsm_only)
+                                                            bool bsm_only,
+                                                            bool sm_only)
 {
+    if (bsm_only && sm_only) {
+        throw std::invalid_argument("Wilson build cannot be both bsm_only and sm_only");
+    }
     if (!this->coefficientGroups.contains(groupName)) {
         throw_no_group_error(groupName);
     }
@@ -672,7 +676,10 @@ void CoefficientManager::init_specific_order_group_matching(const std::string& g
             this->coefficientGroups.at(groupName)->init(marty_calc_order);
         }
 
-        if (SM_model) {
+        if (SM_model || sm_only) {
+            // The active group already contains the requested SM calculation.
+            // Complete the public matching triplet with BSM=0 and TOTAL=SM,
+            // without constructing the configured target-model BSM group.
             ensure_sm_model_triplet_in_matching(groupName, marty_calc_order);
 
             for (auto o : ALL_ORDERS) {
@@ -1053,8 +1060,12 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(
     WilsonPortsConfig portconfig,
     std::map<Model, std::shared_ptr<IWilsonParameterHelper>> wilson_param_helpers,
     bool matching_only,
-    bool bsm_only
+    bool bsm_only,
+    bool sm_only
 ) {
+    if (bsm_only && sm_only) {
+        throw std::invalid_argument("Wilson build cannot be both bsm_only and sm_only");
+    }
     
     for (auto& helper : wilson_param_helpers) {
         for (const auto& elem : groups) {
@@ -1077,7 +1088,7 @@ std::shared_ptr<CoefficientManager> CoefficientManager::Builder(
     manager->set_hadronic_scale(mu_h);
     for (auto& group: groups) {
         LOG_DEBUG("(CoefficientManager) Initializing group matching", group.first, "at", order);
-        manager->init_group_matching(group.first, order, bsm_only);
+        manager->init_group_matching(group.first, order, bsm_only, sm_only);
         if (!matching_only) {
             LOG_DEBUG("(CoefficientManager) Initializing group hadronic", group.first, "at", order);
             manager->init_group_hadronic_all_bases(group.first, order);

@@ -466,12 +466,12 @@ double CQ2_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepto
     double coeff_temp = CPc_2HDM(xH, xt, lu, ld, le, sw2) + CPn_2HDM;
     coeff_temp *= (ml * mb_muW / (mW * mW)) / sw2;
 
-    LOG_INFO("G3 =", G3);
-    LOG_INFO("Factor =", (ml * mb_muW / (mW * mW)) / sw2);
-    LOG_INFO("m_b_muW =", mb_muW);
-    LOG_INFO("CPn_2HDM =", CPn_2HDM);
-    LOG_INFO("CPc_2HDM =", CPc_2HDM(xH, xt, lu, ld, le, sw2));
-    LOG_INFO("CQ2(mu_W) =", coeff_temp);
+    // LOG_INFO("G3 =", G3);
+    // LOG_INFO("Factor =", (ml * mb_muW / (mW * mW)) / sw2);
+    // LOG_INFO("m_b_muW =", mb_muW);
+    // LOG_INFO("CPn_2HDM =", CPn_2HDM);
+    // LOG_INFO("CPc_2HDM =", CPc_2HDM(xH, xt, lu, ld, le, sw2));
+    // LOG_INFO("CQ2(mu_W) =", coeff_temp);
 
     return coeff_temp;
 }
