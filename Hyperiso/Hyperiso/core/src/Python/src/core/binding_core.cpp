@@ -296,6 +296,7 @@ void init_core(py::module &m) {
     .def_readwrite("mty_model_path", &HyperisoConfig::mty_model_path)
     .def_readwrite("mty_bsm_mapping_path", &HyperisoConfig::mty_bsm_mapping_path)
     .def_readwrite("mty_order_policy", &HyperisoConfig::mty_order_policy)
+    .def_readwrite("mty_tree_level_only_coefficients", &HyperisoConfig::mty_tree_level_only_coefficients)
     .def_readwrite("mty_tree_fermion_orders", &HyperisoConfig::mty_tree_fermion_orders)
     .def_readwrite("mty_one_loop_fermion_orders", &HyperisoConfig::mty_one_loop_fermion_orders)
     .def_readwrite("mty_tree_operator_orders", &HyperisoConfig::mty_tree_operator_orders)

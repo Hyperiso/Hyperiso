@@ -230,6 +230,7 @@ class AdvancedStatisticConfig:
     fit_parameter_sensitivity_probe_fraction: float = 0.05
     fit_parameter_sensitivity_rel_cutoff: float = 1e-10
     fit_parameter_sensitivity_abs_cutoff: float = 1e-12
+    fit_parameter_sensitivity_scale_floor: float = 1e-12
     fit_parameter_sensitivity_keep_on_failure: bool = True
 
     MLE_trace_first_evals: bool = False
@@ -282,6 +283,9 @@ class AdvancedStatisticConfig:
         )
         cpp.fit_parameter_sensitivity_rel_cutoff = float(self.fit_parameter_sensitivity_rel_cutoff)
         cpp.fit_parameter_sensitivity_abs_cutoff = float(self.fit_parameter_sensitivity_abs_cutoff)
+        cpp.fit_parameter_sensitivity_scale_floor = float(
+            self.fit_parameter_sensitivity_scale_floor
+        )
         cpp.fit_parameter_sensitivity_keep_on_failure = bool(
             self.fit_parameter_sensitivity_keep_on_failure
         )

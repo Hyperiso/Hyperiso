@@ -59,6 +59,15 @@ struct HyperisoConfig {
     MartyOrderPolicy mty_order_policy {MartyOrderPolicy::AUTO};
 
     /**
+     * @brief Optional per-coefficient override forcing BSM MARTY matching to TreeLevel only.
+     *
+     * Coefficients listed here bypass AUTO's TreeLevel->OneLoop fallback while
+     * every other coefficient keeps the configured global policy. The default
+     * is empty, so existing behaviour is unchanged.
+     */
+    std::vector<std::string> mty_tree_level_only_coefficients {};
+
+    /**
      * @brief Per-coefficient external-fermion orders for BSM tree matching.
      *
      * Keys are MARTY coefficient/template names (for example ``C9`` or

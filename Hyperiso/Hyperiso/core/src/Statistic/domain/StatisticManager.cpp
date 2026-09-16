@@ -1101,7 +1101,7 @@ void StatisticManager::validate_fit_parameter_sensitivity() {
                 const double scale = std::max({
                     std::abs(baseline_pred[i]),
                     std::abs(exp_obs_vals[i]),
-                    config.advanced.nuisance_sensitivity_scale_floor
+                    config.advanced.fit_parameter_sensitivity_scale_floor
                 });
                 best_abs_shift = std::max(best_abs_shift, abs_shift);
                 best_rel_shift = std::max(best_rel_shift, abs_shift / scale);

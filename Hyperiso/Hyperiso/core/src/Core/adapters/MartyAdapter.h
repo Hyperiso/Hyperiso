@@ -45,6 +45,9 @@ public:
     /** @brief Retrieves the configured MARTY perturbative-order policy. */
     MartyOrderPolicy get_marty_order_policy() const;
 
+    /** @brief Coefficients forced to TreeLevel-only BSM matching. */
+    std::vector<std::string> get_marty_tree_level_only_coefficients() const;
+
     /** @brief Retrieves per-coefficient MARTY TreeLevel fermion-order overrides. */
     std::map<std::string, std::vector<int>> get_marty_tree_fermion_orders() const;
 

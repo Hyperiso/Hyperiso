@@ -71,6 +71,11 @@ protected:
 public:
     M0Mixing(QCDOrder order, double matching_scale, double hadronic_scale, ObservablePortsConfig& ports) : DecayParentConfigurable(DecayMapper::to_id(Decays::M0_Mix), matching_scale, hadronic_scale, order, ports) {
         this->w_config.groups = {GroupMapper::to_id(WGroup::MESON_MIXING)};
+        // M0Mixing evaluates the SM contribution explicitly in M_12_B_SM()/M_12_K_SM()
+        // and populate_C() intentionally requests ContributionType::BSM only.  Building
+        // the Wilson backend in BSM-only mode therefore matches the observable's physics
+        // decomposition and avoids composing an unused SM/TOTAL Wilson triplet.
+        this->w_config.bsm_only = true;
         this->max_order = QCDOrder::LO;
         // this->load_params();
     }

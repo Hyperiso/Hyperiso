@@ -42,7 +42,20 @@ bool executeCommandStreaming(const std::string& command) {
     while (fgets(buffer.data(), buffer.size(), pipe) != nullptr) {
         const std::string chunk(buffer.data());
         result += chunk;
-        std::cout << chunk << std::flush;
+
+        // MARTY prints one line for every vertex-set candidate/amplitude.  For
+        // large models this can mean thousands of low-value lines and drowns
+        // out HyperIso's higher-level analytical progress messages.  Keep the
+        // complete output in `result` so failures still report it verbatim,
+        // but suppress these repetitive lines from the successful live stream.
+        const bool noisy_marty_enumeration =
+            chunk.find("possible sets of vertices found") != std::string::npos ||
+            chunk.find("new particle amplitude found (set of vertices") != std::string::npos ||
+            chunk.find("total particle amplitudes found") != std::string::npos;
+
+        if (!noisy_marty_enumeration) {
+            std::cout << chunk << std::flush;
+        }
     }
 
     const int status = pclose(pipe);

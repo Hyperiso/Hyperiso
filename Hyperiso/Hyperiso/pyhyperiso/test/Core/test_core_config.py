@@ -18,6 +18,7 @@ def test_py_config_default_to_cpp():
     assert cpp_cfg.mty_model_name is None
     assert cpp_cfg.mty_model_path is None
     assert cpp_cfg.mty_order_policy == MartyOrderPolicy.AUTO.value
+    assert cpp_cfg.mty_tree_level_only_coefficients == []
     assert cpp_cfg.mty_tree_fermion_orders == {}
     assert cpp_cfg.mty_one_loop_fermion_orders == {}
     assert cpp_cfg.mty_tree_operator_orders == {}
@@ -36,6 +37,7 @@ def test_py_config_custom_values():
         mty_model_name="THDM_Model",
         mty_model_path=Path("/tmp/THDM_Model.h"),
         mty_order_policy=MartyOrderPolicy.TREE_LEVEL_ONLY,
+        mty_tree_level_only_coefficients=("CP3", "CP4", "CP5", "CP6", "CP3"),
         mty_tree_fermion_orders={
             "C9": [1, 0, 2, 3],
             "C_BS_1": [1, 0, 3, 2],
@@ -63,6 +65,7 @@ def test_py_config_custom_values():
     assert cpp_cfg.mty_model_name == "THDM_Model"
     assert str(cpp_cfg.mty_model_path) == "/tmp/THDM_Model.h"
     assert cpp_cfg.mty_order_policy == MartyOrderPolicy.TREE_LEVEL_ONLY.value
+    assert cpp_cfg.mty_tree_level_only_coefficients == ["CP3", "CP4", "CP5", "CP6"]
     assert cpp_cfg.mty_tree_fermion_orders == {
         "C9": [1, 0, 2, 3],
         "C_BS_1": [1, 0, 3, 2],
@@ -106,3 +109,13 @@ def test_hyp_as_sm_marty_flag_roundtrip():
     cfg = HyperisoConfig(flags={ExternalFlag.HYP_AS_SM_MARTY: True})
     cpp = cfg.to_cpp()
     assert cpp.flags[ExternalFlag.HYP_AS_SM_MARTY.value] is True
+
+
+def test_marty_tree_level_only_normalisation():
+    assert HyperisoConfig._normalise_tree_level_only(" CP6 ") == ["CP6"]
+    assert HyperisoConfig._normalise_tree_level_only(("CP3", "CP4", "CP3")) == ["CP3", "CP4"]
+
+
+def test_marty_tree_level_only_rejects_blank():
+    with pytest.raises(ValueError, match="mty_tree_level_only_coefficients"):
+        HyperisoConfig._normalise_tree_level_only(("CP3", "  "))

@@ -46,6 +46,7 @@ class HyperisoConfig:
         mty_model_path: Optional path to the MARTY model directory or file.
         mty_bsm_mapping_path: Optional user-provided BSM MARTY/Hyperiso mapping JSON.
         mty_order_policy: Explicit MARTY order policy for BSM Wilson coefficients.
+        mty_tree_level_only_coefficients: Optional coefficient names forced to TreeLevel-only matching while the global policy remains unchanged.
         mty_tree_fermion_orders: Per-coefficient TreeLevel fermion-order overrides.
         mty_one_loop_fermion_orders: Per-coefficient OneLoop fermion-order overrides.
         mty_tree_operator_orders: Per-coefficient TreeLevel dimension-six projector-order overrides.
@@ -77,6 +78,7 @@ class HyperisoConfig:
     mty_model_path: Optional[PathLike] = None
     mty_bsm_mapping_path: Optional[PathLike] = None
     mty_order_policy: MartyOrderPolicy = MartyOrderPolicy.AUTO
+    mty_tree_level_only_coefficients: Union[str, Sequence[str]] = field(default_factory=tuple)
     mty_tree_fermion_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
     mty_one_loop_fermion_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
     mty_tree_operator_orders: Mapping[str, Sequence[int]] = field(default_factory=dict)
@@ -104,6 +106,9 @@ class HyperisoConfig:
             cpp.mty_bsm_mapping_path = str(self.mty_bsm_mapping_path)
 
         cpp.mty_order_policy = self.mty_order_policy.value
+        cpp.mty_tree_level_only_coefficients = self._normalise_tree_level_only(
+            self.mty_tree_level_only_coefficients
+        )
         cpp.mty_tree_fermion_orders = self._normalise_orders(
             self.mty_tree_fermion_orders,
             field_name="mty_tree_fermion_orders",
@@ -125,6 +130,23 @@ class HyperisoConfig:
             self.mty_expected_nonzero_coefficients
         )
         return cpp
+
+    @staticmethod
+    def _normalise_tree_level_only(values: Union[str, Sequence[str]]) -> list[str]:
+        """Normalize TreeLevel-only coefficient names while preserving input order."""
+        raw_values = [values] if isinstance(values, str) else list(values)
+        result: list[str] = []
+        seen: set[str] = set()
+        for raw in raw_values:
+            name = str(raw).strip()
+            if not name:
+                raise ValueError(
+                    "mty_tree_level_only_coefficients contains an empty coefficient name"
+                )
+            if name not in seen:
+                seen.add(name)
+                result.append(name)
+        return result
 
     @staticmethod
     def _normalise_expected_nonzero(values: Union[str, Sequence[str]]) -> list[str]:
@@ -176,6 +198,7 @@ class HyperisoConfig:
             f"mty_model_path={self.mty_model_path!r}, "
             f"mty_bsm_mapping_path={self.mty_bsm_mapping_path!r}, "
             f"mty_order_policy={self.mty_order_policy}, "
+            f"mty_tree_level_only_coefficients={self.mty_tree_level_only_coefficients!r}, "
             f"mty_tree_fermion_orders={dict(self.mty_tree_fermion_orders)!r}, "
             f"mty_one_loop_fermion_orders={dict(self.mty_one_loop_fermion_orders)!r}, "
             f"mty_tree_operator_orders={dict(self.mty_tree_operator_orders)!r}, "

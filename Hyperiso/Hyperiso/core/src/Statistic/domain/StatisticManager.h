@@ -93,6 +93,7 @@ struct AdvancedStatisticConfig {
     double fit_parameter_sensitivity_probe_fraction = 0.05;              ///< Minimum probe size as a fraction of explicit/default fit bounds.
     double fit_parameter_sensitivity_rel_cutoff = 1e-10;                 ///< Relative observable shift required to regard a fit parameter as active.
     double fit_parameter_sensitivity_abs_cutoff = 1e-12;                 ///< Absolute observable shift required to regard a fit parameter as active.
+    double fit_parameter_sensitivity_scale_floor = 1e-12;                 ///< Lower normalization scale used only for fit-parameter sensitivity checks.
     bool fit_parameter_sensitivity_keep_on_failure = true;               ///< Keeps a fit parameter when its sensitivity probe cannot be evaluated safely.
 
     bool MLE_trace_first_evals = false;                                  ///< Enables debug tracing of the first likelihood evaluations.

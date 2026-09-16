@@ -6,7 +6,7 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v12
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v14
 
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
@@ -83,6 +83,13 @@ Expr hyperiso_marty_project_tree_recipe(
     for (const auto& term : recipe) {
         FeynOptions term_opts = base_opts;
         term_opts.setFermionOrder(term.fermion_order);
+        // The identity order is the historical direct s-channel projector.
+        // Enabling MARTY external reordering for F={0,1,2,3} changes that
+        // projection (notably Z' C9/C10).  A non-trivial F explicitly asks
+        // for a Fierz/reordering step, as required by t-channel LQ exchange.
+        const bool reorder_external_fermions =
+            term.fermion_order != std::vector<int>{0, 1, 2, 3};
+        term_opts.orderExternalFermions = reorder_external_fermions;
         auto amplitude = model.computeAmplitude(
             mty::Order::TreeLevel,
             {Incoming("b"),
@@ -99,6 +106,7 @@ Expr hyperiso_marty_project_tree_recipe(
         // Reapply the requested F before matching, exactly as in the validated
         // HyperIso TreeLevel helper.
         term_opts.setFermionOrder(term.fermion_order);
+        term_opts.orderExternalFermions = reorder_external_fermions;
         auto term_wil = model.getWilsonCoefficients(
             amplitude,
             term_opts,

@@ -1,3 +1,4 @@
+from pathlib import Path
 from types import SimpleNamespace
 
 from pyhyperiso.marty.projection import (
@@ -52,3 +53,16 @@ def test_bnunu_profile_accepts_direct_neutrino_projector():
     key = keys[0]
     assert cfg.mty_tree_fermion_orders[key] == [0, 1, 2, 3]
     assert cfg.mty_tree_operator_orders[key] == [1, 2, 0, 3]
+
+
+def test_semileptonic_recipe_templates_reorder_only_nontrivial_fermion_orders():
+    template_dir = Path(__file__).resolve().parents[2] / "assets" / "template" / "MARTY"
+    for name in ("C9.cpp", "C10.cpp", "CP9.cpp", "CP10.cpp"):
+        source = (template_dir / name).read_text()
+        start = source.index("Expr hyperiso_marty_project_tree_recipe(")
+        end = source.index("} // namespace", start)
+        recipe = source[start:end]
+        assert "term.fermion_order != std::vector<int>{0, 1, 2, 3}" in recipe, name
+        assert recipe.count(
+            "term_opts.orderExternalFermions = reorder_external_fermions;"
+        ) >= 2, name

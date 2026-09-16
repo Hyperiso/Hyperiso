@@ -339,7 +339,8 @@ std::vector<MartyTreeProjectionTerm> effective_tree_projection_recipe(
 std::string tree_projection_recipe_marker(const std::vector<MartyTreeProjectionTerm>& recipe);
 void inject_tree_projection_recipe(const fs::path& generated_file,
                                    const std::vector<MartyTreeProjectionTerm>& recipe);
-MartyOrderPolicy effective_order_policy(bool sm_like_filter,
+MartyOrderPolicy effective_order_policy(const std::string& wilson,
+                                          bool sm_like_filter,
                                           bool bsm_only_generation,
                                           bool full_target_generation);
 std::vector<int> effective_fermion_order(const std::string& wilson,
@@ -418,7 +419,7 @@ void MartyInterface::generate(std::string wilson,
         full_target_generation
     );
     const MartyOrderPolicy order_policy = effective_order_policy(
-        sm_like_filter, bsm_split_generation, full_target_generation
+        wilson, sm_like_filter, bsm_split_generation, full_target_generation
     );
     const std::vector<int> tree_fermion_order = effective_fermion_order(
         wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
@@ -657,7 +658,7 @@ bool MartyInterface::artifacts_ready(const std::string& wilson,
         sm_like_filter,
         bsm_split_generation,
         full_target_generation,
-        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation),
+        effective_order_policy(wilson, sm_like_filter, bsm_split_generation, full_target_generation),
         effective_fermion_order(
             wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
         ),
@@ -1046,7 +1047,8 @@ std::string generation_mode(const std::string& wilson,
     return "full";
 }
 
-MartyOrderPolicy effective_order_policy(bool sm_like_filter,
+MartyOrderPolicy effective_order_policy(const std::string& wilson,
+                                          bool sm_like_filter,
                                           bool bsm_only_generation,
                                           bool full_target_generation) {
     // The user policy belongs to the configured BSM target.  The separately
@@ -1055,7 +1057,13 @@ MartyOrderPolicy effective_order_policy(bool sm_like_filter,
     if (sm_like_filter || !bsm_only_generation || full_target_generation) {
         return MartyOrderPolicy::AUTO;
     }
-    return MartyAdapter{}.get_marty_order_policy();
+
+    const MartyAdapter adapter;
+    const auto tree_only = adapter.get_marty_tree_level_only_coefficients();
+    if (std::find(tree_only.begin(), tree_only.end(), wilson) != tree_only.end()) {
+        return MartyOrderPolicy::TREE_LEVEL_ONLY;
+    }
+    return adapter.get_marty_order_policy();
 }
 
 std::vector<MartyTreeProjectionTerm> effective_tree_projection_recipe(
@@ -1387,7 +1395,7 @@ void MartyInterface::invalidate_template_model_cache_if_needed(const std::string
         sm_like_filter,
         bsm_split_generation,
         full_target_generation,
-        effective_order_policy(sm_like_filter, bsm_split_generation, full_target_generation),
+        effective_order_policy(wilson, sm_like_filter, bsm_split_generation, full_target_generation),
         effective_fermion_order(
             wilson, false, sm_like_filter, bsm_split_generation, full_target_generation
         ),
@@ -1724,7 +1732,7 @@ bool MartyInterface::prepare_group(const std::string& group,
             << generation_mode_marker(
                    wilson, sm_like_filter, bsm_split_generation, full_target_generation,
                    effective_order_policy(
-                       sm_like_filter, bsm_split_generation, full_target_generation
+                       wilson, sm_like_filter, bsm_split_generation, full_target_generation
                    ),
                    effective_fermion_order(
                        wilson, false, sm_like_filter, bsm_split_generation,
@@ -1787,9 +1795,41 @@ bool MartyInterface::prepare_group(const std::string& group,
                   << std::endl;
         for (const auto& wilson : members) {
             if (!dependencies.contains(wilson)) {
-                generate_numlib(wilson, output_model, target_model,
-                                bsm_split_generation, full_target_generation);
-                compile_numlib(wilson, output_model);
+                // A fresh MC worker has an empty in-memory dependency map even
+                // though the validated analytical and numeric artifacts already
+                // exist on disk.  Re-running generate_numlib() here makes every
+                // worker rewrite the same shared paramlist.csv.tmp and numeric
+                // wrapper, which is both unnecessary and racy across processes.
+                //
+                // Recover only the dependency metadata from the existing
+                // generated MARTY sources.  GeneralNumModelModifier parses the
+                // already-generated params.h and resolves it against the active
+                // SM/BSM parameter providers without writing any shared file.
+                const auto files = FileNameManager::getInstance(wilson, output_model);
+                auto setter = std::make_unique<SMParamSetter>(
+                    target_model,
+                    specials_block,
+                    param_proxy_sm,
+                    param_proxy_bsm,
+                    files->getGeneratedFileName()
+                );
+                GeneralNumModelModifier modifier(
+                    wilson,
+                    output_model,
+                    target_model,
+                    std::move(setter),
+                    core_api,
+                    ports,
+                    false,
+                    bsm_split_generation,
+                    full_target_generation
+                );
+                const auto interpreted = modifier.get_interpreted_param_map();
+                auto& cached_dependencies = dependencies[wilson];
+                for (const auto& [name, dependency] : interpreted) {
+                    (void)name;
+                    cached_dependencies.insert(dependency);
+                }
             }
         }
         register_prepared_group();
