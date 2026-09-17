@@ -406,10 +406,19 @@ double CQ1_THDM::compute_LO(const ParamSrc& src, int lepton_mass_slot, int lepto
     LOG_DEBUG("F1SP =", F1SP(xt, xH));
     LOG_DEBUG("F2SP =", F2SP(xt, xH));
     LOG_DEBUG("F3SP =", F3SP(xt, xH));
+    // SuperIso's 2HDM expression is the full 2HDM result, not a pure
+    // beyond-the-SM increment.  HyperIso stores the SM and BSM pieces
+    // separately and later forms TOTAL = SM + BSM, so the SM neutral
+    // scalar contribution already contained in CSn_2HDM must be removed
+    // here.  The CSc_SM term is not present in this function and is already
+    // provided by the native SM CQ1 coefficient.
+    const double CSn_SMonly = -3. * xt / (8. * xh) + xt * F0SP(xt);
+
     LOG_DEBUG("CSn_2HDM =", CSn_2HDM);
+    LOG_DEBUG("CSn_SMonly =", CSn_SMonly);
     LOG_DEBUG("CSc_2HDM =", CSc_2HDM(xH, xt, lu, ld, le));
 
-    double coeff_temp = CSc_2HDM(xH, xt, lu, ld, le) + CSn_2HDM;
+    double coeff_temp = CSc_2HDM(xH, xt, lu, ld, le) + CSn_2HDM - CSn_SMonly;
     coeff_temp *= (ml * mb_muW / (mW * mW)) / sw2;
 
     return coeff_temp;
