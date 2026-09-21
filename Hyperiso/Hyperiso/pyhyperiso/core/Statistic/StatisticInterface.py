@@ -635,6 +635,45 @@ class StatisticInterface:
             )
         )
 
+    def evaluate_profiled_delta_nll(
+        self,
+        p1: ParamId,
+        p2: ParamId,
+        x: float,
+        y: float,
+        options: Optional[ContourOptions] = None,
+    ) -> float:
+        """Evaluate the profiled delta-NLL at one point after a successful MLE.
+
+        The reference is the profiled NLL evaluated at the fitted coordinates,
+        using the same profiling strategy/backend as the contour machinery.
+
+        Args:
+            p1: First fitted parameter.
+            p2: Second fitted parameter.
+            x: Value of ``p1`` at the requested point.
+            y: Value of ``p2`` at the requested point.
+            options: Profiling options. Contour extraction options do not affect
+                the point evaluation.
+
+        Returns:
+            ``NLL_profile(x, y) - NLL_profile(x_hat, y_hat)``.
+        """
+        cpp_options = (
+            ContourOptions().to_cpp()
+            if options is None
+            else _require(options, ContourOptions, "options").to_cpp()
+        )
+        return float(
+            self._cpp.evaluate_profiled_delta_nll(
+                _cpp_param_id(p1),
+                _cpp_param_id(p2),
+                float(x),
+                float(y),
+                cpp_options,
+            )
+        )
+
     def prepare_likelihood_for_scan(self, p_specs: Optional[Sequence[ParamId]] = None) -> None:
         """Prepare and cache a likelihood object for manual two-dimensional scans.
 

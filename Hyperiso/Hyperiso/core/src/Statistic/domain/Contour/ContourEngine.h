@@ -106,6 +106,19 @@ public:
      */
     Contour compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution);
 
+    /**
+     * @brief Evaluates the profiled likelihood-ratio NLL at one point.
+     *
+     * The reference NLL is evaluated at the fitted coordinates stored in
+     * @ref ContourConfig::fr, using the same profiling strategy/backend as the
+     * contour machinery.
+     *
+     * @param x Value of the first displayed fit parameter.
+     * @param y Value of the second displayed fit parameter.
+     * @return Profiled NLL at (x,y) minus the profiled NLL at the fitted point.
+     */
+    double evaluate_profiled_delta_nll(double x, double y);
+
 private:
     /**
      * @brief Builds the Gaussian constraint distribution for hidden fit parameters.

@@ -1,5 +1,6 @@
 #include "ContourEngine.h"
 #include <gsl/gsl_sf_erf.h>
+#include <stdexcept>
 
 namespace {
 
@@ -55,6 +56,27 @@ ContourEngine::ContourEngine(std::shared_ptr<ILikelihood> base, const ContourCon
     } else {
         this->extractor = this->build_contour_extractor(cfg.primary_contour_method);
     }
+}
+
+double ContourEngine::evaluate_profiled_delta_nll(double x, double y) {
+    const double x_ref = cfg.fr.p_hat.at(cfg.x_id);
+    const double y_ref = cfg.fr.p_hat.at(cfg.y_id);
+
+    const double reference_nll = this->likelihood.profiled_nll(x_ref, y_ref);
+    const double point_nll = this->likelihood.profiled_nll(x, y);
+
+    if (!std::isfinite(reference_nll)) {
+        throw std::runtime_error(
+            "Profiled likelihood reference evaluation returned a non-finite value."
+        );
+    }
+    if (!std::isfinite(point_nll)) {
+        throw std::runtime_error(
+            "Profiled likelihood point evaluation returned a non-finite value."
+        );
+    }
+
+    return point_nll - reference_nll;
 }
 
 Contour ContourEngine::compute_contour(double z, std::array<double, 4> bounds, std::size_t resolution) {

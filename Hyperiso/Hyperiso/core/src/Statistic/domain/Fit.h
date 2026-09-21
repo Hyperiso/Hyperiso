@@ -184,6 +184,27 @@ public:
      */
     Contour contour(std::size_t x_id, std::size_t y_id, double z, std::array<double, 4> bounds, ContourOptions options) const;
 
+    /**
+     * @brief Evaluates a profiled delta-NLL at one point after the global fit.
+     *
+     * @param x_id Index of the first fit parameter.
+     * @param y_id Index of the second fit parameter.
+     * @param x Value of the first fit parameter.
+     * @param y Value of the second fit parameter.
+     * @param options Profiling options; contour-extraction fields are ignored.
+     * @return Profiled NLL difference relative to the fitted point.
+     */
+    double evaluate_profiled_delta_nll(
+        std::size_t x_id,
+        std::size_t y_id,
+        double x,
+        double y,
+        ContourOptions options
+    ) const;
+
+    /** @brief Whether the latest global MLE satisfies the backend convergence checks. */
+    bool fit_succeeded() const { return master_fit_success; }
+
 private:
     std::shared_ptr<BaseLikelihood> like_;  ///< Likelihood minimized by this fitter.
     MLFitOptions fit_options_;              ///< Stored options used for the global fit.

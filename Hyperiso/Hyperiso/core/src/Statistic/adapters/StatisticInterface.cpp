@@ -83,6 +83,16 @@ Contour StatisticInterface::compute_confidence_contour(ParamId p1, ParamId p2, d
     return manager->confidence_contour(p1, p2, z, bounds, options);
 }
 
+double StatisticInterface::evaluate_profiled_delta_nll(
+    ParamId p1,
+    ParamId p2,
+    double x,
+    double y,
+    ContourOptions options
+) {
+    return manager->evaluate_profiled_delta_nll(p1, p2, x, y, options);
+}
+
 void StatisticInterface::reload_nuisance_specs() {
     manager->reload_nuisance_specs();
     manager->update_cache();

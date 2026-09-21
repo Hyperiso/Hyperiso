@@ -354,6 +354,9 @@ class StatisticConfig:
     progress_monitor: Optional[StatisticProgressMonitor] = None
     fit_parameter_bounds: Dict[ParamId, Tuple[float, float]] = field(default_factory=dict)
     fit_parameter_offsets: Dict[ParamId, float] = field(default_factory=dict)
+    fit_parameter_initial_values: Dict[ParamId, float] = field(default_factory=dict)
+    fixed_nuisance_values: Dict[ParamId, float] = field(default_factory=dict)
+    nuisance_ignore_bounds: Dict[ParamId, bool] = field(default_factory=dict)
     advanced: AdvancedStatisticConfig = field(default_factory=AdvancedStatisticConfig)
 
     def to_cpp(self):
@@ -382,6 +385,18 @@ class StatisticConfig:
         }
         cpp.fit_parameter_offsets = {
             _cpp_param_id(pid): float(offset) for pid, offset in self.fit_parameter_offsets.items()
+        }
+        cpp.fit_parameter_initial_values = {
+            _cpp_param_id(pid): float(value)
+            for pid, value in self.fit_parameter_initial_values.items()
+        }
+        cpp.fixed_nuisance_values = {
+            _cpp_param_id(pid): float(value)
+            for pid, value in self.fixed_nuisance_values.items()
+        }
+        cpp.nuisance_ignore_bounds = {
+            _cpp_param_id(pid): bool(value)
+            for pid, value in self.nuisance_ignore_bounds.items()
         }
         cpp.advanced = self.advanced.to_cpp()
         return cpp

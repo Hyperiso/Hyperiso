@@ -709,6 +709,9 @@ and output options.  Expert knobs live under ``advanced``.
         .def_readwrite("progress_monitor", &StatisticConfig::progress_monitor)
         .def_readwrite("fit_parameter_bounds", &StatisticConfig::fit_parameter_bounds)
         .def_readwrite("fit_parameter_offsets", &StatisticConfig::fit_parameter_offsets)
+        .def_readwrite("fit_parameter_initial_values", &StatisticConfig::fit_parameter_initial_values)
+        .def_readwrite("fixed_nuisance_values", &StatisticConfig::fixed_nuisance_values)
+        .def_readwrite("nuisance_ignore_bounds", &StatisticConfig::nuisance_ignore_bounds)
         .def_readwrite("advanced", &StatisticConfig::advanced);
 
 
@@ -769,6 +772,14 @@ void init_statistic_interface(py::module_& m) {
              py::arg("p2"),
              py::arg("z"),
              py::arg("bounds"),
+             py::arg("options") = ContourOptions{},
+             py::call_guard<py::gil_scoped_release>())
+        .def("evaluate_profiled_delta_nll",
+             &StatisticInterface::evaluate_profiled_delta_nll,
+             py::arg("p1"),
+             py::arg("p2"),
+             py::arg("x"),
+             py::arg("y"),
              py::arg("options") = ContourOptions{},
              py::call_guard<py::gil_scoped_release>())
         .def("reload_nuisance_specs", &StatisticInterface::reload_nuisance_specs)

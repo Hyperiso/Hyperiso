@@ -1,17 +1,31 @@
 #include "StatParamOptimizerProxy.h"
 
+#include <algorithm>
 #include <stdexcept>
 #include <utility>
+#include <vector>
+
+#include "MemoryManager.h"
 
 
 StatParamOptimizerProxy::StatParamOptimizerProxy()
-    : poa_bsm({ParameterType::BSM}),
+    : poa_bsm(nullptr),
       poa_standard({
           ParameterType::SM,
           ParameterType::FLAVOR,
           ParameterType::DECAY,
           ParameterType::WILSON
-      }) {}
+      }) {
+    const auto& parameter_types =
+        MemoryManager::GetInstance()->getMemoryCache().parameter_types;
+
+    if (std::find(parameter_types.begin(), parameter_types.end(), ParameterType::BSM)
+        != parameter_types.end()) {
+        poa_bsm = std::make_unique<ParamOptimizerAdapter>(
+            std::vector<ParameterType>{ParameterType::BSM}
+        );
+    }
+}
 
 
 ParamOptimizerAdapter& StatParamOptimizerProxy::optimizer_for(
@@ -24,9 +38,17 @@ ParamOptimizerAdapter& StatParamOptimizerProxy::optimizer_for(
         );
     }
 
-    return pid.type.value() == ParameterType::BSM
-        ? poa_bsm
-        : poa_standard;
+    if (pid.type.value() == ParameterType::BSM) {
+        if (!poa_bsm) {
+            throw std::logic_error(
+                "A BSM parameter was requested, but the active HyperIso model "
+                "does not provide a BSM parameter store."
+            );
+        }
+        return *poa_bsm;
+    }
+
+    return poa_standard;
 }
 
 
@@ -59,10 +81,14 @@ void StatParamOptimizerProxy::commit(bool coalesce) {
     try {
         // Commit the model point first.  The following standard-parameter
         // commit then evaluates all dependent quantities at that BSM point.
-        poa_bsm.commit(coalesce);
+        if (poa_bsm) {
+            poa_bsm->commit(coalesce);
+        }
         poa_standard.commit(coalesce);
     } catch (...) {
-        poa_bsm.clear();
+        if (poa_bsm) {
+            poa_bsm->clear();
+        }
         poa_standard.clear();
         throw;
     }
@@ -70,6 +96,8 @@ void StatParamOptimizerProxy::commit(bool coalesce) {
 
 
 void StatParamOptimizerProxy::clear() {
-    poa_bsm.clear();
+    if (poa_bsm) {
+        poa_bsm->clear();
+    }
     poa_standard.clear();
 }

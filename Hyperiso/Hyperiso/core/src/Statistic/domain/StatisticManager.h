@@ -142,6 +142,9 @@ struct StatisticConfig {
 
     std::map<ParamId, std::pair<double, double>> fit_parameter_bounds {}; ///< Optional explicit minimizer bounds keyed by fit ParamId.
     std::map<ParamId, double> fit_parameter_offsets {}; ///< Optional affine display offsets: model value = fitted value - offset.
+    std::map<ParamId, double> fit_parameter_initial_values {}; ///< Optional physical starting values used only to initialize the minimizer.
+    std::map<ParamId, double> fixed_nuisance_values {}; ///< Optional nuisance values fixed exactly during profiling.
+    std::map<ParamId, bool> nuisance_ignore_bounds {}; ///< Ignore NuisanceSpec fit bounds for selected nuisances.
 
     AdvancedStatisticConfig advanced {};        ///< Advanced fit/pruning/covariance configuration.
 };
@@ -317,6 +320,24 @@ public:
      * @throws std::invalid_argument if the parameters are not part of the last fit or are identical.
      */
     Contour confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options);
+
+    /**
+     * @brief Evaluates the profiled delta-NLL at one point of the last fitted 2D plane.
+     *
+     * @param p1 First fit parameter.
+     * @param p2 Second fit parameter.
+     * @param x Value of @p p1.
+     * @param y Value of @p p2.
+     * @param options Profiling options; contour-extraction fields are ignored.
+     * @return Profiled NLL difference relative to the fitted point.
+     */
+    double evaluate_profiled_delta_nll(
+        ParamId p1,
+        ParamId p2,
+        double x,
+        double y,
+        ContourOptions options
+    );
 
     /**
      * @brief Prepares a likelihood object for manual scans without running a full MLE.

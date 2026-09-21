@@ -4,6 +4,8 @@
 #include "ParamOptimizerAdapter.h"
 #include "IStatParamOptimizerProxy.h"
 
+#include <memory>
+
 /**
  * @file StatParamOptimizerProxy.h
  * @brief Statistics-layer adapter for optimized batched parameter updates.
@@ -82,7 +84,7 @@ private:
     ParamOptimizerAdapter& optimizer_for(const ParamId& pid);
 
     /// Batched updates for the BSM parameter store.
-    ParamOptimizerAdapter poa_bsm;
+    std::unique_ptr<ParamOptimizerAdapter> poa_bsm;
 
     /// Batched updates for SM, flavor, decay and Wilson parameter stores.
     ParamOptimizerAdapter poa_standard;

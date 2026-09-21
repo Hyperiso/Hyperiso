@@ -258,6 +258,26 @@ std::vector<double> model_values_from_fit_coordinates(
     return model_values;
 }
 
+std::vector<double> fit_initial_coordinates(
+    const StatisticConfig& config,
+    const std::vector<ParamId>& p_ids,
+    const std::vector<double>& model_values)
+{
+    std::vector<double> out = fit_coordinates_from_model_values(config, p_ids, model_values);
+    for (std::size_t i = 0; i < p_ids.size() && i < out.size(); ++i) {
+        const auto it = config.fit_parameter_initial_values.find(p_ids[i]);
+        if (it != config.fit_parameter_initial_values.end()) {
+            if (!std::isfinite(it->second)) {
+                throw std::invalid_argument(
+                    "Non-finite explicit initial value for fit parameter " + param_name(p_ids[i])
+                );
+            }
+            out[i] = it->second;
+        }
+    }
+    return out;
+}
+
 fit_app::ParameterDefinition make_fit_param_def(
     const ParamId& pid,
     double value,
@@ -701,7 +721,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     }
 
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-    const std::vector<double> p0 = fit_coordinates_from_model_values(
+    const std::vector<double> p0 = fit_initial_coordinates(
         config, p_ids, unzipped_fit_params.vals
     );
 
@@ -863,7 +883,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
         }
 
         FitResultWithMaps out;
-        out.fit_ok = !last_fit_raw_.p_hat.empty();
+        out.fit_ok = last_fitter_->fit_succeeded();
         out.ell_hat = last_fit_raw_.ell_hat;
         out.p_hat = zip(p_ids, last_fit_raw_.p_hat);
         out.eta_hat.clear();
@@ -935,7 +955,7 @@ FitResultWithMaps StatisticManager::compute_MLE(const std::vector<ParamId>& p_sp
     }
 
     FitResultWithMaps out;
-    out.fit_ok = !last_fit_raw_.p_hat.empty();
+    out.fit_ok = last_fitter_->fit_succeeded();
     out.ell_hat = last_fit_raw_.ell_hat;
     out.p_hat = zip(p_ids, last_fit_raw_.p_hat);
     out.eta_hat = zip(eta_ids, last_fit_raw_.eta_hat);
@@ -971,6 +991,40 @@ Contour StatisticManager::confidence_contour(ParamId p1, ParamId p2, double z, s
     );
 
     return cl;
+}
+
+double StatisticManager::evaluate_profiled_delta_nll(
+    ParamId p1,
+    ParamId p2,
+    double x,
+    double y,
+    ContourOptions options
+) {
+    if (!cache.mle_result.fit_ok || !last_fitter_) {
+        throw std::runtime_error(
+            "Please run compute_MLE before requesting a profiled delta-NLL evaluation."
+        );
+    }
+
+    if (!last_fit_param_index_.contains(p1) || !last_fit_param_index_.contains(p2)) {
+        throw std::invalid_argument(
+            "Profiled delta-NLL requested for parameters that are not in the last fitted parameter set."
+        );
+    }
+
+    if (p1 == p2) {
+        throw std::invalid_argument(
+            "Profiled delta-NLL evaluation requires two distinct parameters."
+        );
+    }
+
+    return last_fitter_->evaluate_profiled_delta_nll(
+        last_fit_param_index_.at(p1),
+        last_fit_param_index_.at(p2),
+        x,
+        y,
+        options
+    );
 }
 
 void StatisticManager::validate_fit_parameter_sensitivity() {
@@ -1349,8 +1403,21 @@ fit_app::ParameterDefinition StatisticManager::make_nuisance_parameter_definitio
 
     out.step_hint = s;
 
+    if (const auto it = config.fixed_nuisance_values.find(pid); it != config.fixed_nuisance_values.end()) {
+        if (!std::isfinite(it->second)) {
+            throw std::invalid_argument("Non-finite fixed nuisance value for " + param_name(pid));
+        }
+        out.value = it->second;
+        out.step_hint = 0.0;
+        out.fixed = true;
+        out.limits.reset();
+        return out;
+    }
+
     if (const auto* spec = find_nuisance_spec(pid)) {
-        out.limits = spec->bounds;
+        const auto ib = config.nuisance_ignore_bounds.find(pid);
+        const bool ignore_bounds = ib != config.nuisance_ignore_bounds.end() && ib->second;
+        if (!ignore_bounds) out.limits = spec->bounds;
         return out;
     }
 
@@ -1742,7 +1809,7 @@ void StatisticManager::prepare_likelihood_for_scan(const std::vector<ParamId>& p
     auto unzipped_exp_obs    = unzip(cache.exp_obs);
 
     const std::vector<ParamId> p_ids = unzipped_fit_params.ids;
-    const std::vector<double> p0 = fit_coordinates_from_model_values(
+    const std::vector<double> p0 = fit_initial_coordinates(
         config, p_ids, unzipped_fit_params.vals
     );
 

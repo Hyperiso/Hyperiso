@@ -157,7 +157,9 @@ private:
         const auto& state = minimum.UserState();
         for (std::size_t i = 0; i < parameters.size(); ++i) {
             out.values[i] = state.Value(parameters[i].name.c_str());
-            out.errors[i] = parameters[i].fixed ? 0.0 : state.Error(parameters[i].name.c_str());
+            const auto& par_state = state.Parameter(static_cast<unsigned>(i));
+            const bool is_fixed = par_state.IsFixed() || par_state.IsConst();
+            out.errors[i] = is_fixed ? 0.0 : state.Error(parameters[i].name.c_str());
         }
 
         // if (!extract_full_covariance || !minimum.HasValidCovariance()) {
@@ -175,9 +177,29 @@ private:
             return out;
         }
         const auto& cov = state.Covariance();
+        std::vector<std::size_t> free_external;
+        free_external.reserve(parameters.size());
         for (std::size_t i = 0; i < parameters.size(); ++i) {
-            for (std::size_t j = 0; j < parameters.size(); ++j) {
-                out.covariance.at(i, j) = cov(i, j);
+            const auto& par_state = state.Parameter(static_cast<unsigned>(i));
+            if (!par_state.IsFixed() && !par_state.IsConst()) free_external.push_back(i);
+        }
+        if (cov.Nrow() != free_external.size()) {
+            std::cout << "[MINUIT] covariance/free-parameter dimension mismatch: covariance="
+                      << cov.Nrow() << " free=" << free_external.size() << std::endl;
+            out.diagnostics.has_valid_covar = false;
+            out.diagnostics.has_posdef_covar = false;
+            out.diagnostics.has_accurate_covar = false;
+            return out;
+        }
+        std::cout << "[MINUIT] extracting covariance on variable-parameter subspace: "
+                  << free_external.size() << " free / " << parameters.size() << " total." << std::endl;
+        for (std::size_t a = 0; a < free_external.size(); ++a) {
+            const std::size_t i = free_external[a];
+            const unsigned ii = state.IntOfExt(static_cast<unsigned>(i));
+            for (std::size_t b = 0; b < free_external.size(); ++b) {
+                const std::size_t j = free_external[b];
+                const unsigned jj = state.IntOfExt(static_cast<unsigned>(j));
+                out.covariance.at(i, j) = cov(ii, jj);
             }
         }
 
@@ -229,7 +251,11 @@ private:
                 return parameter.fixed;
             });
 
-        return extract_result(minimum, parameters, !has_explicitly_fixed_parameters);
+        // Profile-point minimizations normally run without HESSE and do not need a covariance.
+        // A global fit with fixed parameters does run HESSE, so extract the covariance on the
+        // variable-parameter subspace and embed it back into the full external coordinate space.
+        const bool extract_covariance = !has_explicitly_fixed_parameters || options.run_hesse;
+        return extract_result(minimum, parameters, extract_covariance);
     }
 };
 

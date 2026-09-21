@@ -49,6 +49,28 @@ void log_fit_diagnostics(const fit_app::FitDiagnostics& d) {
     }
 }
 
+bool acceptable_global_fit(const fit_app::BackendFitResult& r) {
+    const auto& d = r.diagnostics;
+    if (!d.has_valid_parameters) return false;
+    if (!std::isfinite(d.fmin)) return false;
+    if (d.reached_call_limit) return false;
+    if (d.above_max_edm) return false;
+
+    if (d.ok) return true;
+
+    // Secondary acceptance only when Minuit's convergence criterion is met and
+    // the covariance is genuinely accurate/positive definite.
+    if (!d.hesse_failed &&
+        d.has_valid_covar &&
+        d.has_posdef_covar &&
+        d.has_accurate_covar &&
+        !d.made_posdef) {
+        return true;
+    }
+
+    return false;
+}
+
 void log_matrix_diagnostics(const std::string& label, const RealMatrix& M) {
     std::cout << "[FIT] Matrix " << label
               << " shape=" << M.rows() << "x" << M.cols()
@@ -242,10 +264,18 @@ double profiled_nll_at(const fit_app::IFitBackend& minimizer,
         local_defs[i].value = p_fixed[i];
     }
 
-    const std::vector<std::size_t> fixed_idx = make_fixed_p_indices(p_dim);
+    // Keep pre-existing fixed nuisance parameters fixed during profile-Hessian probes.
+    std::vector<std::size_t> fixed_idx = make_fixed_p_indices(p_dim);
+    std::vector<double> fixed_values = p_fixed;
+    for (std::size_t i = p_dim; i < local_defs.size(); ++i) {
+        if (local_defs[i].fixed) {
+            fixed_idx.push_back(i);
+            fixed_values.push_back(local_defs[i].value);
+        }
+    }
 
     fit_app::BackendFitResult prof =
-        minimizer.minimize_with_fixed(objective, local_defs, profile_opt, fixed_idx, p_fixed);
+        minimizer.minimize_with_fixed(objective, local_defs, profile_opt, fixed_idx, fixed_values);
 
     if (!prof.diagnostics.has_valid_parameters) {
         throw std::runtime_error("Profile minimization failed while building fallback Hessian.");
@@ -435,7 +465,22 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
     }
 
     std::unique_ptr<fit_app::IFitBackend> minimizer = fit_app::make_minuit_backend();
-    fit_app::BackendFitResult res = minimizer->minimize(f, theta0, opt);
+
+    std::vector<std::size_t> global_fixed_idx;
+    std::vector<double> global_fixed_values;
+    for (std::size_t i = 0; i < theta0.size(); ++i) {
+        if (theta0[i].fixed) {
+            global_fixed_idx.push_back(i);
+            global_fixed_values.push_back(theta0[i].value);
+        }
+    }
+    if (!global_fixed_idx.empty()) {
+        std::cout << "[FIT] Explicit fixed-parameter global minimization: "
+                  << global_fixed_idx.size() << " fixed coordinates." << std::endl;
+    }
+    fit_app::BackendFitResult res = global_fixed_idx.empty()
+        ? minimizer->minimize(f, theta0, opt)
+        : minimizer->minimize_with_fixed(f, theta0, opt, global_fixed_idx, global_fixed_values);
 
     log_fit_diagnostics(res.diagnostics);
     log_matrix_diagnostics("Minuit covariance", res.covariance);
@@ -449,11 +494,46 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
 
     if (res.diagnostics.has_valid_covar) {
         try {
-            RealMatrix H = invert_or_throw(res.covariance, "Minuit covariance");
+            std::vector<std::size_t> free_idx;
+            free_idx.reserve(theta0.size());
+            for (std::size_t i = 0; i < theta0.size(); ++i) {
+                if (!theta0[i].fixed) free_idx.push_back(i);
+            }
+            if (free_idx.size() < p_dim) {
+                throw std::runtime_error("A fit parameter was unexpectedly marked fixed.");
+            }
+
+            RealMatrix cov_free;
+            if (res.covariance.rows() == free_idx.size() &&
+                res.covariance.cols() == free_idx.size()) {
+                cov_free = res.covariance;
+            } else if (res.covariance.rows() == dim && res.covariance.cols() == dim) {
+                cov_free = RealMatrix(free_idx.size(), free_idx.size());
+                for (std::size_t i = 0; i < free_idx.size(); ++i) {
+                    for (std::size_t j = 0; j < free_idx.size(); ++j) {
+                        cov_free.at(i, j) = res.covariance.at(free_idx[i], free_idx[j]);
+                    }
+                }
+            } else {
+                std::ostringstream oss;
+                oss << "Unexpected Minuit covariance dimension "
+                    << res.covariance.rows() << "x" << res.covariance.cols()
+                    << " for " << dim << " total and " << free_idx.size()
+                    << " free parameters.";
+                throw std::runtime_error(oss.str());
+            }
+
+            if (!global_fixed_idx.empty()) {
+                std::cout << "[FIT] Removing " << global_fixed_idx.size()
+                          << " fixed directions before covariance inversion." << std::endl;
+                log_matrix_diagnostics("Minuit covariance (free subspace)", cov_free);
+            }
+            RealMatrix H = invert_or_throw(cov_free, "Minuit covariance (free subspace)");
+            const std::size_t free_dim = cov_free.rows();
 
             RealMatrix H_p_p(p_dim, p_dim);
-            RealMatrix H_p_eta(p_dim, dim - p_dim);
-            RealMatrix H_eta_eta(dim - p_dim, dim - p_dim);
+            RealMatrix H_p_eta(p_dim, free_dim - p_dim);
+            RealMatrix H_eta_eta(free_dim - p_dim, free_dim - p_dim);
 
             for (std::size_t i = 0; i < p_dim; ++i) {
                 for (std::size_t j = 0; j < p_dim; ++j) {
@@ -462,22 +542,22 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
             }
 
             for (std::size_t i = 0; i < p_dim; ++i) {
-                for (std::size_t j = p_dim; j < dim; ++j) {
+                for (std::size_t j = p_dim; j < free_dim; ++j) {
                     H_p_eta.at(i, j - p_dim) = H.at(i, j);
                 }
             }
 
-            for (std::size_t i = p_dim; i < dim; ++i) {
-                for (std::size_t j = p_dim; j < dim; ++j) {
+            for (std::size_t i = p_dim; i < free_dim; ++i) {
+                for (std::size_t j = p_dim; j < free_dim; ++j) {
                     H_eta_eta.at(i - p_dim, j - p_dim) = H.at(i, j);
                 }
             }
 
             RealMatrix cov_prof;
-            if (dim == p_dim) {
+            if (free_dim == p_dim) {
                 cov_prof = invert_or_throw(H_p_p, "H_p_p (no nuisance block)");
             } else {
-                RealMatrix H_eta_eta_inv = invert_or_throw(H_eta_eta, "H_eta_eta");
+                RealMatrix H_eta_eta_inv = invert_or_throw(H_eta_eta, "H_eta_eta (free nuisances)");
                 RealMatrix H_prof = H_p_p - H_p_eta * H_eta_eta_inv * H_p_eta.transpose();
                 log_matrix_diagnostics("H_prof", H_prof);
                 cov_prof = invert_or_throw(H_prof, "H_prof");
@@ -537,9 +617,41 @@ FitResult MLFitter::maximum_likelihood_fit(const std::vector<double>& p0) {
         fill_nan_profile_errors(fr, p_dim);
     }
 
-    this->master_fit_success = res.diagnostics.has_valid_parameters;
+    this->master_fit_success = acceptable_global_fit(res);
+    if (!this->master_fit_success) {
+        std::cout << "[FIT] Global MLE rejected by convergence diagnostics; "
+                     "fit parameters are returned for debugging only." << std::endl;
+    }
     this->master_fit_result = fr;
     return fr;
+}
+
+double MLFitter::evaluate_profiled_delta_nll(
+    std::size_t x_id,
+    std::size_t y_id,
+    double x,
+    double y,
+    ContourOptions options
+) const {
+    if (!this->master_fit_success) {
+        LOG_ERROR(
+            "InvalidState",
+            "ML fit must have converged before profiled delta-NLL evaluation is available."
+        );
+    }
+
+    ContourConfig cc;
+    cc.fr = this->master_fit_result;
+    cc.x_id = x_id;
+    cc.y_id = y_id;
+    cc.primary_contour_method = options.primary_contour_method;
+    cc.fallback_contour_method = options.fallback_contour_method;
+    cc.profiling_method = options.profiling_method;
+    cc.on_progress = options.on_progress;
+    cc.profile_backend = to_profiler_mode(options.profile_backend);
+
+    ContourEngine ce(this->like_, cc);
+    return ce.evaluate_profiled_delta_nll(x, y);
 }
 
 Contour MLFitter::contour(std::size_t x_id, std::size_t y_id, double z,

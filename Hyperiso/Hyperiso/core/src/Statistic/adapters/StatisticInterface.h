@@ -147,6 +147,15 @@ public:
      */
     Contour compute_confidence_contour(ParamId p1, ParamId p2, double z, std::array<double, 4> bounds, ContourOptions options);
 
+    /** @brief Evaluates the profiled delta-NLL at one point of the last fitted 2D plane. */
+    double evaluate_profiled_delta_nll(
+        ParamId p1,
+        ParamId p2,
+        double x,
+        double y,
+        ContourOptions options
+    );
+
     /**
      * @brief Reloads default and user nuisance specifications.
      */
