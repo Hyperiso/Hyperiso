@@ -29,7 +29,9 @@ from pyhyperiso.phyperiso.pyhyperiso.observable import (
     BDlnuConfig as _CppBDlnuConfig,
     BDstarlnuConfig as _CppBDstarlnuConfig,
     BKllConfig as _CppBKllConfig,
+    BKnunuConfig as _CppBKnunuConfig,
     BKstarGammaConfig as _CppBKstarGammaConfig,
+    BKstarnunuConfig as _CppBKstarnunuConfig,
     BKstarllConfig as _CppBKstarllConfig,
     BsPhiConfig as _CppBsPhiConfig,
     BXsllConfig as _CppBXsllConfig,
@@ -54,7 +56,7 @@ class BFFType(Enum):
 class BPFFSource(Enum):
     """Source of B -> pseudoscalar form factors.
 
-    These values are used by :class:`BKllConfig`.
+    These values are used by :class:`BKllConfig` and :class:`BKnunuConfig`.
     """
 
     AS = _CppBP_FF_Src.AS
@@ -69,7 +71,7 @@ class BVFFSource(Enum):
     """Source of B -> vector form factors.
 
     These values are used by :class:`BKstarllConfig`,
-    :class:`BKstarGammaConfig`, and :class:`BsPhiConfig`.
+    :class:`BKstarGammaConfig`, :class:`BKstarnunuConfig`, and :class:`BsPhiConfig`.
     """
 
     BSZ_SR_LAT = _CppBV_FF_Src.BSZ_SR_LAT
@@ -319,6 +321,27 @@ class BKllConfig(DecayConfig):
 
 
 @dataclass(slots=True)
+class BKnunuConfig(DecayConfig):
+    """Configuration for ``B -> K nu anti-nu`` decays.
+
+    Args:
+        ff_src: Source of B -> K form factors. Defaults to the same source as
+            :class:`BKllConfig`.
+    """
+
+    ff_src: BPFFSource = BPFFSource.AS
+
+    @classmethod
+    def from_cpp(cls, cpp_obj: _CppBKnunuConfig) -> "BKnunuConfig":
+        return cls(ff_src=BPFFSource(cpp_obj.ff_src))
+
+    def to_cpp(self) -> _CppBKnunuConfig:
+        cfg = _CppBKnunuConfig()
+        cfg.ff_src = _as_cpp_enum(self.ff_src, BPFFSource, "ff_src")
+        return cfg
+
+
+@dataclass(slots=True)
 class BKstarllConfig(DecayConfig):
     """Configuration for exclusive ``B -> K* l+ l-`` decays.
 
@@ -390,6 +413,27 @@ class BKstarGammaConfig(DecayConfig):
         cfg = _CppBKstarGammaConfig()
         cfg.ff_src = _as_cpp_enum(self.ff_src, BVFFSource, "ff_src")
         cfg.charge = _as_cpp_enum(self.charge, BKstarGammaBCharge, "charge")
+        return cfg
+
+
+@dataclass(slots=True)
+class BKstarnunuConfig(DecayConfig):
+    """Configuration for ``B -> K* nu anti-nu`` decays.
+
+    Args:
+        ff_src: Source of B -> K* form factors. Defaults to the same source as
+            :class:`BKstarllConfig` and :class:`BKstarGammaConfig`.
+    """
+
+    ff_src: BVFFSource = BVFFSource.BSZ_SR_LAT
+
+    @classmethod
+    def from_cpp(cls, cpp_obj: _CppBKstarnunuConfig) -> "BKstarnunuConfig":
+        return cls(ff_src=BVFFSource(cpp_obj.ff_src))
+
+    def to_cpp(self) -> _CppBKstarnunuConfig:
+        cfg = _CppBKstarnunuConfig()
+        cfg.ff_src = _as_cpp_enum(self.ff_src, BVFFSource, "ff_src")
         return cfg
 
 
@@ -542,8 +586,10 @@ __all__ = [
     "BDlnuConfig",
     "BDstarlnuConfig",
     "BKllConfig",
+    "BKnunuConfig",
     "BKstarllConfig",
     "BKstarGammaConfig",
+    "BKstarnunuConfig",
     "BsPhiConfig",
     "BXsllConfig",
     "KllDecayConfig",

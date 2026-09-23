@@ -9,6 +9,11 @@
 #include "DecayParent.h"
 #include "DefaultConfig.h"
 
+struct BKstarnunuConfig : public DecayConfig {
+    // Keep the default aligned with BKstarllConfig/BKstarGammaConfig.
+    BV_FF_Src ff_src {BV_FF_Src::BSZ_SR_LAT};
+};
+
 struct BKstarnunuDecayCache {
     double G_F{};
     double alpha_em{};
@@ -35,8 +40,9 @@ struct BKstarnunuDecayCache {
 };
 
 /** @brief B -> K* nu anti-nu total branching fractions. */
-class BKstarnunuDecay : public DecayParentConfigurable<DecayConfig> {
+class BKstarnunuDecay : public DecayParentConfigurable<BKstarnunuConfig> {
 private:
+    BKstarnunuConfig cfg {};
     BKstarnunuDecayCache cache;
 
     double loop_br(bool charged);
@@ -54,6 +60,8 @@ public:
     }
 
     void load_params() override;
+    void set_config_spe(BKstarnunuConfig config) override { this->cfg = config; }
+    std::any get_config() const override { return cfg; }
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 };

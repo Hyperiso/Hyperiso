@@ -1,5 +1,8 @@
 #include "DependenciesHelper.h"
 
+#include <string>
+#include <vector>
+
 // const std::unordered_set<ParamId> DependenciesHelper::common_deps = {
 //     ParamId{ParameterType::SM, "SMINPUTS", 1},
 //     ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -140,8 +143,7 @@
 //         // ParamId{ParameterType::DECAY, "B_K", {6, 3, 2}},
 //     }},
 //     {DecayMapper::to_id(Decays::B__Kstar_l_l), {
-//         // TODO : Missing FFs
-//         ParamId{ParameterType::FLAVOR, "FMASS", 511},
+// //         ParamId{ParameterType::FLAVOR, "FMASS", 511},
 //         ParamId{ParameterType::FLAVOR, "FMASS", 521},
 //         ParamId{ParameterType::FLAVOR, "FLIFE", 511},
 //         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
@@ -527,6 +529,9 @@
 
 #include "DependenciesHelper.h"
 
+#include <string>
+#include <vector>
+
 const std::unordered_set<ParamId> DependenciesHelper::common_deps = {
     ParamId{ParameterType::SM, "SMINPUTS", 1},
     ParamId{ParameterType::SM, "SMINPUTS", 2},
@@ -573,6 +578,66 @@ const std::unordered_set<ParamId> DependenciesHelper::common_deps = {
     // ParamId{ParameterType::WILSON, "K_SCALE", 1},
 };
 
+
+namespace {
+
+using DependencySet = std::unordered_set<ParamId>;
+
+DependencySet with_bp_form_factor_dependencies(DependencySet deps) {
+    // B -> K form-factor sources exposed by BPFFCalculator. Keep all source
+    // parameters in the dependency graph so switching ff_src does not silently
+    // drop the corresponding nuisance parameters.
+    for (int source = 1; source <= 6; ++source) {
+        for (int pole = 1; pole <= 3; ++pole) {
+            deps.insert(ParamId{ParameterType::DECAY, "B_K", {source, 0, pole}});
+        }
+        const int max_order = source == 1 ? 3 : 2;
+        for (int ff = 1; ff <= 3; ++ff) {
+            for (int order = 0; order <= max_order; ++order) {
+                deps.insert(ParamId{ParameterType::DECAY, "B_K", {source, ff, order}});
+            }
+        }
+    }
+    // HPQCD22 chiral-log input used by BPFFCalculator.
+    deps.insert(ParamId{ParameterType::DECAY, "B_K", 16});
+    return deps;
+}
+
+DependencySet with_bv_form_factor_dependencies(DependencySet deps, const std::string& block) {
+    // Available B -> vector sources. Bs -> phi does not provide the GKvD
+    // sources (4,5); BVFFCalculator already redirects those requests to BSZ.
+    const std::vector<int> sources = block == "B_phi"
+        ? std::vector<int>{1, 2, 3, 6}
+        : std::vector<int>{1, 2, 3, 4, 5, 6};
+
+    for (int source : sources) {
+        // Pole entries exist for all B_phi sources listed above. In B_Ks,
+        // sources 2,4,5,6 do not have source-specific pole entries.
+        const bool has_own_poles = block == "B_phi" || source == 1 || source == 3;
+        if (has_own_poles) {
+            for (int pole = 1; pole <= 3; ++pole) {
+                deps.insert(ParamId{ParameterType::DECAY, block, {source, 0, pole}});
+            }
+        }
+
+        const int max_order = source == 6 ? 1 : 2;
+        for (int ff = 1; ff <= 7; ++ff) {
+            for (int order = 0; order <= max_order; ++order) {
+                // For GRvDV/GKvD, A12(0) and T23(0) are derived from A0/T2
+                // and are intentionally absent from the distributed assets.
+                if ((source == 3 || source == 4 || source == 5)
+                    && (ff == 3 || ff == 6) && order == 0) {
+                    continue;
+                }
+                deps.insert(ParamId{ParameterType::DECAY, block, {source, ff, order}});
+            }
+        }
+    }
+    return deps;
+}
+
+} // namespace
+
 const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lists = {
     {DecayMapper::to_id(Decays::B__D_l_nu), {
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
@@ -591,7 +656,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_Dslnu", 3},
         ParamId{ParameterType::DECAY, "B_Dslnu", 4},
     }},
-    {DecayMapper::to_id(Decays::B__K_l_l), {
+    {DecayMapper::to_id(Decays::B__K_l_l), with_bp_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FLIFE", 511},
@@ -671,8 +736,8 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_K", {6, 3, 0}},
         ParamId{ParameterType::DECAY, "B_K", {6, 3, 1}},
         ParamId{ParameterType::DECAY, "B_K", {6, 3, 2}},
-    }},
-    {DecayMapper::to_id(Decays::B__K_nu_nu), {
+     })},
+    {DecayMapper::to_id(Decays::B__K_nu_nu), with_bp_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 311},
@@ -681,8 +746,8 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
         ParamId{ParameterType::FLAVOR, "FCONST", {321, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}},
-    }},
-    {DecayMapper::to_id(Decays::B__Kstar_nu_nu), {
+     })},
+    {DecayMapper::to_id(Decays::B__Kstar_nu_nu), with_bv_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FMASS", 313},
@@ -691,34 +756,8 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
         ParamId{ParameterType::FLAVOR, "FCONST", {323, 1}},
         ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}},
-        // BSZ_SR_LAT form factors used by BVFFCalculator (source id 1).
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 0, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 0, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 0, 3}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 1, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 1, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 1, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 2, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 2, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 2, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 3, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 3, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 3, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 4, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 4, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 4, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 5, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 5, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 5, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 6, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 6, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 6, 2}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 7, 0}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 7, 1}},
-        ParamId{ParameterType::DECAY, "B_Ks", {1, 7, 2}},
-    }},
-    {DecayMapper::to_id(Decays::B__Kstar_l_l), {
-        // TODO : Missing FFs
+     }, "B_Ks")},
+    {DecayMapper::to_id(Decays::B__Kstar_l_l), with_bv_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FLIFE", 511},
@@ -850,8 +889,8 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_Ks", {21, 2, 0}},
         ParamId{ParameterType::DECAY, "B_Ks", {21, 2, 1}},
         ParamId{ParameterType::DECAY, "B_Ks", {21, 2, 2}},
-    }},
-    {DecayMapper::to_id(Decays::B__Kstar_gamma), {
+     }, "B_Ks")},
+    {DecayMapper::to_id(Decays::B__Kstar_gamma), with_bv_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
         ParamId{ParameterType::FLAVOR, "FMASS", 521},
         ParamId{ParameterType::FLAVOR, "FLIFE", 511},
@@ -916,7 +955,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_Ks", {3, 7, 0}},
         ParamId{ParameterType::DECAY, "B_Ks", {3, 7, 1}},
         ParamId{ParameterType::DECAY, "B_Ks", {3, 7, 2}},
-    }},
+     }, "B_Ks")},
     {DecayMapper::to_id(Decays::B__l_l), {
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FMASS", 511},
@@ -932,7 +971,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::FLAVOR, "FLIFE", 521},
         ParamId{ParameterType::FLAVOR, "FCONST", {521, 1}}
     }},
-    {DecayMapper::to_id(Decays::Bs__phi_l_l), {
+    {DecayMapper::to_id(Decays::Bs__phi_l_l), with_bv_form_factor_dependencies({
         ParamId{ParameterType::FLAVOR, "FMASS", 531},
         ParamId{ParameterType::FLAVOR, "FLIFE", 531},
         ParamId{ParameterType::FLAVOR, "FMASS", 333},
@@ -1012,7 +1051,7 @@ const std::map<DecayId, std::unordered_set<ParamId>> DependenciesHelper::dep_lis
         ParamId{ParameterType::DECAY, "B_phi", {18, 3, 6}},
         ParamId{ParameterType::DECAY, "B_phi", {18, 3, 7}},
         ParamId{ParameterType::DECAY, "B_phi", {18, 3, 8}},
-    }},
+     }, "B_phi")},
     {DecayMapper::to_id(Decays::B__Xs_gamma), {
         ParamId{ParameterType::DECAY, "B_Xs", 2},
         ParamId{ParameterType::DECAY, "B_Xs", 3},

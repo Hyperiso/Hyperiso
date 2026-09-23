@@ -17,8 +17,10 @@
 #include "BDlnuDecay.h"
 #include "BDstarlnuDecay.h"
 #include "BKllDecay.h"
+#include "BKnunuDecay.h"
 #include "BKsllDecay.h"
 #include "BKstarGammaDecay.h"
+#include "BKstarnunuDecay.h"
 #include "BllDecay.h"
 #include "BsPhiDecay.h"
 #include "BXsDecay.h"
@@ -247,6 +249,15 @@ Attributes:
         .def_readwrite("gen", &BKllConfig::gen, R"pbdoc(Lepton generation.)pbdoc")
         .def_readwrite("n_threads", &BKllConfig::n_threads, R"pbdoc(Number of worker threads.)pbdoc");
 
+    py::class_<BKnunuConfig, DecayConfig>(m, "BKnunuConfig", R"pbdoc(
+Configuration for B -> K nu anti-nu decays.
+
+Attributes:
+    ff_src: Source of B -> K form factors.
+)pbdoc")
+        .def(py::init<>(), R"pbdoc(Create a B -> K nu anti-nu configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BKnunuConfig::ff_src, R"pbdoc(B -> pseudoscalar form-factor source.)pbdoc");
+
     auto bkstarll_cfg = py::class_<BKstarllConfig, DecayConfig>(m, "BKstarllConfig", R"pbdoc(
 Configuration for the exclusive B -> K* l+ l- decay engine.
 
@@ -292,6 +303,15 @@ Attributes:
         .def(py::init<>(), R"pbdoc(Create a B -> K* gamma configuration with backend defaults.)pbdoc")
         .def_readwrite("ff_src", &BKstarGammaConfig::ff_src, R"pbdoc(B -> vector form-factor source.)pbdoc")
         .def_readwrite("charge", &BKstarGammaConfig::charge, R"pbdoc(B-meson charge option.)pbdoc");
+
+    py::class_<BKstarnunuConfig, DecayConfig>(m, "BKstarnunuConfig", R"pbdoc(
+Configuration for B -> K* nu anti-nu decays.
+
+Attributes:
+    ff_src: Source of B -> K* form factors.
+)pbdoc")
+        .def(py::init<>(), R"pbdoc(Create a B -> K* nu anti-nu configuration with backend defaults.)pbdoc")
+        .def_readwrite("ff_src", &BKstarnunuConfig::ff_src, R"pbdoc(B -> vector form-factor source.)pbdoc");
 
     auto bsphi_cfg = py::class_<BsPhiConfig>(m, "BsPhiConfig", R"pbdoc(
 Configuration for the exclusive Bs -> phi l+ l- decay engine.
@@ -552,6 +572,12 @@ void init_observable(py::module &m) {
           py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
           R"pbdoc(Set the B -> K l+ l- decay configuration.)pbdoc")
      .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BKnunuConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> K nu anti-nu decay configuration.)pbdoc")
+     .def("set_decay_config",
           [](ObservableInterface& self, Decays decay, const BKstarllConfig& config) -> ObservableInterface& {
               return set_decay_config_typed(self, decay, config);
           },
@@ -563,6 +589,12 @@ void init_observable(py::module &m) {
           },
           py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
           R"pbdoc(Set the B -> K* gamma decay configuration.)pbdoc")
+     .def("set_decay_config",
+          [](ObservableInterface& self, Decays decay, const BKstarnunuConfig& config) -> ObservableInterface& {
+              return set_decay_config_typed(self, decay, config);
+          },
+          py::arg("decay"), py::arg("config"), py::return_value_policy::reference_internal,
+          R"pbdoc(Set the B -> K* nu anti-nu decay configuration.)pbdoc")
      .def("set_decay_config",
           [](ObservableInterface& self, Decays decay, const BsPhiConfig& config) -> ObservableInterface& {
               return set_decay_config_typed(self, decay, config);

@@ -45,6 +45,9 @@ void BKnunuDecay::load_params() {
     cache.Vus = (*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE);
     cache.Vub = (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE);
 
+    cache.ff_charged = std::make_shared<BPFFCalculator>(521, 321, p, cfg.ff_src);
+    cache.ff_neutral = std::make_shared<BPFFCalculator>(511, 311, p, cfg.ff_src);
+
     for (std::size_t i = 0; i < CNU_LEFT.size(); ++i) {
         cache.C_L[i] = w_proxy->getFR(WGroup::BNuNu, CNU_LEFT[i], w_config.order,
                                       ContributionType::TOTAL);
@@ -64,30 +67,12 @@ double BKnunuDecay::coefficient_sum_plus() const {
     return sum / 3.0;
 }
 
-double BKnunuDecay::f_plus(double q2, double m_B, double m_K) const {
-    // Appendix A, Eqs. (A2), (A5), (A6), N=3, central values of Table VI.
-    constexpr double a0 = 0.4742;
-    constexpr double a1 = -0.894;
-    constexpr double a2 = -0.44;
-    constexpr double pole_mass = 5.4154;
-
-    const double t_plus = std::pow(m_B + m_K, 2);
-    const double t_zero = (m_B + m_K) * std::pow(std::sqrt(m_B) - std::sqrt(m_K), 2);
-    const double z = (std::sqrt(t_plus - q2) - std::sqrt(t_plus - t_zero))
-                   / (std::sqrt(t_plus - q2) + std::sqrt(t_plus - t_zero));
-
-    // For N=3: sum_{n=0}^{2} a_n [z^n - (-1)^(n-3) n/3 z^3].
-    const double z2 = z * z;
-    const double z3 = z2 * z;
-    const double series = a0 + a1 * (z - z3 / 3.0) + a2 * (z2 + 2.0 * z3 / 3.0);
-    return series / (1.0 - q2 / (pole_mass * pole_mass));
-}
-
 double BKnunuDecay::loop_br(bool charged) {
     const double m_B = charged ? cache.m_Bp : cache.m_B0;
     const double m_K = charged ? cache.m_Kp : cache.m_K0;
     const double tau_B = charged ? cache.tau_Bp : cache.tau_B0;
     const double q2_max = std::pow(m_B - m_K, 2);
+    BPFFCalculator& ff = *(charged ? cache.ff_charged : cache.ff_neutral);
     const double csum = coefficient_sum_plus();
 
     const double pref = tau_B * std::pow(cache.G_F * cache.alpha_em, 2)
@@ -96,7 +81,7 @@ double BKnunuDecay::loop_br(bool charged) {
 
     auto differential = [&](double q2) {
         const double lambda = std::max(0.0, kallen(q2, m_B * m_B, m_K * m_K));
-        const double fp = f_plus(q2, m_B, m_K);
+        const double fp = ff.get(BP_FF::F_PLUS, q2);
         return pref * std::pow(lambda, 1.5) * csum * fp * fp;
     };
 

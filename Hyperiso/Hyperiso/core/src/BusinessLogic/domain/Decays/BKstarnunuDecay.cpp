@@ -42,8 +42,8 @@ void BKstarnunuDecay::load_params() {
     cache.Vus = (*p)(ParamId{ParameterType::SM, "VCKM", {0, 1}}, DataType::VALUE);
     cache.Vub = (*p)(ParamId{ParameterType::SM, "VCKM", {0, 2}}, DataType::VALUE);
 
-    cache.ff_charged = std::make_shared<BVFFCalculator>(521, 323, p, BV_FF_Src::BSZ_SR_LAT);
-    cache.ff_neutral = std::make_shared<BVFFCalculator>(511, 313, p, BV_FF_Src::BSZ_SR_LAT);
+    cache.ff_charged = std::make_shared<BVFFCalculator>(521, 323, p, cfg.ff_src);
+    cache.ff_neutral = std::make_shared<BVFFCalculator>(511, 313, p, cfg.ff_src);
 
     for (std::size_t i = 0; i < CNU_LEFT.size(); ++i) {
         cache.C_L[i] = w_proxy->getFR(WGroup::BNuNu, CNU_LEFT[i], w_config.order,

@@ -2,9 +2,17 @@
 #define BKNUNU_DECAY_H
 
 #include <array>
+#include <memory>
 
+#include "BPFFCalculator.h"
 #include "DecayParent.h"
 #include "DefaultConfig.h"
+
+struct BKnunuConfig : public DecayConfig {
+    // Keep the default aligned with BKllConfig so B -> K X channels use the
+    // same form-factor convention unless explicitly overridden.
+    BP_FF_Src ff_src {BP_FF_Src::AS};
+};
 
 struct BKnunuDecayCache {
     double G_F{};
@@ -26,24 +34,25 @@ struct BKnunuDecayCache {
 
     std::array<complex_t, 9> C_L{};
     std::array<complex_t, 9> C_R{};
+
+    std::shared_ptr<BPFFCalculator> ff_charged;
+    std::shared_ptr<BPFFCalculator> ff_neutral;
 };
 
 /**
  * @brief B -> K nu anti-nu total branching fractions.
  *
- * Implements the WET normalization and central B->K form-factor fit of
- * arXiv:2301.06990, including the charged-mode on-shell-tau weak-annihilation
- * contribution.  Form-factor nuisance parameters are deliberately postponed
- * to the follow-up assets/bindings patch; this C++ core patch uses the paper's
- * central fit values.
+ * The B -> K form factors are evaluated through BPFFCalculator so their
+ * configured nuisance parameters and correlations are propagated by the
+ * statistical layer.
  */
-class BKnunuDecay : public DecayParentConfigurable<DecayConfig> {
+class BKnunuDecay : public DecayParentConfigurable<BKnunuConfig> {
 private:
+    BKnunuConfig cfg {};
     BKnunuDecayCache cache;
 
     double loop_br(bool charged);
     double charged_tree_br();
-    double f_plus(double q2, double m_B, double m_K) const;
     double coefficient_sum_plus() const;
 
 public:
@@ -57,6 +66,8 @@ public:
     }
 
     void load_params() override;
+    void set_config_spe(BKnunuConfig config) override { this->cfg = config; }
+    std::any get_config() const override { return cfg; }
     std::vector<ObservableValue> compute_observable(Observables obs) override;
     std::vector<ObservableValue> compute_observable(ObservableId obs) override;
 };

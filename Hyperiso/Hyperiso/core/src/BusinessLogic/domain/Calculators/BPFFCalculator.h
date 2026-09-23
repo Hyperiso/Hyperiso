@@ -29,8 +29,10 @@ private:
         {BP_FF_Src::GRvDV, 2},
         {BP_FF_Src::GKvD_SR_LAT, 2},
         {BP_FF_Src::GKvD_SR, 2},
-        {BP_FF_Src::FLAG24, 3},
-        {BP_FF_Src::HPQCD22, 3}
+        // FLAG24 and HPQCD22 store coefficients through a2; a3 is derived
+        // from the kinematic constraints in BPFFCalculator::load_FF_params.
+        {BP_FF_Src::FLAG24, 2},
+        {BP_FF_Src::HPQCD22, 2}
     };
 
 public:
