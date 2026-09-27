@@ -6231,6 +6231,27 @@
         "stat_error": 0.039,
         "syst_error": 0.002
       }
+    },
+    "BelleII_2024": {
+      "521_1_0_0_0_0_0_0_3_321_14_-14": {
+        "central_value": 2.3e-05,
+        "stat_error": 5e-06,
+        "syst_error": 4.5e-06
+      }
+    },
+    "NA62_2016_2024": {
+      "321_1_0_0_0_0_0_0_3_211_14_-14": {
+        "central_value": 9.6e-11,
+        "stat_error": 1.85e-11,
+        "syst_error": 0.0
+      }
+    },
+    "HFLAV_2025": {
+      "421_72_0_0_0_0_0_0_1_-421": {
+        "central_value": 0.0041,
+        "stat_error": 0.0004,
+        "syst_error": 0.0
+      }
     }
   }
 }

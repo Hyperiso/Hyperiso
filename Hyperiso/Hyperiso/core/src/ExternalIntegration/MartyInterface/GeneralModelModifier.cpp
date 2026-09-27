@@ -321,6 +321,43 @@ void hyperiso_marty_require_non_sm_diagram_particle(mty::FeynOptions& opts) {
         return hyperiso_marty_has_non_sm_diagram_particle(diag, sm_particle_names);
     });
 }
+
+bool hyperiso_marty_has_non_sm_vector_linker(
+    mty::FeynmanDiagram const& diag,
+    const std::unordered_set<std::string>& sm_particle_names) {
+    // C9/CP9 linker convention: before connectAmplitudes() the neutral boson
+    // joining b->s X to the lepton current is stored as External; afterwards it
+    // may be a Mediator. Restrict to spin-1 non-SM particles. This deliberately
+    // does NOT veto additional non-SM particles in the loop, so mixed W'+Z'
+    // diagrams remain in the BSM-linker sector and are not dropped.
+    auto is_bsm_vector = [&sm_particle_names](const mty::Particle& particle) {
+        return particle->getSpinDimension() == 3
+            && hyperiso_marty_is_non_sm_particle_name(
+                std::string(particle->getName()), sm_particle_names);
+    };
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::External)) {
+        if (is_bsm_vector(particle)) return true;
+    }
+    for (const auto& particle : diag.getParticles(mty::FeynmanDiagram::DiagramParticleType::Mediator)) {
+        if (is_bsm_vector(particle)) return true;
+    }
+    return false;
+}
+
+void hyperiso_marty_require_non_sm_vector_linker(mty::FeynOptions& opts) {
+    const auto sm_particle_names = hyperiso_marty_sm_particle_names();
+    opts.addFilter([sm_particle_names](mty::FeynmanDiagram const& diag) {
+        return hyperiso_marty_has_non_sm_vector_linker(diag, sm_particle_names);
+    });
+}
+
+void hyperiso_marty_require_non_sm_internal_vector_linker(mty::FeynOptions& opts) {
+    const auto sm_particle_names = hyperiso_marty_sm_particle_names();
+    opts.addFilter([sm_particle_names](mty::FeynmanDiagram const& diag) {
+        return hyperiso_marty_has_non_sm_internal_particle(diag, sm_particle_names)
+            && hyperiso_marty_has_non_sm_vector_linker(diag, sm_particle_names);
+    });
+}
 } // namespace
 )cpp";
 }
@@ -1131,7 +1168,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "// HYPERISO_MARTY_BSM_SPLIT: diagrams with at least one non-SM diagram particle in "
                            << this->model_instantiation << "\n";
             }
-            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v28\n";
+            outputFile << "// HYPERISO_MARTY_BSM_SPLIT_ABI: model-split-v34\n";
             return;
         }
 
@@ -1139,6 +1176,11 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << currentLine << "\n";
             outputFile << makeWilsonOrderHelper() << "\n";
             outputFile << makeSmFilterHelper() << "\n";
+            if (!this->full_target_generation && (this->wilson == "C9" || this->wilson == "CP9")) {
+                outputFile << "enum class HyperisoMartyBsmLoopPartition { HistoricalInternalWithLegs, InternalBsmVectorLinkerWithLegs, BsmVectorLinkerAmputated };\n";
+                outputFile << "HyperisoMartyBsmLoopPartition hyperiso_marty_bsm_loop_partition = HyperisoMartyBsmLoopPartition::HistoricalInternalWithLegs;\n";
+                outputFile << "void hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition value) { hyperiso_marty_bsm_loop_partition = value; }\n";
+            }
             return;
         }
 
@@ -1154,6 +1196,17 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             return;
         }
 
+        if (this->inside_calculate_function
+            && currentLine.find("mty::option::excludeExternalLegsCorrections") != std::string::npos
+            && !this->full_target_generation
+            && (this->wilson == "C9" || this->wilson == "CP9")) {
+            outputFile << "    mty::option::excludeExternalLegsCorrections = "
+                       << "(hyperiso_marty_order == mty::Order::OneLoop "
+                       << "&& !hyperiso_marty_sm_like_filter "
+                       << "&& hyperiso_marty_bsm_loop_partition == HyperisoMartyBsmLoopPartition::BsmVectorLinkerAmputated);\n";
+            return;
+        }
+
         if (this->inside_calculate_function && currentLine.find("FeynOptions opts;") != std::string::npos) {
             outputFile << currentLine << "\n";
             outputFile << "    if (hyperiso_marty_sm_like_filter) {\n";
@@ -1162,17 +1215,22 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "    } else {\n";
             }
             if (!this->full_target_generation) {
-                // C9/CP9 need two different BSM filters.  At TreeLevel a Z' can
-                // appear as an External linker before MARTY connects the
-                // amplitudes, so keep the broad diagram-particle filter.  At
-                // OneLoop restore the historical genuine-BSM filter and count
-                // only Loop/Mediator particles; otherwise SM penguin pieces can
-                // leak into the BSM coefficient through External linker legs.
                 if (this->wilson == "C9" || this->wilson == "CP9") {
+                    // Tree: a direct BSM linker may be stored as External before
+                    // MARTY connects amplitudes, so retain the broad diagram filter.
+                    // OneLoop: preserve the historical genuine-BSM sector
+                    // (non-SM in Loop/Mediator) and treat the non-SM vector-linker
+                    // sector separately.  The overlap is subtracted in main() so
+                    // mixed diagrams such as W' in the loop + Z' linker are kept
+                    // exactly once, with the linker sector amputated.
                     outputFile << "        if (hyperiso_marty_order == mty::Order::TreeLevel) {\n";
                     outputFile << "            hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
-                    outputFile << "        } else {\n";
+                    outputFile << "        } else if (hyperiso_marty_bsm_loop_partition == HyperisoMartyBsmLoopPartition::HistoricalInternalWithLegs) {\n";
                     outputFile << "            hyperiso_marty_require_non_sm_internal_particle(opts);\n";
+                    outputFile << "        } else if (hyperiso_marty_bsm_loop_partition == HyperisoMartyBsmLoopPartition::InternalBsmVectorLinkerWithLegs) {\n";
+                    outputFile << "            hyperiso_marty_require_non_sm_internal_vector_linker(opts);\n";
+                    outputFile << "        } else {\n";
+                    outputFile << "            hyperiso_marty_require_non_sm_vector_linker(opts);\n";
                     outputFile << "        }\n";
                 } else {
                     outputFile << "        hyperiso_marty_require_non_sm_diagram_particle(opts);\n";
@@ -1284,6 +1342,9 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    std::size_t hyperiso_marty_photon_graph_count = 0;\n";
             outputFile << "    std::size_t hyperiso_marty_scalar_graph_count = 0;\n";
             outputFile << "    std::size_t hyperiso_marty_vector_graph_count = hyperiso_marty_bsm_tree.second;\n";
+            outputFile << "    std::size_t hyperiso_marty_internal_bsm_graph_count = 0;\n";
+            outputFile << "    std::size_t hyperiso_marty_internal_linker_overlap_graph_count = 0;\n";
+            outputFile << "    std::size_t hyperiso_marty_bsm_linker_amputated_graph_count = 0;\n";
             outputFile << "    if (!hyperiso_marty_use_tree_level) {\n";
             outputFile << "        hyperiso_marty_selected_fermion_order = "
                        << "hyperiso_marty_configured_fermion_order(mty::Order::OneLoop);\n";
@@ -1295,11 +1356,47 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
                 outputFile << "        " << this->model_instantiation << " loop_model;\n";
             }
             outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::NonPhotonVector);\n";
-            outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
-                       << "(" << loop_model_name
-                       << ", gauge::Type::Feynman, mty::Order::OneLoop, false, hyperiso_marty_configured_fermion_order(mty::Order::OneLoop));\n";
-            outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
-            outputFile << "        hyperiso_marty_non_photon_graph_count = hyperiso_marty_bsm_loop.second;\n";
+            if (!this->full_target_generation && (this->wilson == "C9" || this->wilson == "CP9")) {
+                // Inclusion-exclusion at the Wilson-coefficient level:
+                //   historical-internal(with legs) - [historical-internal ∩ BSM-linker](with legs)
+                //   + BSM-linker(amputated).
+                // This restores the historically validated THDM/internal-BSM branch
+                // while retaining pure external-linker models such as aligned B-L.
+                // Mixed diagrams (e.g. W' in the loop and Z' as linker) occur in the
+                // overlap, are subtracted once with legs, then restored amputated.
+                outputFile << "        hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition::HistoricalInternalWithLegs);\n";
+                outputFile << "        auto hyperiso_marty_bsm_internal_loop = hyperiso_marty_build_" << this->wilson
+                           << "(" << loop_model_name
+                           << ", gauge::Type::Feynman, mty::Order::OneLoop, false, hyperiso_marty_configured_fermion_order(mty::Order::OneLoop));\n";
+                // Reuse the same MARTY model instance for all three projections.
+                // Constructing a second SM-derived model in the same process after
+                // undefineNumericalValues() can leave particle/group ownership from
+                // different Gauge instances mixed inside MARTY's special 4F penguin
+                // path, which triggers QuantumFieldParent::getGroupIrrep(). The build
+                // helper only changes local FeynOptions plus the scoped external-leg
+                // policy, so a fresh model is neither necessary nor desirable here.
+                outputFile << "        hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition::InternalBsmVectorLinkerWithLegs);\n";
+                outputFile << "        auto hyperiso_marty_bsm_internal_linker_overlap = hyperiso_marty_build_" << this->wilson
+                           << "(" << loop_model_name << ", gauge::Type::Feynman, mty::Order::OneLoop, false, hyperiso_marty_configured_fermion_order(mty::Order::OneLoop));\n";
+                outputFile << "        hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition::BsmVectorLinkerAmputated);\n";
+                outputFile << "        auto hyperiso_marty_bsm_linker_amputated = hyperiso_marty_build_" << this->wilson
+                           << "(" << loop_model_name << ", gauge::Type::Feynman, mty::Order::OneLoop, false, hyperiso_marty_configured_fermion_order(mty::Order::OneLoop));\n";
+                outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_internal_loop.first - hyperiso_marty_bsm_internal_linker_overlap.first + hyperiso_marty_bsm_linker_amputated.first;\n";
+                outputFile << "        hyperiso_marty_internal_bsm_graph_count = hyperiso_marty_bsm_internal_loop.second;\n";
+                outputFile << "        hyperiso_marty_internal_linker_overlap_graph_count = hyperiso_marty_bsm_internal_linker_overlap.second;\n";
+                outputFile << "        hyperiso_marty_bsm_linker_amputated_graph_count = hyperiso_marty_bsm_linker_amputated.second;\n";
+                outputFile << "        hyperiso_marty_non_photon_graph_count = hyperiso_marty_internal_bsm_graph_count + hyperiso_marty_bsm_linker_amputated_graph_count - hyperiso_marty_internal_linker_overlap_graph_count;\n";
+                outputFile << "        hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition::HistoricalInternalWithLegs);\n";
+            } else {
+                outputFile << "        auto hyperiso_marty_bsm_loop = hyperiso_marty_build_" << this->wilson
+                           << "(" << loop_model_name
+                           << ", gauge::Type::Feynman, mty::Order::OneLoop, false, hyperiso_marty_configured_fermion_order(mty::Order::OneLoop));\n";
+                outputFile << "        hyperiso_marty_bsm = hyperiso_marty_bsm_loop.first;\n";
+                outputFile << "        hyperiso_marty_non_photon_graph_count = hyperiso_marty_bsm_loop.second;\n";
+            }
+            if (!this->full_target_generation && (this->wilson == "C9" || this->wilson == "CP9")) {
+                outputFile << "        hyperiso_marty_set_bsm_loop_partition(HyperisoMartyBsmLoopPartition::HistoricalInternalWithLegs);\n";
+            }
             outputFile << "        hyperiso_marty_set_c9_linker_selection(HyperisoMartyC9LinkerSelection::PhotonOnly);\n";
             outputFile << "        auto hyperiso_marty_bsm_photon_loop = hyperiso_marty_build_" << this->wilson
                        << "(" << loop_model_name
@@ -1342,6 +1439,11 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             if (split_linker_components) {
                 outputFile << " << \", scalar=\" << hyperiso_marty_scalar_graph_count"
                            << " << \", vector=\" << hyperiso_marty_vector_graph_count";
+            }
+            if (!this->full_target_generation && (this->wilson == "C9" || this->wilson == "CP9")) {
+                outputFile << " << \", internal-bsm=\" << hyperiso_marty_internal_bsm_graph_count"
+                           << " << \", internal-linker-overlap=\" << hyperiso_marty_internal_linker_overlap_graph_count"
+                           << " << \", bsm-linker-amputated=\" << hyperiso_marty_bsm_linker_amputated_graph_count";
             }
             outputFile << " << \", fermion-order=\" << hyperiso_marty_fermion_order_label(hyperiso_marty_selected_fermion_order)"
                        << " << std::endl;\n";

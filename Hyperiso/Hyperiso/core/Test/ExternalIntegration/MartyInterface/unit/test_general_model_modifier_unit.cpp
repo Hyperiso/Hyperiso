@@ -381,6 +381,11 @@ int main() {
         assert(generated.find("hyperiso_marty_configured_fermion_order(mty::Order::TreeLevel)") != std::string::npos);
         assert(generated.find("hyperiso_marty_require_non_sm_diagram_particle(opts)") != std::string::npos);
         assert(generated.find("hyperiso_marty_require_non_sm_internal_particle(opts)") != std::string::npos);
+        assert(generated.find("hyperiso_marty_require_external_non_sm_only(opts)") != std::string::npos);
+        assert(generated.find("HyperisoMartyBsmLoopPartition::ExternalLinkerOnly") != std::string::npos);
+        assert(generated.find("excludeExternalLegsCorrections = (hyperiso_marty_order == mty::Order::OneLoop") != std::string::npos);
+        assert(generated.find("internal-bsm=") != std::string::npos);
+        assert(generated.find("external-linker=") != std::string::npos);
         assert(generated.find("if (hyperiso_marty_order == mty::Order::TreeLevel)") != std::string::npos);
         assert(generated.find("if (hyperiso_marty_order != mty::Order::TreeLevel)") == std::string::npos);
         assert(generated.find("hyperiso_marty_has_non_sm_internal_particle") != std::string::npos);

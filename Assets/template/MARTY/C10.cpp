@@ -141,11 +141,10 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
 
     undefineNumericalValues();
 
-    // Important for C10: keep MARTY's external-leg corrections in the amplitude.
-    // The earlier decomposed template used excludeExternalLegsCorrections=true
-    // and then compensated boxes by hand.  This template intentionally goes back
-    // to the full four-fermion extraction: no /3 projection factor, no
-    // C10_full - 2*C10_box sign surgery.
+    // Keep MARTY's external-leg corrections for the generic C10 one-loop
+    // four-fermion matching.  This is required by the validated SM and THDM-II
+    // matching branches; aligned external-linker matching is a C9/CP9-specific
+    // split handled by GeneralModelModifier.
     mty::option::excludeExternalLegsCorrections = false;
 
     Expr factorOperator = hyperiso_c10_operator_factor();

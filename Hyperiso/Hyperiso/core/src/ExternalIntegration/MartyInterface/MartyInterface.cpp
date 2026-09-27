@@ -1327,7 +1327,7 @@ std::string generation_mode_marker(const std::string& wilson,
          + "; tree-operator-order=" + fermion_order_marker(tree_operator_order)
          + "; one-loop-operator-order=" + fermion_order_marker(one_loop_operator_order)
          + (uses_split_regprop_policy(wilson)
-                ? "; regprop-execution=central-policy-v6; " + regprop_policy_marker()
+                ? "; regprop-execution=central-policy-v8; " + regprop_policy_marker()
                 : "")
          + (supports_tree_projection_recipe(wilson)
                 ? "; tree-projection=" + tree_projection_recipe_marker(
