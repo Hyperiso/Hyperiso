@@ -41,6 +41,10 @@ bool uses_split_regprop_policy(const std::string& wilson) {
     // and is never added to the physical Wilson coefficient.
     return wilson == "CP10";
 }
+
+bool uses_semileptonic_loop_ew_runtime_policy(const std::string& wilson) {
+    return wilson == "C9" || wilson == "C10" || wilson == "CP9" || wilson == "CP10";
+}
 }
 
 MartyFileWriter::MartyFileWriter(const std::string& wilson,
@@ -67,6 +71,34 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
     } else {
         outputFile << "\t// setMu(Q_match) intentionally skipped for " << this->wilson
                    << " because LoopTools mudim must stay at its default value.\n";
+    }
+
+    if (uses_semileptonic_loop_ew_runtime_policy(this->wilson)) {
+        outputFile << "\t// Semileptonic EW scheme: alter the numerical e_em input only when the\n";
+        outputFile << "\t// analytical generator selected OneLoop.  This changes the complete\n";
+        outputFile << "\t// generated expression (vertices + WET normalization + abbreviations),\n";
+        outputFile << "\t// reproducing the validated legacy-e diagnostic without touching tree Z'.\n";
+        outputFile << "\tauto hyperiso_ew_e_it = param.realParams.find(\"e_em\");\n";
+        outputFile << "\tauto hyperiso_ew_gf_it = param.realParams.find(\"G_F\");\n";
+        outputFile << "\tauto hyperiso_ew_mz_it = param.realParams.find(\"M_Z\");\n";
+        outputFile << "\tauto hyperiso_ew_theta_it = param.realParams.find(\"theta_W\");\n";
+        outputFile << "\tconst bool hyperiso_ew_inputs_ready =\n";
+        outputFile << "\t    hyperiso_ew_e_it != param.realParams.end() && hyperiso_ew_e_it->second != nullptr\n";
+        outputFile << "\t    && hyperiso_ew_gf_it != param.realParams.end() && hyperiso_ew_gf_it->second != nullptr\n";
+        outputFile << "\t    && hyperiso_ew_mz_it != param.realParams.end() && hyperiso_ew_mz_it->second != nullptr\n";
+        outputFile << "\t    && hyperiso_ew_theta_it != param.realParams.end() && hyperiso_ew_theta_it->second != nullptr;\n";
+        outputFile << "\tconst bool hyperiso_use_loop_ew = hyperiso_ew_inputs_ready\n";
+        outputFile << "\t    && std::abs(" << this->wilson << "_EW_LOOP(param))\n";
+        outputFile << "\t       > 1.5 * std::abs(static_cast<double>(*hyperiso_ew_gf_it->second));\n";
+        outputFile << "\tdouble hyperiso_ew_e_saved = 0.0;\n";
+        outputFile << "\tif (hyperiso_use_loop_ew) {\n";
+        outputFile << "\t\tif (!hyperiso_ew_inputs_ready) { throw std::runtime_error(\"Missing G_F/M_Z/theta_W/e_em for semileptonic OneLoop EW scheme\"); }\n";
+        outputFile << "\t\thyperiso_ew_e_saved = static_cast<double>(*hyperiso_ew_e_it->second);\n";
+        outputFile << "\t\tconst double hyperiso_ew_gf = static_cast<double>(*hyperiso_ew_gf_it->second);\n";
+        outputFile << "\t\tconst double hyperiso_ew_mz = static_cast<double>(*hyperiso_ew_mz_it->second);\n";
+        outputFile << "\t\tconst double hyperiso_ew_theta = static_cast<double>(*hyperiso_ew_theta_it->second);\n";
+        outputFile << "\t\t*hyperiso_ew_e_it->second = std::sqrt(std::sqrt(2.0) * hyperiso_ew_gf) * hyperiso_ew_mz * std::sin(2.0 * hyperiso_ew_theta);\n";
+        outputFile << "\t}\n";
     }
 
     if (bsm_split_generation && uses_photon_veto_diagnostic_policy(this->wilson)) {
@@ -119,6 +151,9 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_SCALAR\", hyperiso_zero, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_SM_COMPONENT\", hyperiso_zero, Q_match, path);\n";
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "_TOTAL_COMPONENT\", hyperiso_bsm_physical, Q_match, path);\n";
+        if (uses_semileptonic_loop_ew_runtime_policy(this->wilson)) {
+            outputFile << "\tif (hyperiso_use_loop_ew && hyperiso_ew_inputs_ready) { *hyperiso_ew_e_it->second = hyperiso_ew_e_saved; }\n";
+        }
         return;
     }
 
@@ -208,6 +243,9 @@ void MartyFileWriter::add_output_writer(std::ofstream& outputFile) {
         outputFile << "\twriteWilsonCoefficients(\"" + wilson + "\", " + wilson + "(param), Q_match, path);\n";
     }
 
+    if (uses_semileptonic_loop_ew_runtime_policy(this->wilson)) {
+        outputFile << "\tif (hyperiso_use_loop_ew && hyperiso_ew_inputs_ready) { *hyperiso_ew_e_it->second = hyperiso_ew_e_saved; }\n";
+    }
 }
 
 void MartyFileWriter::add_argpars(std::ofstream& outputFile) {

@@ -6,7 +6,12 @@ using namespace mty;
 using namespace std;
 using namespace sm_input;
 
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v14
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v16
+// HYPERISO_MARTY_TEMPLATE_ABI_LEGACY: semileptonic-c10-tree-first-full-4f-v9
+
+// HYPERISO_MARTY_SEMILEPTONIC_EW_RUNTIME_ABI: paramlist-loop-v2
+// The numerical wrapper applies the loop EW input scheme before evaluating the
+// generated library.  Do not rewrite e_em after Wilson projection here.
 
 void defineLibPath(Library &lib) {
 #ifdef MARTY_LIBRARY_PATH
@@ -204,7 +209,13 @@ int calculate_C10mu(Model &model, gauge::Type gauge) {
 
     mty::Library wilsonLib("C10_SM", "libs");
     wilsonLib.cleanExistingSources();
+    wilsonLib.addDefaultParameter("G_F", false);
+    wilsonLib.addDefaultParameter("M_Z", false);
+    wilsonLib.addDefaultParameter("theta_W", false);
+    wilsonLib.addDefaultParameter("e_em", false);
+    Expr hyperiso_marty_ew_loop_marker = (C10_tree != CSL_0) ? G_F : 2 * G_F;
     wilsonLib.addFunction("C10", C10_mu);
+    wilsonLib.addFunction("C10_EW_LOOP", hyperiso_marty_ew_loop_marker);
     wilsonLib.addFunction("C10_tree", C10_tree);
     wilsonLib.addFunction("C10_full", C10_full);
     wilsonLib.addFunction("C10_oneloop_full", C10_full);

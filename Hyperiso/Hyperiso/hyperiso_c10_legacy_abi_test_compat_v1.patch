@@ -1,0 +1,12 @@
+diff --git a/pyhyperiso/assets/template/MARTY/C10.cpp b/pyhyperiso/assets/template/MARTY/C10.cpp
+index 7ced3c7..c180b6a 100644
+--- a/pyhyperiso/assets/template/MARTY/C10.cpp
++++ b/pyhyperiso/assets/template/MARTY/C10.cpp
+@@ -20,6 +20,7 @@ Expr hyperiso_marty_apply_semileptonic_loop_ew_scheme(Expr value) {
+ }
+ 
+ // HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v15
++// HYPERISO_MARTY_TEMPLATE_ABI_LEGACY: semileptonic-c10-tree-first-full-4f-v9
+ 
+ void defineLibPath(Library &lib) {
+ #ifdef MARTY_LIBRARY_PATH

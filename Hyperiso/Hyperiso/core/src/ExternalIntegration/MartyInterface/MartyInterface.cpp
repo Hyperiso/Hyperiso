@@ -34,7 +34,7 @@ std::shared_mutex marty_artifact_mutex;
 std::mutex marty_legacy_csv_mutex;
 std::atomic<std::uint64_t> marty_run_counter {0};
 
-constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v19";
+constexpr const char* kMartyCacheAbi = "HYPERISO_MARTY_CACHE_ABI: pyhyperiso-1.0.4-v24";
 
 bool should_log_thdm_yukawa_type(int type) {
     static std::mutex mutex;

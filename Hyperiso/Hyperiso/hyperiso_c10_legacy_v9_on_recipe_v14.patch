@@ -1,0 +1,9 @@
+diff --git a/pyhyperiso/assets/template/MARTY/C10.cpp b/pyhyperiso/assets/template/MARTY/C10.cpp
+index 3a1c972..25aa48b 100644
+--- a/pyhyperiso/assets/template/MARTY/C10.cpp
++++ b/pyhyperiso/assets/template/MARTY/C10.cpp
+@@ -5,3 +5,4 @@ using namespace csl;
+ using namespace mty;
+ 
+ // HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v14
++// HYPERISO_MARTY_TEMPLATE_ABI_LEGACY: semileptonic-c10-tree-first-full-4f-v9

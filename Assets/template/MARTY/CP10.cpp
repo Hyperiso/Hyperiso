@@ -3,11 +3,15 @@
 #include <vector>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-tree-first-split-regprop-recipe-v25
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-cp10-tree-first-split-regprop-recipe-v27
 using namespace csl;
 using namespace mty;
 using namespace std;
 using namespace sm_input;
+
+// HYPERISO_MARTY_SEMILEPTONIC_EW_RUNTIME_ABI: paramlist-loop-v2
+// The numerical wrapper applies the loop EW input scheme before evaluating the
+// generated library.  Do not rewrite e_em after Wilson projection here.
 
 namespace {
 

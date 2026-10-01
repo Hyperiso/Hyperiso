@@ -31,3 +31,16 @@ def test_packaged_c10_template_is_tree_first() -> None:
     assert "if (C10_tree == CSL_0)" in source
     assert "mty::Order::TreeLevel" in source
     assert "mty::Order::OneLoop" in source
+
+def test_packaged_semileptonic_loop_templates_delegate_ew_scheme_to_numeric_wrapper() -> None:
+    for name in ("C9.cpp", "C10.cpp", "CP9.cpp", "CP10.cpp"):
+        source = _template_text(name)
+        assert "HYPERISO_MARTY_SEMILEPTONIC_EW_RUNTIME_ABI: paramlist-loop-v2" in source, name
+        assert "hyperiso_marty_apply_semileptonic_loop_ew_scheme" not in source, name
+        assert "Replace(value, e_em" not in source, name
+
+    # Direct tree-level matching must continue to use the physical e_em parameter;
+    # the loop-only override is applied later by the generated numeric wrapper.
+    c10 = _template_text("C10.cpp")
+    assert "semileptonic-c10-tree-first-full-4f-v9" in c10
+    assert "C10_tree = hyperiso_marty_apply_semileptonic_loop_ew_scheme" not in c10

@@ -3,11 +3,15 @@
 #include <vector>
 
 // HYPERISO_MARTY_OPERATOR_NORM_ABI: ew-input-normalization-v1
-// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-finite-photon-patch-recipe-v26
+// HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c9-tree-first-finite-photon-patch-recipe-v28
 using namespace csl;
 using namespace mty;
 using namespace std;
 using namespace sm_input;
+
+// HYPERISO_MARTY_SEMILEPTONIC_EW_RUNTIME_ABI: paramlist-loop-v2
+// The numerical wrapper applies the loop EW input scheme before evaluating the
+// generated library.  Do not rewrite e_em after Wilson projection here.
 
 namespace {
 
@@ -281,7 +285,7 @@ int calculate_C9mu(Model &model, gauge::Type gauge) {
             dimension6Operator(model, wil, DiracCoupling::VL, DiracCoupling::V)
         );
     }
-    
+
     [[maybe_unused]] int sysres = system("rm -rf libs/C9_SM");
     mty::Library wilsonLib("C9_SM", "libs");
     wilsonLib.cleanExistingSources();

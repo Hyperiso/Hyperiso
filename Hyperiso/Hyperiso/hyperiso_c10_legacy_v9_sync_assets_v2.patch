@@ -1,0 +1,22 @@
+diff --git a/Hyperiso/Hyperiso/pyhyperiso/assets/template/MARTY/C10.cpp b/Hyperiso/Hyperiso/pyhyperiso/assets/template/MARTY/C10.cpp
+--- a/Hyperiso/Hyperiso/pyhyperiso/assets/template/MARTY/C10.cpp
++++ b/Hyperiso/Hyperiso/pyhyperiso/assets/template/MARTY/C10.cpp
+@@ -7,6 +7,7 @@
+ using namespace sm_input;
+ 
+ // HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v14
++// HYPERISO_MARTY_TEMPLATE_ABI_LEGACY: semileptonic-c10-tree-first-full-4f-v9
+ 
+ void defineLibPath(Library &lib) {
+ #ifdef MARTY_LIBRARY_PATH
+diff --git a/Assets/template/MARTY/C10.cpp b/Assets/template/MARTY/C10.cpp
+--- a/Assets/template/MARTY/C10.cpp
++++ b/Assets/template/MARTY/C10.cpp
+@@ -7,6 +7,7 @@
+ using namespace sm_input;
+ 
+ // HYPERISO_MARTY_TEMPLATE_ABI: semileptonic-c10-tree-first-full-4f-recipe-v14
++// HYPERISO_MARTY_TEMPLATE_ABI_LEGACY: semileptonic-c10-tree-first-full-4f-v9
+ 
+ void defineLibPath(Library &lib) {
+ #ifdef MARTY_LIBRARY_PATH

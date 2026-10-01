@@ -969,6 +969,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include <utility>\n";
             outputFile << "#include <algorithm>\n";
             outputFile << "#include <sstream>\n";
+            outputFile << "#include <fstream>\n";
         outputFile << "#include <cstdlib>\n";
             if (this->disable_non_sm_particles || this->bsm_split_generation) {
                 outputFile << "#include <string>\n";
@@ -1126,6 +1127,28 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_"
                        << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
+            const bool hyperiso_semileptonic_ew_runtime =
+                this->wilson == "C9" || this->wilson == "C10"
+                || this->wilson == "CP9" || this->wilson == "CP10";
+            if (hyperiso_semileptonic_ew_runtime) {
+                // The numerical wrapper needs these inputs even if algebraic
+                // simplification removed one of them from the selected Wilson
+                // expression.  They define e_loop consistently at evaluation time.
+                outputFile << "    wilsonLib.addDefaultParameter(\"G_F\", false);\n";
+                outputFile << "    wilsonLib.addDefaultParameter(\"M_Z\", false);\n";
+                outputFile << "    wilsonLib.addDefaultParameter(\"theta_W\", false);\n";
+                outputFile << "    wilsonLib.addDefaultParameter(\"e_em\", false);\n";
+                if (this->order_policy == MartyOrderPolicy::TREE_LEVEL_ONLY) {
+                    outputFile << "    const bool hyperiso_marty_ew_loop_selected = false;\n";
+                } else if (this->order_policy == MartyOrderPolicy::ONE_LOOP_ONLY) {
+                    outputFile << "    const bool hyperiso_marty_ew_loop_selected = true;\n";
+                } else {
+                    outputFile << "    const bool hyperiso_marty_ew_loop_selected = !hyperiso_marty_use_tree;\n";
+                }
+                // Keep the marker parameter-dependent so MARTY always emits a callable
+                // function in the numerical library (strict constants may be optimized away).
+                outputFile << "    Expr hyperiso_marty_ew_loop_marker = hyperiso_marty_ew_loop_selected ? 2 * G_F : G_F;\n";
+            }
             // CSL/MARTY's generated 1->3 phase-space validator is compiled into
             // every numerical library and unconditionally accesses param_t::s_12
             // and param_t::s_13.  These invariants may be absent from the Wilson
@@ -1135,6 +1158,10 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    wilsonLib.addDefaultParameter(\"s_13\", false);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson
                        << "\", hyperiso_marty_selected);\n";
+            if (hyperiso_semileptonic_ew_runtime) {
+                outputFile << "    wilsonLib.addFunction(\"" << this->wilson
+                           << "_EW_LOOP\", hyperiso_marty_ew_loop_marker);\n";
+            }
             outputFile << "    defineLibPath(wilsonLib);\n";
             outputFile << "    wilsonLib.print();\n";
             outputFile << "    return 0;\n";
@@ -1157,6 +1184,7 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "#include <sstream>\n";
             outputFile << "#include <cstddef>\n";
             outputFile << "#include <utility>\n";
+            outputFile << "#include <fstream>\n";
             outputFile << "#include \"" + this->marty_path + "\"" << "\n";
             outputFile << "#include \"" + this->model_path + "\"" << "\n";
             outputFile << "// " << modelSignature(this->target_model, this->model_path, this->model_template_index) << "\n";
@@ -1474,11 +1502,21 @@ void GeneralModelModifier::addLine(std::ofstream& outputFile, const std::string&
             outputFile << "    [[maybe_unused]] int sysres = system(\"rm -rf libs/" << this->wilson << "_" << this->output_model << "\");\n";
             outputFile << "    mty::Library wilsonLib(\"" << this->wilson << "_" << this->output_model << "\", \"libs\");\n";
             outputFile << "    wilsonLib.cleanExistingSources();\n";
+            // C9/CP9/CP10 split libraries expose whether the physical branch
+            // selected TreeLevel or OneLoop.  The numerical wrapper uses this
+            // marker to choose physical alpha_em vs the closed loop EW scheme.
+            outputFile << "    wilsonLib.addDefaultParameter(\"G_F\", false);\n";
+            outputFile << "    wilsonLib.addDefaultParameter(\"M_Z\", false);\n";
+            outputFile << "    wilsonLib.addDefaultParameter(\"theta_W\", false);\n";
+            outputFile << "    wilsonLib.addDefaultParameter(\"e_em\", false);\n";
+            outputFile << "    const bool hyperiso_marty_ew_loop_selected = !hyperiso_marty_use_tree_level;\n";
+            outputFile << "    Expr hyperiso_marty_ew_loop_marker = hyperiso_marty_ew_loop_selected ? 2 * G_F : G_F;\n";
             // Keep the generated param_t compatible with CSL/MARTY's generic
             // 1->3 kinematics implementation (see the tree-first path above).
             outputFile << "    wilsonLib.addDefaultParameter(\"s_12\", false);\n";
             outputFile << "    wilsonLib.addDefaultParameter(\"s_13\", false);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "\", hyperiso_marty_bsm);\n";
+            outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_EW_LOOP\", hyperiso_marty_ew_loop_marker);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_A\", hyperiso_marty_bsm_photon);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_SCALAR\", hyperiso_marty_bsm_scalar);\n";
             outputFile << "    wilsonLib.addFunction(\"" << this->wilson << "_VECTOR\", hyperiso_marty_bsm_vector);\n";
